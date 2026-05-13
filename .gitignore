@@ -1,0 +1,19 @@
+# Root dependencies
+node_modules/
+
+# Admin app
+apps/admin/node_modules/
+apps/admin/dist/
+
+# API
+apps/api/node_modules/
+apps/api/.env
+apps/api/uploads/
+
+# Logs
+*.log
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
