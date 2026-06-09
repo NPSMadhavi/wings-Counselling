@@ -156,5 +156,87 @@ CREATE TABLE IF NOT EXISTS events (
   updated_at           DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- ─── Done ─────────────────────────────────────────────────────────────────────
--- All tables created. You may now follow LOCAL_SETUP.md to start the API server.
+
+CREATE TABLE appointments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    
+    nric_fin_number VARCHAR(100) NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    age INT NOT NULL,
+    
+    gender ENUM('Male', 'Female', 'Other') NOT NULL,
+    
+    nationality VARCHAR(100) NOT NULL,
+    
+    email VARCHAR(150) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    
+    counselling_type VARCHAR(150) NOT NULL,
+    sub_counselling_types TEXT,
+    
+    description TEXT,
+    
+    remarks TEXT,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+    ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE counselling_types (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  description LONGTEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE counselling_sub_types (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  counselling_type_id INT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  description LONGTEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_counselling_sub_type_parent
+    FOREIGN KEY (counselling_type_id) REFERENCES counselling_types(id)
+    ON DELETE CASCADE,
+  UNIQUE KEY uq_counselling_sub_type_name (counselling_type_id, name)
+);
+
+CREATE TABLE IF NOT EXISTS volunteer_applications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(10) NOT NULL,
+  name VARCHAR(150) NOT NULL,
+  nric_passport_last4 VARCHAR(4) NOT NULL,
+  citizenship VARCHAR(100) NOT NULL,
+  dob DATE NOT NULL,
+  age INT NOT NULL,
+  gender VARCHAR(20) NOT NULL,
+  marital_status VARCHAR(20) NOT NULL,
+  ethnicity VARCHAR(100) NULL,
+  religion VARCHAR(100) NULL,
+  occupation VARCHAR(150) NULL,
+  address TEXT NOT NULL,
+  phone_hp VARCHAR(20) NOT NULL,
+  phone_res VARCHAR(20) NULL,
+  email VARCHAR(150) NOT NULL,
+  interest_areas TEXT NULL,
+  other_contribution TEXT NULL,
+  skills_hobbies TEXT NULL,
+  preferred_days TEXT NOT NULL,
+  time_from VARCHAR(10) DEFAULT '09:00',
+  time_to VARCHAR(10) DEFAULT '17:00',
+  commitment_duration INT NOT NULL,
+  commitment_unit VARCHAR(20) NOT NULL DEFAULT 'Months',
+  signature VARCHAR(150) NOT NULL,
+  declaration_checked TINYINT(1) NOT NULL DEFAULT 1,
+  status VARCHAR(20) NOT NULL DEFAULT 'pending',
+  admin_notes TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

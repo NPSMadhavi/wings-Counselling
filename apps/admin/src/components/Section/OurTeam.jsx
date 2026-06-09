@@ -23,16 +23,31 @@ export function OurTeam() {
 
     const fetchTeam = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/api/team");
-            setTeam(response.data);
+            const response = await axios.get("/api/team");
+
+            const payload = response.data;
+
+            const members = Array.isArray(payload)
+                ? payload
+                : Array.isArray(payload?.data)
+                    ? payload.data
+                    : Array.isArray(payload?.team)
+                        ? payload.team
+                        : Array.isArray(payload?.members)
+                            ? payload.members
+                            : [];
+
+            setTeam(members);
         } catch (error) {
             console.error("Error fetching team:", error);
+            setTeam([]);
         }
     };
 
     // AUTO SCROLL
     useEffect(() => {
         const scrollContainer = scrollContainerRef.current;
+
         if (!scrollContainer) return;
 
         let animationId;
@@ -53,6 +68,7 @@ export function OurTeam() {
                 }
 
                 const delta = Math.min(100, currentTime - lastTimestamp) / 1000;
+
                 const scrollAmount = SCROLL_SPEED * delta;
 
                 const atRightEdge =
@@ -71,6 +87,7 @@ export function OurTeam() {
             }
 
             lastTimestamp = currentTime;
+
             animationId = requestAnimationFrame(autoScroll);
         };
 
@@ -86,12 +103,14 @@ export function OurTeam() {
         animationId = requestAnimationFrame(autoScroll);
 
         scrollContainer.addEventListener("mouseenter", handleMouseEnter);
+
         scrollContainer.addEventListener("mouseleave", handleMouseLeave);
 
         return () => {
             cancelAnimationFrame(animationId);
 
             scrollContainer.removeEventListener("mouseenter", handleMouseEnter);
+
             scrollContainer.removeEventListener("mouseleave", handleMouseLeave);
         };
     }, []);
@@ -104,8 +123,7 @@ export function OurTeam() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.8 }}
-            className="relative w-full flex flex-col items-center py-12 md:py-20 overflow-hidden"
-            style={{ background: "#F7F6F3" }}
+            className="relative w-full flex flex-col items-center pt-[40px] pb-[40px] overflow-hidden bg-[#F7F6F3]"
         >
             {/* Background Motion */}
             <motion.div
@@ -123,19 +141,22 @@ export function OurTeam() {
                     transition={{ duration: 0.6 }}
                     style={{
                         display: "inline-flex",
-                        padding: "6px 16px",
+                        padding: "8px 20px",
+                        alignItems: "center",
+                        justifyContent: "center",
                         borderRadius: "9999px",
-                        background: "linear-gradient(90deg, #0D4A7A 0%, #1888E0 100%)",
+                        background: "linear-gradient(90deg,#0D4A7A,#42A0BD)",
                         color: "#FFF",
                         fontFamily: "'Plus Jakarta Sans', sans-serif",
-                        fontSize: "11px",
-                        fontWeight: "700",
-                        letterSpacing: "1px",
-                        textTransform: "uppercase",
-                        marginBottom: "24px"
+                        fontSize: "20px",
+                        fontWeight: "600",
+                        letterSpacing: "1.2px",
+                        marginBottom: "24px",
+                        minWidth: "180px",
+                        height: "42px"
                     }}
                 >
-                    OUR TEAM
+                    Our team
                 </motion.div>
 
                 {/* Heading */}
@@ -144,14 +165,15 @@ export function OurTeam() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.1 }}
-                    className="text-[32px] md:text-[45px] text-center mb-6"
-                    style={{
-                        color: "#000",
-                        fontFamily: "Outfit, sans-serif",
-                        fontWeight: "600",
-                        lineHeight: "1.1",
-                        padding: "0 20px"
-                    }}
+                    className="
+                        text-[28px]
+                        md:text-[35px]
+                        text-center
+                        mb-4
+                        font-['Outfit']
+                        font-medium
+                    "
+                    style={{ color: "#0D4A7A" }}
                 >
                     Meet our counsellors
                 </motion.h2>
@@ -162,15 +184,7 @@ export function OurTeam() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.2 }}
-                    className="text-lg md:text-[20px] text-center mb-10 md:mb-[60px]"
-                    style={{
-                        color: "#000",
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontWeight: "400",
-                        lineHeight: "1.6",
-                        maxWidth: "760px",
-                        padding: "0 20px"
-                    }}
+                    className="text-lg md:text-[20px] text-center mb-10 md:mb-[60px] text-black font-['DM_Sans'] font-normal leading-[1.6] max-w-[760px] px-5"
                 >
                     Our team of accredited professionals are not just highly trained —
                     they are genuinely compassionate people who care about your wellbeing.
@@ -179,17 +193,17 @@ export function OurTeam() {
                 {/* TEAM CARDS */}
                 <div
                     ref={scrollContainerRef}
-                    className="w-full overflow-x-auto scrollbar-hide"
+                    className="w-full overflow-x-auto scrollbar-hide cursor-grab"
                     style={{
                         scrollbarWidth: "none",
                         msOverflowStyle: "none",
-                        cursor: "grab",
                         WebkitOverflowScrolling: "touch"
                     }}
                 >
                     <div className="flex gap-4 md:gap-6 w-max px-4 pt-[10px] pb-[30px]">
 
-                        {team.map((member, index) => {
+                        {(Array.isArray(team) ? team : []).map((member, index) => {
+
                             const isHovered = hoveredId === member.id;
 
                             return (
@@ -205,44 +219,34 @@ export function OurTeam() {
                                 >
                                     {/* CARD */}
                                     <div
-                                        className="relative w-full h-[320px] md:h-[420px] rounded-[10px] shadow-sm overflow-hidden"
+                                        className="relative w-full h-[320px] md:h-[420px] rounded-[10px] shadow-sm overflow-hidden bg-white bg-cover bg-center bg-no-repeat"
                                         style={{
-                                            backgroundImage: `url('${member.photoUrl}')`,
-                                            backgroundSize: "cover",
-                                            backgroundPosition: "center",
-                                            backgroundRepeat: "no-repeat",
-                                            backgroundColor: "#FFF",
+                                            backgroundImage: `url('${member.photoUrl}')`
                                         }}
                                     >
-                                        {/* FULL IMAGE OVERLAY */}
-                                        <div
-                                            className="absolute inset-0"
-                                            style={{
-                                                background:
-                                                    "linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.85) 100%)",
-                                            }}
-                                        />
+                                           {/* GRADIENT OVERLAY */}
+    <div
+        className="absolute inset-0 z-10"
+        style={{
+            background:
+                "linear-gradient(180deg, rgba(0, 0, 0, 0.00) 48.5%, rgba(0, 0, 0, 0.80) 100%)"
+        }}
+    />
 
                                         {/* DEFAULT CONTENT */}
                                         {!isHovered && (
                                             <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5 z-10">
-                                                <h3
-                                                    className="text-white text-xl md:text-[23px] font-medium mb-1"
-                                                    style={{
-                                                        fontFamily: "'DM Sans', sans-serif"
-                                                    }}
-                                                >
+
+                                                {/* NAME */}
+                                                <h3 className="text-white text-xl md:text-[23px] font-medium mb-3 font-['DM_Sans']">
                                                     {member.name}
                                                 </h3>
 
-                                                <p
-                                                    className="text-white/90 text-sm md:text-[15px]"
-                                                    style={{
-                                                        fontFamily: "'DM Sans', sans-serif"
-                                                    }}
-                                                >
-                                                    {member.credentials?.join(", ")}
+                                                {/* ROLE */}
+                                                <p className="text-white text-sm md:text-[15px] font-medium font-['DM_Sans']">
+                                                    {member.role}
                                                 </p>
+
                                             </div>
                                         )}
 
@@ -253,31 +257,41 @@ export function OurTeam() {
                                                     initial={{ opacity: 0 }}
                                                     animate={{ opacity: 1 }}
                                                     exit={{ opacity: 0 }}
-                                                    className="absolute inset-0 bg-black/80 flex flex-col justify-end p-6 md:p-8 z-20"
+                                                    className="absolute inset-0 bg-black/85 flex flex-col justify-end items-start p-6 md:p-8 z-20 text-left"
                                                 >
+                                                    {/* NAME */}
                                                     <motion.h4
                                                         initial={{ y: 20, opacity: 0 }}
                                                         animate={{ y: 0, opacity: 1 }}
-                                                        className="text-white text-xl md:text-2xl font-semibold mb-2"
-                                                        style={{
-                                                            fontFamily: "Outfit, sans-serif"
-                                                        }}
+                                                        className="text-white text-xl md:text-2xl font-semibold mb-2 font-['Outfit']"
                                                     >
                                                         {member.name}
                                                     </motion.h4>
 
+                                                    {/* TITLE */}
                                                     <motion.p
                                                         initial={{ y: 20, opacity: 0 }}
                                                         animate={{ y: 0, opacity: 1 }}
                                                         transition={{ delay: 0.1 }}
-                                                        className="text-white/80 text-sm md:text-[15px] mb-4"
-                                                        style={{
-                                                            fontFamily: "'DM Sans', sans-serif"
-                                                        }}
+                                                        className="text-white/80 text-sm md:text-[15px] mb-3 font-['DM_Sans']"
                                                     >
                                                         {member.title}
                                                     </motion.p>
 
+                                                    {/* ROLE */}
+                                                 {/* ROLE */}
+<motion.div
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ delay: 0.15 }}
+    className="mb-4 flex justify-start"
+>
+    <span className="inline-flex items-center px-0 py-1 text-white text-xs md:text-sm font-medium">
+        {member.role}
+    </span>
+</motion.div>
+
+                                                    {/* EXPERTISE */}
                                                     <motion.div
                                                         initial={{ y: 20, opacity: 0 }}
                                                         animate={{ y: 0, opacity: 1 }}
@@ -288,11 +302,12 @@ export function OurTeam() {
                                                             Expertise:
                                                         </h5>
 
-                                                        <p className="text-white/90 text-sm md:text-[15px]">
+                                                        <p className="text-white/90 text-sm md:text-[15px] leading-relaxed">
                                                             {member.specialisations?.join(", ")}
                                                         </p>
                                                     </motion.div>
 
+                                                    {/* BIO */}
                                                     <motion.p
                                                         initial={{ y: 20, opacity: 0 }}
                                                         animate={{ y: 0, opacity: 1 }}

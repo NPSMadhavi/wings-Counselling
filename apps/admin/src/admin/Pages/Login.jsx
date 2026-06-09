@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
 import { Eye, EyeOff, Lock, User } from "lucide-react";
 
 export default function Login() {
   const { login } = useAuth();
+  const [, navigate] = useLocation();
 
   const [u, setU] = useState("");
   const [p, setP] = useState("");
@@ -21,6 +23,7 @@ export default function Login() {
     try {
       const { token } = await api.login(u, p);
       login(token);
+      navigate("/admin");
     } catch (error) {
       setErr("Invalid username or password");
     } finally {
@@ -73,7 +76,7 @@ export default function Login() {
         {/* HEADER */}
         <div className="pt-8 pb-6 px-8 text-center border-b border-gray-100">
           <img
-            src="./public/assets/wingsLogo.png"
+            src="/assets/wingsLogo.png"
             alt="WINGS"
             className="h-14 mx-auto mb-4"
           />

@@ -5,24 +5,44 @@ import {
   FileText,
   Briefcase,
   Calendar,
+  HeartHandshake,
   LogOut,
   LayoutDashboard,
   Bell,
   Eye,
   ChevronRight,
+  ChevronDown,
   User,
+  Mail,
+  Menu,
+  X
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import {
+  getNotificationPermission,
+  isNotificationSupported,
+  notifyAdminEvent,
+  requestNotificationPermission,
+  buildAdminNotificationContent,
+  showBrowserNotification,
+} from "../lib/browserNotifications";
+import { toast } from "react-toastify";
 
 /* ================= TYPES ================= */
 
 type SSEEventType =
   | "new_application"
+  | "new_appointment"
+  | "new_volunteer"
   | "status_updated"
   | "interview_scheduled"
   | "interview_booked"
   | "interview_time_requested"
-  | "new_job";
+  | "new_job"
+  | "new_form_submission"
+  | "email_sent"
+  | "email_failed"
+  | "user_activity";
 
 type SSENotification = {
   type: SSEEventType;
@@ -30,67 +50,107 @@ type SSENotification = {
   timestamp: number;
 };
 
-/* ================= BEEP ================= */
-
-function playBeep() {
-  try {
-    const ctx = new (window.AudioContext ||
-      (window as any).webkitAudioContext)();
-
-    const o1 = ctx.createOscillator();
-    const o2 = ctx.createOscillator();
-    const g = ctx.createGain();
-
-    o1.connect(g);
-    o2.connect(g);
-    g.connect(ctx.destination);
-
-    o1.frequency.setValueAtTime(880, ctx.currentTime);
-    o2.frequency.setValueAtTime(1100, ctx.currentTime + 0.12);
-
-    g.gain.setValueAtTime(0.18, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
-
-    o1.start(ctx.currentTime);
-    o1.stop(ctx.currentTime + 0.18);
-
-    o2.start(ctx.currentTime + 0.12);
-    o2.stop(ctx.currentTime + 0.55);
-  } catch { }
+function getNotificationStatus(type: SSEEventType): "success" | "error" | "info" {
+  if (type === "email_sent") return "success";
+  if (type === "email_failed") return "error";
+  return "info";
 }
 
-/* ================= NOTIFICATIONS PAGE COMPONENT ================= */
-function NotificationsPage({ notifications, onClose, onMarkRead, onNavigate }) {
+/* ================= NOTIFICATIONS PAGE ================= */
+
+function NotificationsPage({
+  notifications,
+  onClose,
+  onMarkRead,
+  onNavigate
+}: any) {
+
   function ago(ts: number) {
     const s = Math.floor((Date.now() - ts) / 1000);
+
     if (s < 60) return `${s}s ago`;
     if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+
     return `${Math.floor(s / 3600)}h ago`;
   }
 
-  function notifLabel(n) {
+  function notifLabel(n: SSENotification) {
     const d = n.data;
-    if (n.type === "new_application") return `New application: ${d.candidateName} → ${d.jobTitle}`;
-    if (n.type === "status_updated") return `Status update: ${d.applicationNumber} → ${d.status}`;
-    if (n.type === "interview_scheduled") return `Interview scheduled for App #${d.applicationId}`;
-    if (n.type === "interview_booked") return `${d.candidateName} booked interview — ${d.date} ${d.timeSlot}`;
-    if (n.type === "interview_time_requested") return `Custom time request: ${d.candidateName}`;
-    if (n.type === "new_job") return `Job posted: ${d.title}`;
+
+    if (n.type === "new_application") {
+      return `New application: ${d.candidateName} → ${d.jobTitle}`;
+    }
+
+    if (n.type === "status_updated") {
+      return `Status update: ${d.applicationNumber} → ${d.status}`;
+    }
+
+    if (n.type === "interview_scheduled") {
+      return `Interview scheduled for App #${d.applicationId}`;
+    }
+
+    if (n.type === "interview_booked") {
+      return `${d.candidateName} booked interview — ${d.date} ${d.timeSlot}`;
+    }
+
+    if (n.type === "interview_time_requested") {
+      return `Custom time request: ${d.candidateName}`;
+    }
+
+    if (n.type === "new_job") {
+      return `Job posted: ${d.title}`;
+    }
+
+    if (n.type === "new_appointment") {
+      return `New appointment request: ${d.name} (${d.counsellingType})`;
+    }
+
+    if (n.type === "new_volunteer") {
+      const when = d.submittedAt
+        ? new Date(d.submittedAt).toLocaleString("en-SG")
+        : "just now";
+      return `New Volunteer Application Received: ${d.name} — ${when}`;
+    }
+
+    if (n.type === "new_form_submission") {
+      return `New form submission: ${d.formType || "Form"} by ${d.name || d.email || "Unknown"}`;
+    }
+
+    if (n.type === "email_sent") {
+      return `Email sent: ${d.subject || d.context || "Notification delivery successful"}`;
+    }
+
+    if (n.type === "email_failed") {
+      return `Email failed: ${d.reason || d.error || "Delivery failed"}`;
+    }
+
+    if (n.type === "user_activity") {
+      return `User activity: ${d.message || d.action || "Recent system activity"}`;
+    }
+
     return "Notification";
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-[90%] max-w-2xl max-h-[90vh] overflow-hidden">
+
         <div className="flex items-center justify-between p-5 border-b border-gray-200">
           <div className="flex items-center gap-2">
             <Bell size={20} style={{ color: "#004689" }} />
-            <h2 className="text-xl font-bold" style={{ color: "#004689" }}>Notifications</h2>
+            <h2
+              className="text-xl font-bold"
+              style={{ color: "#004689" }}
+            >
+              Notifications
+            </h2>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg hover:bg-gray-100"
+          >
+            ✕
           </button>
         </div>
 
@@ -98,29 +158,62 @@ function NotificationsPage({ notifications, onClose, onMarkRead, onNavigate }) {
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Bell size={48} className="text-gray-300 mb-3" />
-              <p className="text-gray-500 font-medium">No notifications yet</p>
-              <p className="text-sm text-gray-400 mt-1">New notifications will appear here</p>
+
+              <p className="text-gray-500 font-medium">
+                No notifications yet
+              </p>
+
+              <p className="text-sm text-gray-400 mt-1">
+                New notifications will appear here
+              </p>
             </div>
           ) : (
             <div className="divide-y divide-gray-100">
-              {notifications.map((n, i) => (
+              {notifications.map((n: SSENotification, i: number) => (
                 <div
                   key={i}
                   className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
                   onClick={() => {
-                    if (n.type === "new_application") onNavigate("/admin/careers?tab=applications");
-                    if (n.type === "interview_scheduled") onNavigate("/admin/careers?tab=slots");
+                    if (n.type === "new_application") {
+                      onNavigate("/admin/careers?tab=applications");
+                    }
+
+                    if (n.type === "interview_scheduled") {
+                      onNavigate("/admin/careers?tab=slots");
+                    }
+
                     onClose();
                   }}
                 >
                   <div className="flex items-start gap-3">
+
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
                       <Bell size={14} style={{ color: "#004689" }} />
                     </div>
+
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800">{notifLabel(n)}</p>
-                      <p className="text-xs text-gray-400 mt-1">{ago(n.timestamp)}</p>
+                      <p className="text-sm font-medium text-gray-800">
+                        {notifLabel(n)}
+                      </p>
+                      <div className="mt-1 inline-flex items-center gap-2">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getNotificationStatus(n.type) === "success"
+                            ? "bg-green-100 text-green-700"
+                            : getNotificationStatus(n.type) === "error"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-blue-100 text-blue-700"
+                            }`}
+                        >
+                          {getNotificationStatus(n.type)}
+                        </span>
+                        <span className="text-[10px] text-gray-500 uppercase tracking-wide">{n.type.replace(/_/g, " ")}</span>
+                      </div>
+
+                      <p className="text-xs text-gray-400 mt-1">
+                        {ago(n.timestamp)}
+                      </p>
                     </div>
+
                   </div>
                 </div>
               ))}
@@ -133,7 +226,10 @@ function NotificationsPage({ notifications, onClose, onMarkRead, onNavigate }) {
             <button
               onClick={onMarkRead}
               className="w-full py-2 rounded-lg text-sm font-medium transition-colors"
-              style={{ background: "#004689", color: "white" }}
+              style={{
+                background: "#004689",
+                color: "white"
+              }}
             >
               Mark All as Read
             </button>
@@ -151,25 +247,119 @@ export default function AdminLayout({
 }: {
   children: ReactNode;
 }) {
+
   const [location, navigate] = useLocation();
   const { logout, token } = useAuth();
 
-  const [notifications, setNotifications] = useState<SSENotification[]>([]);
+  const [notifications, setNotifications] = useState<
+    SSENotification[]
+  >([]);
+
   const [showNotifsPage, setShowNotifsPage] = useState(false);
   const [unread, setUnread] = useState(0);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [emailsDropdownOpen, setEmailsDropdownOpen] = useState(false);
+  const [notifPermission, setNotifPermission] = useState(
+    () => getNotificationPermission()
+  );
+  const [showPermissionBanner, setShowPermissionBanner] = useState(false);
+  const emailsMenuRef = useRef<HTMLDivElement | null>(null);
 
   const _sseRef = useRef<EventSource | null>(null);
 
+  useEffect(() => {
+    if (!isNotificationSupported()) return;
+
+    const sync = () => {
+      const perm = getNotificationPermission();
+      setNotifPermission(perm);
+      // Show banner if permission hasn't been decided yet
+      setShowPermissionBanner(perm === "default");
+    };
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => document.removeEventListener("visibilitychange", sync);
+  }, []);
+
+  async function handleEnableNotifications() {
+    const result = await requestNotificationPermission();
+    setNotifPermission(result);
+    setShowPermissionBanner(false);
+
+    if (result === "granted") {
+      toast.success("Notifications enabled. System alerts are now active.");
+      // Fire a real system notification immediately so the user sees it works
+      showBrowserNotification("user_activity", {
+        message: "Desktop notifications are now enabled for WINGS Admin.",
+      });
+      setShowNotifsPage(true);
+      return;
+    }
+
+    if (result === "denied") {
+      toast.error(
+        "Notifications were blocked. Enable them in your browser site settings, then click the bell again."
+      );
+      return;
+    }
+
+    if (result === "unsupported") {
+      toast.error("This browser does not support desktop notifications.");
+    }
+  }
+
+  const isPrimaryCcMailsRoute = location.startsWith("/admin/settings/primary-cc-mails");
+  const isEmailsRoute =
+    isPrimaryCcMailsRoute || location.startsWith("/admin/settings/emails");
+
+  useEffect(() => {
+    if (isEmailsRoute) {
+      setEmailsDropdownOpen(true);
+    }
+  }, [isEmailsRoute]);
+
+  useEffect(() => {
+    if (!emailsDropdownOpen) return;
+
+    const close = (e: MouseEvent) => {
+      const el = emailsMenuRef.current;
+      if (el && !el.contains(e.target as Node)) {
+        setEmailsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [emailsDropdownOpen]);
+
   const push = useCallback(
     (type: SSEEventType, data: Record<string, any>) => {
+
       setNotifications((prev) => [
-        { type, data, timestamp: Date.now() },
+        {
+          type,
+          data,
+          timestamp: Date.now()
+        },
         ...prev
       ].slice(0, 50));
 
       setUnread((n) => n + 1);
-      playBeep();
+
+      // notifyAdminEvent plays sound + shows system notification if permission is granted
+      notifyAdminEvent(type, data);
+
+      // Also show a Toastify toast for every SSE event
+      const { title, body } = buildAdminNotificationContent(type, data);
+      const message = `${title}: ${body}`;
+      if (type === "email_failed") {
+        toast.error(message, { autoClose: 5000 });
+      } else if (type === "email_sent") {
+        toast.success(message, { autoClose: 4000 });
+      } else {
+        toast.info(message, { autoClose: 4000 });
+      }
     },
     []
   );
@@ -177,6 +367,7 @@ export default function AdminLayout({
   /* ================= SSE ================= */
 
   useEffect(() => {
+
     if (!token) return;
 
     const es = new EventSource(
@@ -186,27 +377,87 @@ export default function AdminLayout({
     _sseRef.current = es;
 
     es.addEventListener("new_application", (e) =>
-      push("new_application", JSON.parse((e as MessageEvent).data))
+      push(
+        "new_application",
+        JSON.parse((e as MessageEvent).data)
+      )
     );
 
     es.addEventListener("status_updated", (e) =>
-      push("status_updated", JSON.parse((e as MessageEvent).data))
+      push(
+        "status_updated",
+        JSON.parse((e as MessageEvent).data)
+      )
     );
 
     es.addEventListener("interview_scheduled", (e) =>
-      push("interview_scheduled", JSON.parse((e as MessageEvent).data))
+      push(
+        "interview_scheduled",
+        JSON.parse((e as MessageEvent).data)
+      )
     );
 
     es.addEventListener("interview_booked", (e) =>
-      push("interview_booked", JSON.parse((e as MessageEvent).data))
+      push(
+        "interview_booked",
+        JSON.parse((e as MessageEvent).data)
+      )
     );
 
     es.addEventListener("interview_time_requested", (e) =>
-      push("interview_time_requested", JSON.parse((e as MessageEvent).data))
+      push(
+        "interview_time_requested",
+        JSON.parse((e as MessageEvent).data)
+      )
     );
 
     es.addEventListener("new_job", (e) =>
-      push("new_job", JSON.parse((e as MessageEvent).data))
+      push(
+        "new_job",
+        JSON.parse((e as MessageEvent).data)
+      )
+    );
+
+    es.addEventListener("new_appointment", (e) =>
+      push(
+        "new_appointment",
+        JSON.parse((e as MessageEvent).data)
+      )
+    );
+
+    es.addEventListener("new_volunteer", (e) =>
+      push(
+        "new_volunteer",
+        JSON.parse((e as MessageEvent).data)
+      )
+    );
+
+    es.addEventListener("new_form_submission", (e) =>
+      push(
+        "new_form_submission",
+        JSON.parse((e as MessageEvent).data)
+      )
+    );
+
+    es.addEventListener("email_sent", (e) =>
+      push(
+        "email_sent",
+        JSON.parse((e as MessageEvent).data)
+      )
+    );
+
+    es.addEventListener("email_failed", (e) =>
+      push(
+        "email_failed",
+        JSON.parse((e as MessageEvent).data)
+      )
+    );
+
+    es.addEventListener("user_activity", (e) =>
+      push(
+        "user_activity",
+        JSON.parse((e as MessageEvent).data)
+      )
     );
 
     es.onerror = () => {
@@ -214,52 +465,72 @@ export default function AdminLayout({
     };
 
     return () => es.close();
+
   }, [push, token]);
 
   /* ================= HELPERS ================= */
 
-  // Get current tab from URL
   const getCurrentTab = () => {
     const searchParams = new URLSearchParams(window.location.search);
-    return searchParams.get('tab');
+
+    return searchParams.get("tab");
   };
 
   const isActive = (href: string) => {
+
     const currentTab = getCurrentTab();
 
-    // Handle dashboard
     if (href === "/admin") {
       return location === "/admin";
     }
 
-    // Handle team
     if (href === "/admin/team") {
       return location === "/admin/team";
     }
 
-    // Handle articles
     if (href === "/admin/articles") {
       return location === "/admin/articles";
     }
 
-    // Handle events
     if (href === "/admin/events") {
       return location === "/admin/events";
     }
 
-    // Handle careers base (Jobs tab)
+    if (href === "/admin/appointments") {
+      return location === "/admin/appointments";
+    }
+
+    if (href === "/admin/volunteers") {
+      return location === "/admin/volunteers";
+    }
+
+    if (href === "/admin/settings/primary-cc-mails") {
+      return isPrimaryCcMailsRoute;
+    }
+
+    if (href === "__emails_section__") {
+      return isEmailsRoute;
+    }
+
     if (href === "/admin/careers") {
-      return location === "/admin/careers" && (!currentTab || currentTab === "jobs");
+      return (
+        location === "/admin/careers" &&
+        (!currentTab || currentTab === "jobs")
+      );
     }
 
-    // Handle careers with applications tab
     if (href === "/admin/careers?tab=applications") {
-      return location === "/admin/careers" && currentTab === "applications";
+      return (
+        location === "/admin/careers" &&
+        currentTab === "applications"
+      );
     }
 
-    // Handle careers with slots tab
     if (href === "/admin/careers?tab=slots") {
-      return location === "/admin/careers" && currentTab === "slots";
+      return (
+        location === "/admin/careers" &&
+        currentTab === "slots"
+      );
     }
 
     return false;
@@ -269,213 +540,407 @@ export default function AdminLayout({
     setUnread(0);
   };
 
-  // Function to navigate with tab parameter
   const handleNavigate = (href: string) => {
-    console.log("Navigating to:", href);
+    setMobileSidebarOpen(false);
 
     if (href === "/admin/careers?tab=applications") {
       navigate("/admin/careers?tab=applications");
-    } else if (href === "/admin/careers?tab=slots") {
+    }
+
+    else if (href === "/admin/careers?tab=slots") {
       navigate("/admin/careers?tab=slots");
-    } else if (href === "/admin/careers") {
-      navigate("/admin/careers");
-    } else {
+    }
+
+    else {
       navigate(href);
     }
   };
 
   return (
-    <div className="h-screen flex bg-[#f8fafc] overflow-hidden font-sans">
-      {/* ================= SIDEBAR ================= */}
-      <aside className={`${sidebarCollapsed ? 'w-20' : 'w-[280px]'} bg-white border-r border-gray-100 flex flex-col transition-all duration-300 relative z-20 h-full flex-shrink-0 shadow-sm`}>
+    <div className="h-screen flex flex-col bg-[#f8fafc] overflow-hidden font-sans">
 
-        {/* Logo Section */}
-        <div className={`p-6 mb-2 ${sidebarCollapsed ? 'flex justify-center' : ''}`}>
+      {/* ================= NOTIFICATION PERMISSION BANNER ================= */}
+      {showPermissionBanner && (
+        <div className="flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-5 py-2.5 bg-[#004689] text-white text-sm z-50">
+          <span className="font-medium">
+            🔔 Enable browser notifications to receive real-time alerts for new appointments and events.
+          </span>
+          <div className="flex items-center gap-3 sm:ml-4 flex-shrink-0">
+            <button
+              type="button"
+              onClick={handleEnableNotifications}
+              className="px-4 py-1.5 rounded-lg bg-white text-[#004689] text-xs font-bold hover:bg-blue-50 transition-colors"
+            >
+              Enable Notifications
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowPermissionBanner(false)}
+              className="text-white/70 hover:text-white text-lg leading-none"
+              aria-label="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile header */}
+      <div className="lg:hidden flex-shrink-0 flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 z-30">
+        <button
+          type="button"
+          onClick={() => setMobileSidebarOpen(true)}
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          aria-label="Open menu"
+        >
+          <Menu size={22} className="text-[#004689]" />
+        </button>
+        <img
+          src="/assets/wingsLogo.png"
+          alt="WINGS"
+          className="h-8 w-auto object-contain"
+        />
+        <button
+          type="button"
+          onClick={() => setShowNotifsPage(true)}
+          className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          aria-label="Notifications"
+        >
+          <Bell size={20} className="text-[#004689]" />
+          {unread > 0 && (
+            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
+              {unread > 9 ? "9+" : unread}
+            </span>
+          )}
+        </button>
+      </div>
+
+      <div className="flex flex-1 min-h-0 overflow-hidden relative">
+
+      {/* Mobile sidebar overlay */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* ================= SIDEBAR ================= */}
+
+      <aside
+        className={`
+          fixed lg:static inset-y-0 left-0 z-50 lg:z-20
+          ${sidebarCollapsed ? "w-20" : "w-[280px]"}
+          max-w-[85vw] lg:max-w-none
+          bg-white border-r border-gray-100 flex flex-col
+          transition-all duration-300 h-full
+          flex-shrink-0 shadow-sm
+          ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        `}
+      >
+
+        {/* Logo */}
+
+        <div
+          className={`p-6 mb-2 flex items-center justify-between ${sidebarCollapsed ? "lg:justify-center" : ""
+            }`}
+        >
           <div className="flex items-center justify-start">
             <img
               src="/assets/wingsLogo.png"
               alt="Logo"
-              className={`${sidebarCollapsed ? 'h-8' : 'h-14'} w-auto object-contain`}
+              className={`${sidebarCollapsed ? "h-8" : "h-14"
+                } w-auto object-contain`}
             />
           </div>
+          <button
+            type="button"
+            onClick={() => setMobileSidebarOpen(false)}
+            className="lg:hidden p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            aria-label="Close menu"
+          >
+            <X size={20} className="text-gray-500" />
+          </button>
         </div>
 
-        {/* Scrollable Menu Area */}
-        <div className="flex-1 overflow-y-auto px-4 space-y-7" style={{ scrollbarWidth: 'none' }}>
-          {/* Dashboard Link */}
-          <div className="pt-2">
-            <button
-              onClick={() => navigate("/admin")}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all relative ${isActive("/admin")
-                ? "bg-blue-50 text-[#004689]"
-                : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                }`}
-            >
-              {isActive("/admin") && <div className="absolute left-0 top-2 bottom-2 w-1.5 bg-[#004689] rounded-r-full" />}
-              <LayoutDashboard size={18} className={isActive("/admin") ? "text-[#004689]" : "text-gray-400"} />
-              {!sidebarCollapsed && <span>Dashboard</span>}
-            </button>
-          </div>
+        {/* MENU */}
 
-          {/* MANAGE Section */}
-          <div className="space-y-1">
-            {!sidebarCollapsed && (
-              <h3 className="text-[11px] font-black text-gray-300 uppercase tracking-[0.15em] px-4 mb-3">MANAGE</h3>
-            )}
-            <button
-              onClick={() => handleNavigate("/admin/team")}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all relative ${isActive("/admin/team")
-                ? "bg-blue-50 text-[#004689]"
-                : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                }`}
-            >
-              {isActive("/admin/team") && <div className="absolute left-0 top-2 bottom-2 w-1.5 bg-[#004689] rounded-r-full" />}
-              <Users size={18} className={isActive("/admin/team") ? "text-[#004689]" : "text-gray-400"} />
-              {!sidebarCollapsed && <span>Team Members</span>}
-            </button>
-            <button
-              onClick={() => handleNavigate("/admin/articles")}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all relative ${isActive("/admin/articles")
-                ? "bg-blue-50 text-[#004689]"
-                : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                }`}
-            >
-              {isActive("/admin/articles") && <div className="absolute left-0 top-2 bottom-2 w-1.5 bg-[#004689] rounded-r-full" />}
-              <FileText size={18} className={isActive("/admin/articles") ? "text-[#004689]" : "text-gray-400"} />
-              {!sidebarCollapsed && <span>Articles</span>}
-            </button>
-            <button
-              onClick={() => handleNavigate("/admin/careers")}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all relative ${isActive("/admin/careers")
-                ? "bg-blue-50 text-[#004689]"
-                : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                }`}
-            >
-              {isActive("/admin/careers") && <div className="absolute left-0 top-2 bottom-2 w-1.5 bg-[#004689] rounded-r-full" />}
-              <Briefcase size={18} className={isActive("/admin/careers") ? "text-[#004689]" : "text-gray-400"} />
-              {!sidebarCollapsed && <span>Careers / Jobs</span>}
-            </button>
-            <button
-              onClick={() => handleNavigate("/admin/events")}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all relative ${isActive("/admin/events")
-                ? "bg-blue-50 text-[#004689]"
-                : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                }`}
-            >
-              {isActive("/admin/events") && <div className="absolute left-0 top-2 bottom-2 w-1.5 bg-[#004689] rounded-r-full" />}
-              <Calendar size={18} className={isActive("/admin/events") ? "text-[#004689]" : "text-gray-400"} />
-              {!sidebarCollapsed && <span>Events</span>}
-            </button>
-          </div>
+        <div
+          className="flex-1 overflow-y-auto px-4 space-y-7"
+          style={{ scrollbarWidth: "none" }}
+        >
 
-          {/* APPLICATIONS Section */}
-          <div className="space-y-1">
-            {!sidebarCollapsed && (
-              <h3 className="text-[11px] font-black text-gray-300 uppercase tracking-[0.15em] px-4 mb-3">APPLICATIONS</h3>
-            )}
-            <button
-              onClick={() => handleNavigate("/admin/careers?tab=applications")}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all relative ${isActive("/admin/careers?tab=applications")
-                ? "bg-blue-50 text-[#004689]"
-                : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                }`}
-            >
-              {isActive("/admin/careers?tab=applications") && <div className="absolute left-0 top-2 bottom-2 w-1.5 bg-[#004689] rounded-r-full" />}
-              <FileText size={18} className={isActive("/admin/careers?tab=applications") ? "text-[#004689]" : "text-gray-400"} />
-              {!sidebarCollapsed && <span>Applications</span>}
-            </button>
-            <button
-              onClick={() => handleNavigate("/admin/careers?tab=slots")}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all relative ${isActive("/admin/careers?tab=slots")
-                ? "bg-blue-50 text-[#004689]"
-                : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                }`}
-            >
-              {isActive("/admin/careers?tab=slots") && <div className="absolute left-0 top-2 bottom-2 w-1.5 bg-[#004689] rounded-r-full" />}
-              <Calendar size={18} className={isActive("/admin/careers?tab=slots") ? "text-[#004689]" : "text-gray-400"} />
-              {!sidebarCollapsed && <span>Interview Slots</span>}
-            </button>
-          </div>
+          {/* Dashboard */}
 
-          {/* SETTINGS Section */}
-          <div className="space-y-1">
-            {!sidebarCollapsed && (
-              <h3 className="text-[11px] font-black text-gray-300 uppercase tracking-[0.15em] px-4 mb-3">SETTINGS</h3>
-            )}
-            <button
-              onClick={() => setShowNotifsPage(true)}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all relative ${showNotifsPage
-                ? "bg-blue-50 text-[#004689]"
-                : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                }`}
-            >
-              {showNotifsPage && <div className="absolute left-0 top-2 bottom-2 w-1.5 bg-[#004689] rounded-r-full" />}
-              <Bell size={18} className={showNotifsPage ? "text-[#004689]" : "text-gray-400"} />
-              {!sidebarCollapsed && <span>Notifications</span>}
-              {unread > 0 && (
-                <span className={`${sidebarCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'} w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold`}>
-                  {unread > 9 ? "9+" : unread}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={logout}
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all"
-            >
-              <LogOut size={18} className="text-gray-400" />
-              {!sidebarCollapsed && <span>Sign Out</span>}
-            </button>
-          </div>
+        <div className="pt-2">
+  <button
+    onClick={() => navigate("/admin")}
+    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all relative ${
+      isActive("/admin")
+        ? "bg-blue-50 text-gray-900"  // Changed from font-[DM sans] to text-gray-900
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"  // Changed from text-gray-400 to text-gray-700
+    }`}
+  >
+    {isActive("/admin") && (
+      <div className="absolute left-0 top-2 bottom-2 w-1.5 bg-[#004689] rounded-r-full" />
+    )}
+
+    <LayoutDashboard size={18} />
+
+    {!sidebarCollapsed && <span>Dashboard</span>}
+  </button>
+</div>
+
+          {/* MANAGE */}
+<div className="space-y-1">
+
+  {!sidebarCollapsed && (
+    <h3 className="text-[20px] font-[DM Sans, sans-serif] text-blue-400 px-2 mb-3">
+      Manage
+    </h3>
+  )}
+
+  <button
+    onClick={() => handleNavigate("/admin/team")}
+    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
+      isActive("/admin/team")
+        ? "bg-blue-50 text-gray-900"
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    }`}
+  >
+    <Users size={18} />
+
+    {!sidebarCollapsed && <span>Team Members</span>}
+  </button>
+
+  <button
+    onClick={() => handleNavigate("/admin/articles")}
+    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
+      isActive("/admin/articles")
+        ? "bg-blue-50 text-gray-900"
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    }`}
+  >
+    <FileText size={18} />
+
+    {!sidebarCollapsed && <span>Articles</span>}
+  </button>
+
+  <button
+    onClick={() => handleNavigate("/admin/careers")}
+    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
+      isActive("/admin/careers")
+        ? "bg-blue-50 text-gray-900"
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    }`}
+  >
+    <Briefcase size={18} />
+
+    {!sidebarCollapsed && <span>Careers / Jobs</span>}
+  </button>
+
+  <button
+    onClick={() => handleNavigate("/admin/events")}
+    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
+      isActive("/admin/events")
+        ? "bg-blue-50 text-gray-900"
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    }`}
+  >
+    <Calendar size={18} />
+
+    {!sidebarCollapsed && <span>Events</span>}
+  </button>
+
+  <button
+    onClick={() => handleNavigate("/admin/counselling-types")}
+    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
+      isActive("/admin/counselling-types")
+        ? "bg-blue-50 text-gray-900"
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    }`}
+  >
+    <Briefcase size={18} />
+
+    {!sidebarCollapsed && <span>Services</span>}
+  </button>
+
+  {/* APPOINTMENTS */}
+
+  <button
+    onClick={() => handleNavigate("/admin/appointments")}
+    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
+      isActive("/admin/appointments")
+        ? "bg-blue-50 text-gray-900"
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    }`}
+  >
+    <Calendar size={18} />
+
+    {!sidebarCollapsed && <span>Appointments</span>}
+  </button>
+
+  <button
+    onClick={() => handleNavigate("/admin/volunteers")}
+    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
+      isActive("/admin/volunteers")
+        ? "bg-blue-50 text-gray-900"
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    }`}
+  >
+    <HeartHandshake size={18} />
+
+    {!sidebarCollapsed && <span>Volunteers</span>}
+  </button>
+</div>
+
+          {/* SETTINGS */}
+<div className="space-y-1">
+
+  {!sidebarCollapsed && (
+    <h3 className="text-[20px] font-[DM Sans, sans-serif] text-blue-400 px-2 mb-3">
+      Settings
+    </h3>
+  )}
+
+  {/* <button
+    type="button"
+    onClick={async () => {
+      if (notifPermission !== "granted") {
+        await handleEnableNotifications();
+      } else {
+        setShowNotifsPage(true);
+      }
+    }}
+    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
+      showNotifsPage
+        ? "bg-blue-50 text-gray-900"
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    }`}
+    title={
+      notifPermission === "granted"
+        ? "View notifications"
+        : "Enable desktop notifications"
+    }
+  >
+    <Bell size={18} />
+
+    {!sidebarCollapsed && (
+      <span className="flex-1 text-left">
+        {notifPermission === "granted" ? "Notifications" : "Enable Notifications"}
+      </span>
+    )}
+
+    {unread > 0 && (
+      <span className="ml-auto w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+        {unread > 9 ? "9+" : unread}
+      </span>
+    )}
+  </button> */}
+
+  {/* Emails  */}
+
+ <div className="relative w-full">
+  <button
+    type="button"
+    onClick={() => handleNavigate("/admin/settings/primary-cc-mails")}
+    className={`relative w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
+      isActive("/admin/settings/primary-cc-mails")
+        ? "bg-blue-50 text-gray-900"
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    }`}
+  >
+    {isActive("/admin/settings/primary-cc-mails") && (
+      <div className="absolute left-0 top-2 bottom-2 w-1.5 bg-[#004689] rounded-r-full" />
+    )}
+
+    <Mail size={18} />
+
+    {!sidebarCollapsed && <span>Mails</span>}
+  </button>
+</div>
+  {/* Logout */}
+
+  <button
+    onClick={logout}
+    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all"
+  >
+    <LogOut size={18} />
+
+    {!sidebarCollapsed && <span>Logout</span>}
+  </button>
+
+</div>
         </div>
 
-        {/* Bottom Fixed Section */}
+        {/* Bottom */}
+
         <div className="flex-shrink-0 border-t border-gray-100 p-6 pt-4 space-y-4">
+
           <button
             onClick={() => window.open("/", "_blank")}
             className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-bold text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-all"
           >
-            <Eye size={18} className="text-gray-400" />
+            <Eye size={18} />
+
             {!sidebarCollapsed && <span>View Website</span>}
           </button>
 
-          <div className="pt-0">
-            {!sidebarCollapsed ? (
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50/50 border border-gray-50">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-[#004689] font-bold shadow-sm">
-                  <User size={18} />
+          {!sidebarCollapsed ? (
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50/50 border border-gray-50">
+
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-[#004689] font-bold shadow-sm">
+                <User size={18} />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-bold text-gray-800 truncate">
+                  Administrator
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold text-gray-800 truncate">Administrator</div>
-                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Admin</div>
+
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+                  Admin
                 </div>
               </div>
-            ) : (
-              <div className="flex justify-center p-2">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-[#004689] font-bold shadow-sm">
-                  <User size={18} />
-                </div>
+
+            </div>
+          ) : (
+            <div className="flex justify-center p-2">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-[#004689] font-bold shadow-sm">
+                <User size={18} />
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
-        {/* Collapse Toggle */}
+        {/* Collapse Button */}
+
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="absolute -right-3 top-[80px] w-6 h-6 bg-white border border-gray-100 rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 transition-all z-30"
+          className="hidden lg:flex absolute -right-3 top-[80px] w-6 h-6 bg-white border border-gray-100 rounded-full items-center justify-center shadow-md hover:bg-gray-50 transition-all z-30"
         >
-          <ChevronRight size={12} className={`text-gray-400 transform transition-transform ${sidebarCollapsed ? 'rotate-180' : ''}`} />
+          <ChevronRight
+            size={12}
+            className={`text-gray-400 transform transition-transform ${sidebarCollapsed ? "rotate-180" : ""
+              }`}
+          />
         </button>
+
       </aside>
 
-      {/* ================= MAIN CONTENT ================= */}
-      <div className="flex-1 h-full overflow-hidden">
-        <main className="h-full overflow-y-auto">
+      {/* MAIN */}
+
+      <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+        <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
           {children}
         </main>
       </div>
 
+      </div>{/* end flex row */}
+
       {/* Notifications Modal */}
+
       {showNotifsPage && (
         <NotificationsPage
           notifications={notifications}

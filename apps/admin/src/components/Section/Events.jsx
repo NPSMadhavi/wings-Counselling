@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Calendar, Clock, MapPin, ArrowRight, ChevronDown } from "lucide-react";
 
 const eventData = [
@@ -75,36 +75,18 @@ export function Events() {
     const [hoveredButton, setHoveredButton] = useState(null);
 
     return (
-        <section className="w-full flex flex-col items-center py-[70px] bg-[#FAFAF5]">
-            <div className="w-full max-w-[1240px] flex flex-col">
+        <section className="w-full flex flex-col items-center py-10 sm:py-[70px] bg-[#FAFAF5] overflow-x-hidden">
+            <div className="w-full max-w-[1240px] px-4 sm:px-6 md:px-8 flex flex-col">
                 {/* Header Area */}
-                <div className="w-full flex justify-between items-center mb-10">
+                <div className="w-full flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 sm:mb-10">
                     <h2
-                        style={{
-                            fontFamily: "'Outfit', sans-serif",
-                            fontWeight: 500,
-                            fontSize: "35px",
-                            color: "#000000",
-                            lineHeight: "100%",
-                        }}
+                        className="font-['Outfit'] font-medium text-[28px] sm:text-[35px] text-black leading-tight"
                     >
                         All Events
                     </h2>
-                    
+
                     <button
-                        className="flex items-center justify-between bg-white"
-                        style={{
-                            width: "140px",
-                            height: "44px",
-                            padding: "0 16px",
-                            borderRadius: "8px",
-                            border: "1px solid #E5E7EB",
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontWeight: 500,
-                            fontSize: "16px",
-                            color: "#000000",
-                            boxShadow: "0 2px 4px rgba(0,0,0,0.02)"
-                        }}
+                        className="flex items-center justify-between bg-white w-full sm:w-[140px] h-[44px] px-4 rounded-lg border border-[#E5E7EB] font-['DM_Sans'] font-medium text-base text-black shadow-sm"
                     >
                         All events
                         <ChevronDown size={20} color="#6B7280" />
@@ -112,13 +94,7 @@ export function Events() {
                 </div>
 
                 {/* Cards Grid */}
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(3, 400px)",
-                        gap: "20px",
-                    }}
-                >
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
                     {eventData.map((event, index) => (
                         <motion.div
                             key={event.id}
@@ -127,237 +103,80 @@ export function Events() {
                             viewport={{ once: true, margin: "-50px" }}
                             transition={{ delay: index * 0.1, duration: 0.5 }}
                             whileHover={{ y: -5, transition: { duration: 0.3 } }}
-                            style={{
-                                width: "400px",
-                                height: "580px",
-                                borderRadius: "10px",
-                                backgroundColor: "#FFFFFF",
-                                boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.05)",
-                                position: "relative",
-                                display: "flex",
-                                flexDirection: "column",
-                            }}
+                            className="w-full min-h-[520px] sm:min-h-[580px] rounded-[10px] bg-white shadow-[0px_10px_30px_rgba(0,0,0,0.05)] relative flex flex-col overflow-hidden"
                         >
                             {/* Image Section */}
                             <div
+                                className="w-full h-[200px] sm:h-[246px] rounded-t-[10px] bg-cover bg-center relative shrink-0"
                                 style={{
-                                    width: "400px",
-                                    height: "246px",
-                                    borderTopLeftRadius: "10px",
-                                    borderTopRightRadius: "10px",
                                     backgroundImage: `url('${event.image}')`,
-                                    backgroundSize: "cover",
-                                    backgroundPosition: "center",
-                                    position: "relative",
                                 }}
                             >
-                                {/* Badge */}
-                                <div
-                                    style={{
-                                        position: "absolute",
-                                        top: "20px",
-                                        right: "20px",
-                                        height: "35px",
-                                        backgroundColor: "#0D4A7A",
-                                        borderRadius: "8px",
-                                        padding: "0 16px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                    }}
-                                >
-                                    <span
-                                        style={{
-                                            fontFamily: "'DM Sans', sans-serif",
-                                            fontWeight: 500,
-                                            fontSize: "14px",
-                                            color: "#FFFFFF",
-                                        }}
-                                    >
+                                <div className="absolute top-5 right-5 h-[35px] bg-[#0D4A7A] rounded-lg px-4 flex items-center justify-center">
+                                    <span className="font-['DM_Sans'] font-medium text-sm text-white">
                                         {event.badge}
                                     </span>
                                 </div>
                             </div>
 
                             {/* Content Section */}
-                            <div className="flex flex-col flex-1 relative">
-                                {/* Title */}
-                                <h3
-                                    style={{
-                                        position: "absolute",
-                                        top: "20px",
-                                        left: "20px",
-                                        width: "326px",
-                                        height: "auto",
-                                        fontFamily: "'Outfit', sans-serif",
-                                        fontWeight: 500,
-                                        fontSize: "20px",
-                                        lineHeight: "1.2",
-                                        color: "#000000",
-                                        margin: 0,
-                                    }}
-                                >
+                            <div className="flex flex-col flex-1 p-5 gap-4">
+                                <h3 className="font-['Outfit'] font-medium text-lg sm:text-xl leading-snug text-black">
                                     {event.title}
                                 </h3>
 
-                                {/* Description */}
-                                <p
-                                    style={{
-                                        position: "absolute",
-                                        top: "60px",
-                                        left: "20px",
-                                        width: "357px",
-                                        height: "50px",
-                                        fontFamily: "'DM Sans', sans-serif",
-                                        fontWeight: 400,
-                                        fontSize: "16px",
-                                        lineHeight: "25px",
-                                        color: "#333333",
-                                        margin: 0,
-                                        overflow: "hidden",
-                                        display: "-webkit-box",
-                                        WebkitLineClamp: 2,
-                                        WebkitBoxOrient: "vertical",
-                                    }}
-                                >
+                                <p className="font-['DM_Sans'] text-base leading-relaxed text-[#333333] line-clamp-2">
                                     {event.description}
                                 </p>
 
-                                {/* Date */}
-                                <div
-                                    style={{
-                                        position: "absolute",
-                                        top: "130px",
-                                        left: "20px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "15px",
-                                    }}
-                                >
-                                    <Calendar size={20} color="#1E3A8A" />
-                                    <span
-                                        style={{
-                                            fontFamily: "'DM Sans', sans-serif",
-                                            fontWeight: 500,
-                                            fontSize: "16px",
-                                            lineHeight: "25px",
-                                            color: "#333333",
-                                        }}
-                                    >
-                                        {event.date}
-                                    </span>
-                                </div>
-
-                                {/* Time */}
-                                <div
-                                    style={{
-                                        position: "absolute",
-                                        top: "165px",
-                                        left: "20px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "15px",
-                                    }}
-                                >
-                                    <Clock size={20} color="#1E3A8A" />
-                                    <span
-                                        style={{
-                                            fontFamily: "'DM Sans', sans-serif",
-                                            fontWeight: 500,
-                                            fontSize: "16px",
-                                            lineHeight: "25px",
-                                            color: "#333333",
-                                        }}
-                                    >
-                                        {event.time}
-                                    </span>
-                                </div>
-
-                                {/* Location */}
-                                <div
-                                    style={{
-                                        position: "absolute",
-                                        top: "200px",
-                                        left: "20px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "15px",
-                                    }}
-                                >
-                                    <MapPin size={20} color="#1E3A8A" />
-                                    <span
-                                        style={{
-                                            fontFamily: "'DM Sans', sans-serif",
-                                            fontWeight: 500,
-                                            fontSize: "16px",
-                                            lineHeight: "25px",
-                                            color: "#333333",
-                                        }}
-                                    >
-                                        {event.location}
-                                    </span>
-                                </div>
-
-                                {/* Bottom Row: Price & Button */}
-                                <div
-                                    style={{
-                                        position: "absolute",
-                                        top: "270px",
-                                        left: "25px",
-                                        right: "20px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            fontFamily: "'DM Sans', sans-serif",
-                                            fontWeight: 600,
-                                            fontSize: "30px",
-                                            lineHeight: "100%",
-                                            color: "#000000",
-                                        }}
-                                    >
-                                        {event.price}
+                                <div className="flex flex-col gap-3 mt-auto">
+                                    <div className="flex items-center gap-3">
+                                        <Calendar size={20} color="#1E3A8A" className="shrink-0" />
+                                        <span className="font-['DM_Sans'] font-medium text-base text-[#333333]">
+                                            {event.date}
+                                        </span>
                                     </div>
 
-                                    <motion.button
-                                        onMouseEnter={() => setHoveredButton(index)}
-                                        onMouseLeave={() => setHoveredButton(null)}
-                                        whileTap={{ scale: 0.95 }}
-                                        style={{
-                                            width: "165px",
-                                            height: "40px",
-                                            borderRadius: "9999px",
-                                            border: "1px solid #1E3A8A",
-                                            backgroundColor: hoveredButton === index ? "#1E3A8A" : "transparent",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            gap: "10px",
-                                            cursor: "pointer",
-                                            transition: "background-color 0.3s ease",
-                                        }}
-                                    >
-                                        <span
-                                            style={{
-                                                fontFamily: "'DM Sans', sans-serif",
-                                                fontWeight: 500,
-                                                fontSize: "15px",
-                                                lineHeight: "28px",
-                                                color: hoveredButton === index ? "#FFFFFF" : "#1E3A8A",
-                                                transition: "color 0.3s ease",
-                                            }}
-                                        >
-                                            Register Now
+                                    <div className="flex items-center gap-3">
+                                        <Clock size={20} color="#1E3A8A" className="shrink-0" />
+                                        <span className="font-['DM_Sans'] font-medium text-base text-[#333333]">
+                                            {event.time}
                                         </span>
-                                        <ArrowRight
-                                            size={16}
-                                            color={hoveredButton === index ? "#FFFFFF" : "#1E3A8A"}
-                                            style={{ transition: "color 0.3s ease" }}
-                                        />
-                                    </motion.button>
+                                    </div>
+
+                                    <div className="flex items-start gap-3">
+                                        <MapPin size={20} color="#1E3A8A" className="shrink-0 mt-0.5" />
+                                        <span className="font-['DM_Sans'] font-medium text-base text-[#333333] break-words">
+                                            {event.location}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
+                                        <div className="font-['DM_Sans'] font-semibold text-2xl sm:text-[30px] text-black">
+                                            {event.price}
+                                        </div>
+
+                                        <motion.button
+                                            onMouseEnter={() => setHoveredButton(index)}
+                                            onMouseLeave={() => setHoveredButton(null)}
+                                            whileTap={{ scale: 0.95 }}
+                                            className={`w-full sm:w-auto min-w-[140px] sm:min-w-[165px] h-10 rounded-full border border-[#1E3A8A] flex items-center justify-center gap-2 cursor-pointer transition-colors duration-300 ${
+                                                hoveredButton === index ? "bg-[#1E3A8A]" : "bg-transparent"
+                                            }`}
+                                        >
+                                            <span
+                                                className={`font-['DM_Sans'] font-medium text-[15px] transition-colors duration-300 ${
+                                                    hoveredButton === index ? "text-white" : "text-[#1E3A8A]"
+                                                }`}
+                                            >
+                                                Register Now
+                                            </span>
+                                            <ArrowRight
+                                                size={16}
+                                                color={hoveredButton === index ? "#FFFFFF" : "#1E3A8A"}
+                                            />
+                                        </motion.button>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>

@@ -11,8 +11,16 @@ export function resolveAssetUrl(url) {
   return API_ROOT ? `${API_ROOT}${url}` : url;
 }
 
+export function toStorageUrl(url) {
+  if (!url) return "";
+  if (API_ROOT && url.startsWith(API_ROOT)) {
+    return url.slice(API_ROOT.length);
+  }
+  return url;
+}
+
 function getToken() {
-  return localStorage.getItem("wings_admin_token") || "";
+  return sessionStorage.getItem("wings_admin_token") || "";
 }
 
 function authHeaders(json = true) {
@@ -42,11 +50,11 @@ async function apiFetch(path, init = {}) {
   const data = await res.json().catch(() => null);
 
   if (!res.ok) {
-    if (res.status === 401) {
+    if (res.status === 401 && getToken()) {
       const message = data?.error || "Unauthorised";
 
-      if (/invalid token|unauthorised/i.test(message)) {
-        localStorage.removeItem("wings_admin_token");
+      if (/invalid token|unauthorised|expired/i.test(message)) {
+        sessionStorage.removeItem("wings_admin_token");
         window.dispatchEvent(new CustomEvent("wings-admin-session-expired"));
       }
     }
@@ -104,19 +112,19 @@ export const api = {
       method: "DELETE",
     }),
 
-  getCareers: () => apiFetch("/admin/careers"),
+  getCareers: () => apiFetch("/jobs"),
   createCareer: (data) =>
-    apiFetch("/admin/careers", {
+    apiFetch("/jobs", {
       method: "POST",
       body: JSON.stringify(data),
     }),
   updateCareer: (id, data) =>
-    apiFetch(`/admin/careers/${id}`, {
-      method: "PUT",
+    apiFetch(`/jobs/${id}`, {
+      method: "PATCH",
       body: JSON.stringify(data),
     }),
   deleteCareer: (id) =>
-    apiFetch(`/admin/careers/${id}`, {
+    apiFetch(`/jobs/${id}`, {
       method: "DELETE",
     }),
 
@@ -164,6 +172,39 @@ export const api = {
     apiFetch(`/admin/interview-custom-requests/${id}`, {
       method: "PUT",
       body: JSON.stringify({ status }),
+    }),
+
+  getEmailRecipients: () => apiFetch("/admin/settings/emails"),
+  createEmailRecipient: (data) =>
+    apiFetch("/admin/settings/emails", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updateEmailRecipient: (id, data) =>
+    apiFetch(`/admin/settings/emails/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteEmailRecipient: (id) =>
+    apiFetch(`/admin/settings/emails/${id}`, {
+      method: "DELETE",
+    }),
+
+  getFormSubmissionEmails: () => apiFetch("/admin/settings/primary-cc-mails"),
+  getFormSubmissionEmail: (id) => apiFetch(`/admin/settings/primary-cc-mails/${id}`),
+  updateFormSubmissionEmail: (id, data) =>
+    apiFetch(`/admin/settings/primary-cc-mails/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteFormSubmissionEmail: (id) =>
+    apiFetch(`/admin/settings/primary-cc-mails/${id}`, {
+      method: "DELETE",
+    }),
+  deleteFormSubmissionEmailsBulk: (ids) =>
+    apiFetch("/admin/settings/primary-cc-mails/bulk-delete", {
+      method: "POST",
+      body: JSON.stringify({ ids }),
     }),
 
   uploadFiles: async (files) => {

@@ -11,6 +11,8 @@ import {
 
 import { FaLinkedin } from "react-icons/fa";
 import { useCandidateAuth, candidateLogin, candidateRegister } from "../context/CandidateAuthContext";
+import { parseInterviewBookingApplicationId } from "@/lib/candidate-portal-routes";
+import { Footer } from "@/components/Layout/Footer";
 
 const BASE = "/api";
 
@@ -82,9 +84,65 @@ const STATUS: Record<string, { label: string; color: string; bg: string }> = {
   withdrawn: { label: "Withdrawn", color: "#94a3b8", bg: "#f8fafc" },
 };
 
+function normalizeApplicationStatus(status: string): string {
+  return status.trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+
+const BOOKABLE_INTERVIEW_STATUSES = new Set([
+  "shortlisted",
+  "round_1_selected",
+  "round_2_selected",
+  "reschedule_interview",
+  "reschedule_round_1",
+  "reschedule_round_2",
+  "reschedule_round_3",
+]);
+
+function canBookInterview(status: string): boolean {
+  return BOOKABLE_INTERVIEW_STATUSES.has(normalizeApplicationStatus(status));
+}
+
+function isInterviewScheduledStatus(status: string): boolean {
+  const key = normalizeApplicationStatus(status);
+  return new Set([
+    "interview_scheduled",
+    "round_1_scheduled",
+    "round_1_confirmed",
+    "round_2_scheduled",
+    "round_2_confirmed",
+    "round_3_scheduled",
+    "round_3_confirmed",
+  ]).has(key);
+}
+
+function hasCompletedInterviewBooking(app: CandidateApp): boolean {
+  return Boolean(app.interview?.date && app.interview?.timeSlot) || isInterviewScheduledStatus(app.status);
+}
+
+function interviewBookingStorageKey(applicationId: number): string {
+  return `wings-interview-booked-${applicationId}`;
+}
+
+function readStoredBookedSlot(applicationId: number): { date: string; timeSlot: string } | null {
+  try {
+    const raw = sessionStorage.getItem(interviewBookingStorageKey(applicationId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed?.date && parsed?.timeSlot) return { date: parsed.date, timeSlot: parsed.timeSlot };
+  } catch { /* ignore */ }
+  return null;
+}
+
+function persistBookedSlot(applicationId: number, info: { date: string; timeSlot: string }) {
+  try {
+    sessionStorage.setItem(interviewBookingStorageKey(applicationId), JSON.stringify(info));
+  } catch { /* ignore */ }
+}
+
 /* ─── Helpers ─────────────────────────────────────────────────────────── */
 function StatusBadge({ status }: { status: string }) {
-  const s = STATUS[status] ?? STATUS.submitted;
+  const key = normalizeApplicationStatus(status);
+  const s = STATUS[key] ?? STATUS.submitted;
   return (
     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold"
       style={{ color: s.color, background: s.bg }}>{s.label}</span>
@@ -111,14 +169,20 @@ const JOURNEY_MESSAGES: Record<string, string> = {
 };
 
 function ApplicationJourney({ status }: { status: string }) {
-  const isFailed = status === "not_shortlisted";
-  const isWithdrawn = status === "withdrawn";
+  const normalized = normalizeApplicationStatus(status);
+  const isFailed = normalized === "not_shortlisted" || normalized.includes("not_selected");
+  const isWithdrawn = normalized === "withdrawn" || normalized === "withdrawn_by_candidate";
   const isFinal = isFailed || isWithdrawn;
 
-  const currentIdx = isFailed ? 1 : isWithdrawn ? 0
-    : Math.max(0, JOURNEY_STEPS.findIndex(s => s.key === status));
+  const journeyKey =
+    canBookInterview(status) ? "shortlisted"
+    : isInterviewScheduledStatus(status) ? "interview_scheduled"
+    : normalized;
 
-  const msg = JOURNEY_MESSAGES[status];
+  const currentIdx = isFailed ? 1 : isWithdrawn ? 0
+    : Math.max(0, JOURNEY_STEPS.findIndex(s => s.key === journeyKey));
+
+  const msg = JOURNEY_MESSAGES[journeyKey] ?? JOURNEY_MESSAGES.submitted;
 
   return (
     <div className="mt-4 rounded-2xl" style={{ background: "#f8fafc", border: "1px solid #e2e8f0" }}>
@@ -131,10 +195,10 @@ function ApplicationJourney({ status }: { status: string }) {
       </div>
 
       {/* Stepper */}
-      <div className="px-5 pt-4 pb-3">
+      <div className="px-3 sm:px-5 pt-4 pb-3 overflow-x-auto">
 
         {/* Row 1: circles connected by lines */}
-        <div className="flex items-center w-full">
+        <div className="flex items-center w-full min-w-[280px]">
           {JOURNEY_STEPS.map((step, i) => {
             const isDone = !isFinal && i < currentIdx;
             const isActive = !isFinal && i === currentIdx;
@@ -185,15 +249,15 @@ function ApplicationJourney({ status }: { status: string }) {
         </div>
 
         {/* Row 2: labels aligned under each circle via justify-between */}
-        <div className="flex justify-between mt-2">
+        <div className="flex justify-between mt-2 min-w-[280px]">
           {JOURNEY_STEPS.map((step, i) => {
             const isDone = !isFinal && i < currentIdx;
             const isActive = !isFinal && i === currentIdx;
             const isFail = isFinal && i === currentIdx;
             const labelClr = isDone || isActive ? "#059669" : isFail ? (isWithdrawn ? "#94a3b8" : "#ef4444") : "#94a3b8";
             return (
-              <div key={step.key} className="flex flex-col items-center text-center" style={{ width: 32 }}>
-                <p className="text-[9px] font-extrabold leading-tight" style={{ color: labelClr }}>
+              <div key={step.key} className="flex flex-col items-center text-center flex-1 min-w-0 px-0.5">
+                <p className="text-[8px] sm:text-[9px] font-extrabold leading-tight break-words" style={{ color: labelClr }}>
                   {step.label}
                 </p>
                 {step.sub && (
@@ -232,7 +296,7 @@ function playNotificationSound() {
 }
 
 /* ─── Auth Page ───────────────────────────────────────────────────────── */
-function AuthPage({ onSuccess }: { onSuccess: () => void }) {
+function AuthPage({ onSuccess, subtitle }: { onSuccess: () => void; subtitle?: string }) {
   const { login } = useCandidateAuth();
   const [, navigate] = useLocation();
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -288,7 +352,7 @@ function AuthPage({ onSuccess }: { onSuccess: () => void }) {
               <User size={28} className="text-white" />
             </div>
             <h1 className="text-2xl font-extrabold text-white mb-1">Candidate Portal</h1>
-            <p className="text-blue-200 text-sm">Sign in or create an account to apply for roles at WINGS</p>
+            <p className="text-blue-200 text-sm">{subtitle ?? "Sign in or create an account to apply for roles at WINGS"}</p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
@@ -529,14 +593,56 @@ function ApplyModal({ job, token, onClose }: { job: Job; token: string; onClose:
   );
 }
 
+/* ─── Time helpers ────────────────────────────────────────────────────── */
+function formatTimeSlotDisplay(timeSlot: string): string {
+  const trimmed = timeSlot.trim();
+  if (/\s(AM|PM)$/i.test(trimmed)) return trimmed;
+  const [hoursRaw, minutesRaw = "00"] = trimmed.split(":");
+  const hours = Number(hoursRaw);
+  const minutes = Number(minutesRaw);
+  if (!Number.isFinite(hours)) return trimmed;
+  const suffix = hours >= 12 ? "PM" : "AM";
+  const displayHours = hours % 12 || 12;
+  return `${displayHours}:${String(minutes).padStart(2, "0")} ${suffix}`;
+}
+
+function parseTimeToMinutes(timeSlot: string): number {
+  const trimmed = timeSlot.trim();
+  if (/\s(AM|PM)$/i.test(trimmed)) {
+    const [time, period] = trimmed.split(/\s+/);
+    let [h, m] = time.split(":").map(Number);
+    if (period.toUpperCase() === "PM" && h !== 12) h += 12;
+    if (period.toUpperCase() === "AM" && h === 12) h = 0;
+    return h * 60 + (m || 0);
+  }
+  const [h, m] = trimmed.split(":").map(Number);
+  return (h || 0) * 60 + (m || 0);
+}
+
+function formatInterviewDate(date: string): string {
+  return new Date(`${date}T00:00:00`).toLocaleDateString("en-SG", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
 /* ─── Schedule Interview Modal ────────────────────────────────────────── */
 const CANDIDATE_TIME_SLOTS = [
   "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
   "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM",
 ];
 
-function ScheduleInterviewModal({ appId, token, onBooked, onClose }: {
-  appId: number; token: string; onBooked: () => void; onClose: () => void;
+function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = false, pageLayout = false, jobTitle, candidateName, applicationNumber, jobRef }: {
+  appId: number; token: string;
+  onBooked: (info?: { date: string; timeSlot: string }) => void;
+  onClose: () => void; embedded?: boolean;
+  pageLayout?: boolean;
+  jobTitle?: string;
+  candidateName?: string;
+  applicationNumber?: string;
+  jobRef?: string | null;
 }) {
   const [tab, setTab] = useState<"slots" | "custom">("slots");
   const [slots, setSlots] = useState<InterviewAvailability[]>([]);
@@ -550,34 +656,36 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose }: {
   const [customNotes, setCustomNotes] = useState("");
   const [customSending, setCustomSending] = useState(false);
   const [customSent, setCustomSent] = useState(false);
+  const [justBooked, setJustBooked] = useState<{ date: string; timeSlot: string } | null>(null);
 
   const todayStr = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
     fetch(`${BASE}/candidate/interview-availability`, { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json()).then(d => {
+      .then(async (r) => {
+        if (!r.ok) {
+          const err = await r.json().catch(() => ({}));
+          setError(typeof err.error === "string" ? err.error : "Unable to load interview slots.");
+          setLoading(false);
+          return;
+        }
+        const d = await r.json();
         const list = Array.isArray(d) ? d : [];
-        // Filter out time slots that have already passed for today
         const nowMins = new Date().getHours() * 60 + new Date().getMinutes();
-        const toMin = (t: string) => {
-          const [time, period] = t.split(" ");
-          let [h, m] = time.split(":").map(Number);
-          if (period === "PM" && h !== 12) h += 12;
-          if (period === "AM" && h === 12) h = 0;
-          return h * 60 + m;
-        };
         const filtered = list.filter((s: InterviewAvailability) => {
           if (s.date !== todayStr) return true;
-          return toMin(s.timeSlot) > nowMins;
+          return parseTimeToMinutes(s.timeSlot) > nowMins;
         });
         setSlots(filtered);
-        // auto-select first available date
         const dates = [...new Set(filtered.map((s: InterviewAvailability) => s.date))].sort();
         if (dates.length > 0) setActiveDate(dates[0]);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
-  }, [token]);
+      .catch(() => {
+        setError("Unable to load interview slots. Please refresh the page.");
+        setLoading(false);
+      });
+  }, [token, todayStr]);
 
   // group and sort
   const grouped: Record<string, InterviewAvailability[]> = {};
@@ -585,30 +693,28 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose }: {
     (grouped[s.date] = grouped[s.date] ?? []).push(s);
   }
   const sortedDates = Object.keys(grouped).sort();
-  const activeDateSlots = (grouped[activeDate] ?? []).slice().sort((a, b) => {
-    const toMin = (t: string) => {
-      const [time, period] = t.split(" ");
-      let [h, m] = time.split(":").map(Number);
-      if (period === "PM" && h !== 12) h += 12;
-      if (period === "AM" && h === 12) h = 0;
-      return h * 60 + m;
-    };
-    return toMin(a.timeSlot) - toMin(b.timeSlot);
-  });
+  const activeDateSlots = (grouped[activeDate] ?? []).slice().sort(
+    (a, b) => parseTimeToMinutes(a.timeSlot) - parseTimeToMinutes(b.timeSlot)
+  );
 
   const selectedSlot = slots.find(s => s.id === selected);
 
   async function book() {
     if (!selected) return;
     setBooking(true); setError("");
+    const bookedId = selected;
     try {
       const r = await fetch(`${BASE}/candidate/applications/${appId}/book-interview`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ availabilityId: selected }),
+        body: JSON.stringify({ availabilityId: bookedId }),
       });
       if (!r.ok) { const e = await r.json(); setError(e.error ?? "Booking failed"); setBooking(false); return; }
-      onBooked();
+      const bookedSlotInfo = selectedSlot ? { date: selectedSlot.date, timeSlot: selectedSlot.timeSlot } : undefined;
+      setSlots((prev) => prev.filter((s) => s.id !== bookedId));
+      setSelected(null);
+      if (bookedSlotInfo) setJustBooked(bookedSlotInfo);
+      onBooked(bookedSlotInfo);
     } catch { setError("Network error. Please try again."); setBooking(false); }
   }
 
@@ -627,12 +733,258 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose }: {
     finally { setCustomSending(false); }
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,30,70,0.55)", backdropFilter: "blur(4px)" }}>
+  const panel = pageLayout ? (
+    justBooked ? (
+      <div className="w-full max-w-[560px] mx-auto rounded-[20px] bg-white shadow-[0_4px_4px_rgba(0,0,0,0.10)] px-6 md:px-10 py-10 md:py-12 text-center">
+        <CheckCircle size={52} className="text-green-500 mx-auto mb-5" />
+        <h2 className="text-[#0D4A7A] font-['Outfit'] text-[28px] md:text-[32px] font-medium mb-3">Interview slot confirmed!</h2>
+        <p className="text-[#0D4A7A]/80 font-['DM_Sans'] text-[16px] mb-2 leading-relaxed">
+          Your interview{jobTitle ? <> for <strong>{jobTitle}</strong></> : ""} has been successfully booked.
+        </p>
+        <p className="text-gray-600 font-['DM_Sans'] text-[15px] mb-6">
+          {formatInterviewDate(justBooked.date)} · {formatTimeSlotDisplay(justBooked.timeSlot)}
+        </p>
+        <p className="text-sm text-gray-500 font-['DM_Sans'] leading-relaxed max-w-md mx-auto">
+          A confirmation email has been sent to your registered email address. Our team has also been notified.
+        </p>
+      </div>
+    ) : (
+    <div className="w-full flex flex-col gap-10 md:gap-[70px]">
+      {/* Blue information box — matches apply.tsx sign-in card */}
+      <div className="w-full max-w-[500px] mx-auto bg-[#0D4A7A] rounded-[20px] shadow-[0_20px_50px_rgba(13,74,122,0.15)] text-white overflow-hidden transition-all duration-300 hover:shadow-[0_25px_60px_rgba(13,74,122,0.25)] px-6 sm:px-8 py-10 sm:py-12 flex flex-col items-center text-center">
+        <div className="w-[50px] h-[50px] bg-white rounded-[10px] flex items-center justify-center shadow-sm mb-6">
+          <CalendarCheck className="w-5 h-5 text-[#0D4A7A]" />
+        </div>
+        <h2 className="text-[25px] font-semibold tracking-tight leading-[33px] font-['DM_Sans'] mb-4">
+          Interview Slot Booking
+        </h2>
+        <p className="text-[16px] text-white/90 font-normal leading-[21px] font-['DM_Sans'] max-w-[370px] mb-4">
+          You have been invited to book an interview slot for{" "}
+          <strong className="font-semibold text-white">{jobTitle ?? "your application"}</strong>
+          {candidateName ? (
+            <>
+              . Welcome, <strong className="font-semibold text-white">{candidateName}</strong>.
+            </>
+          ) : (
+            " at WINGS Counselling Centre."
+          )}
+        </p>
+        <p className="text-[14px] text-white/75 font-normal leading-[20px] font-['DM_Sans'] max-w-[370px]">
+          Select an available date and time below, then click <strong className="text-white">Book Slot</strong> to confirm. A confirmation email will be sent once complete.
+        </p>
+        {(jobRef || applicationNumber) && (
+          <div className="mt-6 inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-white/15 border border-white/25">
+            <span className="text-white/90 font-['DM_Sans'] text-[13px] font-medium">
+              {jobRef ? `Job ID ${jobRef}` : applicationNumber}
+              {jobRef && applicationNumber ? ` · ${applicationNumber}` : ""}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Available slots section */}
+      <div className="w-full rounded-[20px] bg-white shadow-[0_4px_4px_rgba(0,0,0,0.10)] px-6 md:px-8 py-7 md:py-9">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h3 className="text-[#0D4A7A] font-['Outfit'] text-[28px] md:text-[35px] font-medium leading-normal mb-2">
+              Available Interview Slots
+            </h3>
+            <p className="text-[#0D4A7A] font-['DM_Sans'] text-[16px] md:text-[20px] font-medium leading-normal">
+              Choose a convenient date and time
+            </p>
+          </div>
+          <div className="flex rounded-[20px] p-1 bg-[#F8F8F8] border border-[#D9D9D9] w-fit">
+            {(["slots", "custom"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`px-4 py-2 rounded-[16px] text-sm font-['DM_Sans'] font-medium transition-all ${
+                  tab === t ? "bg-[#0D4A7A] text-white" : "text-[#000000CC] hover:bg-[#0D4A7A]/10"
+                }`}
+              >
+                {t === "slots" ? "Available Slots" : "Request Custom Time"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {tab === "slots" && (
+          loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 py-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="h-28 rounded-[20px] bg-gray-100 animate-pulse" />
+              ))}
+            </div>
+          ) : sortedDates.length === 0 ? (
+            <div className="text-center py-12 px-4">
+              <Calendar size={40} className="mx-auto text-gray-300 mb-4" />
+              <p className="font-['DM_Sans'] text-lg font-medium text-gray-800 mb-2">No slots available yet</p>
+              <p className="text-sm text-gray-500 mb-5 font-['DM_Sans']">Our team is finalising interview times. You can request a custom time instead.</p>
+              <button onClick={() => setTab("custom")} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[20px] bg-[#0D4A7A] text-white text-sm font-medium font-['DM_Sans']">
+                Request custom time <ArrowRight size={14} />
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="mb-6">
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 font-['DM_Sans'] mb-3">Select a date</p>
+                <div className="flex gap-3 flex-wrap">
+                  {sortedDates.map((date) => {
+                    const d = new Date(`${date}T00:00:00`);
+                    const isActive = date === activeDate;
+                    const isToday = date === todayStr;
+                    return (
+                      <button
+                        key={date}
+                        onClick={() => { setActiveDate(date); setSelected(null); }}
+                        className={`flex flex-col items-center min-w-[76px] px-4 py-3 rounded-[16px] border transition-all font-['DM_Sans'] ${
+                          isActive
+                            ? "bg-[#0D4A7A] border-[#0D4A7A] text-white shadow-md"
+                            : "bg-[#F8F8F8] border-[#D9D9D9] text-gray-800 hover:border-[#0D4A7A]"
+                        }`}
+                      >
+                        <span className={`text-[10px] font-semibold uppercase ${isActive ? "text-white/80" : "text-gray-500"}`}>
+                          {isToday ? "Today" : d.toLocaleDateString("en-SG", { weekday: "short" })}
+                        </span>
+                        <span className="text-2xl font-bold leading-tight">{d.getDate()}</span>
+                        <span className={`text-[10px] ${isActive ? "text-white/70" : "text-gray-500"}`}>
+                          {d.toLocaleDateString("en-SG", { month: "short" })}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {activeDate && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 font-['DM_Sans'] mb-3">
+                    Select a time · <span className="text-[#0D4A7A]">{activeDateSlots.length} available</span>
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {activeDateSlots.map((slot) => {
+                      const isSelected = selected === slot.id;
+                      return (
+                        <button
+                          key={slot.id}
+                          onClick={() => setSelected(isSelected ? null : slot.id)}
+                          className={`rounded-[20px] px-4 py-5 text-left transition-all border font-['DM_Sans'] ${
+                            isSelected
+                              ? "bg-[#0D4A7A] border-[#0D4A7A] text-white shadow-[0_4px_12px_rgba(13,74,122,0.25)]"
+                              : "bg-white border-[#D9D9D9] hover:border-[#0D4A7A] hover:shadow-sm"
+                          }`}
+                        >
+                          <Clock size={14} className={isSelected ? "text-white/70 mb-2" : "text-[#0D4A7A] mb-2"} />
+                          <p className={`text-base font-semibold ${isSelected ? "text-white" : "text-gray-900"}`}>
+                            {formatTimeSlotDisplay(slot.timeSlot)}
+                          </p>
+                          <p className={`text-xs mt-1 ${isSelected ? "text-white/70" : "text-gray-500"}`}>
+                            {slot.duration} min
+                            {slot.interviewerName ? ` · ${slot.interviewerName}` : ""}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          )
+        )}
+
+        {tab === "custom" && (
+          customSent ? (
+            <div className="text-center py-12">
+              <CheckCircle size={48} className="mx-auto text-green-500 mb-4" />
+              <p className="font-['DM_Sans'] text-lg font-medium text-gray-800 mb-2">Request sent!</p>
+              <p className="text-sm text-gray-500 font-['DM_Sans']">Our team will review your preferred time and confirm via email.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4 max-w-xl">
+              <div className="rounded-[16px] p-4 bg-amber-50 border border-amber-200 flex gap-3">
+                <AlertCircle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-800 font-['DM_Sans']">None of the listed slots work? Tell us your preferred date and time.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase text-gray-500 mb-2 font-['DM_Sans']">Preferred date *</label>
+                  <input type="date" min={todayStr} value={customDate} onChange={(e) => setCustomDate(e.target.value)}
+                    className="w-full rounded-[12px] border border-[#D9D9D9] px-3 py-2.5 text-sm font-['DM_Sans']" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase text-gray-500 mb-2 font-['DM_Sans']">Preferred time *</label>
+                  <select value={customTime} onChange={(e) => setCustomTime(e.target.value)}
+                    className="w-full rounded-[12px] border border-[#D9D9D9] px-3 py-2.5 text-sm font-['DM_Sans']">
+                    <option value="">Select time…</option>
+                    {CANDIDATE_TIME_SLOTS.map((t) => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase text-gray-500 mb-2 font-['DM_Sans']">Notes (optional)</label>
+                <textarea rows={3} value={customNotes} onChange={(e) => setCustomNotes(e.target.value)}
+                  placeholder="e.g. I'm only available in the mornings…"
+                  className="w-full rounded-[12px] border border-[#D9D9D9] px-3 py-2.5 text-sm font-['DM_Sans'] resize-none" />
+              </div>
+              <button onClick={sendCustomRequest} disabled={!customDate || !customTime || customSending}
+                className="inline-flex items-center justify-center gap-2 self-start px-6 py-3 rounded-[20px] bg-[#0D4A7A] text-white text-sm font-medium font-['DM_Sans'] disabled:opacity-50">
+                {customSending ? "Sending…" : <><Send size={14} /> Send request</>}
+              </button>
+            </div>
+          )
+        )}
+
+        {error && (
+          <p className="mt-4 text-sm font-medium px-4 py-3 rounded-[12px] bg-red-50 text-red-600 border border-red-100 font-['DM_Sans']">{error}</p>
+        )}
+      </div>
+
+      {/* Selected summary + book */}
+      {tab === "slots" && selectedSlot && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-[20px] bg-white shadow-[0_4px_4px_rgba(0,0,0,0.10)] px-6 md:px-8 py-7"
+        >
+          <h3 className="text-[#0D4A7A] font-['Outfit'] text-[20px] font-medium mb-4">Selected Slot Summary</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#0D4A7A]/10 flex items-center justify-center shrink-0">
+                <CalendarCheck size={18} className="text-[#0D4A7A]" />
+              </div>
+              <div>
+                <p className="font-['DM_Sans'] font-semibold text-gray-900">{formatInterviewDate(selectedSlot.date)}</p>
+                <p className="text-sm text-gray-600 font-['DM_Sans'] mt-1">
+                  {formatTimeSlotDisplay(selectedSlot.timeSlot)} · {selectedSlot.duration} minutes
+                </p>
+                {selectedSlot.location && (
+                  <p className="text-sm text-gray-500 font-['DM_Sans'] mt-1 flex items-center gap-1">
+                    <MapPin size={12} /> {selectedSlot.location}
+                  </p>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={book}
+              disabled={booking}
+              className="inline-flex items-center justify-center gap-2 min-w-[200px] h-[46px] px-8 rounded-full bg-[#0D4A7A] text-white font-['DM_Sans'] text-[16px] font-medium hover:bg-[#0a3d66] transition-colors disabled:opacity-60 w-full sm:w-auto shadow-[0_4px_12px_rgba(13,74,122,0.25)]"
+            >
+              {booking ? (
+                <><div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> Booking…</>
+              ) : (
+                <><CalendarCheck size={16} /> Book Slot</>
+              )}
+            </button>
+          </div>
+        </motion.div>
+      )}
+    </div>
+    )
+  ) : (
       <motion.div initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.2 }}
-        className="w-full max-w-xl flex flex-col overflow-hidden bg-white"
-        style={{ borderRadius: "24px", boxShadow: "0 24px 64px rgba(0,30,70,0.18)", maxHeight: "90vh", border: "1px solid #e8eef5" }}>
+        className={`w-full flex flex-col overflow-hidden bg-white ${embedded ? "rounded-[24px] border border-[#e8eef5] shadow-sm" : "max-w-xl"}`}
+        style={{ borderRadius: embedded ? undefined : "24px", boxShadow: embedded ? undefined : "0 24px 64px rgba(0,30,70,0.18)", maxHeight: embedded ? undefined : "90vh", border: embedded ? undefined : "1px solid #e8eef5" }}>
 
         {/* ── Header ── */}
         <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid #f0f4f8" }}>
@@ -743,7 +1095,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose }: {
                             }}>
                             <Clock size={13} style={{ color: isSelected ? "rgba(255,255,255,0.7)" : "#94a3b8" }} />
                             <span className="text-sm font-extrabold" style={{ color: isSelected ? "white" : "#1e293b" }}>
-                              {slot.timeSlot}
+                              {formatTimeSlotDisplay(slot.timeSlot)}
                             </span>
                             <span className="text-[10px] font-semibold" style={{ color: isSelected ? "rgba(255,255,255,0.6)" : "#94a3b8" }}>
                               {slot.duration} min
@@ -763,10 +1115,10 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose }: {
                         </div>
                         <div className="flex-1">
                           <p className="text-sm font-extrabold text-gray-800">
-                            {new Date(selectedSlot.date + "T00:00:00").toLocaleDateString("en-SG", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                            {formatInterviewDate(selectedSlot.date)}
                           </p>
                           <p className="text-xs text-gray-500 mt-0.5">
-                            {selectedSlot.timeSlot} · {selectedSlot.duration} min
+                            {formatTimeSlotDisplay(selectedSlot.timeSlot)} · {selectedSlot.duration} min
                             {selectedSlot.interviewerName ? ` · with ${selectedSlot.interviewerName}` : ""}
                           </p>
                           {(selectedSlot.location || selectedSlot.meetingLink) && (
@@ -870,6 +1222,13 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose }: {
           ) : null}
         </div>
       </motion.div>
+  );
+
+  if (embedded || pageLayout) return panel;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,30,70,0.55)", backdropFilter: "blur(4px)" }}>
+      {panel}
     </div>
   );
 }
@@ -1153,8 +1512,8 @@ function Dashboard({ defaultTab = "jobs" }: { defaultTab?: "jobs" | "application
                       {/* Application Journey Tracker */}
                       <ApplicationJourney status={app.status} />
 
-                      {/* Shortlisted CTA */}
-                      {app.status === "shortlisted" && (
+                      {/* Shortlisted / book interview CTA */}
+                      {canBookInterview(app.status) && (
                         <div className="mt-4 p-4 rounded-xl" style={{ background: "linear-gradient(135deg, #f0fdf4, #ecfdf5)", border: "1px solid #86efac" }}>
                           <div className="flex items-start gap-3">
                             <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: "#22c55e20" }}>
@@ -1173,7 +1532,7 @@ function Dashboard({ defaultTab = "jobs" }: { defaultTab?: "jobs" | "application
                       )}
 
                       {/* Interview details */}
-                      {app.status === "interview_scheduled" && app.interview && (
+                      {(isInterviewScheduledStatus(app.status) || app.status === "interview_scheduled") && app.interview && (
                         <div className="mt-4 p-3 rounded-xl" style={{ background: "#f5f3ff", border: "1px solid #ddd6fe" }}>
                           <p className="text-xs font-extrabold text-purple-700 mb-2 flex items-center gap-1.5"><Calendar size={12} /> Interview Scheduled</p>
                           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-purple-800">
@@ -1249,14 +1608,240 @@ function Dashboard({ defaultTab = "jobs" }: { defaultTab?: "jobs" | "application
   );
 }
 
+/* ─── Dedicated Interview Booking Page (from email link) ───────────────── */
+function InterviewBookingPage({ applicationId }: { applicationId: number }) {
+  const { candidate, token } = useCandidateAuth();
+  const [, navigate] = useLocation();
+  const [app, setApp] = useState<CandidateApp | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [booked, setBooked] = useState(() => Boolean(readStoredBookedSlot(applicationId)));
+  const [bookedSlot, setBookedSlot] = useState<{ date: string; timeSlot: string } | null>(
+    () => readStoredBookedSlot(applicationId)
+  );
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const candidateName = candidate
+    ? [candidate.firstName, candidate.lastName].filter(Boolean).join(" ") || candidate.email
+    : undefined;
+
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const r = await fetch(`${BASE}/candidate/applications`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!r.ok) throw new Error("Unable to load your application.");
+        const apps: CandidateApp[] = await r.json();
+        if (cancelled) return;
+        const match = apps.find((item) => item.id === applicationId);
+        if (!match) {
+          setError("This application was not found or does not belong to your account.");
+          setApp(null);
+        } else {
+          setApp(match);
+          if (hasCompletedInterviewBooking(match)) {
+            setBooked(true);
+            if (match.interview?.date && match.interview?.timeSlot) {
+              const info = { date: match.interview.date, timeSlot: match.interview.timeSlot };
+              setBookedSlot(info);
+              persistBookedSlot(applicationId, info);
+            }
+          }
+        }
+      } catch (e: any) {
+        if (!cancelled) setError(e.message ?? "Failed to load application.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [token, applicationId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FAFAF5] flex items-center justify-center pt-32">
+        <div className="w-10 h-10 rounded-full border-2 border-[#0D4A7A]/30 border-t-[#0D4A7A] animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || !app) {
+    return (
+      <div className="min-h-screen bg-[#F7F6F3] flex flex-col font-sans">
+        <main className="flex-1 flex flex-col items-center justify-center px-4 pt-32 pb-20">
+          <div className="w-full max-w-[500px] bg-[#0D4A7A] rounded-[20px] shadow-[0_20px_50px_rgba(13,74,122,0.15)] text-white px-6 sm:px-8 py-10 sm:py-12 flex flex-col items-center text-center">
+            <div className="w-[50px] h-[50px] bg-white rounded-[10px] flex items-center justify-center shadow-sm mb-6">
+              <AlertCircle className="w-5 h-5 text-[#0D4A7A]" />
+            </div>
+            <h1 className="text-[25px] font-semibold font-['DM_Sans'] mb-4">Unable to open booking</h1>
+            <p className="text-[16px] text-white/90 font-['DM_Sans'] leading-[21px] max-w-[370px] mb-8">{error || "Application not found."}</p>
+            <button onClick={() => navigate("/candidate")} className="w-[244px] h-[46px] bg-white hover:bg-white/95 text-[#0D4A7A] text-[16px] font-medium rounded-full font-['DM_Sans'] transition-all">
+              Go to Candidate Portal
+            </button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (booked || (app && hasCompletedInterviewBooking(app))) {
+    const displayDate = bookedSlot?.date ?? app.interview?.date;
+    const displayTime = bookedSlot?.timeSlot ?? app.interview?.timeSlot;
+    return (
+      <div className="min-h-screen bg-[#F7F6F3] flex flex-col font-sans">
+        <main className="flex-1 flex flex-col items-center justify-center px-4 pt-32 pb-20">
+          <div className="w-full max-w-[560px] mx-auto rounded-[20px] bg-white shadow-[0_4px_4px_rgba(0,0,0,0.10)] px-6 md:px-10 py-10 md:py-12 text-center">
+            <CheckCircle size={52} className="text-green-500 mx-auto mb-5" />
+            <h1 className="text-[#0D4A7A] font-['Outfit'] text-[28px] md:text-[32px] font-medium mb-3">Interview slot confirmed!</h1>
+            <p className="text-[#0D4A7A]/80 font-['DM_Sans'] text-[16px] mb-2 leading-relaxed">
+              Your interview for <strong>{app.jobTitle}</strong> has been successfully booked.
+            </p>
+            {displayDate && displayTime && (
+              <p className="text-gray-600 font-['DM_Sans'] text-[15px] mb-6">
+                {formatInterviewDate(displayDate)} · {formatTimeSlotDisplay(displayTime)}
+              </p>
+            )}
+            <p className="text-sm text-gray-500 font-['DM_Sans'] mb-8 leading-relaxed max-w-md mx-auto">
+              A confirmation email has been sent to your registered email address. Our team has also been notified.
+            </p>
+            <button onClick={() => navigate("/candidate")} className="inline-flex items-center justify-center w-full sm:w-auto min-w-[244px] h-[46px] px-8 rounded-full text-white bg-[#0D4A7A] font-['DM_Sans'] text-[16px] font-medium hover:bg-[#0a3d66] transition-colors">
+              Back to Candidate Portal
+            </button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!canBookInterview(app.status)) {
+    return (
+      <div className="min-h-screen bg-[#F7F6F3] flex flex-col font-sans">
+        <main className="flex-1 flex flex-col items-center justify-center px-4 pt-32 pb-20">
+          <div className="w-full max-w-[500px] bg-[#0D4A7A] rounded-[20px] shadow-[0_20px_50px_rgba(13,74,122,0.15)] text-white px-6 sm:px-8 py-10 sm:py-12 flex flex-col items-center text-center">
+            <div className="w-[50px] h-[50px] bg-white rounded-[10px] flex items-center justify-center shadow-sm mb-6">
+              <Info className="w-5 h-5 text-[#0D4A7A]" />
+            </div>
+            <h1 className="text-[25px] font-semibold font-['DM_Sans'] mb-4">Booking not available</h1>
+            <p className="text-[16px] text-white/90 font-['DM_Sans'] leading-[21px] max-w-[370px] mb-8">
+              Your application status is <strong className="text-white">{app.status}</strong>. Interview booking is not open at this time.
+            </p>
+            <button onClick={() => navigate("/candidate")} className="w-[244px] h-[46px] bg-white hover:bg-white/95 text-[#0D4A7A] text-[16px] font-medium rounded-full font-['DM_Sans'] transition-all">
+              Go to Candidate Portal
+            </button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#FAFAF5] flex flex-col font-sans overflow-x-hidden">
+      {/* Hero — same dimensions as Careers page */}
+      <section
+        className="relative w-full flex flex-col items-center justify-center overflow-hidden shrink-0"
+        style={{
+          background:
+            'linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.72)), url("/assets/career1.png")',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          minHeight: "480px",
+          height: "clamp(480px, 55vw, 790px)",
+        }}
+      >
+        <motion.div
+          className="relative z-10 flex flex-col items-center justify-center text-center px-6 md:px-[150px] w-full max-w-[1440px]"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+        >
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-white font-['Outfit'] font-semibold text-center mb-6 text-[32px] sm:text-[42px] md:text-[52px] lg:text-[50px] leading-[1.15]"
+            style={{ maxWidth: "850px" }}
+          >
+            Book Your Interview Slot
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="text-white text-center font-['DM_Sans'] font-normal text-[16px] sm:text-[18px] md:text-[20px] leading-[1.6] mb-10"
+            style={{ maxWidth: "760px" }}
+          >
+            Select a convenient date and time for your interview
+            {app.jobTitle ? (
+              <> for the <strong className="font-semibold">{app.jobTitle}</strong> position</>
+            ) : (
+              " at WINGS Counselling Centre"
+            )}
+            . We look forward to meeting you.
+          </motion.p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => {
+              document.getElementById("interview-booking-slots")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+            className="inline-flex items-center justify-center gap-[10px] border-none cursor-pointer rounded-full bg-[#1B4585] px-[32px] py-[16px] transition-all duration-300"
+            style={{ boxShadow: "0 8px 24px rgba(27,69,133,0.35)" }}
+          >
+            <span className="text-center font-['Plus_Jakarta_Sans'] text-[16px] md:text-[18px] font-semibold leading-[28px] text-[#F5F9FF]">
+              View available slots
+            </span>
+            <ChevronRight size={22} className="text-[#F5F9FF]" />
+          </motion.button>
+        </motion.div>
+      </section>
+
+      <section
+        id="interview-booking-slots"
+        className="w-full pt-[70px] pb-[80px] bg-[#F7F7F5] px-4 md:px-[150px]"
+      >
+        <div className="w-full max-w-[1440px] mx-auto">
+          {token && (
+            <ScheduleInterviewModal
+              pageLayout
+              appId={applicationId}
+              token={token}
+              jobTitle={app.jobTitle}
+              candidateName={candidateName}
+              applicationNumber={app.applicationNumber}
+              jobRef={app.jobRef}
+              onBooked={(info) => {
+                if (info) setBookedSlot(info);
+                setBooked(true);
+              }}
+              onClose={() => navigate("/candidate")}
+            />
+          )}
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  );
+}
+
 /* ─── Main Export ─────────────────────────────────────────────────────── */
 export default function CandidatePortal() {
   const { candidate, isLoading } = useCandidateAuth();
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
 
-  const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
-  const applyJobId = params.get("apply");
-  const defaultTab = applyJobId ? "jobs" : "jobs";
+  const bookingApplicationId = parseInterviewBookingApplicationId(location);
 
   if (isLoading) {
     return (
@@ -1267,8 +1852,23 @@ export default function CandidatePortal() {
   }
 
   if (!candidate) {
-    return <AuthPage onSuccess={() => { }} />;
+    return (
+      <AuthPage
+        subtitle={bookingApplicationId ? "Sign in to book your interview slot" : undefined}
+        onSuccess={() => {
+          if (bookingApplicationId) navigate(location);
+        }}
+      />
+    );
   }
+
+  if (bookingApplicationId) {
+    return <InterviewBookingPage applicationId={bookingApplicationId} />;
+  }
+
+  const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+  const applyJobId = params.get("apply");
+  const defaultTab = applyJobId ? "jobs" : "jobs";
 
   return <Dashboard defaultTab={defaultTab} />;
 }

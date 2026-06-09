@@ -1,171 +1,64 @@
 import React from "react";
-import { ArrowDown, Trophy } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { motion } from "framer-motion";
-import { FaInstagram, FaFacebookF, FaYoutube } from "react-icons/fa";
 import { useAppointment } from "@/context/AppointmentContext";
+import { useLocation } from "wouter";
+import { Footer } from "@/components/Layout/Footer";
 
 const timelineData = [
   {
     year: "1995",
-    category: "THE BEGINNING",
-    title: "Ramakrishna Mission Counselling Centre Opens",
-    desc: "With funding from the NCSS 25th Anniversary Endowment Fund, the Ramakrishna Mission launched a Pilot Project with three counsellors and one administrative assistant, operating from a single room in the Mission Library. Counsellors immediately began networking with neighbourhood schools to identify students who could benefit from professional support."
+    category: "The beginning",
+    title: "Ramakrishna mission counselling centre opens",
+    desc: "With funding from the NCSS 25th anniversary endowment fund, the Ramakrishna mission launched a pilot project with three counsellors and one administrative assistant, operating from a single room in the mission library. Counsellors immediately began networking with neighbourhood schools to identify students who could benefit from professional support."
   },
   {
     year: "1996",
-    category: "RECOGNITION",
-    title: "NCSS Officially Recognises the Centre",
+    category: "Recognition",
+    title: "NCSS officially recognises the centre",
     desc: "The National Council of Social Service (NCSS) recognised the Centre's positive community impact and made it a fully funded agency for School Social Work (SSW) — cementing its role in Singapore's social welfare ecosystem."
   },
   {
     year: "1997",
-    category: "GROWTH",
-    title: "First Major Relocation — Sarada Hall",
+    category: "Growth",
+    title: "First major relocation — Sarada hall",
     desc: "Growing client demand required a larger footprint. The Centre moved to Sarada Hall, gaining three counselling rooms, an admin office, and a conference space for case discussions and team meetings — marking the beginning of a true centre-based approach."
   },
   {
     year: "2002",
-    category: "TRANSFORMATION",
-    title: "Rebranded to WINGS — and a New Home",
-    desc: "The Management Committee repositioned the centre as a secular community service provider, renaming it \"WINGS Counselling Centre\" — symbolising the capacity to rise and grow. Simultaneously, the Centre moved to a state-of-the-art facility featuring one-way mirror counselling rooms, play therapy suites, and art therapy observation spaces."
+    category: "Transformation",
+    title: "Rebranded to WINGS — and a new home",
+    desc: "The management committee repositioned the centre as a secular community service provider, renaming it \"WINGS Counselling Centre\" — symbolising the capacity to rise and grow. Simultaneously, the Centre moved to a state-of-the-art facility featuring one-way mirror counselling rooms, play therapy suites, and art therapy observation spaces."
   },
   {
     year: "2004",
-    category: "EXPANSION",
-    title: "Family-Life Education Programme Launched",
+    category: "Expansion",
+    title: "Family-Life education programme launched",
     desc: "Recognising the power of working with entire family units, WINGS became a service provider for the School Family-life Education (SFE) programme under MCYS (now MSF). Skill-based parenting workshops were delivered to primary and secondary schools island-wide using a three-pronged approach: schools, homes, and community."
   },
   {
     year: "2009",
-    category: "PIONEERING",
-    title: "Singapore's First Pre-School Support Programme",
+    category: "Pioneering",
+    title: "Singapore's first pre-school support programme",
     desc: "In collaboration with NCSS, WINGS launched the groundbreaking Pre-School Support Programme (PSSP) — Singapore's first preventive intervention programme for children aged 2.5 to below 7 years. The programme helped pre-schoolers navigate the transition from home-based informal learning to structured school environments, ensuring every child could reach their full potential."
   },
   {
     year: "2012",
-    category: "MILESTONE",
-    title: "Family Support & Counselling Programme (FSCP)",
+    category: "Milestone",
+    title: "Family support & Counselling programme (FSCP)",
     desc: "WINGS repositioned as a fully centre-based counselling organisation, developing the internally researched Family Support and Counselling Programme (FSCP) — serving clients aged 7 to 65 with specialised, evidence-based therapeutic interventions across individual, couples, and family modalities."
   },
   {
     year: "Today",
-    category: "PRESENT",
-    title: "WINGS in Schools & Centre — Serving All of Singapore",
-    desc: "WINGS now delivers counselling in Primary and Secondary schools island-wide, working alongside school leaders and counsellors to support students with family-related challenges. Our centre continues to serve clients from 2.5 to 65 years old, using expressive therapies — including sand-tray, play therapy, and symbol work — tailored to each individual's journey."
+    category: "Present",
+    title: "WINGS in schools & Centre — serving all of singapore",
+    desc: "WINGS now delivers counselling in primary and secondary schools island-wide, working alongside school leaders and counsellors to support students with family-related challenges. Our centre continues to serve clients from 2.5 to 65 years old, using expressive therapies — including sand-tray, play therapy, and symbol work — tailored to each individual's journey."
   }
 ];
 
-export function Footer() {
-  return (
-    <footer className="w-full flex flex-col items-center pt-[60px] md:pt-[100px] pb-[40px] font-['DM_Sans']" style={{ backgroundColor: "#1F2937" }}>
-      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-[200px] flex flex-col items-center">
-
-        {/* Main Content Grid */}
-        <div className="flex flex-col lg:flex-row justify-between w-full mb-[60px] md:mb-[100px] gap-12 lg:gap-10">
-
-          {/* Column 1: Logo and About Section */}
-          <div className="flex flex-col gap-[25px] md:gap-[30px] w-full max-w-[350px]">
-            <div
-              className="w-[240px] md:w-[291px] h-auto rounded-[10px] bg-white flex items-center justify-center p-2"
-              style={{ aspectRatio: "291/70" }}
-            >
-              <img
-                src="/assets/wingsLogo.png"
-                alt="WINGS Logo"
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <p className="text-white font-['Plus_Jakarta_Sans'] text-[16px] md:text-[18px] font-[500] leading-[24px] md:leading-[28px]">
-              We are committed to providing affordable & professional counselling services to the community, regardless of creed, race or religion. Supporting lives since 1995.
-            </p>
-            <div className="flex gap-[15px]">
-              <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="relative w-[40px] h-[40px] flex items-center justify-center hover:opacity-80 transition-opacity">
-                <svg className="absolute inset-0" width="40" height="40" viewBox="0 0 40 40" fill="none">
-                  <circle cx="20" cy="20" r="20" fill="#E8F4FD" fillOpacity="0.2" />
-                </svg>
-                <FaInstagram className="text-white relative z-10 w-[20px] h-[20px]" />
-              </a>
-              <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="relative w-[40px] h-[40px] flex items-center justify-center hover:opacity-80 transition-opacity">
-                <svg className="absolute inset-0" width="40" height="40" viewBox="0 0 40 40" fill="none">
-                  <circle cx="20" cy="20" r="20" fill="#E8F4FD" fillOpacity="0.2" />
-                </svg>
-                <FaFacebookF className="text-white relative z-10 w-[18px] h-[18px]" />
-              </a>
-              <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="relative w-[40px] h-[40px] flex items-center justify-center hover:opacity-80 transition-opacity">
-                <svg className="absolute inset-0" width="40" height="40" viewBox="0 0 40 40" fill="none">
-                  <circle cx="20" cy="20" r="20" fill="#E8F4FD" fillOpacity="0.2" />
-                </svg>
-                <FaYoutube className="text-white relative z-10 w-[20px] h-[20px]" />
-              </a>
-            </div>
-          </div>
-
-          {/* Column 2: Links Section */}
-          <div className="flex flex-col gap-[20px] md:gap-[30px] min-w-[150px]">
-            <h3 className="text-white font-['Outfit'] text-[22px] md:text-[25px] font-[500] leading-normal">Links</h3>
-            <ul className="flex flex-col gap-[12px] md:gap-[15px] list-none p-0 m-0">
-              {["Home", "about us", "services", "our team", "events", "contact us"].map((item) => (
-                <li key={item}>
-                  <a href={`/${item.replace(/\s/g, '').toLowerCase()}`} className="text-white font-['DM_Sans'] text-[16px] md:text-[18px] font-[400] leading-normal capitalize hover:opacity-80 transition-opacity">
-                    {item}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 3: Stay Connected */}
-          <div className="flex flex-col gap-[15px] w-full max-w-[388px]">
-            <h3 className="text-white font-['Outfit'] text-[25px] md:text-[30px] font-[500] leading-[100%] m-0">
-              Stay Connected
-            </h3>
-            <p className="text-white font-['DM_Sans'] text-[16px] md:text-[18px] font-[400] leading-[1.4] m-0 mb-[10px]">
-              We are committed to providing affordable & professional counselling services to the community
-            </p>
-            <form className="flex flex-col gap-[15px]" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="text"
-                placeholder="Full name"
-                className="w-full max-w-[354px] h-[50px] rounded-[10px] border border-white/50 bg-transparent px-[15px] text-white font-['DM_Sans'] text-[15px] outline-none placeholder:text-white/70 focus:border-white transition-colors box-border"
-              />
-              <div className="flex gap-[10px] w-full max-w-[354px]">
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  className="w-full max-w-[294px] h-[50px] rounded-[10px] border border-white/50 bg-transparent px-[15px] text-white font-['DM_Sans'] text-[15px] outline-none placeholder:text-white/70 focus:border-white transition-colors box-border"
-                />
-                <button
-                  type="submit"
-                  className="w-[50px] h-[50px] rounded-[10px] bg-white flex items-center justify-center hover:bg-gray-100 transition-colors shrink-0"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#1B4585">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                  </svg>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        {/* Separator */}
-        <div className="w-full h-[1px] bg-[rgba(255,255,255,0.25)] mb-[30px]"></div>
-
-        {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row justify-between items-center w-full text-white font-['DM_Sans'] text-[14px] md:text-[15px] font-[400] leading-normal gap-4 text-center md:text-left">
-          <p>© 2026 WINGS Counselling Centre. All rights reserved.</p>
-          <div className="flex items-center gap-[20px] md:gap-[40px]">
-            <a href="/privacy-policy" className="hover:opacity-80 transition-opacity">Privacy Policy</a>
-            <span className="opacity-100">|</span>
-            <a href="/terms-of-service" className="hover:opacity-80 transition-opacity">Terms of Service</a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
 export default function AboutUs() {
   const { openModal } = useAppointment();
+  const [, navigate] = useLocation();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -207,7 +100,7 @@ export default function AboutUs() {
         >
           <motion.div
             variants={itemVariants}
-            className="inline-flex items-center justify-center uppercase mb-6 sm:mb-8"
+            className="inline-flex items-center justify-center mb-6 sm:mb-8"
             style={{
               padding: "6px 16px",
               borderRadius: "9999px",
@@ -217,11 +110,11 @@ export default function AboutUs() {
               color: "#FFFFFF",
               fontFamily: "'Plus Jakarta Sans', sans-serif",
               fontWeight: 600,
-              fontSize: "12px",
+              fontSize: "20x",
               letterSpacing: "1.2px",
             }}
           >
-            About Wings Counselling centre
+            About WINGS Counselling Centre
           </motion.div>
 
           <motion.h1
@@ -245,6 +138,8 @@ export default function AboutUs() {
 
           <motion.button
             variants={itemVariants}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => {
               const journey = document.getElementById('journey-section');
               journey?.scrollIntoView({ behavior: 'smooth' });
@@ -261,33 +156,64 @@ export default function AboutUs() {
               fontSize: "clamp(15px, 1.5vw, 18px)",
             }}
           >
-            Explore Our Story
-            <ArrowDown size={18} color="#F5F9FF" />
+            Explore our story
+         <svg
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+>
+  <path
+    d="M6 9L12 15L18 9"
+    stroke="currentColor"
+    strokeWidth="3.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+</svg>
           </motion.button>
         </motion.div>
       </div>
 
-      {/* Quote Section (Refined) */}
-      <div
-        className="w-full flex justify-center items-center relative overflow-hidden shrink-0 py-12 sm:py-16 md:py-20"
-        style={{ background: "#E8F4FD" }}
-      >
-        <div className="w-full max-w-[1100px] relative flex flex-col items-center justify-center px-4 sm:px-12 md:px-16 py-8 md:py-12">
-          <p className="text-center z-10 text-[18px] sm:text-[24px] md:text-[32px] lg:text-[38px] font-semibold mb-6 sm:mb-8"
-            style={{ fontFamily: "'DM Sans', sans-serif", lineHeight: "1.4", color: "#1B4585", maxWidth: "1000px" }}
-          >
-            "Guidance and support provided at an early stage greatly enhances the ability of children and youth to cope — and to grow into well-adjusted, thriving adults."
-          </p>
-          <p className="text-center z-10 text-[16px] sm:text-[18px] md:text-[22px]"
-            style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, color: "#111827" }}
-          >
-            — Swami Jayadevananda, Founder's Vision, 1995
-          </p>
-        </div>
-      </div>
+     {/* Quote Section (Refined) */}
+<div
+  className="w-full flex justify-center items-center relative overflow-hidden shrink-0 py-8 sm:py-10 md:py-12"
+  style={{ background: "#E8F4FD" }}
+>
+  <div className="w-full max-w-[1100px] relative flex flex-col items-center justify-center px-4 sm:px-10 md:px-14 py-4 md:py-6">
+
+    <p
+      className="text-center z-10 text-[18px] sm:text-[24px] md:text-[32px] lg:text-[38px] font-semibold mb-4 sm:mb-5"
+      style={{
+        fontFamily: "'DM Sans', sans-serif",
+        lineHeight: "1.4",
+        color: "#1B4585",
+        maxWidth: "1000px",
+      }}
+    >
+      "Guidance and support provided at an early stage greatly enhances the
+      ability of children and youth to cope — and to grow into well-adjusted,
+      thriving adults."
+    </p>
+
+    <p
+      className="text-center z-10 text-[15px] sm:text-[17px] md:text-[20px]"
+      style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontWeight: 500,
+        color: "#111827",
+      }}
+    >
+      — Swami Jayadevananda, Founder's Vision, 1995
+    </p>
+  </div>
+</div>
 
       {/* Journey Section - TIMELINE WITH FIXED CENTER CIRCLE, BOXES APPEAR IN POSITION */}
-      <div id="journey-section" className="w-full flex justify-center bg-[#FDFDFD] py-12 sm:py-16 md:py-[100px] overflow-hidden">
+<div
+  id="journey-section"
+  className="w-full pt-8 sm:pt-10 md:pt-14 flex justify-center bg-[#FDFDFD] pb-12 sm:pb-16 md:pb-[100px] overflow-hidden"
+>
         <div className="w-full flex flex-col items-center">
 
           {/* Section Header */}
@@ -296,7 +222,7 @@ export default function AboutUs() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="inline-flex items-center justify-center uppercase mb-6"
+              className="inline-flex items-center justify-center mb-6"
               style={{
                 padding: "6px 16px",
                 borderRadius: "9999px",
@@ -304,11 +230,11 @@ export default function AboutUs() {
                 color: "#F7F6F3",
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontWeight: 600,
-                fontSize: "12px",
+                fontSize: "20px",
                 letterSpacing: "1.2px",
               }}
             >
-              Our Journey
+              Our journey
             </motion.div>
 
             <motion.h2
@@ -375,7 +301,7 @@ export default function AboutUs() {
                         className="w-full bg-white border border-[#E5E7EB] rounded-[20px] p-5 md:p-6 transition-shadow"
                       >
                         <div
-                          className="inline-flex items-center justify-center uppercase mb-4"
+                          className="inline-flex items-center justify-center mb-4"
                           style={{
                             padding: "6px 16px",
                             borderRadius: "9999px",
@@ -383,13 +309,12 @@ export default function AboutUs() {
                             color: "#FFFFFF",
                             fontFamily: "'Plus Jakarta Sans', sans-serif",
                             fontWeight: 500,
-                            fontSize: "10px",
+                            fontSize: "14px",
                             letterSpacing: "1.2px",
                           }}
                         >
                           {item.category}
                         </div>
-
                         <h3
                           className="text-[18px] md:text-[20px] font-medium mb-3"
                           style={{
@@ -423,7 +348,7 @@ export default function AboutUs() {
 
       {/* Founding Vision */}
       <div className="w-full flex justify-center bg-[#F3F4EE] py-12 sm:py-16 md:py-20 overflow-hidden">
-        <div className="w-full px-6 md:px-12 lg:px-[150px] flex flex-col lg:flex-row gap-8 lg:gap-10 items-start">
+        <div className="w-full px-6 md:px-12 lg:px-[150px] flex flex-col lg:flex-row gap-8 lg:gap-20 items-start">
           <motion.div
             initial={{ opacity: 0, x: -80 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -474,7 +399,7 @@ export default function AboutUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-              className="inline-flex uppercase mb-5"
+              className="inline-flex  mb-5"
               style={{
                 width: "max-content",
                 padding: "6px 16px",
@@ -483,11 +408,11 @@ export default function AboutUs() {
                 color: "#FFFFFF",
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontWeight: 600,
-                fontSize: "12px",
+                fontSize: "20px",
                 letterSpacing: "1.2px",
               }}
             >
-              The Founding Vision
+              The founding vision
             </motion.div>
 
             <motion.h2
@@ -496,7 +421,7 @@ export default function AboutUs() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
               className="text-[22px] sm:text-[28px] md:text-[32px] lg:text-[35px] font-medium mb-5"
-              style={{ fontFamily: "'Outfit', sans-serif", color: "#000000", lineHeight: "1.2" }}
+              style={{ fontFamily: "'Outfit', sans-serif", color: "#0D4A7A", lineHeight: "1.2" }}
             >
               Built on a belief that no one should struggle alone
             </motion.h2>
@@ -509,7 +434,7 @@ export default function AboutUs() {
                 hidden: { opacity: 0 },
                 visible: { opacity: 1, transition: { staggerChildren: 0.2, delayChildren: 0.6 } },
               }}
-              className="text-[15px] sm:text-[17px] md:text-[20px] leading-relaxed"
+              className="text-[15px] sm:text-[17px] md:text-[20px] leading-relaxed max-w-[850px]"
               style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, color: "#000000" }}
             >
               {[
@@ -538,7 +463,7 @@ export default function AboutUs() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="flex items-center justify-center uppercase mb-4 sm:mb-5"
+            className="flex items-center justify-center mb-4 sm:mb-5"
             style={{
               width: "max-content",
               padding: "6px 16px",
@@ -547,11 +472,11 @@ export default function AboutUs() {
               color: "#FFFFFF",
               fontFamily: "'Plus Jakarta Sans', sans-serif",
               fontWeight: 600,
-              fontSize: "12px",
+              fontSize: "20px",
               letterSpacing: "1.2px",
             }}
           >
-            Who We Serve
+            Who we serve
           </motion.div>
 
           <motion.h2
@@ -570,7 +495,7 @@ export default function AboutUs() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-            className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] leading-relaxed text-white mb-8 sm:mb-10"
+            className="text-[14px] sm:text-[16px] md:text-[20px] lg:text-[20px] leading-relaxed text-white mb-8 sm:mb-10"
             style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, maxWidth: "900px" }}
           >
             WINGS serves the full spectrum of life — from toddlers navigating their first classroom<br />
@@ -630,7 +555,7 @@ export default function AboutUs() {
                 <div className="flex flex-wrap gap-2 mt-auto">
                   {card.tags.map((tag, idx) => (
                     <span key={idx} className="flex items-center justify-center"
-                      style={{ padding: "4px 12px", borderRadius: "9999px", border: "1px solid rgba(255,255,255,0.6)", color: "#FFFFFF", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500, fontSize: "10px" }}>
+                      style={{ padding: "4px 12px", borderRadius: "9999px", border: "1px solid rgba(255,255,255,0.6)", color: "#FFFFFF", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500, fontSize: "12px" }}>
                       {tag}
                     </span>
                   ))}
@@ -641,27 +566,32 @@ export default function AboutUs() {
         </div>
       </div>
 
-      {/* Our Impact */}
-      <div className="w-full flex justify-center bg-[#F9FAFB] relative py-12 sm:py-16 md:py-[100px] overflow-hidden">
+     {/* Our Impact */}
+   <div className="w-full flex justify-center bg-[#F9FAFB] relative pt-12 sm:pt-16 md:pt-[80px] pb-8 sm:pb-10 md:pb-16 overflow-hidden">
         <div className="w-full px-4 sm:px-6 md:px-8 lg:px-[150px] flex flex-col items-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            className="flex items-center justify-center uppercase mb-5"
-            style={{
-              padding: "6px 16px",
-              borderRadius: "9999px",
-              background: "linear-gradient(90deg, #0D4A7A 0%, #1888E0 100%)",
-              color: "#FFFFFF",
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontWeight: 600,
-              fontSize: "12px",
-              letterSpacing: "1.2px",
-            }}
+            initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    style={{
+                        display: "inline-flex",
+                        padding: "8px 20px",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "9999px",
+                        background: "linear-gradient(90deg,#0D4A7A,#42A0BD)",
+                        color: "#FFF",
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        fontSize: "20px",
+                        fontWeight: "600",
+                        letterSpacing: "1.2px",
+                        marginBottom: "24px",
+                        minWidth: "180px",
+                        height: "42px"
+                    }}
           >
-            OUR IMPACT
+            Our impact
           </motion.div>
 
           <motion.h2
@@ -670,12 +600,26 @@ export default function AboutUs() {
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
             className="text-[22px] sm:text-[28px] md:text-[32px] lg:text-[35px] font-medium text-center mb-5"
-            style={{ fontFamily: "'Outfit', sans-serif", lineHeight: "1.4", color: "#000000", maxWidth: "600px" }}
+            style={{ fontFamily: "'Outfit', sans-serif", lineHeight: "1.4", color: "#0D4A7A", maxWidth: "600px" }}
           >
             A community built on trust and results
           </motion.h2>
 
-          <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-10 lg:gap-12 mb-12 sm:mb-16 md:mb-[100px]">
+          <p
+            className="text-[16px] sm:text-[18px] md:text-[20px] leading-[1.7] font-medium text-center mb-12"
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              color: "#000000",
+              maxWidth: "968px",
+            }}
+          >
+            Over three decades, WINGS has become one of Singapore's most trusted
+            Voluntary Welfare Organisations — delivering meaningful change not just
+            in counselling rooms, but in homes, schools, and communities across the
+            island.
+          </p>
+
+          <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-6 lg:gap-12 mb-6 sm:mb-8 md:mb-12">
             <div className="flex flex-col gap-6 sm:gap-8 flex-1">
               {[
                 "Served 15 primary and secondary schools across Singapore from 1995 to 2011 under the School Social Work initiative.",
@@ -746,97 +690,79 @@ export default function AboutUs() {
 
 
       {/* Navigation Support Section - Exact Design Specifications */}
-      <section className="w-full flex justify-center bg-[#F9FAFB] pb-24 md:pb-32">
+     <section className="w-full flex justify-center bg-[#F9FAFB] pt-0 pb-4 md:pb-6 lg:pb-12 -mt-8 md:-mt-12 px-[clamp(16px,4vw,150px)]">
 
-        {/* 150px Left & Right Space */}
-        <div className="w-full px-[150px]">
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="w-full flex flex-col items-center justify-center relative overflow-hidden py-12 md:py-0 md:h-[362px] text-white"
-            style={{
-              borderRadius: "20px",
-              backgroundImage: `linear-gradient(0deg, #00000094, #00000094), url('/assets/aboutusnavigate.jpg')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="w-full flex flex-col items-center justify-center relative overflow-hidden py-8 sm:py-10 md:py-12 lg:py-14 min-h-[260px] md:min-h-[300px] text-white rounded-[20px]"
+          style={{
+            backgroundImage: `linear-gradient(0deg, #00000094, #00000094), url('/assets/aboutusnavigate.jpg')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          {/* Title */}
+          <h2
+            className="font-medium text-center max-w-[90%] md:max-w-[823px] text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight md:leading-[100%] px-4"
+            style={{ fontFamily: "'Outfit', sans-serif", color: "#FFFFFF" }}
           >
-            {/* Title */}
-            <h2
-              className="font-medium text-center max-w-[823px] text-[28px] md:text-[50px] leading-[100%]"
-              style={{
-                fontFamily: "'Outfit', sans-serif",
-                color: "#FFFFFF",
-              }}
+            You don't have to navigate this alone.
+          </h2>
+
+          {/* Description */}
+          <p
+            className="font-medium text-center mt-6 md:mt-[35px] max-w-[90%] md:max-w-[940px] text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed md:leading-[34px] px-4"
+            style={{ fontFamily: "'DM Sans', sans-serif", color: "#FFFFFF" }}
+          >
+            Whether you're seeking support for yourself, your child, or your family —
+            our compassionate, accredited counsellors are here. Reach out today;
+            your first conversation is always confidential.
+          </p>
+
+          {/* Buttons - Side by side on ALL devices including mobile */}
+          <div className="flex flex-row justify-center gap-3 sm:gap-4 md:gap-5 items-center mt-8 md:mt-[45px] px-4 w-full sm:w-auto">
+
+            {/* Book Button */}
+           <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => openModal()}
+              className="flex items-center justify-center cursor-pointer px-4 sm:px-6 md:px-8 py-3 md:py-4 gap-2 rounded-full bg-[#1B4585] text-white font-semibold text-sm sm:text-base md:text-lg transition-all whitespace-nowrap"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: "140px" }}
             >
-              You don't have to navigate this alone.
-            </h2>
+              Book an appointment
+          
+              <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        d="M9 18L15 12L9 6"
+                        stroke="currentColor"
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+            </motion.button>
 
-            {/* Description */}
-            <p
-              className="font-medium text-center mt-[35px] max-w-[940px] text-[16px] md:text-[20px] leading-[28px] md:leading-[34px]"
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                color: "#FFFFFF",
-              }}
+         {/* Meet Team Button */}
+          <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate("/team")}
+              className="flex items-center justify-center cursor-pointer px-4 sm:px-6 md:px-8 py-3 md:py-4 rounded-full bg-transparent text-white border border-white font-semibold text-sm sm:text-base md:text-lg transition-all whitespace-nowrap"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: "140px" }}
             >
-              Whether you're seeking support for yourself, your child, or your family —
-              our compassionate, accredited counsellors are here. Reach out today;
-              your first conversation is always confidential.
-            </p>
-
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-[20px] items-center mt-[45px]">
-
-              {/* Book Button */}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => openModal()}
-                className="flex items-center justify-center cursor-pointer whitespace-nowrap"
-                style={{
-                  padding: "16px 32px",
-                  borderRadius: "9999px",
-                  background: "#1B4585",
-                  color: "#FFFFFF",
-                  border: "none",
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  fontWeight: 600,
-                  fontSize: "18px",
-                  height: "60px",
-                  width: "193px",
-                }}
-              >
-                Book a session
-              </motion.button>
-
-              {/* Meet Team Button */}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center justify-center cursor-pointer whitespace-nowrap"
-                style={{
-                  padding: "16px 32px",
-                  borderRadius: "9999px",
-                  background: "transparent",
-                  color: "#FFFFFF",
-                  border: "1px solid #FFFFFF",
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  fontWeight: 600,
-                  fontSize: "18px",
-                  height: "60px",
-                  width: "191px",
-                }}
-              >
-                Meet our team
-              </motion.button>
-
-            </div>
-          </motion.div>
-        </div>
+              Meet our team
+            </motion.button>
+          </div>
+        </motion.div>
       </section>
 
       <Footer />

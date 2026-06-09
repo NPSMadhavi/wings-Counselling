@@ -3,24 +3,25 @@ import { ArrowDown, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "../components/Layout/Footer.jsx";
 import { useAppointment } from "@/context/AppointmentContext";
+import { useLocation } from "wouter";
 
 const counsellingCards = [
     {
-        title: "Family Support & Counselling",
+        title: "Family support & Counselling",
         description: "Family therapy that helps resolve conflicts, improve communication, and strengthen bonds. We work with the entire family unit using a collaborative, systemic approach — addressing parenting challenges, family dynamics, and relational patterns that may be affecting the household.",
         price: "From $60/Session",
         duration: "15 Min",
         image: "/assets/FamilySupport.png"
     },
     {
-        title: "Marital & Couple Therapy",
+        title: "Marital & Couple therapy",
         description: "Couples face a myriad of stressors — work, children, differing life goals, and expectations. We employ a systemic therapeutic model that builds self-awareness, fosters understanding, and creates a secure space for both partners to work through challenges together or individually.",
         price: "From $60/Session",
         duration: "15 Min",
         image: "/assets/counselling2.jpg"
     },
     {
-        title: "Individual Therapy",
+        title: "Individual therapy",
         description: "For individuals experiencing work stress, relationship difficulties, transitional challenges, or personal dilemmas. Our counsellors use systemic communication, CBT, and expressive therapy to help you create lasting, meaningful change and improve your overall wellbeing.",
         price: "From $60/Session",
         duration: "15 Min",
@@ -34,14 +35,14 @@ const counsellingCards = [
         image: "/assets/counselling4.jpg"
     },
     {
-        title: "Children & Youth Counselling",
+        title: "Children & Youth counselling",
         description: "Young people face unique challenges during their developmental years. Our counsellors provide a safe, supportive space for children and youth to explore their feelings, build resilience, and develop healthy coping strategies.",
         price: "From $60/Session",
         duration: "15 Min",
         image: "/assets/counselling5.jpg"
     },
     {
-        title: "Adult Counselling (Ages 21–65)",
+        title: "Adult counselling (Ages 21–65)",
         description: "Life transitions, grief, marital difficulties, and work-related stress affect adults in profound ways. Our counsellors provide tailored, evidence-based support using therapeutic dialogue, experiential relationship building, and cognitive-behavioural techniques to help you achieve meaningful and lasting change",
         price: "From $60/Session",
         duration: "15 Min",
@@ -51,15 +52,15 @@ const counsellingCards = [
 
 const supervisionData = {
     title: "Supervision",
-    description: "Clinical internships & supervision for budding Counsellors. Kindly note that all our services are only available to Singapore Citizens, and Permanent Residents.",
+    description: "Clinical internships & supervision for budding counsellors. Kindly note that all our services are only available to singapore citizens, and permanent residents.",
     cards: [
         {
-            title: "Clinical Supervision",
+            title: "Clinical supervision",
             description: "WINGS has been a popular destination for internships since 2000. We provide clinical internships and supervision for budding counsellors who have strong theoretical knowledge but need to develop the micro-skills required for practical implementation. Supervision can be arranged as formal internships, attachments, or regular supervision sessions for those seeking SAC registration.",
             image: "/assets/supervisionImage.jpg"
         },
         {
-            title: "Personal Therapy for Counsellors",
+            title: "Personal therapy for counsellors",
             description: "While training to become a counsellor, personal therapy is a critical part of professional development. Experiencing the client's role builds genuine empathy — helping counsellors understand the anxieties of first disclosure, the challenge of trust, and the vulnerability that clients bring to every session. Personal therapy also helps future counsellors manage their own discomforts and better handle transferences and counter-transferences in practice.",
             image: "/assets/supervisionImage1.jpg"
         }
@@ -71,27 +72,27 @@ const trainingData = {
     description: "Assessment, treatment, and management of clinical conditions that impair emotional, cognitive, physical, behavioural, and social functioning.\nKindly note that all our services are only available to Singapore Citizens, and Permanent Residents.",
     cards: [
         {
-            title: "School Outreach Programmes",
-            description: "Custom workshops and talks for primary and secondary schools across Singapore. Programmes are tailored for students, parents, or teachers — addressing social-emotional learning, mental health literacy, peer relationships, and resilience building. Delivered by trained counsellors with experience in school settings.",
+            title: "School outreach programmes",
+            description: "Custom workshops and talks for primary and secondary schools across singapore. Programmes are tailored for students, parents, or teachers — addressing social-emotional learning, mental health literacy, peer relationships, and resilience building. Delivered by trained counsellors with experience in school settings.",
             tags: ["Students", "Parents", "Teachers", "SEL"],
             image: "/assets/training.jpg"
         },
         {
-            title: "Workplace Wellness Workshops",
+            title: "Workplace wellness workshops",
             description: "For national and multinational companies seeking to invest in their employees' mental health. Our workshops cover stress management, burnout prevention, communication skills, and emotional resilience. Custom programmes can be designed to meet your organisation's specific goals and workforce profile.",
-            tags: ["Stress Management", "Burnout", "Resilience", "EQ Skills"],
+            tags: ["Stress management", "Burnout", "Resilience", "EQ skills"],
             image: "/assets/training1.jpg"
         },
         {
-            title: "Community Organisation Programmes",
+            title: "Community organisation programmes",
             description: "Talks and workshops designed for voluntary welfare organisations, religious groups, and community centres. We help community leaders and volunteers understand mental health, support vulnerable populations, and create environments where residents feel safe to seek help. All programmes are co-designed with your community in mind.",
-            tags: ["VWOs", "CCs", "Religious Groups", "Caregivers"],
+            tags: ["VWOs", "CCs", "Religious groups", "Caregivers"],
             image: "/assets/training2.jpg"
         },
         {
-            title: "Skill-Based Parenting Workshops",
+            title: "Skill-based parenting workshops",
             description: "Developed originally under the Ministry of Community Youth and Sports' Family-life Education programme, our parenting workshops adopt a three-pronged approach — working with schools, homes, and the community together. Practical, skills-based, and delivered by counsellors who work with families daily.",
-            tags: ["Stress Management", "Burnout", "Resilience", "EQ Skills"],
+            tags: ["Stress management", "Burnout", "Resilience", "EQ skills"],
             image: "/assets/training3.jpg"
         }
     ]
@@ -101,6 +102,26 @@ export default function ServicePage() {
     const { openModal } = useAppointment();
     const [activeTab, setActiveTab] = useState("counselling");
     const [hoveredButton, setHoveredButton] = useState(null);
+    const [, setLocation] = useLocation();
+
+    // Sync tab with URL hash
+    React.useEffect(() => {
+        const handleHash = () => {
+            const hash = window.location.hash.replace("#", "");
+            if (["counselling", "supervision", "training"].includes(hash)) {
+                setActiveTab(hash);
+                // Scroll to tabs section if needed
+                const tabsEl = document.querySelector(".tab-selector");
+                if (tabsEl) {
+                    tabsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+            }
+        };
+
+        handleHash();
+        window.addEventListener("hashchange", handleHash);
+        return () => window.removeEventListener("hashchange", handleHash);
+    }, []);
 
     const getTitle = () => {
         switch (activeTab) {
@@ -204,6 +225,14 @@ export default function ServicePage() {
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                                document
+                                    .getElementById("services-tabs")
+                                    ?.scrollIntoView({
+                                        behavior: "smooth",
+                                        block: "start",
+                                    });
+                            }}
                             className="flex items-center justify-center border-none cursor-pointer"
                             style={{
                                 height: "clamp(48px, 6vw, 60px)",
@@ -221,9 +250,22 @@ export default function ServicePage() {
                                     color: "#FFFFFF",
                                 }}
                             >
-                                Explore Our Services
+                                Explore our services
                             </span>
-                            <ArrowDown size={20} color="#FFFFFF" />
+                       <svg
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+>
+  <path
+    d="M6 9L12 15L18 9"
+    stroke="white"
+    strokeWidth="3.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+</svg>
                         </motion.button>
                     </motion.div>
                 </div>
@@ -234,10 +276,11 @@ export default function ServicePage() {
 
                 {/* Tab Selector - CENTERED */}
                 <motion.div
+                    id="services-tabs"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="flex mt-10 sm:mt-16 md:mt-20 w-full max-w-full sm:max-w-[800px] mx-auto overflow-x-auto no-scrollbar"
+                    className="flex mt-10 sm:mt-16 md:mt-20 w-full max-w-full sm:max-w-[800px] mx-auto overflow-x-auto no-scrollbar tab-selector"
                     style={{
                         height: "clamp(48px, 7vw, 60px)",
                         borderRadius: "30px",
@@ -257,7 +300,7 @@ export default function ServicePage() {
                             whileTap={{ scale: 0.98 }}
                             animate={{
                                 backgroundColor: activeTab === tab ? "#FFFFFF" : "transparent",
-                                color: activeTab === tab ? "#000000" : "#FFFFFF",
+                                color: activeTab === tab ? "#0D4A7A" : "#FFFFFF",
                             }}
                             transition={{ duration: 0.3, ease: "easeInOut" }}
                             style={{
@@ -277,7 +320,7 @@ export default function ServicePage() {
                                 padding: "0 clamp(8px, 2vw, 16px)",
                             }}
                         >
-                            {tab === "counselling" ? "Counselling" : tab === "supervision" ? "Supervision" : "Training & Workshops"}
+                            {tab === "counselling" ? "Counselling & Therapy" : tab === "supervision" ? "Supervision" : "Training & Workshops"}
                         </motion.div>
                     ))}
                 </motion.div>
@@ -296,7 +339,7 @@ export default function ServicePage() {
                             className="text-[24px] sm:text-[28px] md:text-[32px] lg:text-[35px] font-medium mb-4"
                             style={{
                                 fontFamily: "'Outfit', sans-serif",
-                                color: "#000000",
+                                color: "#0D4A7A",
                                 lineHeight: "1.2",
                             }}
                         >
@@ -332,7 +375,7 @@ export default function ServicePage() {
                         animate="visible"
                         exit="exit"
                         transition={{ duration: 0.5, ease: "easeOut" }}
-                        className={`mt-10 sm:mt-12 grid gap-4 sm:gap-5 md:gap-6 w-full ${isCounsellingTab
+                        className={`mt-10 sm:mt-12 grid gap-4 sm:gap-5 md:gap-6 w-full cursor-pointer ${isCounsellingTab
                             ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
                             : "grid-cols-1 md:grid-cols-2 max-w-[1000px] mx-auto"
                             }`}
@@ -355,6 +398,7 @@ export default function ServicePage() {
                             >
                                 {/* Image */}
                                 <motion.div
+                                    onClick={() => setLocation("/SubService")}
                                     whileHover={{ scale: 1.05 }}
                                     transition={{ duration: 0.4 }}
                                     className="w-full"
@@ -387,20 +431,29 @@ export default function ServicePage() {
                                 {/* Body */}
                                 <div className="flex flex-col flex-1 p-4 sm:p-5">
                                     {/* Description */}
-                                    <p
-                                        className="text-[14px] sm:text-[15px] md:text-[15px] leading-relaxed mb-4"
-                                        style={{
-                                            fontFamily: "'DM Sans', sans-serif",
-                                            fontWeight: 400,
-                                            color: "#000000",
-                                            display: "-webkit-box",
-                                            WebkitLineClamp: 4,
-                                            WebkitBoxOrient: "vertical",
-                                            overflow: "hidden",
-                                        }}
-                                    >
-                                        {card.description}
-                                    </p>
+                                 <p
+    className="text-[14px] sm:text-[15px] md:text-[15px] leading-relaxed mb-4"
+    style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontWeight: 400,
+        color: "#000000",
+    }}
+>
+    {card.description.slice(0, 180)}...
+
+    <span
+        onClick={() => setLocation("/SubService")}
+        style={{
+            color: "#1B4585",
+            textDecoration: "underline",
+            cursor: "pointer",
+            fontWeight: 500,
+            marginLeft: "2px",
+        }}
+    >
+        Read more
+    </span>
+</p>
 
                                     {/* Tags – Training tab */}
                                     {isTrainingTab && card.tags && (
@@ -411,7 +464,7 @@ export default function ServicePage() {
                                                     style={{
                                                         fontFamily: "'DM Sans', sans-serif",
                                                         fontWeight: 500,
-                                                        fontSize: "11px",
+                                                        fontSize: "14px",
                                                         padding: "4px 12px",
                                                         backgroundColor: "#F0F4F8",
                                                         color: "#1B4585",
@@ -429,7 +482,7 @@ export default function ServicePage() {
                                         <motion.button
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
-                                            onClick={() => openModal()}
+                                            onClick={() => openModal(card.title)}
                                             className="flex items-center justify-center gap-2 mt-auto w-full cursor-pointer transition-all duration-300"
                                             style={{
                                                 padding: "12px 20px",
@@ -444,8 +497,22 @@ export default function ServicePage() {
                                             onMouseEnter={() => setHoveredButton(index)}
                                             onMouseLeave={() => setHoveredButton(null)}
                                         >
-                                            Book an Appointment
-                                            <ArrowRight size={16} color={hoveredButton === index ? "#FFFFFF" : "#1B4585"} />
+                                            Book an appointment
+                                            
+                                            <svg
+                                                width="20"
+                                                height="20"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                >
+                                                <path
+                                                    d="M9 18L15 12L9 6"
+                                                    stroke="currentColor"
+                                                    strokeWidth="3.5"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                />
+                                            </svg>
                                         </motion.button>
                                     )}
                                 </div>
@@ -458,7 +525,7 @@ export default function ServicePage() {
             {/* Footer */}
             <Footer />
 
-            <style jsx>{`
+            <style>{`
                 .no-scrollbar::-webkit-scrollbar {
                     display: none;
                 }

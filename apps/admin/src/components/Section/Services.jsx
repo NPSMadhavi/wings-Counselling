@@ -1,11 +1,12 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { navigate } from "wouter/use-browser-location";
 
 /* ─── Service Data ─────────────────────────────────────────── */
 const services = [
   {
     id: 1,
-    title: "Personal Therapy",
+    title: "Personal therapy",
     description:
       "One-on-one sessions tailored to your unique needs, using evidence-based approaches like CBT, EMDR, and mindfulness.",
     image: "/assets/aboutImage1.jpg",
@@ -19,129 +20,110 @@ const services = [
   },
   {
     id: 3,
-    title: "Family Support & Counseling",
+    title: "Family support & Counseling",
     description:
       "Support for families navigating challenges such as conflict resolution, parenting strategies, and improving family dynamics.",
     image: "/assets/FamilySupport.png",
   },
   {
     id: 4,
-    title: "Couples Counselling",
+    title: "Couples counselling",
     description:
       "One-on-one support for adults, youth, and children (2.5–65 years). Covering anxiety, grief, depression, life transitions, and more.",
     image: "/assets/couplesImage.png",
   },
   {
     id: 5,
-    title: "Youth Counselling",
+    title: "Youth counselling",
     description:
       "Specialised support for adolescents navigating the pressures of school, identity, relationships, and mental health challenges.",
     image: "/assets/aboutImage2.jpg",
   },
   {
     id: 6,
-    title: "Grief & Loss Support",
+    title: "Grief & Loss support",
     description:
       "Compassionate guidance to help individuals process loss and find a path toward healing and acceptance.",
     image: "/assets/aboutImage3.jpg",
   },
   {
     id: 7,
-    title: "Trauma & PTSD Therapy",
+    title: "Trauma & PTSD therapy",
     description:
       "Evidence-based trauma therapy using EMDR, somatic approaches, and narrative techniques to help you heal from past wounds.",
     image: "/assets/howituseImage.jpg",
   },
   {
     id: 8,
-    title: "Child & Play Therapy",
+    title: "Child & Play therapy",
     description:
       "Creative, child-friendly therapeutic approaches for children aged 2.5–12 years to express and process their emotions.",
     image: "/assets/FamilySupport.png",
   },
 ];
 
-/* ─── Arrow Icon ────────────────────────────────────────────── */
+/* ─── Arrow Icon ───────────────────────────────────────────── */
 function ArrowIcon({ direction = "right" }) {
-  if (direction === "left") {
-    return (
-      <svg xmlns="http://www.w3.org/2000/svg" width="17" height="13" viewBox="0 0 17 13" fill="none">
-        <path d="M15.4167 6.25H0.75M0.75 6.25L6.25 11.75M0.75 6.25L6.25 0.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    );
-  }
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="13" viewBox="0 0 17 13" fill="none">
-      <path d="M0.75 6.25H15.4167M15.4167 6.25L9.9167 11.75M15.4167 6.25L9.9167 0.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d={direction === "left" ? "M15 6L9 12L15 18" : "M9 6L15 12L9 18"}
+        stroke="white"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
-// Animation variants for cards
+/* ─── Animations ───────────────────────────────────────────── */
 const cardVariants = {
   hidden: {
     opacity: 0,
-    y: 80,
-    scale: 0.9
+    y: 60,
+    scale: 0.95,
   },
   visible: (custom) => ({
     opacity: 1,
     y: 0,
     scale: 1,
     transition: {
-      type: "spring",
-      stiffness: 200,
-      damping: 20,
-      delay: custom * 0.15
-    }
-  })
+      duration: 0.6,
+      delay: custom * 0.12,
+    },
+  }),
 };
 
-const arrowVariants = {
-  hidden: { opacity: 0, scale: 0 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      type: "spring",
-      stiffness: 300,
-      damping: 15,
-      delay: 1.2
-    }
-  },
-  hover: {
-    scale: 1.1,
-    transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 10
-    }
-  },
-  tap: {
-    scale: 0.95
-  }
-};
-
-/* ─── Main Component ────────────────────────────────────────── */
+/* ─── Main Component ───────────────────────────────────────── */
 export function Services() {
   const scrollRef = useRef(null);
   const sectionRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+
   const [isVisible, setIsVisible] = useState(false);
   const [cardsPerView, setCardsPerView] = useState(4);
 
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start end", "end start"]
+    offset: ["start end", "end start"],
   });
 
   const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "5%"]);
 
-  // Handle responsive cards per view
+  /* Responsive Cards */
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
+
       if (width < 640) {
         setCardsPerView(1);
       } else if (width < 1024) {
@@ -152,28 +134,40 @@ export function Services() {
     };
 
     handleResize();
+
     window.addEventListener("resize", handleResize);
+
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  /* Arrow States */
   const updateArrows = () => {
     const el = scrollRef.current;
+
     if (!el) return;
+
     setCanScrollLeft(el.scrollLeft > 5);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 5);
+
+    setCanScrollRight(
+      el.scrollLeft < el.scrollWidth - el.clientWidth - 5
+    );
   };
 
   useEffect(() => {
     const el = scrollRef.current;
+
     if (!el) return;
+
     updateArrows();
+
     window.addEventListener("resize", updateArrows);
+
     return () => {
       window.removeEventListener("resize", updateArrows);
     };
   }, [cardsPerView]);
 
-  // Trigger animations when section comes into view
+  /* Section Visibility */
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -183,25 +177,38 @@ export function Services() {
       },
       { threshold: 0.1 }
     );
+
     if (sectionRef.current) {
       observer.observe(sectionRef.current);
     }
+
     return () => observer.disconnect();
   }, []);
 
+  /* Scroll Function */
   const scrollBy = (dir) => {
     const container = scrollRef.current;
+
     if (!container) return;
+
     const cardWidth = container.children[0]?.offsetWidth || 0;
+
     const gap = 20;
+
     const scrollAmount = (cardWidth + gap) * cardsPerView;
-    container.scrollBy({ left: dir * scrollAmount, behavior: "smooth" });
+
+    container.scrollBy({
+      left: dir * scrollAmount,
+      behavior: "smooth",
+    });
+
     setTimeout(updateArrows, 300);
   };
 
-  // Calculate card width based on cards per view
+  /* Card Width */
   const getCardWidth = () => {
     const totalGap = 20 * (cardsPerView - 1);
+
     return `calc((100% - ${totalGap}px) / ${cardsPerView})`;
   };
 
@@ -209,313 +216,275 @@ export function Services() {
     <motion.section
       id="services"
       ref={sectionRef}
-      style={{
-        width: "100%",
-        background: "#D9E1E8",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        paddingTop: "48px",
-        paddingBottom: "60px",
-        minHeight: "600px",
-        position: "relative",
-        overflow: "hidden"
-      }}
-      className="sm:py-12 md:py-16 lg:py-20"
+      className="
+        relative
+        w-full
+        overflow-hidden
+        bg-[#D9E1E8]
+        pt-[40px]
+        pb-[60px]
+
+      "
     >
+      {/* Background Motion */}
       <motion.div
-        className="absolute inset-0 pointer-events-none opacity-40"
+        className="absolute inset-0 opacity-40 pointer-events-none"
         style={{ y: bgY }}
       />
-      {/* Main container - responsive padding */}
-      <div className="w-full flex flex-col items-center px-4 sm:px-8 md:px-12 lg:px-[100px] xl:px-[150px] box-border">
-        {/* Badge with animation */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          style={{
-            display: "inline-flex",
-            padding: "6px 16px",
-            borderRadius: "9999px",
-            background: "linear-gradient(90deg, #0D4A7A 0%, #1888E0 100%)",
-            color: "#FFF",
-            fontSize: "12px",
-            fontWeight: "600",
-            letterSpacing: "1.2px",
-            textTransform: "uppercase",
-            marginBottom: "20px",
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
-          }}
-        >
-          WHAT WE OFFER
-        </motion.div>
 
-        {/* Heading with animation */}
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          style={{
-            color: "#000",
-            textAlign: "center",
-            fontFamily: "Outfit, sans-serif",
-            fontSize: "28px",
-            fontWeight: "600",
-            marginBottom: "12px",
-          }}
-          className="sm:text-[36px] md:text-[42px] lg:text-[48px]"
-        >
-          Our Services
-        </motion.h2>
+      {/* Main Container — aligned with Navbar */}
+      <div className="relative w-full navbar-align-outer">
+        <div className="navbar-align-inner">
 
-        {/* Subheading with animation */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          style={{
-            color: "#000",
-            textAlign: "center",
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "14px",
-            fontWeight: "400",
-            marginBottom: "32px",
-            maxWidth: "700px"
-          }}
-          className="sm:text-[16px] md:text-[18px] lg:text-[20px]"
-        >
-          Comprehensive counselling support for every stage of life
-        </motion.p>
+        {/* Header */}
+        <div className="relative flex flex-col items-center mb-10">
 
-        {/* Carousel Container - Responsive cards */}
-        <div
-          ref={scrollRef}
-          onScroll={updateArrows}
-          style={{
-            display: "flex",
-            gap: "16px",
-            overflowX: "auto",
-            width: "100%",
-            scrollBehavior: "smooth",
-            position: "relative",
-            cursor: "default",
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
-          className="no-scrollbar"
-        >
-          {services.map((service, index) => (
-            <motion.div
-              key={service.id}
-              custom={index}
-              variants={cardVariants}
-              initial="hidden"
-              animate={isVisible ? "visible" : "hidden"}
-              viewport={{ once: true, amount: 0.2 }}
-              style={{
-                width: getCardWidth(),
-                minWidth: getCardWidth(),
-                flexShrink: 0
-              }}
-            >
-              <ServiceCard service={service} cardIndex={index} />
-            </motion.div>
-          ))}
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            style={{
+              display: "inline-flex",
+              padding: "8px 20px",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: "9999px",
+              background: "linear-gradient(90deg,#0D4A7A,#42A0BD)",
+              color: "#FFF",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: "20px",
+              fontWeight: "600",
+              letterSpacing: "1.2px",
+              marginBottom: "24px",
+              minWidth: "180px",
+              height: "42px"
+            }}
+          >
+            What we offer
+          </motion.div>
+
+          {/* Heading */}
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="
+              text-[28px]
+              md:text-[35px]
+              text-center
+              mb-4
+              font-['Outfit']
+              font-medium
+              "
+            style={{ color: "#0D4A7A" }}
+          >
+            Our services
+          </motion.h2>
+
+          {/* Subheading */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="
+              text-black
+              text-center
+              font-['DM_Sans']
+              text-[15px]
+              md:text-[20px]
+              font-normal
+              max-w-[700px]
+            "
+          >
+            Comprehensive counselling support for every stage of life
+          </motion.p>
+
         </div>
 
-        {/* Bottom Arrows */}
-        <motion.div
-          variants={arrowVariants}
-          initial="hidden"
-          animate={isVisible ? "visible" : "hidden"}
-          style={{ display: "flex", gap: "16px", marginTop: "32px" }}
-          className="sm:gap-5 sm:mt-8 md:mt-10"
-        >
-          <motion.button
+        {/* Cards Row with side arrows */}
+        <div className="flex items-center gap-3">
+
+          {/* Left Arrow */}
+          <button
             onClick={() => scrollBy(-1)}
-            whileHover="hover"
-            whileTap="tap"
-            variants={arrowVariants}
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "9999px",
-              background: canScrollLeft ? "#1B4585" : "#CCCCCC",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "none",
-              cursor: canScrollLeft ? "pointer" : "not-allowed",
-              opacity: canScrollLeft ? 1 : 0.5,
-              transition: "all 0.3s ease"
-            }}
-            className="sm:w-[41px] sm:h-[39px]"
             disabled={!canScrollLeft}
+            className={`
+              hidden md:flex
+              flex-shrink-0
+              w-[44px] h-[44px]
+              rounded-full
+              items-center
+              justify-center
+              transition-all duration-300
+              ${canScrollLeft
+                ? "bg-[#1B4585] hover:scale-105 cursor-pointer shadow-md"
+                : "bg-[#B0BAC4] opacity-50 cursor-not-allowed"
+              }
+            `}
           >
             <ArrowIcon direction="left" />
-          </motion.button>
+          </button>
 
-          <motion.button
+          {/* Scrollable Cards */}
+          <div
+            ref={scrollRef}
+            onScroll={updateArrows}
+            className="flex items-stretch gap-5 overflow-x-auto scroll-smooth no-scrollbar flex-1"
+          >
+            {services.map((service, index) => (
+              <motion.div
+                key={service.id}
+                custom={index}
+                variants={cardVariants}
+                initial="hidden"
+                animate={isVisible ? "visible" : "hidden"}
+                viewport={{ once: true, amount: 0.2 }}
+                style={{
+                  width: getCardWidth(),
+                  minWidth: getCardWidth(),
+                }}
+                className="flex-shrink-0 flex flex-col"
+              >
+                <ServiceCard service={service} />
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Right Arrow */}
+          <button
             onClick={() => scrollBy(1)}
-            whileHover="hover"
-            whileTap="tap"
-            variants={arrowVariants}
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "9999px",
-              background: canScrollRight ? "#1B4585" : "#CCCCCC",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "none",
-              cursor: canScrollRight ? "pointer" : "not-allowed",
-              opacity: canScrollRight ? 1 : 0.5,
-              transition: "all 0.3s ease"
-            }}
-            className="sm:w-[41px] sm:h-[39px]"
             disabled={!canScrollRight}
+            className={`
+              hidden md:flex
+              flex-shrink-0
+              w-[44px] h-[44px]
+              rounded-full
+              items-center
+              justify-center
+              transition-all duration-300
+              ${canScrollRight
+                ? "bg-[#1B4585] hover:scale-105 cursor-pointer shadow-md"
+                : "bg-[#B0BAC4] opacity-50 cursor-not-allowed"
+              }
+            `}
           >
             <ArrowIcon direction="right" />
-          </motion.button>
-        </motion.div>
+          </button>
+
+        </div>
+        </div>
       </div>
-
-
     </motion.section>
   );
 }
 
-/* ─── Service Card ──────────────────────────────────────────── */
-function ServiceCard({ service, cardIndex }) {
+/* ─── Service Card ─────────────────────────────────────────── */
+function ServiceCard({ service }) {
   const [hovered, setHovered] = useState(false);
 
   return (
     <motion.div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      variants={cardVariants}
-      custom={cardIndex}
-      style={{
-        width: "100%",
-        minHeight: "320px",
-        borderRadius: "10px",
-        background: "#FFF",
+      animate={{
         boxShadow: hovered
           ? "0 20px 40px rgba(0,0,0,0.15)"
           : "0 2px 8px rgba(0,0,0,0.08)",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        transition: "box-shadow 0.3s ease",
-        cursor: "pointer",
-        flexShrink: 0
       }}
+      className="
+        w-full
+        h-full
+        bg-white
+        rounded-[12px]
+        overflow-hidden
+        flex
+        flex-col
+        transition-all
+        duration-300
+        cursor-pointer
+        
+      "
     >
-      {/* Image area with gradient overlay + title */}
+      {/* Image */}
       <div
+        className="
+          relative
+          w-full
+          h-[220px]
+          bg-cover
+          bg-center
+          flex
+          items-end
+          p-4
+        "
         style={{
-          width: "100%",
-          height: "clamp(160px, 22vw, 206px)",
-          borderRadius: "5px 5px 0 0",
-          backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.0) 40%, rgba(0,0,0,0.65) 100%), url('${service.image}')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          display: "flex",
-          alignItems: "flex-end",
-          padding: "0 0 15px 15px",
-          boxSizing: "border-box",
-          position: "relative",
-          overflow: "hidden"
+          backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.65) 100%), url('${service.image}')`,
         }}
       >
-        <span
-          style={{
-            color: "#FFF",
-            fontFamily: "Outfit, sans-serif",
-            fontSize: "20px",
-            fontWeight: "500",
-            lineHeight: "normal",
-            maxWidth: "260px",
-            wordWrap: "break-word",
-          }}
+        <h3
+          className="
+            text-white
+            font-['Outfit']
+            text-[22px]
+            font-medium
+            max-w-[260px]
+          "
         >
           {service.title}
-        </span>
+        </h3>
       </div>
 
-      {/* Card body */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "14px 14px 16px 14px",
-          boxSizing: "border-box",
-        }}
-      >
+      {/* Content */}
+      <div className="flex flex-col flex-1 min-h-0 p-4">
+
         {/* Description */}
         <p
-          style={{
-            width: "100%",
-            color: "#000",
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "15px",
-            fontWeight: "400",
-            lineHeight: "1.5",
-            margin: 0,
-            overflow: "hidden",
-            display: "-webkit-box",
-            WebkitLineClamp: 4,
-            WebkitBoxOrient: "vertical",
-          }}
+          className="
+            text-black
+            font-['DM_Sans']
+            text-[15px]
+            leading-[1.6]
+            line-clamp-3
+            min-h-[4.8rem]
+            flex-1
+          "
         >
           {service.description}
         </p>
 
-        {/* Learn More */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            cursor: "pointer",
-            marginTop: "12px",
-          }}
-          onClick={() => { }}
-        >
-          <span
-            style={{
-              color: "#1E3A8A",
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "15px",
-              fontWeight: "400",
-              lineHeight: "normal",
-            }}
-          >
-            Learn More
-          </span>
-          <motion.svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
-            viewBox="0 0 22 22"
-            fill="none"
-            style={{ display: "block", flexShrink: 0 }}
-            animate={{ x: hovered ? 5 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <path
-              d="M3.66666 11H18.3333M18.3333 11L12.8333 16.5M18.3333 11L12.8333 5.5"
-              stroke="#1E3A8A"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </motion.svg>
-        </div>
+     {/* Learn More */}
+<div className="flex items-center gap-2 mt-auto pt-4 cursor-pointer shrink-0">
+  <span
+  onClick={() => navigate("/SubService")}
+    className="
+      text-[#1E3A8A]
+      font-['DM_Sans']
+      text-[15px]
+      font-medium
+      flex items-center gap-1
+    "
+  >
+    Read more
+
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M9 18L15 12L9 6"
+        stroke="currentColor"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  </span>
+</div>
       </div>
     </motion.div>
   );

@@ -1,118 +1,76 @@
-import { motion, AnimatePresence, useScroll, useTransform, useInView } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+  useInView,
+} from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { useAppointment } from "@/context/AppointmentContext";
+import { useLocation } from "wouter";
 
-// Hero content items that will rotate
+// Hero content items
 const heroItems = [
   {
     id: 1,
-    badge: "A SAFE SPACE FOR YOU",
-    headline: "Feeling Overwhelmed ?",
-    description: "At Wings, we believe in a sanctuary for the mind. Our non clinical, empathetic approach helps you navigate life's complexities with professional guidance",
+    badge: "A Safe space for you",
+    headline: "Feeling overwhelmed ?",
+    description:
+      "At Wings, we believe in a sanctuary for the mind. Our non clinical, empathetic approach helps you navigate life's complexities with professional guidance",
     highlightText: "You're not alone.",
-    highlightColor: "#42A0BD",
+    highlightColor: "#8EC9F0",
     buttonText: "Book an appointment",
-    buttonLink: "#contact",
-    secondaryButtonText: "Learn Our Approach",
-    secondaryButtonLink: "#about"
+    secondaryButtonText: "Learn our approach",
   },
   {
     id: 2,
-    badge: "PROFESSIONAL SUPPORT",
+    badge: "Professional support",
     headline: "Find the path that feels right for you.",
-    description: "We offer specialized counselling for every stage of life. Explore our therapeutic services designed to bring clarity and peace to your unique journey.",
-    highlightText: "",
+    description:
+      "We offer specialized counselling for every stage of life. Explore our therapeutic services designed to bring clarity and peace to your unique journey.",
     buttonText: "Book an appointment",
-    buttonLink: "#contact",
-    secondaryButtonText: "Learn Our Approach",
-    secondaryButtonLink: "#about"
+    secondaryButtonText: "Learn our approach",
   },
 ];
 
-// Staggered animation variants for bottom to top animation
+// Animations
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.4,
-      delayChildren: 0.2
-    }
+      staggerChildren: 0.25,
+      delayChildren: 0.15,
+    },
   },
-  exit: {
-    opacity: 0,
-    transition: {
-      staggerChildren: 0.1,
-      staggerDirection: -1
-    }
-  }
+  exit: { opacity: 0 },
 };
 
-// Bottom to top animation for each item
 const itemVariants = {
-  hidden: {
-    opacity: 0,
-    y: 60
-  },
+  hidden: { opacity: 0, y: 40 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 250,
-      damping: 25,
-      duration: 0.7
-    }
+    transition: { type: "spring", stiffness: 220, damping: 22 },
   },
-  exit: {
-    opacity: 0,
-    y: -30,
-    transition: {
-      duration: 0.3
-    }
-  }
+  exit: { opacity: 0, y: -20 },
 };
 
-// Bottom to top animation for buttons
 const buttonVariants = {
-  hidden: {
-    opacity: 0,
-    y: 60
-  },
+  hidden: { opacity: 0, y: 40 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 250,
-      damping: 25,
-      duration: 0.7,
-      delay: 0.8
-    }
+    transition: { delay: 0.5 },
   },
-  exit: {
-    opacity: 0,
-    y: -30,
-    transition: {
-      duration: 0.3
-    }
-  }
 };
 
-// Arrow icon component for button hover effect
 const ArrowIcon = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    style={{ marginLeft: "8px" }}
-  >
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
     <path
-      d="M5 12H19M19 12L13 6M19 12L13 18"
+      d="M9 18L15 12L9 6"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="3"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
@@ -121,37 +79,43 @@ const ArrowIcon = () => (
 
 export function Hero() {
   const { openModal } = useAppointment();
+  const [, setLocation] = useLocation();
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
+
   const containerRef = useRef(null);
   const videoRef = useRef(null);
-  const isInView = useInView(containerRef, { amount: 0.1 });
+
+  const isInView = useInView(containerRef, { amount: 0.2 });
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end start"]
+    offset: ["start start", "end start"],
   });
 
-  // Slower video scale and opacity transitions
-  const videoScale = useTransform(scrollYProgress, [0, 1], [1.05, 1.02]);
+  const videoScale = useTransform(scrollYProgress, [0, 1], [1.05, 1]);
   const videoOpacity = useTransform(scrollYProgress, [0, 1], [0.7, 0.3]);
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, -80]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, -60]);
 
+  // Video control
   useEffect(() => {
-    if (videoRef.current) {
-      if (isInView) {
-        videoRef.current.play().catch(() => { });
-      } else {
-        videoRef.current.pause();
-      }
+    if (!videoRef.current) return;
+
+    videoRef.current.playbackRate = 0.6;
+
+    if (isInView) {
+      videoRef.current.play().catch(() => { });
+    } else {
+      videoRef.current.pause();
     }
   }, [isInView]);
 
+  // Auto rotate content
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % heroItems.length);
-    }, 6000);
+      setCurrentIndex((prev) => (prev + 1) % heroItems.length);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, []);
@@ -160,12 +124,10 @@ export function Hero() {
 
   return (
     <section
-      id="home"
       ref={containerRef}
-      className="relative h-screen min-h-[600px] flex items-center overflow-hidden"
-      style={{ width: "100%" }}
+      className="relative w-full min-h-screen flex items-center overflow-hidden"
     >
-      {/* Background Video with Slower Zoom/Fade Parallax */}
+      {/* Background Video */}
       <motion.div
         className="absolute inset-0 w-full h-full"
         style={{ scale: videoScale, opacity: videoOpacity }}
@@ -177,182 +139,175 @@ export function Hero() {
           loop
           playsInline
           className="w-full h-full object-cover"
-          style={{ objectPosition: "center" }}
         >
           <source src="/assets/WingsVideo.mp4" type="video/mp4" />
         </video>
       </motion.div>
 
-      {/* Dark Overlay for Text Clarity - Reduced opacity */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: "linear-gradient(180deg, rgba(7, 7, 7, 0.35) 0%, rgba(0, 0, 0, 0.55) 75.96%)"
-        }}
-      />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/60" />
 
-      {/* Content Container - Centered content */}
+      {/* CONTENT CONTAINER (Amazon style) */}
       <motion.div
-        className="relative z-10 w-full mx-auto px-6 sm:px-10 md:px-[80px] lg:px-[120px] xl:px-[200px]"
-        style={{ y: contentY, opacity: contentOpacity }}
+        className="relative z-10 w-full navbar-align-outer"
+        style={{ y: contentY }}
       >
-        <div className="max-w-[900px] mx-auto text-center w-full">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentItem.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-            >
+        <div className="navbar-align-inner text-center w-full flex flex-col items-center">
+          {/* TEXT CONTENT */}
+          <div className="w-full min-h-[342px] flex flex-col justify-center">
+
+            <AnimatePresence mode="wait">
               <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
+                key={currentItem.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
               >
-                {/* Badge */}
-                <motion.div variants={itemVariants}>
-                  <div
-                    style={{
-                      display: "inline-flex",
-                      borderRadius: "9999px",
-                      background: "rgba(255, 255, 255, 0.1)",
-                      backdropFilter: "blur(4px)",
-                      color: "#FFF",
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
-                      fontWeight: "700",
-                      letterSpacing: "1.2px",
-                      textTransform: "uppercase",
-                    }}
-                    className="text-[11px] sm:text-[12px] md:text-[13px] px-4 sm:px-5 py-1.5 sm:py-2 mb-5 sm:mb-6 md:mb-8"
-                  >
-                    {currentItem.badge}
-                  </div>
-                </motion.div>
-
-                {/* Headline */}
-                <motion.div variants={itemVariants}>
-                  <h1
-                    className="text-[32px] sm:text-[42px] md:text-[52px] lg:text-[62px] xl:text-[72px] font-semibold mb-4 sm:mb-5 md:mb-6"
-                    style={{
-                      color: "#FFF",
-                      fontFamily: "Outfit, sans-serif",
-                      lineHeight: "1.2",
-                    }}
-                  >
-                    {currentItem.headline}
-                    {currentItem.highlightText && (
-                      <>
-                        <br />
-                        <span style={{ color: currentItem.highlightColor || "#42A0BD" }}>
-                          {currentItem.highlightText}
-                        </span>
-                      </>
-                    )}
-                  </h1>
-                </motion.div>
-
-                {/* Description - Exactly 2 lines with line clamp */}
-                <motion.div variants={itemVariants}>
-                  <p
-                    className="text-[16px] sm:text-[18px] md:text-[20px] lg:text-[22px] max-w-[795px] mx-auto mb-8 sm:mb-10 md:mb-12 lg:mb-14 line-clamp-2"
-                    style={{
-                      color: "#FFF",
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontWeight: "400",
-                      lineHeight: "1.5",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis"
-                    }}
-                  >
-                    {currentItem.description}
-                  </p>
-                </motion.div>
-
-                {/* Buttons */}
                 <motion.div
-                  variants={buttonVariants}
-                  className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-5 justify-center"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
                 >
-                  {/* Primary Button with HOVER Animation */}
-                  <motion.button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      openModal();
-                    }}
-                    onHoverStart={() => setIsHovering(true)}
-                    onHoverEnd={() => setIsHovering(false)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    style={{
-                      display: "inline-flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      borderRadius: "9999px",
-                      background: "#1B4585",
-                      color: "#F5F9FF",
-                      textDecoration: "none",
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
-                      fontWeight: "600",
-                      boxShadow: "0 4px 14px rgba(27, 69, 133, 0.3)",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      cursor: "pointer"
-                    }}
-                    className="text-[14px] sm:text-[16px] md:text-[18px] px-5 sm:px-6 md:px-8 py-3 sm:py-4"
-                  >
-                    <span>{currentItem.buttonText}</span>
-                    <AnimatePresence mode="wait">
-                      {isHovering && (
-                        <motion.span
-                          key="arrow"
-                          initial={{ opacity: 0, x: -10, width: 0 }}
-                          animate={{ opacity: 1, x: 0, width: "auto" }}
-                          exit={{ opacity: 0, x: -10, width: 0 }}
-                          transition={{ duration: 0.2 }}
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            overflow: "hidden"
-                          }}
-                        >
-                          <ArrowIcon />
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </motion.button>
 
-                  {/* Secondary Button */}
-                  <motion.a
-                    href={currentItem.secondaryButtonLink}
-                    whileHover={{ scale: 1.05, background: "rgba(255, 255, 255, 0.15)" }}
-                    whileTap={{ scale: 0.95 }}
-                    style={{
-                      display: "inline-flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      borderRadius: "9999px",
-                      border: "2px solid #FFF",
-                      color: "#FFF",
-                      textDecoration: "none",
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
-                      fontWeight: "600",
-                      transition: "background 0.3s ease, border-color 0.3s ease",
-                      background: "transparent",
-                      cursor: "pointer"
-                    }}
-                    className="text-[14px] sm:text-[16px] md:text-[18px] px-5 sm:px-6 md:px-8 py-3 sm:py-4"
-                  >
-                    {currentItem.secondaryButtonText}
-                  </motion.a>
+                  {/* BADGE */}
+                  <motion.div variants={itemVariants}>
+                    <div
+                      className="
+                        inline-flex 
+                        items-center 
+                        justify-center 
+                        px-4 py-2 
+                        rounded-full 
+                        border border-white/70 
+                        bg-white/20 
+                        text-white 
+                        backdrop-blur-md
+                        mx-auto mb-6
+                      "
+                      style={{
+                        fontSize: "clamp(14px, 1.2vw, 18px)",
+                        width: "fit-content",
+                        maxWidth: "90%",
+                      }}
+                    >
+                      {currentItem.badge}
+                    </div>
+                  </motion.div>
+
+                  {/* HEADING */}
+                  <motion.div variants={itemVariants}>
+                    <h1
+                      className="font-semibold text-white leading-tight mb-5"
+                      style={{
+                        fontSize: "clamp(28px, 4vw, 64px)",
+                        fontFamily: "Outfit, sans-serif",
+                      }}
+                    >
+                      {currentItem.headline}
+
+                      {currentItem.highlightText && (
+                        <>
+                          <br />
+                          <span style={{ color: currentItem.highlightColor }}>
+                            {currentItem.highlightText}
+                          </span>
+                        </>
+                      )}
+                    </h1>
+                  </motion.div>
+
+                  {/* DESCRIPTION */}
+                  <motion.div variants={itemVariants}>
+                    <p
+                      className="
+                        text-white/90 
+                        max-w-2xl 
+                        mx-auto
+                      "
+                      style={{
+                        fontSize: "clamp(14px, 1.5vw, 20px)",
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {currentItem.description}
+                    </p>
+                  </motion.div>
+
                 </motion.div>
               </motion.div>
-            </motion.div>
-          </AnimatePresence>
+            </AnimatePresence>
+
+          </div>
+
+          {/* STATIC BUTTONS */}
+          <div
+            className="
+              mt-10
+              flex 
+              flex-col 
+              sm:flex-row 
+              flex-wrap 
+              justify-center 
+              items-center 
+              gap-4 sm:gap-6
+            "
+          >
+
+            {/* PRIMARY */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                openModal();
+              }}
+              className="
+                flex items-center justify-center gap-2
+                bg-[#1B4585] text-white
+                px-8 py-4
+                rounded-full
+                w-full sm:w-auto
+                min-w-[240px]
+                shadow-lg
+                transition-colors duration-300
+                hover:scale-105
+              
+              "
+              style={{
+                fontSize: "clamp(14px, 1.2vw, 18px)",
+              }}
+            >
+              <span>Book an appointment</span>
+
+              <span className="flex items-center">
+                <ArrowIcon />
+              </span>
+            </button>
+
+            {/* SECONDARY */}
+            <button
+              onClick={() => setLocation("/about-us")}
+              className="
+                flex items-center justify-center
+                border border-white/40 
+                text-white 
+                px-8 py-4 
+                rounded-full 
+                w-full sm:w-auto
+                min-w-[240px]
+                bg-white/5
+                transition-colors duration-300
+                hover:scale-105
+                
+              "
+              style={{
+                fontSize: "clamp(14px, 1.2vw, 18px)",
+              }}
+            >
+              <span>Learn our approach</span>
+            </button>
+
+          </div>
+
         </div>
       </motion.div>
     </section>

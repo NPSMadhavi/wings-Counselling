@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { api } from "../lib/api";
 import type { Event } from "../lib/types";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 
 // ✅ reusable easing tuple (fixes TS error cleanly)
 const easeInOut: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
@@ -247,12 +248,12 @@ function AddEventModal({ isOpen, onClose, onAddEvent, editingEvent, onUpdateEven
             transition={{ duration: 0.2 }}
             className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
           >
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+            <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center">
               <div>
-                <h3 className="text-2xl font-bold text-blue-600">
-                  {editingEvent ? "✏️ Edit Event" : "➕ Add New Event"}
+                <h3 className="text-2xl font-bold text-white">
+                  {editingEvent ? " Edit Event" : "Add Event"}
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">Fill in the details below</p>
+                <p className="text-sm text-white mt-1">Fill in the details below</p>
               </div>
               <button
                 onClick={onClose}
@@ -376,7 +377,7 @@ function AddEventModal({ isOpen, onClose, onAddEvent, editingEvent, onUpdateEven
 
                 <div className="flex items-center gap-3">
                   <label className="cursor-pointer">
-                    <div className="px-4 py-2.5 bg-blue-600 text-white rounded-lg">
+                    <div className="px-4 py-2.5 bg-[#0D4A7A] text-white rounded-lg">
                       Upload Image
                     </div>
 
@@ -407,7 +408,7 @@ function AddEventModal({ isOpen, onClose, onAddEvent, editingEvent, onUpdateEven
               </div>
 
               {/* DONATION */}
-              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+              {/* <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
                 <input
                   type="checkbox"
                   name="showDonationButton"
@@ -419,7 +420,7 @@ function AddEventModal({ isOpen, onClose, onAddEvent, editingEvent, onUpdateEven
                 <label className="text-sm font-medium text-gray-700">
                   Show Donation Button
                 </label>
-              </div>
+              </div> */}
 
               {/* PUBLISH */}
               <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
@@ -441,7 +442,7 @@ function AddEventModal({ isOpen, onClose, onAddEvent, editingEvent, onUpdateEven
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2.5 bg-gray-200 rounded-lg"
+                  className="px-5 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
@@ -449,13 +450,13 @@ function AddEventModal({ isOpen, onClose, onAddEvent, editingEvent, onUpdateEven
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2.5 bg-blue-600 text-white rounded-lg"
+                  className="px-5 py-2.5 bg-[#0d4A7A] text-white rounded-lg"
                 >
                   {isSubmitting
                     ? "Saving..."
                     : editingEvent
-                      ? "Update Event"
-                      : "Save Event"}
+                      ? "Update"
+                      : "Save "}
                 </button>
               </div>
             </form>
@@ -482,9 +483,10 @@ function ViewEventModal({ isOpen, onClose, event }) {
             transition={{ duration: 0.2 }}
             className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
           >
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+            <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center">
               <div>
-                <h3 className="text-2xl font-bold text-blue-600">Event Details</h3>
+                <h3 className="text-2xl font-bold text-white">Preview</h3>
+                <p className="text-blue-100 text-sm mt-1">View complete event information</p>
               </div>
               <button
                 onClick={onClose}
@@ -539,34 +541,12 @@ function ViewEventModal({ isOpen, onClose, event }) {
                 )}
 
                 <div className="flex items-center gap-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${event.isPublished ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  <span className={`px-2 py-1 rounded-full text-[16px] font-semibold ${event.isPublished ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                     {event.isPublished ? '📢 Published' : '🔒 Draft'}
                   </span>
                 </div>
               </div>
 
-              <div className="flex gap-4">
-                {event.registrationUrl && (
-                  <a
-                    href={event.registrationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 text-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                  >
-                    Register Now
-                  </a>
-                )}
-                {event.showDonationButton && (
-                  <a
-                    href="https://ramakrishna.org.sg/Authentication/Login?returnUrl=%2FDonation%2FDonateNow"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 text-center px-6 py-3 bg-rose-500 text-white rounded-lg font-semibold hover:bg-rose-600 transition-colors"
-                  >
-                    Donate Now
-                  </a>
-                )}
-              </div>
             </div>
           </motion.div>
         </div>
@@ -601,7 +581,7 @@ export default function EventsSection() {
     loadAllEvents();
 
     // Real-time updates via SSE
-    const eventSource = new EventSource("http://localhost:5000/api/events/stream");
+    const eventSource = new EventSource("/api/events/stream");
 
     eventSource.addEventListener("event_created", loadAllEvents);
     eventSource.addEventListener("event_updated", loadAllEvents);
@@ -663,36 +643,43 @@ export default function EventsSection() {
     <>
       <div className="min-h-screen w-full bg-gray-50">
         <div className="w-full px-6 py-8">
-          {/* BACK BUTTON ON TOP LEFT */}
-          <div className="mb-6">
-            <button
-              onClick={handleBack}
-              className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-blue-600 transition-colors group"
-            >
-              <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              <span className="font-medium"> Back</span>
-            </button>
-          </div>
+          {/* HEADER WITH LEFT ARROW + TITLE + ADD BUTTON */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 pb-4 ">
+            
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleBack}
+                className="flex items-center justify-center"
+              >
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M15 18L9 12L15 6"
+                    stroke="#0D4A7A"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
 
-          {/* HEADER WITH ADD BUTTON ON RIGHT SIDE */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 pb-4 border-b border-gray-200">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Events Management</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-[#0D4A7A]">
+                Events Management
+              </h1>
             </div>
+
             <button
               onClick={() => {
                 setEditingEvent(null);
                 setIsModalOpen(true);
               }}
-              className="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-              style={{ backgroundColor: '#2563eb' }}
+              className="px-8 py-3.5 bg-[#0D4A7A] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
-              <span className="text-base">+ Add New Event</span>
+              <span className="text-base">Add Event</span>
             </button>
           </div>
 
@@ -713,7 +700,8 @@ export default function EventsSection() {
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Description</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Date & Time</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Location</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Actions</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Published</th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-blue-900">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -724,14 +712,11 @@ export default function EventsSection() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="hover:bg-blue-50 transition-all duration-200"
+                        className=" transition-all duration-200"
                       >
                         <td className="px-6 py-4 text-sm font-medium text-blue-600">{index + 1}</td>
                         <td className="px-6 py-4">
                           <div className="font-semibold text-gray-900">{event.title}</div>
-                          {event.photoUrls?.[0] && (
-                            <span className="inline-flex items-center gap-1 text-xs text-blue-600 mt-1">🖼️ Has image</span>
-                          )}
                         </td>
                         <td className="px-6 py-4 text-gray-600 text-sm max-w-md">
                           {event.description?.substring(0, 100) || "—"}
@@ -766,33 +751,47 @@ export default function EventsSection() {
                           )}
                         </td>
                         <td className="px-6 py-4">
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                            event.isPublished 
+                              ? "bg-green-100 text-green-800" 
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}>
+                            {event.isPublished ? "Published" : "Draft"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
                           <div className="flex gap-2">
+                            {/* VIEW */}
                             <button
                               onClick={() => {
                                 setSelectedEvent(event);
                                 setIsViewModalOpen(true);
                               }}
-                              className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium transition-colors"
+                              className="p-2 rounded-lg transition-colors"
                               title="View Details"
                             >
-                              👁️
+                              <Eye size={16} />
                             </button>
+
+                            {/* EDIT */}
                             <button
                               onClick={() => {
                                 setEditingEvent(event);
                                 setIsModalOpen(true);
                               }}
-                              className="px-3 py-1.5 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 rounded-lg text-sm font-medium transition-colors"
+                              className="p-2 rounded-lg transition-colors"
                               title="Edit Event"
                             >
-                              ✏️
+                              <Pencil size={16} />
                             </button>
+
+                            {/* DELETE */}
                             <button
                               onClick={() => handleDeleteEvent(event.id)}
-                              className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-medium transition-colors"
+                              className="p-2 rounded-lg transition-colors"
                               title="Delete Event"
                             >
-                              🗑️
+                              <Trash2 size={16} />
                             </button>
                           </div>
                         </td>
@@ -800,13 +799,13 @@ export default function EventsSection() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="6" className="px-6 py-16 text-center">
+                      <td colSpan="7" className="px-6 py-16 text-center">
                         <div className="flex flex-col items-center gap-3">
                           <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           <p className="text-gray-500 text-lg">No events found</p>
-                          <p className="text-gray-400 text-sm">Click "+ Add New Event" to create your first event!</p>
+                          <p className="text-gray-400 text-sm">Click "Add New Event" to create your first event!</p>
                         </div>
                       </td>
                     </tr>

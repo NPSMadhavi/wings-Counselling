@@ -1,25 +1,29 @@
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useState, useRef } from "react";
 
 const steps = [
     {
         number: "01",
         title: "Share your concern",
-        description: "Reach out via phone, WhatsApp, or our booking form. Tell us what you're going through in a safe, confidential space.",
+        description:
+            "Reach out via phone, WhatsApp, or our booking form. Tell us what you're going through in a safe, confidential space.",
     },
     {
         number: "02",
         title: "Get matched with a counsellor",
-        description: "We'll connect you with the right professional based on your needs, preferences, and situation.",
+        description:
+            "We'll connect you with the right professional based on your needs, preferences, and situation.",
     },
     {
         number: "03",
         title: "Start sessions",
-        description: "Begin your personalized counselling journey at your own pace, in-person or online.",
+        description:
+            "Begin your personalized counselling journey at your own pace, in-person or online.",
     }
 ];
 
-// Animation variants for each step - SLOWER TIMING
+/* ─── Animation Variants ───────────────────────── */
+
 const stepVariants = {
     hidden: {
         opacity: 0,
@@ -100,7 +104,9 @@ const descriptionVariants = {
 
 export function Howtouse() {
     const [hoveredIndex, setHoveredIndex] = useState(null);
+
     const sectionRef = useRef(null);
+
     const { scrollYProgress } = useScroll({
         target: sectionRef,
         offset: ["start end", "end start"]
@@ -116,17 +122,29 @@ export function Howtouse() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.8 }}
-            className="relative w-full flex flex-col items-center py-12 md:py-20 overflow-hidden"
+            className="
+        relative
+        w-full
+        flex
+        flex-col
+        items-center
+        overflow-hidden
+        pt-[30px]
+        pb-[60px]
+    "
             style={{ background: "#F7F6F3" }}
         >
+            {/* Background Motion */}
             <motion.div
                 className="absolute inset-0 pointer-events-none opacity-50"
                 style={{ y: bgY }}
             />
-            {/* Main container with EXACT 150px padding on both sides - NO max-width restriction on desktop, responsive on mobile */}
-            <div className="w-full px-4 md:px-12 lg:px-[150px] flex flex-col items-center">
 
-                {/* HOW IT WORKS Badge */}
+            {/* Main Container — aligned with Navbar */}
+            <div className="w-full navbar-align-outer pt-4 md:pt-6">
+            <div className="navbar-align-inner flex flex-col items-center">
+
+                {/* Badge */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -134,21 +152,22 @@ export function Howtouse() {
                     transition={{ duration: 0.6 }}
                     style={{
                         display: "inline-flex",
-                        padding: "6px 16px",
-                        alignItems: "flex-start",
+                        padding: "8px 20px",
+                        alignItems: "center",
+                        justifyContent: "center",
                         borderRadius: "9999px",
-                        background: "linear-gradient(90deg, #0D4A7A 0%, #1888E0 100%)",
+                        background: "linear-gradient(90deg,#0D4A7A,#42A0BD)",
                         color: "#FFF",
                         fontFamily: "'Plus Jakarta Sans', sans-serif",
-                        fontSize: "12px",
+                        fontSize: "20px",
                         fontWeight: "600",
-                        lineHeight: "16px",
                         letterSpacing: "1.2px",
-                        textTransform: "uppercase",
-                        marginBottom: "24px"
+                        marginBottom: "24px",
+                        minWidth: "180px",
+                        height: "42px"
                     }}
                 >
-                    HOW IT WORKS
+                    How it works
                 </motion.div>
 
                 {/* Heading */}
@@ -157,13 +176,15 @@ export function Howtouse() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.1 }}
-                    className="text-[28px] md:text-[35px] text-center mb-4"
-                    style={{
-                        color: "#000",
-                        fontFamily: "Outfit, sans-serif",
-                        fontWeight: "500",
-                        lineHeight: "normal",
-                    }}
+                    className="
+                        text-[28px]
+                        md:text-[35px]
+                        text-center
+                        mb-4
+                        font-['Outfit']
+                        font-medium
+                    "
+                    style={{ color: "#0D4A7A" }}
                 >
                     Your journey to healing
                 </motion.h2>
@@ -174,13 +195,18 @@ export function Howtouse() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.2 }}
-                    className="text-lg md:text-[20px] text-center mb-12"
+                    className="
+                        text-[16px]
+                        md:text-[20px]
+                        text-center
+                        mb-12
+                        font-['DM_Sans']
+                        font-medium
+                    "
                     style={{
                         color: "#000",
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontWeight: "500",
-                        lineHeight: "normal",
-                        maxWidth: "600px"
+                        maxWidth: "600px",
+                        lineHeight: "1.5"
                     }}
                 >
                     We've made the process as simple and welcoming as possible.
@@ -192,9 +218,16 @@ export function Howtouse() {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: 0.3 }}
-                    className="w-full h-[150px] md:h-[201px] rounded-[20px] mb-0"
+                    className="
+                        w-full
+                        h-[150px]
+                        md:h-[201px]
+                        rounded-[20px]
+                        mb-0
+                    "
                     style={{
-                        backgroundImage: "url('/assets/howituseImage.jpg')",
+                        backgroundImage:
+                            "url('/assets/howituseImage.jpg')",
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         backgroundRepeat: "no-repeat",
@@ -202,9 +235,18 @@ export function Howtouse() {
                     }}
                 />
 
-                {/* Steps Row - sequential animation with slower timing */}
+                {/* Steps */}
                 <div
-                    className="w-full grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-10 -mt-10 md:-mt-[50px] px-4 md:px-0"
+                    className="
+                        w-full
+                        grid
+                        grid-cols-1
+                        md:grid-cols-3
+                        gap-12
+                        md:gap-10
+                        -mt-10
+                        md:-mt-[50px]
+                    "
                 >
                     {steps.map((step, index) => (
                         <motion.div
@@ -214,11 +256,20 @@ export function Howtouse() {
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true, amount: 0.3 }}
-                            className="flex flex-col items-center text-center"
-                            onMouseEnter={() => setHoveredIndex(index)}
-                            onMouseLeave={() => setHoveredIndex(null)}
+                            className="
+                                flex
+                                flex-col
+                                items-center
+                                text-center
+                            "
+                            onMouseEnter={() =>
+                                setHoveredIndex(index)
+                            }
+                            onMouseLeave={() =>
+                                setHoveredIndex(null)
+                            }
                         >
-                            {/* Circle Number with hover effect - INCREASED SIZE */}
+                            {/* Circle */}
                             <motion.div
                                 custom={index}
                                 variants={circleVariants}
@@ -228,63 +279,72 @@ export function Howtouse() {
                                 whileTap="tap"
                                 viewport={{ once: true }}
                                 style={{
-                                    width: "100px",  // Increased from 80px
-                                    height: "100px", // Increased from 80px
+                                    width: "100px",
+                                    height: "100px",
                                     display: "flex",
                                     justifyContent: "center",
                                     alignItems: "center",
                                     borderRadius: "50%",
-                                    background: hoveredIndex === index
-                                        ? "linear-gradient(135deg, #0D4A7A 0%, #1888E0 100%)"
-                                        : "#0D4A7A",
+                                    background:
+                                        hoveredIndex === index
+                                            ? "linear-gradient(135deg, #0D4A7A 0%, #1888E0 100%)"
+                                            : "#0D4A7A",
                                     color: "#FFF",
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: "32px",  // Increased font size
+                                    fontFamily:
+                                        "'DM Sans', sans-serif",
+                                    fontSize: "32px",
                                     fontWeight: "700",
-                                    lineHeight: "normal",
-                                    flexShrink: 0,
                                     cursor: "pointer",
-                                    transition: "all 0.3s ease"
+                                    transition:
+                                        "all 0.3s ease"
                                 }}
                             >
                                 {step.number}
                             </motion.div>
 
-                            {/* Step Title */}
+                            {/* Title */}
                             <motion.h3
                                 custom={index}
                                 variants={titleVariants}
                                 initial="hidden"
                                 whileInView="visible"
                                 viewport={{ once: true }}
-                                className="text-xl md:text-[23px] mb-3 mt-6"
+                                className="
+                                    text-xl
+                                    md:text-[23px]
+                                    mb-3
+                                    mt-6
+                                    font-['DM_Sans']
+                                    font-medium
+                                "
                                 style={{
                                     maxWidth: "250px",
-                                    color: hoveredIndex === index ? "#0D4A7A" : "#000",
-                                    textAlign: "center",
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontWeight: "500",
-                                    lineHeight: "normal",
-                                    transition: "color 0.3s ease"
+                                    color:
+                                        hoveredIndex === index
+                                            ? "#0D4A7A"
+                                            : "#000",
+                                    transition:
+                                        "color 0.3s ease"
                                 }}
                             >
                                 {step.title}
                             </motion.h3>
 
-                            {/* Step Description */}
+                            {/* Description */}
                             <motion.p
                                 custom={index}
                                 variants={descriptionVariants}
                                 initial="hidden"
                                 whileInView="visible"
                                 viewport={{ once: true }}
-                                className="text-base md:text-[18px]"
+                                className="
+                                    text-base
+                                    md:text-[18px]
+                                    font-['DM_Sans']
+                                "
                                 style={{
                                     maxWidth: "320px",
                                     color: "#000",
-                                    textAlign: "center",
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontWeight: "400",
                                     lineHeight: "1.4"
                                 }}
                             >
@@ -293,11 +353,8 @@ export function Howtouse() {
                         </motion.div>
                     ))}
                 </div>
-
-                {/* BOTTOM DOTS - REMOVED */}
-                {/* The dots section has been completely removed */}
-
             </div>
-        </motion.section >
+            </div>
+        </motion.section>
     );
 }

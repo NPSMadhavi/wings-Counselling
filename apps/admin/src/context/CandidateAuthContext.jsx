@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { apiUrl } from "@/lib/queryClient";
 
 const TOKEN_KEY = "wings_candidate_token";
-const BASE = "/api";
 
 /* -------------------- Context -------------------- */
 
@@ -28,7 +28,7 @@ export function CandidateAuthProvider({ children }) {
       return;
     }
 
-    fetch(`${BASE}/candidate/me`, {
+    fetch(apiUrl("/api/candidate/me"), {
       headers: {
         Authorization: `Bearer ${stored}`,
       },
@@ -86,7 +86,7 @@ export function useCandidateAuth() {
 /* -------------------- API: Register -------------------- */
 
 export async function candidateRegister(data) {
-  const res = await fetch(`${BASE}/candidate/register`, {
+  const res = await fetch(apiUrl("/api/candidate/register"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -105,7 +105,7 @@ export async function candidateRegister(data) {
 /* -------------------- API: Login -------------------- */
 
 export async function candidateLogin(email, password) {
-  const res = await fetch(`${BASE}/candidate/login`, {
+  const res = await fetch(apiUrl("/api/candidate/login"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

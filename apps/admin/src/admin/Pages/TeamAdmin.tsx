@@ -4,14 +4,26 @@ import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, X, ArrowLeft, Image as Image
 import { ConfirmDialog, AlertDialog } from "../components/ConfirmDialog";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-
-const ROLES = ["director", "counsellor", "support"];
+const ROLES = [
+  "Senior director",
+  "Supervision",
+  "Family & Support counselling",
+  "Couples counselling",
+  "Individual therapy",
+  "Youth counselling",
+  "Children & Youth counselling",
+  "Marital & Couple therapy",
+  "Pre-School children (Ages 2.5–7)",
+  "Adult counselling (Ages 21–65)",
+  "Clinical supervision",
+];
 
 const EMPTY = {
   name: "",
   title: "",
   role: "counsellor",
   bio: "",
+  experience: "",
   credentials: [],
   specialisations: [],
   photoUrl: "",
@@ -118,16 +130,16 @@ function Modal({ member, onSave, onClose }) {
           className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden"
         >
           {/* Header */}
-          <div className="sticky top-0 bg-blue-600 px-6 py-5 flex justify-between items-center">
+          <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center">
             <div>
-              <h3 className="text-2xl font-bold text-black">
-                {member?.id ? "✏️ Edit Team Member" : "➕ Add Team Member"}
+              <h3 className="text-2xl font-bold text-white">
+                {member?.id ? " Edit Member" : " Add Member"}
               </h3>
               <p className="text-blue-100 text-sm mt-1">Fill in the details below</p>
             </div>
             <button
               onClick={onClose}
-              className="text-black hover:text-blue-200 transition-colors p-2 hover:bg-white/10 rounded-full"
+              className="text-white hover:text-blue-200 transition-colors p-2 hover:bg-white/10 rounded-full"
             >
               <X size={20} />
             </button>
@@ -158,7 +170,7 @@ function Modal({ member, onSave, onClose }) {
                 <div className="flex-1">
                   <div className="flex gap-3">
                     <label className="cursor-pointer">
-                      <div className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-black rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2">
+                      <div className="px-4 py-2 bg-[#0D4A7A] text-white rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2">
                         <Upload size={16} />
                         {form.photoUrl ? "Change Photo" : "Upload Photo"}
                       </div>
@@ -278,6 +290,18 @@ function Modal({ member, onSave, onClose }) {
               />
             </div>
 
+            {/* Experience Field */}
+            <div>
+              <label className={labelClass}>Experience</label>
+              <input
+                className={inputClass}
+                value={form.experience}
+                onChange={(e) => set("experience", e.target.value)}
+                placeholder="e.g., 5+ Years Experience"
+              />
+              <p className="text-xs text-gray-400 mt-1">Example: "5+ Years Experience" or "10+ Years in Practice"</p>
+            </div>
+            
             {/* Credentials & Specialisations */}
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -314,7 +338,7 @@ function Modal({ member, onSave, onClose }) {
                 className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
               />
               <label htmlFor="visibleCb" className="text-sm font-medium text-gray-700 cursor-pointer">
-                👁️ Visible on public website
+                 Visible on public website
               </label>
             </div>
           </div>
@@ -333,9 +357,9 @@ function Modal({ member, onSave, onClose }) {
               type="button"
               onClick={save}
               disabled={uploading || saving}
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-black rounded-lg font-semibold transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 bg-[#0D4A7A] text-white rounded-lg font-semibold transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {uploading ? "Uploading..." : saving ? "Saving..." : member?.id ? "Update Member" : "Save Member"}
+              {uploading ? "Uploading..." : saving ? "Saving..." : member?.id ? "Update" : "Save "}
             </button>
           </div>
         </motion.div>
@@ -358,14 +382,14 @@ function Modal({ member, onSave, onClose }) {
 }
 
 // ─── Tag pill used in the table ───────────────────────────────────────────────
-function TagList({ items }) {
+function TagList({ items }: { items: string[] }) {
   if (!items?.length) return <span className="text-gray-400 text-sm">—</span>;
   return (
     <div className="flex flex-wrap gap-1">
       {items.map((item, i) => (
         <span
           key={i}
-          className="inline-block bg-blue-50 text-blue-700 text-xs font-medium px-2 py-1 rounded"
+          className="inline-block  text-gray-700 text-xs font-medium px-2 py-1 rounded"
         >
           {item}
         </span>
@@ -374,13 +398,147 @@ function TagList({ items }) {
   );
 }
 
+// ─── View Detail Modal ────────────────────────────────────────────────────────
+function ViewModal({ member, onClose }: { member: any; onClose: () => void }) {
+  return (
+    <AnimatePresence>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.2 }}
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden"
+          style={{ height: "85vh" }}
+        >
+          {/* Header */}
+          <div className="bg-[#0D4A7A] px-6 py-5 flex justify-between items-start shrink-0">
+            <div>
+              <h3 className="text-xl font-bold text-white">Preview</h3>
+              <p className="text-blue-200 text-sm mt-0.5">View complete member information</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-white hover:text-blue-200 transition-colors p-1 hover:bg-white/10 rounded-full mt-0.5"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Scrollable body */}
+          {/* Large photo — fixed at top, outside scroll */}
+          {member.photoUrl ? (
+            <div className="w-full shrink-0 bg-gray-100 flex items-center justify-center" style={{ height: 260 }}>
+              <img
+                src={resolveImageUrl(member.photoUrl)}
+                alt={member.name}
+                className="h-full w-full object-contain"
+              />
+            </div>
+          ) : (
+            <div className="w-full shrink-0 flex items-center justify-center bg-blue-50" style={{ height: 200 }}>
+              <span className="text-blue-300 text-6xl font-bold">{member.name?.charAt(0)}</span>
+            </div>
+          )}
+
+          <div className="flex-1 overflow-y-auto min-h-0 px-6 py-6 space-y-5">
+            {/* Name */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">Name</p>
+              <p className="text-lg font-bold text-gray-900">{member.name}</p>
+            </div>
+
+            {/* Title */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">Title</p>
+              <p className="text-base text-gray-800">{member.title || "—"}</p>
+            </div>
+
+            {/* Role + Email side by side */}
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1">Role</p>
+                <p className="text-sm text-gray-800">{member.role || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1">Email</p>
+                <p className="text-sm text-gray-800">{member.email || "—"}</p>
+              </div>
+            </div>
+
+            {/* Visibility + Display Order side by side */}
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1">Visibility</p>
+                <span
+                  className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${
+                    member.isVisible
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {member.isVisible ? "Visible" : "Hidden"}
+                </span>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1">Display Order</p>
+                <p className="text-sm text-gray-800">{member.displayOrder ?? "—"}</p>
+              </div>
+            </div>
+
+            {/* Experience */}
+            {member.experience && (
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1">Experience</p>
+                <p className="text-sm text-gray-800">{member.experience}</p>
+              </div>
+            )}
+
+            {/* Bio */}
+            {member.bio && (
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1">Bio</p>
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{member.bio}</p>
+              </div>
+            )}
+
+            {/* Credentials */}
+            {member.credentials?.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-2">Credentials</p>
+                <div className="flex flex-wrap gap-2">
+                  {member.credentials.map((c: string, i: number) => (
+                    <span key={i} className="bg-blue-50 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full border border-blue-200">{c}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Specialisations */}
+            {member.specialisations?.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-2">Specialisations</p>
+                <div className="flex flex-wrap gap-2">
+                  {member.specialisations.map((s: string, i: number) => (
+                    <span key={i} className="bg-green-50 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full border border-green-200">{s}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </div>
+    </AnimatePresence>
+  );
+}
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function TeamAdmin() {
-  const [members, setMembers] = useState([]);
-  const [editing, setEditing] = useState(null);
+  const [members, setMembers] = useState<any[]>([]);
+  const [editing, setEditing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [selectedId, setSelectedId] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [viewMember, setViewMember] = useState<any>(null);
   const [, navigate] = useLocation();
 
   useEffect(() => { load(); }, []);
@@ -434,31 +592,43 @@ export default function TeamAdmin() {
     <>
       <div className="min-h-screen w-full bg-gray-50">
         <div className="w-full px-6 py-8">
-          {/* BACK BUTTON ON TOP LEFT */}
-          <div className="mb-6">
-            <button
-              onClick={handleBack}
-              className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-blue-600 transition-colors group"
-            >
-              <ArrowLeft size={18} className="transform group-hover:-translate-x-1 transition-transform" />
-              <span className="font-medium">Back</span>
-            </button>
-          </div>
-
-          {/* HEADER WITH ADD BUTTON ON RIGHT SIDE */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 pb-4 border-b border-gray-200">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Team Management</h1>
+          {/* HEADER WITH BACK BUTTON INTEGRATED */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 pb-4 ">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleBack}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
+                title="Go Back"
+              >
+                                <svg
+                    width="40"
+                    height="40"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M15 18L9 12L15 6"
+                      stroke="#0D4A7A"
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+              </button>
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold text-[#0D4A7A] mb-1">Team Management</h1>
+                {/* <p className="text-gray-500 text-sm">Manage your team members and their information</p> */}
+              </div>
             </div>
             <button
               onClick={() => setEditing(EMPTY)}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-              style={{ backgroundColor: '#2563eb' }}
+              className="px-6 py-3 bg-[#0D4A7A] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
             >
-              <Plus size={18} />
-              Add New Member
+
+              Add Member
             </button>
           </div>
+          
           {/* TABLE VIEW */}
           <motion.div
             initial="hidden"
@@ -478,8 +648,8 @@ export default function TeamAdmin() {
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Email</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Credentials</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Specialisations</th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-blue-900">Order</th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-blue-900">Visible</th>
+                    <th className="px-6 py-4 text-right text-sm font-semibold text-blue-900">Order</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Visible</th>
                     <th className="px-6 py-4 text-center text-sm font-semibold text-blue-900">Actions</th>
                   </tr>
                 </thead>
@@ -510,22 +680,22 @@ export default function TeamAdmin() {
                           )}
                         </td>
                         <td className="px-6 py-4">
-                          <div className="font-semibold text-gray-900">{member.name}</div>
+                          <div className=" text-gray-900">{member.name}</div>
                           {member.bio && (
                             <div className="text-xs text-gray-400 mt-1 max-w-xs truncate">{member.bio}</div>
                           )}
                         </td>
                         <td className="px-6 py-4 text-gray-600 text-sm">{member.title}</td>
                         <td className="px-6 py-4">
-                          <span className="inline-flex items-center bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-md">
+                          <span className="text-gray-700 text-xs font-medium">
                             {member.role}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-gray-500 text-sm">{member.email || "—"}</td>
                         <td className="px-6 py-4"><TagList items={member.credentials} /></td>
                         <td className="px-6 py-4"><TagList items={member.specialisations} /></td>
-                        <td className="px-6 py-4 text-center text-gray-500 text-sm">{member.displayOrder}</td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-6 py-4 text-right text-gray-500 text-sm">{member.displayOrder}</td>
+                        <td className="px-6 py-4 text-left">
                           <span className={`text-sm font-medium ${member.isVisible ? "text-green-600" : "text-gray-400"}`}>
                             {member.isVisible ? "Yes" : "No"}
                           </span>
@@ -533,22 +703,22 @@ export default function TeamAdmin() {
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-center gap-2">
                             <button
-                              onClick={(e) => { e.stopPropagation(); toggle(member); }}
-                              className="p-2 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
-                              title={member.isVisible ? "Hide" : "Show"}
+                              onClick={(e) => { e.stopPropagation(); setViewMember(member); }}
+                              className="p-2 rounded-lg text-gray-500 transition-all duration-200"
+                              title="View Details"
                             >
-                              {member.isVisible ? <Eye size="16" /> : <EyeOff size="16" />}
+                              <Eye size={16} />
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); setEditing(member); }}
-                              className="p-2 rounded-lg text-gray-500 hover:text-yellow-600 hover:bg-yellow-50 transition-all duration-200"
+                              className="p-2 rounded-lg text-gray-500  transition-all duration-200"
                               title="Edit"
                             >
                               <Pencil size="16" />
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); setDeleteTarget(member.id); }}
-                              className="p-2 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-all duration-200"
+                              className="p-2 rounded-lg text-gray-500  transition-all duration-200"
                               title="Delete"
                             >
                               <Trash2 size="16" />
@@ -563,7 +733,7 @@ export default function TeamAdmin() {
                         <div className="flex flex-col items-center gap-3">
                           <ImageIcon size={48} className="text-gray-300" />
                           <p className="text-gray-500 text-lg">No team members found</p>
-                          <p className="text-gray-400 text-sm">Click "Add New Member" to create your first team member!</p>
+                          <p className="text-gray-400 text-sm">Click "Add Member" to create your first team member!</p>
                         </div>
                       </td>
                     </tr>
@@ -576,6 +746,8 @@ export default function TeamAdmin() {
       </div>
 
       {editing && <Modal member={editing} onSave={save} onClose={() => setEditing(null)} />}
+
+      {viewMember && <ViewModal member={viewMember} onClose={() => setViewMember(null)} />}
 
       <ConfirmDialog
         open={!!deleteTarget}

@@ -4,12 +4,12 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(
-    localStorage.getItem("wings_admin_token")
+    sessionStorage.getItem("wings_admin_token")
   );
 
   useEffect(() => {
     function handleSessionExpired() {
-      localStorage.removeItem("wings_admin_token");
+      sessionStorage.removeItem("wings_admin_token");
       setToken(null);
     }
 
@@ -18,12 +18,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = (t) => {
-    localStorage.setItem("wings_admin_token", t);
+    sessionStorage.setItem("wings_admin_token", t);
     setToken(t);
   };
 
   const logout = () => {
-    localStorage.removeItem("wings_admin_token");
+    sessionStorage.removeItem("wings_admin_token");
     setToken(null);
   };
 

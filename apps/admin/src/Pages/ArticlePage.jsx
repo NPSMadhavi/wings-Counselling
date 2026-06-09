@@ -11,11 +11,40 @@ export default function ArticlePage() {
 
     const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [subEmail, setSubEmail] = useState("");
+    const [subStatus, setSubStatus] = useState("idle"); // idle | loading | success | duplicate | error
+
+    const cleanArticleContent = (content = "") =>
+        content
+            .replace(/<!--[\s\S]*?-->/g, " ")
+            .replace(/<[^>]+>/g, " ")
+            .replace(/&nbsp;/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+    const handleSubscribe = async (e) => {
+        e.preventDefault();
+        if (!subEmail.trim()) return;
+        setSubStatus("loading");
+        try {
+            const res = await fetch("/api/event-subscribe", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: subEmail.trim() }),
+            });
+            if (res.status === 409) { setSubStatus("duplicate"); return; }
+            if (!res.ok) throw new Error();
+            setSubStatus("success");
+            setSubEmail("");
+        } catch {
+            setSubStatus("error");
+        }
+    };
 
     // FETCH ARTICLES
     const fetchArticles = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/articles");
+            const response = await fetch("/api/articles");
 
             if (!response.ok) {
                 throw new Error("Failed to fetch articles");
@@ -76,30 +105,52 @@ export default function ArticlePage() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         transition={{ duration: 0.5, delay: 0.4 }}
+                        onClick={() => {
+                            document
+                                .getElementById("featured-articles")
+                                ?.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "start",
+                                });
+                        }}
                         className="mt-10 bg-[#1B4585] rounded-full px-8 py-4 flex items-center gap-3 text-white"
                     >
-                        Explore Our Articles
-                        <ArrowDown size={20} />
+                        Explore our articles
+                     <svg
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+>
+  <path
+    d="M6 9L12 15L18 9"
+    stroke="white"
+    strokeWidth="3.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+</svg>
                     </motion.button>
                 </div>
             </div>
-
             {/* FEATURED ARTICLES SECTION */}
-            <div className="w-full flex flex-col items-center py-16 md:py-24 bg-[#FAFAF5]">
+        <div className="w-full flex flex-col items-center py-16 md:py-24 bg-[#FAFAF5]">
                 <div className="w-full px-6 md:px-12 lg:px-24 xl:px-[150px] flex flex-col">
                     {/* Title */}
-                    <h2
-                        style={{
-                            fontFamily: "'Outfit', sans-serif",
-                            fontWeight: 600,
-                            fontSize: "clamp(28px, 5vw, 35px)",
-                            lineHeight: "100%",
-                            color: "#000000",
-                            marginBottom: "40px",
-                        }}
-                    >
-                        Featured Articles
-                    </h2>
+                    <div id="featured-articles">
+                        <h2
+                            style={{
+                                fontFamily: "'Outfit', sans-serif",
+                                fontWeight: 600,
+                                fontSize: "clamp(28px, 5vw, 35px)",
+                                lineHeight: "100%",
+                                color: "#0D4A7A",
+                                marginBottom: "40px",
+                            }}
+                        >
+                            Featured articles
+                        </h2>
+                    </div>
 
                     {/* Featured Box */}
                     <div
@@ -141,7 +192,6 @@ export default function ArticlePage() {
                                             fontSize: "10px",
                                             letterSpacing: "1.2px",
                                             color: "#1E3A8A",
-                                            textTransform: "uppercase",
                                         }}
                                     >
                                         Anxiety & Stress
@@ -174,7 +224,7 @@ export default function ArticlePage() {
                                     lineHeight: "1.2",
                                     color: "#000000",
                                     marginBottom: "16px",
-                                    maxWidth: "600px",
+                                    maxWidth: "900px",
                                 }}
                             >
                                 Understanding anxiety: what it is, why it happens, and how counselling can help
@@ -188,7 +238,7 @@ export default function ArticlePage() {
                                     lineHeight: "26px",
                                     color: "#333333",
                                     marginBottom: "24px",
-                                    maxWidth: "680px",
+                                    maxWidth: "900px",
                                 }}
                             >
                                 Anxiety is one of the most common reasons people seek counselling support. But what exactly is it? In this guide, our senior counsellor explains the difference between everyday worry and clinical anxiety, the physical signs to look out for, and the evidence-based approaches WINGS uses to support clients through their anxiety journey.
@@ -197,6 +247,7 @@ export default function ArticlePage() {
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
+                                onClick={() => navigate("/GroundingTechniques")}
                                 style={{
                                     width: "190px",
                                     height: "50px",
@@ -216,18 +267,19 @@ export default function ArticlePage() {
                             >
                                 <span>Read full article</span>
                                 <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                >
+                                <path
+                                    d="M9 18L15 12L9 6"
+                                    stroke="white"
+                                    strokeWidth="3.5"
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
-                                >
-                                    <line x1="5" y1="12" x2="19" y2="12" />
-                                    <polyline points="12 5 19 12 12 19" />
-                                </svg>
+                                />
+                            </svg>
                             </motion.button>
                         </div>
                     </div>
@@ -241,7 +293,7 @@ export default function ArticlePage() {
                     <div className="flex flex-wrap items-center gap-3 md:gap-4">
                         {[
                             { name: "All", active: true },
-                            { name: "Counselling", active: false },
+                            { name: "Counselling & Therapy", active: false },
                             { name: "Supervision", active: false },
                             { name: "Training & Workshop", active: false },
                         ].map((cat) => (
@@ -312,8 +364,8 @@ export default function ArticlePage() {
                 </div>
             </div>
 
-            {/* ARTICLES GRID */}
-            <div className="w-full flex flex-col items-center pt-6 py-20 bg-[#FAFAF5]">
+            {/* ARTICLES GRID - Reduced bottom padding */}
+            <div className="w-full flex flex-col items-center pt-6 pb-12 bg-[#FAFAF5]">
                 <div className="w-full px-6 md:px-12 lg:px-24 xl:px-[150px]">
 
                     {loading ? (
@@ -330,6 +382,7 @@ export default function ArticlePage() {
                             {articles.map((article, idx) => (
                                 <motion.div
                                     key={article.id}
+                                    onClick={() => navigate("/GroundingTechniques")}
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.5, delay: idx * 0.1 }}
@@ -350,7 +403,7 @@ export default function ArticlePage() {
 
                                         {/* CATEGORY */}
                                         <div className="absolute top-4 left-4 bg-white px-4 py-1 rounded-full">
-                                            <span className="text-[#1E3A8A] text-[11px] font-semibold uppercase">
+                                            <span className="text-[#1E3A8A] text-[11px] font-semibold ">
                                                 {article.category}
                                             </span>
                                         </div>
@@ -379,15 +432,28 @@ export default function ArticlePage() {
 
                                         {/* EXCERPT */}
                                         <p className="text-[14px] leading-[1.7] text-[#555] mb-5">
-                                            {article.excerpt}
+                                            {cleanArticleContent(article.content)}
                                         </p>
 
                                         {/* BUTTON */}
                                         <button
-                                            className="mt-auto bg-[#1B4585] text-white rounded-full h-[45px] px-5 text-[14px] font-medium hover:bg-[#16386b] transition-all"
+                                            className="mt-auto ml-auto flex items-center justify-center text-black hover:translate-x-1 transition-all duration-300"
                                             onClick={() => navigate(`/articles/${article.slug}`)}
                                         >
-                                            Read Full Article
+                                            <svg
+                                                width="20"
+                                                height="20"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                            >
+                                                <path
+                                                    d="M9 18L15 12L9 6"
+                                                    stroke="currentColor"
+                                                    strokeWidth="3.5"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                />
+                                            </svg>
                                         </button>
                                     </div>
                                 </motion.div>
@@ -397,7 +463,167 @@ export default function ArticlePage() {
                     )}
                 </div>
             </div>
+            
+            {/* NEWSLETTER / UPCOMING ARTICLES SECTION - Reduced top padding */}
+            <div className="w-full flex flex-col items-center py-12 bg-[#FAFAF5]">
+                <div
+                    className="w-full mx-[150px] flex flex-col items-center justify-center relative overflow-hidden"
+                    style={{
+                        width: "calc(100% - 300px)",
+                        height: "338px",
+                        backgroundColor: "#0D4A7A",
+                        borderRadius: "20px",
+                        padding: "40px",
+                    }}
+                >
+                    {/* Badge */}
+                    <div
+                        className="flex items-center justify-center border border-white mb-6"
+                        style={{
+                            padding: "6px 16px",
+                            borderRadius: "9999px",
+                        }}
+                    >
+                        <span
+                            style={{
+                                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                                fontWeight: 600,
+                                fontSize: "16px",
+                                letterSpacing: "1.2px",
+                                color: "#FFFFFF",
+                            }}
+                        >
+                            Upcoming articles
+                        </span>
+                    </div>
 
+                    {/* Title */}
+                    <h2
+                        style={{
+                            fontFamily: "'Outfit', sans-serif",
+                            fontWeight: 500,
+                            fontSize: "35px",
+                            lineHeight: "100%",
+                            color: "#FFFFFF",
+                            marginBottom: "16px",
+                        }}
+                    >
+                        Articles in your inbox
+                    </h2>
+
+                    {/* Subtitle */}
+                    <p
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontWeight: 500,
+                            fontSize: "20px",
+                            lineHeight: "100%",
+                            color: "#FFFFFF",
+                            marginBottom: "40px",
+                            textAlign: "center",
+                        }}
+                    >
+                        Monthly insights from our counsellors. No spam — ever.
+                    </p>
+
+                    {/* Form */}
+                    <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
+                        {subStatus === "success" ? (
+                            <p style={{ color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: "17px", textAlign: "center" }}>
+                                ✅ You're subscribed! We'll notify you when new articles are published.
+                            </p>
+                        ) : (
+                            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
+                                <div
+                                    className="relative"
+                                    style={{
+                                        width: "100%",
+                                        maxWidth: "483px",
+                                        height: "60px",
+                                    }}
+                                >
+                                    <div className="absolute left-6 top-1/2 -translate-y-1/2">
+                                        <svg
+                                            width="20"
+                                            height="20"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="#9CA3AF"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                            <polyline points="22,6 12,13 2,6" />
+                                        </svg>
+                                    </div>
+                                    <input
+                                        type="email"
+                                        value={subEmail}
+                                        onChange={(e) => { setSubEmail(e.target.value); setSubStatus("idle"); }}
+                                        placeholder="Enter your email address"
+                                        required
+                                        style={{
+                                            width: "100%",
+                                            height: "100%",
+                                            borderRadius: "30px",
+                                            border: "none",
+                                            paddingLeft: "60px",
+                                            paddingRight: "20px",
+                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontWeight: 400,
+                                            fontSize: "18px",
+                                            outline: "none",
+                                            background: "#FFFFFF",
+                                        }}
+                                    />
+                                </div>
+
+                                <motion.button
+                                    type="submit"
+                                    disabled={subStatus === "loading"}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    style={{
+                                        width: "160px",
+                                        height: "60px",
+                                        background: "transparent",
+                                        borderRadius: "9999px",
+                                        border: "1px solid #FFFFFF",
+                                        color: "#F5F9FF",
+                                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                                        fontWeight: 600,
+                                        fontSize: "18px",
+                                        cursor: "pointer",
+                                        transition: "all 0.3s ease",
+                                        opacity: subStatus === "loading" ? 0.7 : 1,
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = "white";
+                                        e.currentTarget.style.color = "#0D4A7A";
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = "transparent";
+                                        e.currentTarget.style.color = "#F5F9FF";
+                                    }}
+                                >
+                                    {subStatus === "loading" ? "..." : "Notify me"}
+                                </motion.button>
+                            </form>
+                        )}
+                    </div>
+                    {subStatus === "duplicate" && (
+                        <p style={{ color: "#FFD700", fontFamily: "'DM Sans', sans-serif", fontSize: "14px", marginTop: "10px", textAlign: "center" }}>
+                            You're already subscribed — we'll keep you posted!
+                        </p>
+                    )}
+                    {subStatus === "error" && (
+                        <p style={{ color: "#FCA5A5", fontFamily: "'DM Sans', sans-serif", fontSize: "14px", marginTop: "10px", textAlign: "center" }}>
+                            Something went wrong. Please try again.
+                        </p>
+                    )}
+                </div>
+            </div>
             <Footer />
         </div>
     );

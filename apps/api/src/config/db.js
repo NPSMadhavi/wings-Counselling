@@ -1,31 +1,42 @@
-import mysql from "mysql2";
+import mysql from "mysql2/promise";
 import { drizzle } from "drizzle-orm/mysql2";
-import { 
-  mysqlTable, 
-  serial, 
-  text, 
-  varchar, 
-  boolean, 
-  datetime, 
-  json, 
-  int, 
-  longtext 
+import "./env.js";
+
+import {
+  mysqlTable,
+  serial,
+  text,
+  varchar,
+  boolean,
+  datetime,
+  json,
+  int,
+  longtext
 } from "drizzle-orm/mysql-core";
 
+/* ================= MYSQL POOL (PROMISE FIX) ================= */
+
 const pool = mysql.createPool({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "wings",
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "wings",
+  port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 });
 
+/* ================= EXPORTS ================= */
+
+// ✅ This FIXES your error (await db.query works now)
 export const db = pool;
+
+// Drizzle ORM
 export const ddb = drizzle(pool);
 
-/* --- Drizzle Schemas --- */
+/* ================= SCHEMAS ================= */
+
 export const teamMembers = mysqlTable("team_members", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -72,6 +83,14 @@ export const careers = mysqlTable("careers", {
   closesAt: datetime("closes_at"),
   createdAt: datetime("created_at").default(new Date()),
   updatedAt: datetime("updated_at").default(new Date())
+});
+
+/* ================= JOB CATEGORIES ================= */
+
+export const categories = mysqlTable("job_categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
 });
 
 export const candidates = mysqlTable("candidates", {
@@ -161,4 +180,4 @@ export const events = mysqlTable("events", {
   isPublished: boolean("is_published").notNull().default(false),
   createdAt: datetime("created_at").default(new Date()),
   updatedAt: datetime("updated_at").default(new Date())
-});
+});

@@ -17,14 +17,25 @@ export default function Home() {
   // a navigation explicitly requested skipping the intro.
   const [showIntro, setShowIntro] = useState(() => {
     try {
+      const hasPlayed = !!sessionStorage.getItem("hasPlayedIntro");
       const hasHash = !!window.location.hash;
       const skipFlag = !!sessionStorage.getItem("skipLogoIntro");
+
       if (skipFlag) sessionStorage.removeItem("skipLogoIntro");
-      return !(hasHash || skipFlag);
+
+      // Don't show if played before, or if arriving via hash/skip flag
+      return !(hasPlayed || hasHash || skipFlag);
     } catch (err) {
       return !window.location.hash;
     }
   });
+
+  const handleIntroComplete = () => {
+    setShowIntro(false);
+    try {
+      sessionStorage.setItem("hasPlayedIntro", "1");
+    } catch (err) { }
+  };
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -35,7 +46,7 @@ export default function Home() {
 
   return (
     <>
-      {showIntro && <LogoIntro onComplete={() => setShowIntro(false)} />}
+      {showIntro && <LogoIntro onComplete={handleIntroComplete} />}
 
       {/* Ensure we scroll to any hash target (e.g., #contact) once intro is not shown */}
       {(!showIntro) && (() => {
