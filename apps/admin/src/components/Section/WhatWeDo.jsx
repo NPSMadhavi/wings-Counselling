@@ -15,7 +15,7 @@ const services = [
   { id: 8, title: "Parenting challenges" },
   { id: 9, title: "Financial disputes" },
   { id: 10, title: "Burnout & Work stress" },
-  { id: 11, title: "Self-Esteem & Identity" },
+  { id: 11, title: "Self-esteem & Identity" },
   { id: 12, title: "Feeling lonely" },
 ];
 
@@ -43,7 +43,8 @@ export function WhatWeDo() {
       className="
         group
         flex items-center justify-center
-        px-4 py-3 md:px-6 md:py-4
+        min-w-0
+        px-2.5 py-3 sm:px-4 md:px-6 md:py-4
         rounded-full
         border border-[#25528A]
         bg-white
@@ -56,11 +57,15 @@ export function WhatWeDo() {
     >
       <h3
         className="
-          text-[13px] sm:text-[14px] md:text-[16px]
+          min-w-0
+          text-[12px] sm:text-[14px] md:text-[16px]
           font-medium
           text-[#25528A]
           group-hover:text-white
-          whitespace-nowrap
+          text-center
+          leading-tight
+          whitespace-normal
+          md:whitespace-nowrap
         "
         style={{ fontFamily: "'DM Sans', sans-serif" }}
       >
@@ -70,7 +75,8 @@ export function WhatWeDo() {
       <ChevronRight
         size={18}
         className="
-          ml-2
+          shrink-0
+          ml-1 sm:ml-2
           text-[#25528A]
           group-hover:text-white
           transition-transform duration-300
@@ -87,7 +93,7 @@ export function WhatWeDo() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.7 }}
-      className="relative w-full pt-[60px]  pb-[60px] overflow-hidden bg-[#F7F6F3] flex justify-center"
+      className="relative w-full pt-[60px]  pb-[60px] overflow-hidden bg-[#F9F9F9] flex justify-center"
     >
       {/* Background */}
       <motion.div
@@ -101,23 +107,7 @@ export function WhatWeDo() {
 
         {/* HEADER */}
         <div className="text-center mb-10 md:mb-14">
-          <div
-            className="
-              inline-flex
-              items-center
-              justify-center
-              px-5 py-2
-              rounded-full
-              text-white
-              text-base md:text-[20px]
-              font-medium
-              bg-gradient-to-r from-[#0D4A7A] to-[#42A0BD]
-              mb-6
-            "
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            How can we help you
-          </div>
+
 
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -125,12 +115,13 @@ export function WhatWeDo() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="
-              text-[28px]
+              text-[clamp(26px,4.8vw,28px)]
               md:text-[35px]
               text-center
               mb-4
               font-['Outfit']
               font-medium
+              leading-[1.2]
               "
             style={{ color: "#0D4A7A" }}
           >
@@ -139,14 +130,20 @@ export function WhatWeDo() {
 
           <p
             className="
-              text-[14px] sm:text-[16px] md:text-[14px] lg:text-[20px]
-              max-w-[650px]
+              text-black
+              text-center
+              font-['DM_Sans']
+              text-[16px]
+              md:text-[20px]
+              font-normal
+              max-w-[700px]
               mx-auto
-              text-[#111]
+              leading-[1.5]
+              line-clamp-2
+              md:line-clamp-none
             "
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
           >
-            Pick a topic below that you’d like to explore:
+            Pick a topic below that you’d like to explore
           </p>
         </div>
 
@@ -159,7 +156,7 @@ export function WhatWeDo() {
             sm:grid-cols-2
             md:grid-cols-3
             lg:grid-cols-4
-            gap-3 md:gap-4
+            gap-x-2 gap-y-3 sm:gap-3 md:gap-4
           "
         >
           {services.map((service, index) =>

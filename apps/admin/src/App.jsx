@@ -32,6 +32,27 @@ import SubServicePage from "./Pages/SubServicePage";
 import AnxietyArticlePage from "./Pages/GroundingTechniques";
 import Volunteer from "./Pages/Volunteer";
 import { VolunteerRegistrationModal } from "./components/modals/VolunteerRegistrationModal";
+import { Partners } from "./components/Section/Partner";
+
+
+import Familysupport from "./Pages/SubServices/SubFamilysupport";
+import Marital from "./Pages/SubServices/SubMarital";
+import PreSchool from "./Pages/SubServices/SubPreschool";
+import Youth from "./Pages/SubServices/SubYouth";
+import Adult from "./Pages/SubServices/SubAdult";
+
+import ClinicalSupervision from "./Pages/SubServices/SubClinicalSupervision";
+import PersonalTherapy from "./Pages/SubServices/SubPersonaltherapy";
+import FamilyParenting from "./Pages/SubServices/SubFamilyParenting";
+
+import Schooloutreach from "./Pages/SubServices/SubSchooloutreach";
+import Workplace from "./Pages/SubServices/SubWorkplace";
+import Community from "./Pages/SubServices/SubCommunity";
+import Skill from "./Pages/SubServices/SubSkill";
+import UnsubscribeConfirm from "./Pages/UnsubscribeConfirm";
+import UnsubscribeSuccess from "./Pages/UnsubscribeSuccess";
+import PrivacyPolicy from "@/Pages/PrivacyPolicy";
+
 
 
 /* ---------------- Scroll To Top ---------------- */
@@ -54,6 +75,7 @@ function SharedNavbar() {
   const isInterviewBooking = location.startsWith("/candidate/interview-booking/");
   const hidden =
     location.startsWith("/admin") ||
+    location.startsWith("/unsubscribe") ||
     ((location === "/candidate" || location.startsWith("/candidate/")) && !isInterviewBooking);
 
   if (hidden) return null;
@@ -80,6 +102,10 @@ function Router() {
       <Route path={/^\/admin(?:\/.*)?$/} component={AdminApp} />
 
       <Route path="/about-us" component={AboutUs} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/privacypolicy">
+        <Redirect to="/privacy-policy" />
+      </Route>
       <Route path="/services" component={ServicePage} />
       <Route path="/events" component={EventsPage} />
       <Route path="/articles" component={ArticlePage} />
@@ -105,9 +131,34 @@ function Router() {
       </Route>
       <Route path="/StressAnxiety" component={WhatWeDoPage} />
       <Route path="/SubService" component={SubServicePage} />
+      <Route path="/SubServicePage">
+        <Redirect to="/SubService" />
+      </Route>
       <Route path="/GroundingTechniques" component={AnxietyArticlePage} />
       <Route path="/volunteer" component={Volunteer} />
       <Route path="/volunteerform" component={VolunteerFormPage} />
+      <Route path="/partners" component={Partners} />
+      <Route path="/unsubscribe/success" component={UnsubscribeSuccess} />
+      <Route path="/unsubscribe/:token" component={UnsubscribeConfirm} />
+
+      {/* Subservices */}
+
+      <Route path="/Familysupport" component={Familysupport} />
+      <Route path="/FamilyParenting" component={FamilyParenting} />
+      <Route path="/SubPersonaltherapy">
+        <Redirect to="/Personaltherapy" />
+      </Route>
+<Route path="/Marital" component={Marital} />
+<Route path="/Pre-school" component={PreSchool} />
+<Route path="/Youth" component={Youth} />
+<Route path="/Adult" component={Adult} />
+
+<Route path="/Schooloutreach" component={Schooloutreach} />
+<Route path="/Workplace" component={Workplace} />
+<Route path="/Community" component={Community} />
+<Route path="/Skill" component={Skill} />
+<Route path="/Clinicalsupervision" component={ClinicalSupervision}/>
+<Route path="/Personaltherapy" component={PersonalTherapy}/>
 
       <Route path="/" component={Home} />
       <Route component={NotFound} />
@@ -132,8 +183,8 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CandidateAuthProvider>
-          <AppointmentProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <AppointmentProvider>
 
               <div className="page-wrapper">
               <ScrollToTop />
@@ -143,10 +194,10 @@ export default function App() {
 
               <ModalContainer />
 
-            </WouterRouter>
+            </AppointmentProvider>
+          </WouterRouter>
 
             <Toaster />
-          </AppointmentProvider>
         </CandidateAuthProvider>
       </TooltipProvider>
     </QueryClientProvider>

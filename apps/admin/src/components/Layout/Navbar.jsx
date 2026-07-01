@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Heart, Globe } from "lucide-react";
+import { Menu, X, ChevronDown, Heart, Globe, Home as HomeIcon, Users, HandHeart, FileText, Briefcase } from "lucide-react";
 
 import { useLocation, Link } from "wouter";
+import { scrollToContactWithRetry } from "@/lib/scrollToSection";
 
 import { useAppointment } from "@/context/AppointmentContext";
 
@@ -95,6 +96,14 @@ const navLinks = [
   },
 ];
 
+const navIcons = {
+  Home: HomeIcon,
+  "About us": Users,
+  Services: HandHeart,
+  Resources: FileText,
+  Careers: Briefcase,
+};
+
 const languages = [
   {
     code: "EN",
@@ -144,6 +153,9 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] =
     useState(false);
 
+  const [navbarHeight, setNavbarHeight] = useState(0);
+  const navbarRef = useState(null);
+
   /* =====================================================
      SCROLL
   ===================================================== */
@@ -189,6 +201,57 @@ export function Navbar() {
     return () =>
       clearInterval(interval);
   }, []);
+
+  /* =====================================================
+     MEASURE NAVBAR HEIGHT FOR MOBILE MENU POSITIONING
+  ===================================================== */
+
+  useEffect(() => {
+    const measureNavbar = () => {
+      const navEl = document.getElementById("wings-main-navbar");
+      if (navEl) {
+        setNavbarHeight(navEl.offsetHeight);
+      }
+    };
+
+    measureNavbar();
+    window.addEventListener("resize", measureNavbar);
+
+    return () => window.removeEventListener("resize", measureNavbar);
+  }, [showNavbar]);
+
+  /* =====================================================
+     ESC KEY TO CLOSE MOBILE MENU
+  ===================================================== */
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape" && mobileOpen) {
+        setMobileOpen(false);
+        setActiveDropdown(null);
+        setActiveLangDropdown(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [mobileOpen]);
+
+  /* =====================================================
+     BODY SCROLL LOCK WHEN MOBILE MENU IS OPEN
+  ===================================================== */
+
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
 
   /* =====================================================
      HASH SCROLL
@@ -265,6 +328,14 @@ export function Navbar() {
 
       if (
         location === targetPath &&
+        targetHash === "#contact"
+      ) {
+        scrollToContactWithRetry();
+        return;
+      }
+
+      if (
+        location === targetPath &&
         targetHash
       ) {
         const el =
@@ -332,7 +403,7 @@ export function Navbar() {
               left-0
               right-0
               w-full
-              z-[99999]
+              z-[100002]
               pointer-events-none
             "
           >
@@ -341,13 +412,15 @@ export function Navbar() {
             ===================================================== */}
 
             <div
+              id="wings-navbar-wrapper"
               className={`
                 w-full
                 flex
                 justify-center
                 transition-all
                 duration-300
-                px-3
+                px-2
+                min-[375px]:px-3
                 sm:px-4
                 md:px-5
                 lg:px-6
@@ -366,23 +439,27 @@ export function Navbar() {
               ===================================================== */}
 
               <div
+                id="wings-main-navbar"
                 className="
                   w-full
                   max-w-[1500px]
                   2xl:max-w-[1600px]
+                  min-[2560px]:max-w-[1800px]
                   mx-auto
                   flex
                   items-center
                   justify-between
-                  gap-4
+                  gap-2
+                  sm:gap-3
+                  lg:gap-4
                   min-w-0
                   pointer-events-auto
                   transition-all
                   duration-300
                 "
                 style={{
-                  minHeight: "clamp(70px, 5vw, 88px)",
-                  padding: "12px clamp(16px, 2vw, 24px)",
+                  minHeight: "clamp(64px, 5vw, 88px)",
+                  padding: "clamp(8px, 1vw, 12px) clamp(12px, 2vw, 24px)",
 
                   borderRadius:
                     isScrolled
@@ -415,10 +492,11 @@ export function Navbar() {
                     src="/assets/wingsLogo.png"
                     alt="Wings Counselling Centre"
                     className="
-                      w-[120px]
-                      sm:w-[145px]
+                      w-[140px]
+                      min-[375px]:w-[155px]
+                      sm:w-[170px]
                       md:w-[170px]
-                      lg:w-[190px]
+                      lg:w-[180px]
                       xl:w-[210px]
                       2xl:w-[230px]
                     "
@@ -437,14 +515,16 @@ export function Navbar() {
                 <div
                   className="
                     hidden
-                    lg:flex
+                    min-[1132px]:flex
                     flex-1
                     items-center
                     justify-center
-                    gap-0.5
+                    gap-0
+                    lg:gap-0
                     xl:gap-1
                     2xl:gap-3
                     min-w-0
+                    overflow-visible
                   "
                 >
                   {navLinks.map(
@@ -517,13 +597,13 @@ export function Navbar() {
                                     fontFamily:
                                       "'DM Sans', sans-serif",
                                     fontSize:
-                                      "clamp(14px,0.95vw,18px)",
+                                      "clamp(13px,0.95vw,18px)",
                                     fontWeight:
                                       "500",
                                     textDecoration:
                                       "none",
                                     padding:
-                                      "8px 14px",
+                                      "clamp(6px,0.5vw,8px) clamp(8px,0.8vw,14px)",
                                     borderRadius:
                                       "8px",
                                     cursor:
@@ -560,7 +640,7 @@ export function Navbar() {
                                     "'DM Sans', sans-serif",
 
                                   fontSize:
-                                    "clamp(14px,0.95vw,18px)",
+                                    "clamp(13px,0.95vw,18px)",
 
                                   fontWeight:
                                     "500",
@@ -569,7 +649,7 @@ export function Navbar() {
                                     "none",
 
                                   padding:
-                                    "8px 14px",
+                                    "clamp(6px,0.5vw,8px) clamp(8px,0.8vw,14px)",
 
                                   borderRadius:
                                     "8px",
@@ -637,13 +717,13 @@ export function Navbar() {
                                     "'DM Sans', sans-serif",
 
                                   fontSize:
-                                    "clamp(14px,0.95vw,18px)",
+                                    "clamp(13px,0.95vw,18px)",
 
                                   fontWeight:
                                     "500",
 
                                   padding:
-                                    "8px 14px",
+                                    "clamp(6px,0.5vw,8px) clamp(8px,0.8vw,14px)",
 
                                   borderRadius:
                                     "8px",
@@ -749,7 +829,9 @@ export function Navbar() {
                                     top-full
                                     left-0
                                     mt-2
-                                    min-w-[240px]
+                                    min-w-[220px]
+                                    lg:min-w-[220px]
+                                    xl:min-w-[240px]
                                     bg-white
                                     rounded-xl
                                     shadow-xl
@@ -776,7 +858,9 @@ export function Navbar() {
 
                                             className="
                                               block
-                                              px-6
+                                              px-5
+                                              lg:px-5
+                                              xl:px-6
                                               py-3
                                               transition-all
                                               duration-200
@@ -793,7 +877,7 @@ export function Navbar() {
                                                 "500",
 
                                               fontSize:
-                                                "clamp(14px,0.95vw,16px)",
+                                                "clamp(13px,0.95vw,16px)",
 
                                               textDecoration:
                                                 "none",
@@ -846,7 +930,9 @@ export function Navbar() {
 
                                             className="
                                               block
-                                              px-6
+                                              px-5
+                                              lg:px-5
+                                              xl:px-6
                                               py-3
                                               transition-all
                                               duration-200
@@ -863,7 +949,7 @@ export function Navbar() {
                                                 "500",
 
                                               fontSize:
-                                                "clamp(14px,0.95vw,16px)",
+                                                "clamp(13px,0.95vw,16px)",
 
                                               textDecoration:
                                                 "none",
@@ -896,9 +982,10 @@ export function Navbar() {
                 <div
                   className="
                     hidden
-                    lg:flex
+                    min-[1132px]:flex
                     items-center
-                    gap-1.5
+                    gap-1
+                    min-[1132px]:gap-1
                     xl:gap-2
                     2xl:gap-3
                     flex-shrink-0
@@ -930,7 +1017,8 @@ export function Navbar() {
                       className="
                         flex
                         items-center
-                        gap-2
+                        gap-1.5
+                        xl:gap-2
                         cursor-pointer
                         nav-item-parent
                         whitespace-nowrap
@@ -945,13 +1033,13 @@ export function Navbar() {
                           "'DM Sans', sans-serif",
 
                         fontSize:
-                          "clamp(14px,0.95vw,18px)",
+                          "clamp(13px,0.95vw,18px)",
 
                         fontWeight:
                           "500",
 
                         padding:
-                          "8px 14px",
+                          "clamp(6px,0.5vw,8px) clamp(8px,0.8vw,14px)",
 
                         borderRadius:
                           "8px",
@@ -1008,7 +1096,8 @@ export function Navbar() {
                             top-full
                             right-0
                             mt-2
-                            min-w-[220px]
+                            min-w-[200px]
+                            xl:min-w-[220px]
                             bg-white
                             rounded-xl
                             shadow-xl
@@ -1037,7 +1126,8 @@ export function Navbar() {
                                   className="
                                     w-full
                                     text-left
-                                    px-6
+                                    px-5
+                                    xl:px-6
                                     py-3
                                     transition-all
                                     duration-200
@@ -1057,7 +1147,7 @@ export function Navbar() {
                                       "500",
 
                                     fontSize:
-                                      "clamp(14px,0.95vw,16px)",
+                                      "clamp(13px,0.95vw,16px)",
 
                                     color:
                                       selectedLanguage?.code ===
@@ -1116,18 +1206,19 @@ export function Navbar() {
                       flex
                       items-center
                       justify-center
-                      gap-2
+                      gap-1.5
+                      xl:gap-2
                       whitespace-nowrap
                     "
                     style={{
-                      height: "46px",
-                      padding: "0 18px",
+                      height: "clamp(40px, 3vw, 46px)",
+                      padding: "0 clamp(12px, 1.2vw, 18px)",
                       borderRadius: "9999px",
                       border: "2px solid #1B4585",
                       color: "#1B4585",
                       textDecoration: "none",
                       fontFamily: "'Plus Jakarta Sans', sans-serif",
-                      fontSize: "clamp(13px,0.9vw,15px)",
+                      fontSize: "clamp(12px,0.9vw,15px)",
                       fontWeight: "600",
                     }}
                   >
@@ -1152,25 +1243,25 @@ export function Navbar() {
                       flex
                       items-center
                       justify-center
-                      gap-2
+                      gap-1.5
+                      xl:gap-2
                       whitespace-nowrap
                     "
                     style={{
-                      height: "46px",
-                      padding: "0 18px",
+                      height: "clamp(40px, 3vw, 46px)",
+                      padding: "0 clamp(12px, 1.2vw, 18px)",
                       borderRadius: "9999px",
                       background: "#1B4585",
                       color: "#F5F9FF",
                       textDecoration: "none",
                       fontFamily: "'Plus Jakarta Sans', sans-serif",
-                      fontSize: "clamp(13px,0.9vw,15px)",
+                      fontSize: "clamp(12px,0.9vw,15px)",
                       fontWeight: "700",
                       boxShadow: "0 4px 12px rgba(27,69,133,0.3)",
                       border: "none",
                     }}
                   >
-                    <span className="hidden xl:inline">Book an appointment</span>
-                    <span className="xl:hidden">Book</span>
+                    Book an appointment
 
                     <svg
                       width="20"
@@ -1195,7 +1286,7 @@ export function Navbar() {
 
                 <button
                   className="
-                    lg:hidden
+                    min-[1132px]:hidden
                     flex
                     items-center
                     justify-center
@@ -1236,195 +1327,246 @@ export function Navbar() {
       </AnimatePresence>
 
       {/* =====================================================
-         MOBILE MENU
+         MOBILE MENU - GLASSMORPHISM RIGHT-SIDE PANEL
       ===================================================== */}
 
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: -10,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            exit={{
-              opacity: 0,
-              y: -10,
-            }}
-            transition={{
-              duration: 0.25,
-            }}
-            className="
-              fixed
-              top-[clamp(72px,14vw,96px)]
-              left-3
-              right-3
-              sm:left-4
-              sm:right-4
-              bg-white
-              rounded-3xl
-              shadow-2xl
-              z-[99998]
-              overflow-hidden
-              max-h-[calc(100vh-100px)]
-              overflow-y-auto
-              lg:hidden
-            "
-          >
-            <div className="p-4 flex flex-col gap-2">
+          <>
+            {/* BACKDROP OVERLAY */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="
+                fixed
+                inset-0
+                z-[100000]
+                min-[1132px]:hidden
+              "
+              style={{
+                backgroundColor: "rgba(0, 0, 0, 0.4)",
+                backdropFilter: "blur(4px)",
+                WebkitBackdropFilter: "blur(4px)",
+              }}
+              onClick={() => {
+                setMobileOpen(false);
+                setActiveDropdown(null);
+                setActiveLangDropdown(false);
+              }}
+            />
 
-              {navLinks.map((link) => {
-                const hasDropdown = !!link.dropdown;
+            {/* SLIDING PANEL */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{
+                type: "spring",
+                damping: 30,
+                stiffness: 300,
+                mass: 0.8,
+              }}
+              className="
+                fixed
+                right-2
+                min-[375px]:right-3
+                sm:right-4
+                h-fit
+                z-[100001]
+                min-[1132px]:hidden
+                overflow-hidden
+                flex
+                flex-col
+              "
+              style={{
+                top: navbarHeight > 0
+                  ? `${navbarHeight + 8}px`
+                  : "clamp(72px,14vw,96px)",
+                maxHeight: navbarHeight > 0
+                  ? `calc(100vh - ${navbarHeight + 16}px)`
+                  : "calc(100vh - 100px)",
+                width: "85%",
+                maxWidth: window.innerWidth >= 600 ? "400px" : "320px",
+                borderRadius: "24px",
+                background: "#FFFFFF",
+                backdropFilter: "blur(24px) saturate(180%)",
+                WebkitBackdropFilter: "blur(24px) saturate(180%)",
+                boxShadow: "-8px 0 40px rgba(0, 0, 0, 0.12), -2px 0 8px rgba(0, 0, 0, 0.06)",
+                borderLeft: "1px solid rgba(255, 255, 255, 0.5)",
+              }}
+            >
 
-                return (
-                  <div
-                    key={link.name}
-                    className="w-full"
-                  >
-                    {/* MAIN BUTTON */}
 
-                    <button
-                      onClick={(e) => {
-                        if (hasDropdown) {
-                          setActiveDropdown(
-                            activeDropdown === link.name
-                              ? null
-                              : link.name
-                          );
-                        } else {
-                          handleNavClick(e, link);
-                        }
-                      }}
-                      className="
-                        w-full
-                        flex
-                        items-center
-                        justify-between
-                        px-4
-                        py-3
-                        rounded-2xl
-                        text-[#1B4585]
-                        font-semibold
-                        text-[15px]
-                        hover:bg-[#F5F9FF]
-                        transition-all
-                      "
-                    >
-                      <span>{link.name}</span>
+              {/* SCROLLABLE NAV CONTENT */}
+              <div
+                className="
+                  overflow-y-auto
+                  overflow-x-hidden
+                "
+                style={{
+                  padding: "clamp(8px, 2vw, 16px) clamp(12px, 3vw, 20px) clamp(16px, 4vw, 24px)",
+                }}
+              >
+                <div className="flex flex-col gap-1">
+                  {navLinks.map((link) => {
+                    const hasDropdown = !!link.dropdown;
+                    const isActive =
+                      location === link.href ||
+                      (hasDropdown &&
+                        link.dropdown.some((d) => location === d.href));
+                    const NavIcon = navIcons[link.name];
 
-                      {hasDropdown && (
-                        <ChevronDown
-                          size={18}
-                          className={`
-                            transition-transform
-                            duration-300
-                            ${
-                              activeDropdown === link.name
-                                ? "rotate-180"
-                                : ""
+                    return (
+                      <div key={link.name} className="w-full">
+                        {/* MAIN BUTTON */}
+                        <button
+                          onClick={(e) => {
+                            if (hasDropdown) {
+                              setActiveDropdown(
+                                activeDropdown === link.name
+                                  ? null
+                                  : link.name
+                              );
+                            } else {
+                              handleNavClick(e, link);
                             }
-                          `}
-                        />
-                      )}
-                    </button>
-
-                    {/* DROPDOWN */}
-
-                    <AnimatePresence>
-                      {hasDropdown &&
-                        activeDropdown === link.name && (
-                          <motion.div
-                            initial={{
-                              opacity: 0,
-                              height: 0,
-                            }}
-                            animate={{
-                              opacity: 1,
-                              height: "auto",
-                            }}
-                            exit={{
-                              opacity: 0,
-                              height: 0,
-                            }}
-                            className="
-                              overflow-hidden
-                              ml-2
-                              mt-1
-                              flex
-                              flex-col
-                              gap-1
-                            "
-                          >
-                            {link.dropdown.map(
-                              (subItem) => (
-                                <button
-                                  key={subItem.name}
-                                  onClick={(e) =>
-                                    handleNavClick(
-                                      e,
-                                      subItem
-                                    )
-                                  }
-                                  className="
-                                    text-left
-                                    px-4
-                                    py-3
-                                    rounded-xl
-                                    text-[14px]
-                                    text-gray-700
-                                    hover:bg-[#F5F9FF]
-                                    hover:text-[#1B4585]
-                                    transition-all
-                                  "
-                                >
-                                  {subItem.name}
-                                </button>
-                              )
+                          }}
+                          className="
+                            w-full
+                            flex
+                            items-center
+                            justify-between
+                            transition-all
+                            duration-200
+                          "
+                          style={{
+                            padding: "14px 16px",
+                            borderRadius: "16px",
+                            color: "#1B4585",
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: "15px",
+                            fontWeight: isActive ? "700" : "600",
+                            background: isActive ? "rgba(27, 69, 133, 0.07)" : "transparent",
+                            border: "none",
+                          }}
+                        >
+                          <span className="flex items-center gap-3">
+                            {NavIcon && (
+                              <NavIcon
+                                size={20}
+                                color="#1B4585"
+                                strokeWidth={isActive ? 2.5 : 2}
+                              />
                             )}
-                          </motion.div>
-                        )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
+                            {link.name}
+                          </span>
 
-              {/* MOBILE LANGUAGE */}
+                          {hasDropdown && (
+                            <ChevronDown
+                              size={18}
+                              className={`
+                                transition-transform
+                                duration-300
+                                ${activeDropdown === link.name ? "rotate-180" : ""}
+                              `}
+                            />
+                          )}
+                        </button>
 
-              <div className="mt-2 border-t pt-3">
-                <div className="relative">
+                        {/* DROPDOWN */}
+                        <AnimatePresence>
+                          {hasDropdown &&
+                            activeDropdown === link.name && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.25, ease: "easeInOut" }}
+                                className="overflow-hidden"
+                              >
+                                <div
+                                  className="flex flex-col gap-0.5"
+                                  style={{
+                                    marginLeft: "16px",
+                                    marginTop: "4px",
+                                    marginBottom: "4px",
+                                    paddingLeft: "12px",
+                                    borderLeft: "2px solid rgba(27, 69, 133, 0.12)",
+                                  }}
+                                >
+                                  {link.dropdown.map((subItem) => {
+                                    const subActive = location === subItem.href;
 
-                  {/* LANGUAGE BUTTON */}
+                                    return (
+                                      <button
+                                        key={subItem.name}
+                                        onClick={(e) => handleNavClick(e, subItem)}
+                                        className="
+                                          text-left
+                                          transition-all
+                                          duration-200
+                                        "
+                                        style={{
+                                          padding: "10px 14px",
+                                          borderRadius: "12px",
+                                          fontSize: "14px",
+                                          fontFamily: "'DM Sans', sans-serif",
+                                          fontWeight: subActive ? "600" : "500",
+                                          color: subActive ? "#1B4585" : "#555",
+                                          background: subActive ? "rgba(27, 69, 133, 0.06)" : "transparent",
+                                          border: "none",
+                                          width: "100%",
+                                        }}
+                                      >
+                                        {subItem.name}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </motion.div>
+                            )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
 
+                {/* MOBILE LANGUAGE */}
+                <div
+                  style={{
+                    marginTop: "12px",
+                    paddingTop: "12px",
+                    borderTop: "1px solid rgba(27, 69, 133, 0.08)",
+                  }}
+                >
                   <button
                     onClick={() =>
-                      setActiveLangDropdown(
-                        !activeLangDropdown
-                      )
+                      setActiveLangDropdown(!activeLangDropdown)
                     }
                     className="
                       w-full
                       flex
                       items-center
                       justify-between
-                      px-4
-                      py-3
-                      rounded-2xl
-                      text-[#1B4585]
-                      font-semibold
-                      text-[15px]
-                      hover:bg-[#F5F9FF]
                       transition-all
+                      duration-200
                     "
+                    style={{
+                      padding: "12px 14px",
+                      borderRadius: "14px",
+                      color: "#1B4585",
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "15px",
+                      fontWeight: "600",
+                      background: "transparent",
+                      border: "none",
+                    }}
                   >
                     <div className="flex items-center gap-3">
-                      <Globe size={18} />
-
-                      <span>
-                        {selectedLanguage.displayName}
-                      </span>
+                      <Globe size={18} color="#1B4585" />
+                      <span>{selectedLanguage.displayName}</span>
                     </div>
 
                     <ChevronDown
@@ -1432,134 +1574,145 @@ export function Navbar() {
                       className={`
                         transition-transform
                         duration-300
-                        ${
-                          activeLangDropdown
-                            ? "rotate-180"
-                            : ""
-                        }
+                        ${activeLangDropdown ? "rotate-180" : ""}
                       `}
                     />
                   </button>
 
-                  {/* LANGUAGE DROPDOWN */}
-
                   <AnimatePresence>
                     {activeLangDropdown && (
                       <motion.div
-                        initial={{
-                          opacity: 0,
-                          height: 0,
-                        }}
-                        animate={{
-                          opacity: 1,
-                          height: "auto",
-                        }}
-                        exit={{
-                          opacity: 0,
-                          height: 0,
-                        }}
-                        className="
-                          overflow-hidden
-                          mt-2
-                          flex
-                          flex-col
-                          gap-1
-                        "
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.25, ease: "easeInOut" }}
+                        className="overflow-hidden"
                       >
-                        {languages.map((lang) => (
-                          <button
-                            key={lang.code}
-                            onClick={() => {
-                              handleLanguageSelect(lang);
-                            }}
-                            className="
-                              w-full
-                              flex
-                              items-center
-                              gap-3
-                              px-4
-                              py-3
-                              rounded-xl
-                              hover:bg-[#F5F9FF]
-                              transition-all
-                              text-left
-                            "
-                          >
-                            <span className="text-[18px]">
-                              {lang.flag}
-                            </span>
-
-                            <span
-                              className={`
-                                font-medium
-                                ${
-                                  selectedLanguage.code ===
-                                  lang.code
-                                    ? "text-[#1B4585]"
-                                    : "text-gray-700"
-                                }
-                              `}
+                        <div
+                          className="flex flex-col gap-0.5"
+                          style={{
+                            marginLeft: "16px",
+                            marginTop: "4px",
+                            paddingLeft: "12px",
+                            borderLeft: "2px solid rgba(27, 69, 133, 0.12)",
+                          }}
+                        >
+                          {languages.map((lang) => (
+                            <button
+                              key={lang.code}
+                              onClick={() => handleLanguageSelect(lang)}
+                              className="
+                                w-full
+                                flex
+                                items-center
+                                gap-3
+                                text-left
+                                transition-all
+                                duration-200
+                              "
+                              style={{
+                                padding: "10px 14px",
+                                borderRadius: "12px",
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: "14px",
+                                fontWeight: selectedLanguage.code === lang.code ? "600" : "500",
+                                color: selectedLanguage.code === lang.code ? "#1B4585" : "#555",
+                                background:
+                                  selectedLanguage.code === lang.code
+                                    ? "rgba(27, 69, 133, 0.06)"
+                                    : "transparent",
+                                border: "none",
+                              }}
                             >
-                              {lang.displayName}
-                            </span>
-
-                            {selectedLanguage.code ===
-                              lang.code && (
-                              <span className="ml-auto text-[#1B4585]">
-                                ✓
-                              </span>
-                            )}
-                          </button>
-                        ))}
+                              <span style={{ fontSize: "18px" }}>{lang.flag}</span>
+                              <span>{lang.displayName}</span>
+                              {selectedLanguage.code === lang.code && (
+                                <span className="ml-auto text-[#1B4585] font-bold">✓</span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
-              </div>
 
-              {/* MOBILE BUTTONS */}
-
-              <div className="flex flex-col gap-3 mt-3">
-
-                <button
-                  onClick={() =>
-                    window.open(
-                      "https://ramakrishna.org.sg/Authentication/Login?returnUrl=%2FDonation%2FDonateNow",
-                      "_blank"
-                    )
-                  }
-                  className="
-                    w-full
-                    border-2
-                    border-[#1B4585]
-                    text-[#1B4585]
-                    rounded-full
-                    py-3
-                    font-semibold
-                  "
-                >
-                  Donate
-                </button>
-
-                <button
-                  onClick={() => {
-                    setMobileOpen(false);
-                    openModal();
+                {/* ACTION BUTTONS */}
+                <div
+                  style={{
+                    marginTop: "16px",
+                    paddingTop: "16px",
+                    borderTop: "1px solid rgba(27, 69, 133, 0.08)",
                   }}
-                  className="
-                    w-full
-                    bg-[#1B4585]
-                    text-white
-                    rounded-full
-                    py-3
-                    font-semibold
-                  "
                 >
-                  Book an appointment
-                </button>
+                  <div className="flex flex-col gap-3">
+                    <button
+                      onClick={() => {
+                        setMobileOpen(false);
+                        window.open(
+                          "https://ramakrishna.org.sg/Authentication/Login?returnUrl=%2FDonation%2FDonateNow",
+                          "_blank"
+                        );
+                      }}
+                      className="
+                        w-full
+                        flex
+                        items-center
+                        justify-center
+                        gap-2
+                        transition-all
+                        duration-200
+                        active:scale-[0.97]
+                      "
+                      style={{
+                        height: "48px",
+                        borderRadius: "9999px",
+                        border: "2px solid #1B4585",
+                        color: "#1B4585",
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        fontSize: "15px",
+                        fontWeight: "600",
+                        background: "transparent",
+                      }}
+                    >
+                      Donate
+                      <Heart size={16} fill="#1B4585" color="#1B4585" />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setMobileOpen(false);
+                        openModal();
+                      }}
+                      className="
+                        w-full
+                        flex
+                        items-center
+                        justify-center
+                        gap-2
+                        transition-all
+                        duration-200
+                        active:scale-[0.97]
+                      "
+                      style={{
+                        height: "48px",
+                        borderRadius: "9999px",
+                        background: "#1B4585",
+                        color: "#F5F9FF",
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        fontSize: "15px",
+                        fontWeight: "700",
+                        boxShadow: "0 4px 16px rgba(27, 69, 133, 0.3)",
+                        border: "none",
+                      }}
+                    >
+                      Book an appointment
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 
@@ -1571,6 +1724,26 @@ export function Navbar() {
         .dropdown-item:hover {
           background-color: #eaf3ff !important;
           color: #1b4585 !important;
+        }
+
+        @media (max-width: 1131px) {
+          .mobile-nav-panel::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+          }
+
+          .mobile-nav-panel {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+        }
+
+        @supports (max-width: 400px) {
+          @media (min-width: 600px) and (max-width: 1131px) {
+            .mobile-slide-panel {
+              max-width: 480px !important;
+            }
+          }
         }
       `}</style>
     </>

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix apps/api\" \"npm run dev --prefix apps/admin\""
+    "dev": "concurrently -n api,admin -c blue,green \"npm run dev --prefix apps/api\" \"npx --yes wait-on http://localhost:5001/api/health -t 120000 && npm run dev --prefix apps/admin\""
   },
   "dependencies": {
     "@radix-ui/react-toast": "^1.2.15",

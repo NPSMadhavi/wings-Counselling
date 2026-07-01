@@ -2,12 +2,18 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import {
-  MapPin, Clock, Briefcase, X, Eye, EyeOff, Upload, CheckCircle,
+  Briefcase, X, Eye, EyeOff, Upload,
   Mail, Lock, Phone, FileText, DollarSign, Building2,
-  AlertCircle, User, LogOut, ClipboardList, Calendar, ExternalLink,
-  RefreshCw, Bell, BellRing, CalendarCheck, ArrowRight, Info,
+  AlertCircle, User, LogOut, ClipboardList, ExternalLink,
+  RefreshCw, Bell, BellRing, ArrowRight, Info,
   ChevronRight, Home, ChevronLeft, Send,
 } from "lucide-react";
+import {
+  SiteMapPinIcon,
+  SiteCalendarIcon,
+  SiteClockIcon,
+  SiteCheckIcon,
+} from "@/components/ui/SiteIcons";
 
 import { FaLinkedin } from "react-icons/fa";
 import { useCandidateAuth, candidateLogin, candidateRegister } from "../context/CandidateAuthContext";
@@ -188,7 +194,7 @@ function ApplicationJourney({ status }: { status: string }) {
     <div className="mt-4 rounded-2xl" style={{ background: "#f8fafc", border: "1px solid #e2e8f0" }}>
       {/* Header */}
       <div className="flex items-center gap-2 px-5 pt-4 pb-1">
-        <Calendar size={12} style={{ color: "#94a3b8" }} />
+        <SiteCalendarIcon size={12} color="#94a3b8" />
         <span className="text-[10px] font-extrabold uppercase tracking-widest" style={{ color: "#94a3b8" }}>
           Application Journey
         </span>
@@ -229,7 +235,7 @@ function ApplicationJourney({ status }: { status: string }) {
                       boxShadow: isActive ? "0 0 0 4px rgba(16,185,129,0.15)" : "none"
                     }}>
                     {isDone
-                      ? <CheckCircle size={14} />
+                      ? <SiteCheckIcon size={14} color="white" />
                       : isFail && !isWithdrawn
                         ? <X size={14} />
                         : isWithdrawn && isFail
@@ -477,7 +483,7 @@ function ApplyModal({ job, token, onClose }: { job: Job; token: string; onClose:
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
           className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
           <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "rgba(0,70,137,0.1)" }}>
-            <CheckCircle size={32} style={{ color: "#004689" }} />
+            <SiteCheckIcon size={32} color="#004689" />
           </div>
           <h2 className="text-xl font-extrabold text-gray-800 mb-2">Application Submitted!</h2>
           <p className="text-gray-500 text-sm mb-6">Thank you for applying for <strong>{job.title}</strong>. We've sent a confirmation to your email.</p>
@@ -661,7 +667,9 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
   const todayStr = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
-    fetch(`${BASE}/candidate/interview-availability`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${BASE}/candidate/interview-availability?applicationId=${appId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then(async (r) => {
         if (!r.ok) {
           const err = await r.json().catch(() => ({}));
@@ -685,7 +693,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
         setError("Unable to load interview slots. Please refresh the page.");
         setLoading(false);
       });
-  }, [token, todayStr]);
+  }, [token, todayStr, appId]);
 
   // group and sort
   const grouped: Record<string, InterviewAvailability[]> = {};
@@ -736,7 +744,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
   const panel = pageLayout ? (
     justBooked ? (
       <div className="w-full max-w-[560px] mx-auto rounded-[20px] bg-white shadow-[0_4px_4px_rgba(0,0,0,0.10)] px-6 md:px-10 py-10 md:py-12 text-center">
-        <CheckCircle size={52} className="text-green-500 mx-auto mb-5" />
+        <SiteCheckIcon size={52} color="#22c55e" className="mx-auto mb-5" />
         <h2 className="text-[#0D4A7A] font-['Outfit'] text-[28px] md:text-[32px] font-medium mb-3">Interview slot confirmed!</h2>
         <p className="text-[#0D4A7A]/80 font-['DM_Sans'] text-[16px] mb-2 leading-relaxed">
           Your interview{jobTitle ? <> for <strong>{jobTitle}</strong></> : ""} has been successfully booked.
@@ -753,7 +761,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
       {/* Blue information box — matches apply.tsx sign-in card */}
       <div className="w-full max-w-[500px] mx-auto bg-[#0D4A7A] rounded-[20px] shadow-[0_20px_50px_rgba(13,74,122,0.15)] text-white overflow-hidden transition-all duration-300 hover:shadow-[0_25px_60px_rgba(13,74,122,0.25)] px-6 sm:px-8 py-10 sm:py-12 flex flex-col items-center text-center">
         <div className="w-[50px] h-[50px] bg-white rounded-[10px] flex items-center justify-center shadow-sm mb-6">
-          <CalendarCheck className="w-5 h-5 text-[#0D4A7A]" />
+          <SiteCalendarIcon size={20} color="#0D4A7A" />
         </div>
         <h2 className="text-[25px] font-semibold tracking-tight leading-[33px] font-['DM_Sans'] mb-4">
           Interview Slot Booking
@@ -817,7 +825,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
             </div>
           ) : sortedDates.length === 0 ? (
             <div className="text-center py-12 px-4">
-              <Calendar size={40} className="mx-auto text-gray-300 mb-4" />
+              <SiteCalendarIcon size={40} color="#d1d5db" className="mx-auto mb-4" />
               <p className="font-['DM_Sans'] text-lg font-medium text-gray-800 mb-2">No slots available yet</p>
               <p className="text-sm text-gray-500 mb-5 font-['DM_Sans']">Our team is finalising interview times. You can request a custom time instead.</p>
               <button onClick={() => setTab("custom")} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[20px] bg-[#0D4A7A] text-white text-sm font-medium font-['DM_Sans']">
@@ -874,7 +882,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
                               : "bg-white border-[#D9D9D9] hover:border-[#0D4A7A] hover:shadow-sm"
                           }`}
                         >
-                          <Clock size={14} className={isSelected ? "text-white/70 mb-2" : "text-[#0D4A7A] mb-2"} />
+                          <SiteClockIcon size={14} color={isSelected ? "rgba(255,255,255,0.7)" : "#0D4A7A"} className="mb-2" />
                           <p className={`text-base font-semibold ${isSelected ? "text-white" : "text-gray-900"}`}>
                             {formatTimeSlotDisplay(slot.timeSlot)}
                           </p>
@@ -895,7 +903,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
         {tab === "custom" && (
           customSent ? (
             <div className="text-center py-12">
-              <CheckCircle size={48} className="mx-auto text-green-500 mb-4" />
+              <SiteCheckIcon size={48} color="#22c55e" className="mx-auto mb-4" />
               <p className="font-['DM_Sans'] text-lg font-medium text-gray-800 mb-2">Request sent!</p>
               <p className="text-sm text-gray-500 font-['DM_Sans']">Our team will review your preferred time and confirm via email.</p>
             </div>
@@ -950,7 +958,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-full bg-[#0D4A7A]/10 flex items-center justify-center shrink-0">
-                <CalendarCheck size={18} className="text-[#0D4A7A]" />
+                <SiteCalendarIcon size={18} color="#0D4A7A" />
               </div>
               <div>
                 <p className="font-['DM_Sans'] font-semibold text-gray-900">{formatInterviewDate(selectedSlot.date)}</p>
@@ -959,7 +967,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
                 </p>
                 {selectedSlot.location && (
                   <p className="text-sm text-gray-500 font-['DM_Sans'] mt-1 flex items-center gap-1">
-                    <MapPin size={12} /> {selectedSlot.location}
+                    <SiteMapPinIcon size={12} color="#6b7280" /> {selectedSlot.location}
                   </p>
                 )}
               </div>
@@ -972,7 +980,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
               {booking ? (
                 <><div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> Booking…</>
               ) : (
-                <><CalendarCheck size={16} /> Book Slot</>
+                <><SiteCalendarIcon size={16} color="#FFFFFF" /> Book Slot</>
               )}
             </button>
           </div>
@@ -990,7 +998,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
         <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid #f0f4f8" }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: "rgba(0,70,137,0.08)" }}>
-              <CalendarCheck size={19} style={{ color: "#004689" }} />
+              <SiteCalendarIcon size={19} color="#004689" />
             </div>
             <div>
               <h3 className="font-extrabold text-base text-gray-900">Schedule Your Interview</h3>
@@ -1030,7 +1038,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
             ) : sortedDates.length === 0 ? (
               <div className="text-center py-16">
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gray-50">
-                  <Calendar size={28} className="text-gray-300" />
+                  <SiteCalendarIcon size={28} color="#d1d5db" />
                 </div>
                 <p className="font-extrabold mb-1 text-gray-800">No slots available yet</p>
                 <p className="text-sm mb-5 text-gray-400">Our team is finalising interview times.</p>
@@ -1093,7 +1101,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
                               border: `2px solid ${isSelected ? "#004689" : "#e8eef5"}`,
                               boxShadow: isSelected ? "0 4px 16px rgba(0,70,137,0.2)" : "none",
                             }}>
-                            <Clock size={13} style={{ color: isSelected ? "rgba(255,255,255,0.7)" : "#94a3b8" }} />
+                            <SiteClockIcon size={13} color={isSelected ? "rgba(255,255,255,0.7)" : "#94a3b8"} />
                             <span className="text-sm font-extrabold" style={{ color: isSelected ? "white" : "#1e293b" }}>
                               {formatTimeSlotDisplay(slot.timeSlot)}
                             </span>
@@ -1111,7 +1119,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
                         className="mt-4 rounded-2xl p-4 flex items-start gap-3"
                         style={{ background: "rgba(0,70,137,0.05)", border: "1.5px solid rgba(0,70,137,0.15)" }}>
                         <div className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style={{ background: "rgba(0,70,137,0.1)" }}>
-                          <CheckCircle size={14} style={{ color: "#004689" }} />
+                          <SiteCheckIcon size={14} color="#004689" />
                         </div>
                         <div className="flex-1">
                           <p className="text-sm font-extrabold text-gray-800">
@@ -1141,7 +1149,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
             customSent ? (
               <div className="text-center py-12 flex flex-col items-center">
                 <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5" style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0" }}>
-                  <CheckCircle size={30} style={{ color: "#10b981" }} />
+                  <SiteCheckIcon size={30} color="#10b981" />
                 </div>
                 <p className="font-extrabold text-lg mb-2 text-gray-800">Request Sent!</p>
                 <p className="text-sm mb-7 text-gray-400">Our team will review your preferred time and confirm via email.</p>
@@ -1207,7 +1215,7 @@ function ScheduleInterviewModal({ appId, token, onBooked, onClose, embedded = fa
               style={{ background: selected ? "#004689" : "#cbd5e1", cursor: selected ? "pointer" : "not-allowed", boxShadow: selected ? "0 4px 14px rgba(0,70,137,0.3)" : "none" }}>
               {booking
                 ? <><div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> Confirming…</>
-                : <><CalendarCheck size={15} /> {selected ? "Confirm Slot" : "Select a slot"}</>
+                : <><SiteCalendarIcon size={15} color="#FFFFFF" /> {selected ? "Confirm Slot" : "Select a slot"}</>
               }
             </button>
           ) : !customSent ? (
@@ -1251,9 +1259,9 @@ function PortalJobCard({ job, onApply }: { job: Job; onApply: (j: Job) => void }
             </div>
             <h3 className="font-extrabold text-gray-800 text-base leading-tight">{job.title}</h3>
             <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
-              <span className="flex items-center gap-1"><MapPin size={11} />{job.location}</span>
+              <span className="flex items-center gap-1"><SiteMapPinIcon size={11} color="#6b7280" />{job.location}</span>
               {job.salaryRange && <span className="flex items-center gap-1"><DollarSign size={11} />{job.salaryRange}</span>}
-              {job.postedAt && <span className="flex items-center gap-1"><Clock size={11} />Posted {new Date(job.postedAt).toLocaleDateString("en-SG", { day: "numeric", month: "short" })}</span>}
+              {job.postedAt && <span className="flex items-center gap-1"><SiteClockIcon size={11} color="#6b7280" />Posted {new Date(job.postedAt).toLocaleDateString("en-SG", { day: "numeric", month: "short" })}</span>}
             </div>
           </div>
           <button onClick={() => onApply(job)}
@@ -1385,7 +1393,7 @@ function Dashboard({ defaultTab = "jobs" }: { defaultTab?: "jobs" | "application
                           <div className="flex items-start gap-2.5">
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
                               style={{ background: isShortlisted ? "#ecfdf5" : "#eff6ff" }}>
-                              {isShortlisted ? <CalendarCheck size={13} style={{ color: "#10b981" }} /> : <Info size={13} style={{ color: "#3b82f6" }} />}
+                              {isShortlisted ? <SiteCalendarIcon size={13} color="#10b981" /> : <Info size={13} style={{ color: "#3b82f6" }} />}
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-bold text-gray-700">{isShortlisted ? "You've been shortlisted! 🎉" : `Status updated: ${statusLabel}`}</p>
@@ -1498,7 +1506,7 @@ function Dashboard({ defaultTab = "jobs" }: { defaultTab?: "jobs" | "application
                           <h3 className="font-extrabold text-gray-800 text-base mt-1">{app.jobTitle ?? "Position"}</h3>
                           <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
                             {app.jobDepartment && <span>{app.jobDepartment}</span>}
-                            {app.jobLocation && <span className="flex items-center gap-0.5"><MapPin size={11} />{app.jobLocation}</span>}
+                            {app.jobLocation && <span className="flex items-center gap-0.5"><SiteMapPinIcon size={11} color="#6b7280" />{app.jobLocation}</span>}
                             {app.jobEmploymentType && <span>{app.jobEmploymentType}</span>}
                           </div>
                         </div>
@@ -1517,14 +1525,14 @@ function Dashboard({ defaultTab = "jobs" }: { defaultTab?: "jobs" | "application
                         <div className="mt-4 p-4 rounded-xl" style={{ background: "linear-gradient(135deg, #f0fdf4, #ecfdf5)", border: "1px solid #86efac" }}>
                           <div className="flex items-start gap-3">
                             <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: "#22c55e20" }}>
-                              <CalendarCheck size={16} style={{ color: "#16a34a" }} />
+                              <SiteCalendarIcon size={16} color="#16a34a" />
                             </div>
                             <div className="flex-1">
                               <p className="text-sm font-extrabold text-green-800">Congratulations! You've been shortlisted 🎉</p>
                               <p className="text-xs text-green-700 mt-0.5 mb-3">Please choose a convenient interview time slot to proceed.</p>
                               <button onClick={() => setSchedulingAppId(app.id)}
                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white" style={{ background: "#16a34a" }}>
-                                <Calendar size={13} /> Schedule My Interview <ArrowRight size={12} />
+                                <SiteCalendarIcon size={13} color="#FFFFFF" /> Schedule My Interview <ArrowRight size={12} />
                               </button>
                             </div>
                           </div>
@@ -1534,7 +1542,7 @@ function Dashboard({ defaultTab = "jobs" }: { defaultTab?: "jobs" | "application
                       {/* Interview details */}
                       {(isInterviewScheduledStatus(app.status) || app.status === "interview_scheduled") && app.interview && (
                         <div className="mt-4 p-3 rounded-xl" style={{ background: "#f5f3ff", border: "1px solid #ddd6fe" }}>
-                          <p className="text-xs font-extrabold text-purple-700 mb-2 flex items-center gap-1.5"><Calendar size={12} /> Interview Scheduled</p>
+                          <p className="text-xs font-extrabold text-purple-700 mb-2 flex items-center gap-1.5"><SiteCalendarIcon size={12} color="#7c3aed" /> Interview Scheduled</p>
                           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-purple-800">
                             <span><strong>Date:</strong> {new Date(app.interview.date).toLocaleDateString("en-SG", { weekday: "short", day: "numeric", month: "long", year: "numeric" })}</span>
                             <span><strong>Time:</strong> {app.interview.timeSlot} ({app.interview.duration} min)</span>
@@ -1675,7 +1683,7 @@ function InterviewBookingPage({ applicationId }: { applicationId: number }) {
 
   if (error || !app) {
     return (
-      <div className="min-h-screen bg-[#F7F6F3] flex flex-col font-sans">
+      <div className="min-h-screen bg-[#F9F9F9] flex flex-col font-sans">
         <main className="flex-1 flex flex-col items-center justify-center px-4 pt-32 pb-20">
           <div className="w-full max-w-[500px] bg-[#0D4A7A] rounded-[20px] shadow-[0_20px_50px_rgba(13,74,122,0.15)] text-white px-6 sm:px-8 py-10 sm:py-12 flex flex-col items-center text-center">
             <div className="w-[50px] h-[50px] bg-white rounded-[10px] flex items-center justify-center shadow-sm mb-6">
@@ -1697,10 +1705,10 @@ function InterviewBookingPage({ applicationId }: { applicationId: number }) {
     const displayDate = bookedSlot?.date ?? app.interview?.date;
     const displayTime = bookedSlot?.timeSlot ?? app.interview?.timeSlot;
     return (
-      <div className="min-h-screen bg-[#F7F6F3] flex flex-col font-sans">
+      <div className="min-h-screen bg-[#F9F9F9] flex flex-col font-sans">
         <main className="flex-1 flex flex-col items-center justify-center px-4 pt-32 pb-20">
           <div className="w-full max-w-[560px] mx-auto rounded-[20px] bg-white shadow-[0_4px_4px_rgba(0,0,0,0.10)] px-6 md:px-10 py-10 md:py-12 text-center">
-            <CheckCircle size={52} className="text-green-500 mx-auto mb-5" />
+            <SiteCheckIcon size={52} color="#22c55e" className="mx-auto mb-5" />
             <h1 className="text-[#0D4A7A] font-['Outfit'] text-[28px] md:text-[32px] font-medium mb-3">Interview slot confirmed!</h1>
             <p className="text-[#0D4A7A]/80 font-['DM_Sans'] text-[16px] mb-2 leading-relaxed">
               Your interview for <strong>{app.jobTitle}</strong> has been successfully booked.
@@ -1725,7 +1733,7 @@ function InterviewBookingPage({ applicationId }: { applicationId: number }) {
 
   if (!canBookInterview(app.status)) {
     return (
-      <div className="min-h-screen bg-[#F7F6F3] flex flex-col font-sans">
+      <div className="min-h-screen bg-[#F9F9F9] flex flex-col font-sans">
         <main className="flex-1 flex flex-col items-center justify-center px-4 pt-32 pb-20">
           <div className="w-full max-w-[500px] bg-[#0D4A7A] rounded-[20px] shadow-[0_20px_50px_rgba(13,74,122,0.15)] text-white px-6 sm:px-8 py-10 sm:py-12 flex flex-col items-center text-center">
             <div className="w-[50px] h-[50px] bg-white rounded-[10px] flex items-center justify-center shadow-sm mb-6">

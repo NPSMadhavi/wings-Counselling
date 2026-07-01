@@ -8,7 +8,7 @@ const router = express.Router();
 async function ensureVolunteerApplicationsTable() {
   await db.execute(`
     CREATE TABLE IF NOT EXISTS volunteer_applications (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       title VARCHAR(10) NOT NULL,
       name VARCHAR(150) NOT NULL,
       nric_passport_last4 VARCHAR(4) NOT NULL,
@@ -33,11 +33,11 @@ async function ensureVolunteerApplicationsTable() {
       commitment_duration INT NOT NULL,
       commitment_unit VARCHAR(20) NOT NULL DEFAULT 'Months',
       signature VARCHAR(150) NOT NULL,
-      declaration_checked TINYINT(1) NOT NULL DEFAULT 1,
+      declaration_checked BOOLEAN NOT NULL DEFAULT true,
       status VARCHAR(20) NOT NULL DEFAULT 'pending',
       admin_notes TEXT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
 }
@@ -189,7 +189,7 @@ router.post("/", async (req, res) => {
         parseInt(commitment_duration, 10),
         commitment_unit,
         signature,
-        declaration_checked ? 1 : 0,
+        declaration_checked ? true : false,
       ]
     );
 
@@ -378,11 +378,11 @@ router.put("/:id", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-    const [result] = await db.execute(
-      `DELETE FROM volunteer_applications WHERE id = ?`,
+    const [rows] = await db.execute(
+      `DELETE FROM volunteer_applications WHERE id = ? RETURNING id`,
       [req.params.id]
     );
-    if (result.affectedRows === 0) {
+    if (rows.length === 0) {
       return res.status(404).json({ success: false, message: "Volunteer not found" });
     }
     res.status(200).json({ success: true, message: "Volunteer deleted successfully" });

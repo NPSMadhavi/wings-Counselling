@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { apiUrl } from "@/lib/queryClient";
+import { apiUrl, queryClient } from "@/lib/queryClient";
 
 const TOKEN_KEY = "wings_candidate_token";
 
@@ -43,11 +43,13 @@ export function CandidateAuthProvider({ children }) {
         return r.json().then((c) => {
           setToken(stored);
           setCandidate(c);
+          queryClient.setQueryData(["/api/candidate/me", stored], c);
           setIsLoading(false);
         });
       })
       .catch(() => {
         localStorage.removeItem(TOKEN_KEY);
+        queryClient.setQueryData(["/api/candidate/me", ""], null);
         setIsLoading(false);
       });
   }, []);
@@ -58,6 +60,7 @@ export function CandidateAuthProvider({ children }) {
     localStorage.setItem(TOKEN_KEY, tok);
     setToken(tok);
     setCandidate(cand);
+    queryClient.setQueryData(["/api/candidate/me", tok], cand);
   }
 
   /* -------------------- Logout -------------------- */
@@ -66,6 +69,7 @@ export function CandidateAuthProvider({ children }) {
     localStorage.removeItem(TOKEN_KEY);
     setToken(null);
     setCandidate(null);
+    queryClient.setQueryData(["/api/candidate/me", ""], null);
   }
 
   return (

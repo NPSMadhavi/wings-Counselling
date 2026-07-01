@@ -10,12 +10,12 @@ const introImg = "/assets/img4.jpg";
 
 const sections = [
   { label: "Introduction", id: "what-is-anxiety" },
-  { label: "1. The 5–4–3–2–1 Method", id: "5-4-3-2-1-method" },
-  { label: "2. Controlled Breathing", id: "controlled-breathing" },
-  { label: "3. Physical Grounding Through Touch", id: "physical-grounding" },
-  { label: "4. Micro-Movements", id: "micro-movements" },
-  { label: "What Grounding Can — and Cannot — Do", id: "what-grounding" },
-  { label: "Final Thought", id: "final-thought" },
+  { label: "1. The 5–4–3–2–1 method", id: "5-4-3-2-1-method" },
+  { label: "2. Controlled breathing", id: "controlled-breathing" },
+  { label: "3. Physical grounding through touch", id: "physical-grounding" },
+  { label: "4. Micro-movements", id: "micro-movements" },
+  { label: "What grounding can — and cannot — do", id: "what-grounding" },
+  { label: "Final thought", id: "final-thought" },
 ];
 
 const styles = {
@@ -188,11 +188,11 @@ export default function AnxietyArticlePage() {
     const tocItems = [
       "Introduction",
       "1. The 5-4-3-2-1 Method",
-      "2. Controlled Breathing",
-      "3. Physical Grounding Through Touch",
-      "4. Micro-Movements",
-      "What Grounding Can — and Cannot — Do",
-      "Final Thought",
+      "2. Controlled breathing",
+      "3. Physical grounding through touch",
+      "4. Micro-movements",
+      "What grounding can — and cannot — do",
+      "Final thought",
     ];
     tocItems.forEach((item) => {
       doc.text("•  " + item, margin + 8, y);
@@ -288,7 +288,7 @@ export default function AnxietyArticlePage() {
 
     // ─── SECTION 1 ───
     addSection(
-      "1. The 5–4–3–2–1 Method",
+      "1. The 5–4–3–2–1 method",
       ["Best for: Racing thoughts and panic spirals", "This is one of the fastest ways to pull your attention away from anxious thinking and back into your environment. Focus on:"],
       { title: "Example:", text: "You're sitting in a stressful meeting and feel panic rising. Instead of focusing on catastrophic thoughts, you intentionally notice: the texture of your chair, the hum of the AC, the color of someone's notebook, the smell of coffee nearby. This forces your brain to shift from \"imagined danger\" to \"present reality.\"" },
       ["5 things you can see", "4 things you can touch", "3 things you can hear", "2 things you can smell", "1 thing you can taste"],
@@ -296,16 +296,16 @@ export default function AnxietyArticlePage() {
 
     // ─── SECTION 2 ───
     addSection(
-      "2. Controlled Breathing",
+      "2. Controlled breathing",
       ["Best for: Fast heartbeat and physical anxiety symptoms", "When anxiety spikes, breathing becomes shallow and rapid. Your body interprets this as danger, which increases stress even more.", "Repeat for 1-2 minutes.", "The longer exhale is important because it activates the parasympathetic nervous system — the body's calming response."],
-      { title: "Common Mistake:", text: "People often breathe too aggressively when anxious. Don't force 'deep' breaths; Focus on slower, softer breathing instead." },
+      { title: "Common mistake:", text: "People often breathe too aggressively when anxious. Don't force 'deep' breaths; Focus on slower, softer breathing instead." },
       ["Inhale for 4 seconds", "Hold for 4 seconds", "Exhale for 6 seconds"],
       "error",
     );
 
     // ─── SECTION 3 ───
     addSection(
-      "3. Physical Grounding Through Touch",
+      "3. Physical grounding through touch",
       ["Best for: Feeling disconnected or overwhelmed", "Physical touch is one of the most effective ways to anchor yourself. Try:", "These actions create sensory feedback that reconnects your brain with your body."],
       null,
       ["Holding a cold water bottle", "Pressing your feet firmly into the floor", "Running your hands under cold water", "Touching textured fabric or jewelry", "Clenching and releasing your fists"],
@@ -313,7 +313,7 @@ export default function AnxietyArticlePage() {
 
     // ─── SECTION 4 ───
     addSection(
-      "4. Micro-Movements",
+      "4. Micro-movements",
       ["Best for: Anxiety during work or social situations", "Anxiety creates physical tension. Your body prepares to react even when there's no real threat. Small movements can release some of that stored stress without drawing attention.", "Even tiny movements help regulate your nervous system."],
       null,
       ["Rolling your shoulders", "Relaxing your jaw", "Stretching your fingers", "Slowly rotating your ankles", "Taking a short walk", "Standing up briefly between tasks"],
@@ -321,7 +321,7 @@ export default function AnxietyArticlePage() {
 
     // ─── SECTION 5 ───
     addSection(
-      "What Grounding Can — and Cannot — Do",
+      "What grounding can — and cannot — do",
       ["Grounding techniques are tools, not cures.", "They help you:", "But if anxiety is constant, severely disruptive, or affecting daily functioning, grounding alone may not be enough.", "Chronic anxiety often requires broader support:"],
       null,
       ["Regain focus", "Reduce nervous system overload", "Slow spiraling thoughts", "Feel more present", "Therapy", "Lifestyle adjustments", "Stress management", "Sleep regulation", "Medical care"],
@@ -329,7 +329,7 @@ export default function AnxietyArticlePage() {
 
     // ─── SECTION 6 ───
     addSection(
-      "Final Thought",
+      "Final thought",
       ["You do not need perfect calm to regain control. Sometimes the goal is simply:", "That's often enough to help your nervous system remember: you are here, you are safe, and this moment will pass."],
       null,
       ["One slower breath", "One grounded moment", "One interruption to the spiral"],
@@ -404,7 +404,13 @@ export default function AnxietyArticlePage() {
       </style>
 
       {/* HERO */}
-      <section className="relative h-[640px] md:h-[700px] overflow-hidden">
+      <section
+        className="relative flex w-full shrink-0 overflow-hidden"
+        style={{
+          minHeight: "480px",
+          height: "clamp(480px, 55vw, 790px)",
+        }}
+      >
         <img
           src={heroImg}
           className="absolute inset-0 w-full h-full object-cover"
@@ -413,54 +419,48 @@ export default function AnxietyArticlePage() {
 
         <div className="absolute inset-0 bg-black/60" />
 
-        <div className="relative z-10 flex items-center justify-center h-full px-5">
+        <div className="relative z-10 w-full h-full flex items-center justify-center px-6 md:px-12 lg:px-[100px]">
           <motion.div
-            initial={{ opacity: 0, y: 28 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="max-w-[760px] flex flex-col items-center text-center text-white"
+            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+            className="flex flex-col items-center justify-center text-center w-full"
+            style={{ maxWidth: "840px" }}
           >
             <h1
-              className="text-[44px] md:text-[58px] leading-[108%] tracking-[-0.04em] font-medium"
-              style={{
-                ...styles.heading,
-                maxWidth: "620px",
-              }}
+              className="text-[32px] sm:text-[44px] md:text-[54px] lg:text-[60px] font-semibold leading-[1.2] text-white mb-6"
+              style={styles.heading}
             >
               You don’t have to navigate anxiety alone
             </h1>
 
-            <p className="max-w-[560px] mx-auto mt-6 text-[15px] md:text-[17px] leading-[190%] text-white/90">
+            <p
+              className="text-[16px] md:text-[20px] leading-[1.8] text-white max-w-[700px] mb-8"
+              style={styles.body}
+            >
               Learn more about stress and anxiety, explore practical coping
               strategies, and discover professional support tailored to your
               needs.
             </p>
 
             <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => {
                 document
                   .getElementById("anxiety-article")
                   ?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="group flex items-center gap-2 cursor-pointer rounded-full bg-[#15467B] h-[46px] px-6 mt-9"
+              className="flex items-center justify-center gap-2.5 h-[60px] px-8 rounded-full bg-[#1B4585] cursor-pointer"
             >
-              <span className="text-white text-[14px] font-medium">
+              <span className="text-white font-['Plus_Jakarta_Sans'] font-semibold text-[16px] sm:text-[18px]">
                 Explore support resources
               </span>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="17"
-                height="17"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M6 9L12 15L18 9"
                   stroke="white"
-                  strokeWidth="2.4"
+                  strokeWidth="3.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -471,8 +471,9 @@ export default function AnxietyArticlePage() {
       </section>
 
       {/* BREADCRUMB */}
-      <div className="max-w-[1630px] mx-auto px-5 py-[22px]">
-        <p className="text-[16px] leading-[160%]">
+      <div className="w-full navbar-align-outer">
+        <div className="navbar-align-inner py-4 sm:py-[22px]">
+          <p className="text-[14px] sm:text-[16px] leading-[160%]">
           <span
             onClick={() => navigate("/")}
             className="cursor-pointer underline hover:opacity-70 transition"
@@ -492,43 +493,40 @@ export default function AnxietyArticlePage() {
           <span className="mx-1">/</span>
 
           <span id="anxiety-article">Grounding techniques</span>
-        </p>
+          </p>
+        </div>
       </div>
 
       {/* INTRO SECTION */}
       <section className="w-full">
-        <div className="grid lg:grid-cols-2 min-h-[410px]">
-            {/* LEFT */}
-          <div className="bg-[#0D4A7A] px-[154px] py-[54px] text-white flex items-center">
-  <motion.div
-    initial={{ opacity: 0, y: 28 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.6 }}
-    // Remove max-w-[430px] or increase it significantly
-    className="max-w-[700px]"  // Changed from 430px to 700px
-  >
-    <p className="mb-7 text-white/80 text-[15px] uppercase tracking-wide">
-      Last updated on February 27, 2026
-    </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2">
+          {/* LEFT */}
+          <div className="bg-[#0D4A7A] px-5 py-10 sm:px-8 sm:py-12 md:px-12 lg:px-20 xl:px-[154px] lg:py-[54px] text-white flex items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="w-full max-w-[700px]"
+            >
+              <p className="mb-4 sm:mb-7 text-white/80 text-[13px] sm:text-[15px] tracking-wide">
+                Last updated on february 27, 2026
+              </p>
 
-    <h2
-      className="text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
-      // Remove max-w completely from h2
-    >
-      4 Grounding techniques for when anxiety spikes
-    </h2>
+              <h2 className="text-[clamp(26px,6.5vw,38px)] leading-[1.15] tracking-[-0.03em] font-medium">
+                4 Grounding techniques for when anxiety spikes
+              </h2>
 
-    <p className="mt-7 text-white/85 text-[16px] leading-[190%]">
-      Do you have anxiety? Have you had an anxiety attack? Here's how
-      to recognize the signs and symptoms of anxiety—and find the
-      anxiety treatment and therapies you need.
-    </p>
-  </motion.div>
-</div>
+              <p className="mt-4 sm:mt-7 text-white/85 text-[15px] sm:text-[16px] leading-[1.7] sm:leading-[190%]">
+                Do you have anxiety? Have you had an anxiety attack? Here's how
+                to recognize the signs and symptoms of anxiety—and find the
+                anxiety treatment and therapies you need.
+              </p>
+            </motion.div>
+          </div>
 
-            {/* RIGHT */}
-            <div className="relative min-h-[410px] overflow-hidden">
+          {/* RIGHT */}
+          <div className="relative min-h-[260px] sm:min-h-[340px] lg:min-h-[410px] overflow-hidden">
               <img
                 src={introImg}
                 alt=""
@@ -686,7 +684,7 @@ export default function AnxietyArticlePage() {
                   className="text-[26px] leading-[120%] tracking-[-0.03em] font-medium"
                   style={styles.heading}
                 >
-                  1. The 5–4–3–2–1 Method
+                  1. The 5–4–3–2–1 method
                 </h3>
 
                 <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
@@ -733,7 +731,7 @@ export default function AnxietyArticlePage() {
                   className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
                   style={styles.heading}
                 >
-                  2. Controlled Breathing
+                  2. Controlled breathing
                 </h3>
 
                 <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
@@ -762,7 +760,7 @@ export default function AnxietyArticlePage() {
                 </div>
 
                 <div className="mt-8 rounded-[6px] bg-[#FF543E33] px-[26px] py-[22px]">
-                  <h4 className="text-[#FF0000] text-[18px] font-bold mb-2">Common Mistake:</h4>
+                  <h4 className="text-[#FF0000] text-[18px] font-bold mb-2">Common mistake:</h4>
                   <p className="text-[#FF0000] text-[18px] leading-[210%]">
                     People often breathe too aggressively when anxious. Don't force
                     'deep' breaths; Focus on slower, softer breathing instead.
@@ -776,7 +774,7 @@ export default function AnxietyArticlePage() {
                   className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
                   style={styles.heading}
                 >
-                  3. Physical Grounding Through Touch
+                  3. Physical grounding through touch
                 </h3>
 
                 <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
@@ -810,7 +808,7 @@ export default function AnxietyArticlePage() {
                   className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
                   style={styles.heading}
                 >
-                  4. Micro-Movements
+                  4. Micro-movements
                 </h3>
 
                 <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
@@ -848,7 +846,7 @@ export default function AnxietyArticlePage() {
                   className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
                   style={styles.heading}
                 >
-                  What Grounding Can — and Cannot — Do
+                  What grounding can — and cannot — do
                 </h3>
 
                 <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
@@ -891,7 +889,7 @@ export default function AnxietyArticlePage() {
                   className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
                   style={styles.heading}
                 >
-                  Final Thought
+                  Final thought
                 </h3>
 
                 <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
@@ -978,7 +976,7 @@ export default function AnxietyArticlePage() {
               className="text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
               style={styles.heading}
             >
-              Ready to Talk to Someone?
+              Ready to talk to someone?
             </h2>
 
             <p className="mx-auto mt-5 max-w-[720px] text-white/85 text-[15px] leading-[190%]">

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { Calendar, MapPin, ExternalLink, Heart, Clock, Sparkles, Mail, CheckCircle2, Loader2 } from "lucide-react";
+import { ExternalLink, Heart, Sparkles, Mail, Loader2 } from "lucide-react";
+import { SiteCheckIcon } from "@/components/ui/SiteIcons";
 
 interface Event {
   id: number;
@@ -58,13 +59,15 @@ function SubscribeForm() {
     setStatus("loading");
 
     try {
-      const r = await fetch("/api/event-subscribe", {
+      const r = await fetch("/api/notify/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: email.trim(), type: "event" }),
       });
 
-      if (r.status === 409) {
+      const data = await r.json().catch(() => ({}));
+
+      if (r.status === 409 || data.alreadySubscribed) {
         setStatus("duplicate");
         return;
       }
@@ -87,7 +90,7 @@ function SubscribeForm() {
             animate={{ opacity: 1, scale: 1 }}
             className="flex flex-col items-center gap-2 text-center"
           >
-            <CheckCircle2 className="w-10 h-10 text-green-500" />
+            <SiteCheckIcon size={40} color="#22c55e" />
             <p className="font-bold text-gray-800">You're on the list!</p>
             <p className="text-sm text-gray-500">
               We'll let you know as soon as something exciting is coming.
@@ -136,7 +139,7 @@ function SubscribeForm() {
 
       {status === "duplicate" && (
         <p className="text-center text-xs text-amber-600 mt-2">
-          You're already subscribed — we'll keep you posted!
+          You're already subscribed. Please enter another email.
         </p>
       )}
 

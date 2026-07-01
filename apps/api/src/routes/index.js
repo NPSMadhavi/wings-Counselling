@@ -15,6 +15,7 @@ import counsellingTypesRouter from "./counsellingTypes.js";
 import formSubmissionEmailsRouter from "./formSubmissionEmails.js";
 import jobsRouter from "./jobs.js";
 import { db } from "../config/db.js";
+import { isDuplicateColumnError } from "../config/pg-helpers.js";
 import { requireAdmin } from "../middlewares/auth.js";
 
 const router: IRouter = Router();
@@ -51,10 +52,10 @@ router.get("/admin/interview-custom-requests", (_req, res) => res.json([]));
 (async () => {
   try {
     await (db as any).execute(
-      "ALTER TABLE candidates ADD COLUMN is_blocked TINYINT(1) NOT NULL DEFAULT 0"
+      "ALTER TABLE candidates ADD COLUMN is_blocked BOOLEAN NOT NULL DEFAULT false"
     );
   } catch (err: any) {
-    if (err?.errno !== 1060) console.error("[DB] candidates is_blocked column:", err?.message);
+    if (!isDuplicateColumnError(err)) console.error("[DB] candidates is_blocked column:", err?.message);
   }
 })();
 
@@ -131,7 +132,7 @@ router.patch("/admin/users/:id/block", requireAdmin, async (req, res) => {
     const { isBlocked } = req.body ?? {};
     await (db as any).execute(
       "UPDATE candidates SET is_blocked = ? WHERE id = ?",
-      [isBlocked ? 1 : 0, id]
+      [Boolean(isBlocked), id]
     );
     res.json({ success: true });
   } catch (err: any) {
@@ -172,10 +173,10 @@ router.delete("/admin/users/:id", requireAdmin, async (req, res) => {
       const placeholders = applicationIds.map(() => "?").join(", ");
 
       await connection.execute(
-        `DELETE aa
-         FROM application_answers aa
-         INNER JOIN application_questions aq ON aq.id = aa.question_id
-         WHERE aq.application_id IN (${placeholders})`,
+        `DELETE FROM application_answers aa
+         USING application_questions aq
+         WHERE aq.id = aa.question_id
+           AND aq.application_id IN (${placeholders})`,
         applicationIds
       );
 

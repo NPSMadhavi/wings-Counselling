@@ -26,8 +26,22 @@ async function throwIfNotOk(res: Response) {
   throw new Error(message);
 }
 
-/** Returns the best available auth token: admin first, then candidate. */
-function getBestToken(): string | null {
+const CANDIDATE_API_PREFIXES = [
+  "/api/candidate/",
+  "/api/applications/",
+  "/api/profile",
+];
+
+function usesCandidateAuth(url: string): boolean {
+  return CANDIDATE_API_PREFIXES.some((prefix) => url.startsWith(prefix));
+}
+
+/** Pick the correct token for the API path (candidate vs admin). */
+function getAuthToken(url: string): string | null {
+  if (usesCandidateAuth(url)) {
+    return localStorage.getItem("wings_candidate_token");
+  }
+
   return (
     sessionStorage.getItem("wings_admin_token") ||
     localStorage.getItem("wings_candidate_token")
@@ -39,7 +53,7 @@ export async function apiRequest(
   url: string,
   data?: unknown,
 ): Promise<Response> {
-  const token = getBestToken();
+  const token = getAuthToken(url);
   const res = await fetch(apiUrl(url), {
     method,
     headers: {
@@ -61,13 +75,17 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const token = getBestToken();
-    const res = await fetch(apiUrl(queryKey[0] as string), {
+    const url = queryKey[0] as string;
+    const token = getAuthToken(url);
+    const res = await fetch(apiUrl(url), {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       credentials: "include",
     });
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+    if (
+      res.status === 401 &&
+      (unauthorizedBehavior === "returnNull" || usesCandidateAuth(url))
+    ) {
       return null;
     }
 

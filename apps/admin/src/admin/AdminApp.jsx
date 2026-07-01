@@ -17,6 +17,7 @@ import AppointmentsPage from "./Pages/AppointmentAdmin";
 import VolunteerAdmin from "./Pages/VolunteerAdmin";
 import CounsellingTypeAdmin from "./Pages/CounsellingTypeAdmin";
 import PrimaryCcMailsAdmin from "./Pages/PrimaryCcMailsAdmin";
+import NotifyMailsAdmin from "./Pages/NotifyMailsAdmin";
 import EmailsAdmin from "./Pages/EmailsAdmin";
 
 function AdminRoutes() {
@@ -48,6 +49,7 @@ function AdminRoutes() {
         <Route path="/admin/volunteers" component={VolunteerAdmin} />
         <Route path="/admin/counselling-types" component={CounsellingTypeAdmin} />
         <Route path="/admin/settings/primary-cc-mails" component={PrimaryCcMailsAdmin} />
+        <Route path="/admin/settings/notify-mails" component={NotifyMailsAdmin} />
         <Route path="/admin/settings/emails" component={EmailsAdmin} />
 
         <Route>

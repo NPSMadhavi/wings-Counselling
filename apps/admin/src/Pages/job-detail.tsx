@@ -3,26 +3,80 @@ import { Link, useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  MapPin,
-  Clock,
   Briefcase,
-  ChevronRight,
-  ChevronDown,
-  ArrowRight,
   Share2,
   Copy,
-  Check,
   Loader2,
   ArrowLeft,
 } from "lucide-react";
+import {
+  SiteMapPinIcon,
+  SiteClockIcon,
+  SiteCheckIcon,
+  SITE_ICON_SIZE_LG,
+} from "@/components/ui/SiteIcons";
 import { SiWhatsapp } from "react-icons/si";
 import { FaLinkedinIn } from "react-icons/fa6";
 
 import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
-import type { JobPosting } from "@shared/schema";
+import type { JobPosting } from "@/lib/careers-types";
 import { useAuth } from "@/hooks/use-auth";
+
+function parseTextToList(text: string): string[] {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^[\s•\-*]+/, "").trim())
+    .filter(Boolean);
+}
+
+function parseSectionedRequirements(text: string) {
+  const sections = new Map<string, string[]>();
+  let currentKey = "Key Responsibilities";
+
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    const headerMatch = line.match(/^(?:#{1,3}\s*)?([A-Za-z][A-Za-z\s'&]+):\s*$/);
+    if (headerMatch) {
+      currentKey = headerMatch[1].trim();
+      if (!sections.has(currentKey)) sections.set(currentKey, []);
+      continue;
+    }
+
+    const cleaned = line.replace(/^[\s•\-*]+/, "").trim();
+    if (!cleaned) continue;
+
+    if (!sections.has(currentKey)) sections.set(currentKey, []);
+    sections.get(currentKey)!.push(cleaned);
+  }
+
+  const get = (...names: string[]) => {
+    for (const name of names) {
+      for (const [key, items] of sections.entries()) {
+        if (key.toLowerCase() === name.toLowerCase() && items.length) {
+          return items;
+        }
+      }
+    }
+    return [];
+  };
+
+  const allItems = parseTextToList(text);
+  const defaultItems =
+    sections.get("Key Responsibilities")?.length
+      ? sections.get("Key Responsibilities")!
+      : sections.size === 1
+        ? Array.from(sections.values())[0] || []
+        : allItems;
+
+  return {
+    responsibilities: get("Key Responsibilities").length
+      ? get("Key Responsibilities")
+      : defaultItems,
+  };
+}
 
 export default function JobDetail() {
   const params = useParams<{ id: string }>();
@@ -32,9 +86,14 @@ export default function JobDetail() {
   const shareRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated } = useAuth();
 
-  const { data: job, isLoading: jobQueryLoading } = useQuery<JobPosting>({
+  const {
+    data: job,
+    isLoading: jobQueryLoading,
+    isError: jobQueryError,
+    error: jobQueryErrorDetail,
+  } = useQuery<JobPosting>({
     queryKey: [`/api/jobs/by-job-id/${slug}`],
-    enabled: !!slug,
+    enabled: !!slug && slug !== "undefined",
   });
 
   const { data: applicationCheck } = useQuery<{ hasApplied: boolean }>({
@@ -63,12 +122,12 @@ export default function JobDetail() {
     });
   };
 
-  const handleNativeShare = () => {
+  const handleNativeShare = (jobTitle: string) => {
     if (navigator.share) {
       navigator
         .share({
-          title: "ReactJS Developer - WINGS Counselling Centre",
-          text: "Check out this job opening at WINGS: ReactJS Developer",
+          title: `${jobTitle} - WINGS Counselling Centre`,
+          text: `Check out this job opening at WINGS: ${jobTitle}`,
           url: window.location.href,
         })
         .catch(() => {});
@@ -86,16 +145,25 @@ export default function JobDetail() {
 
   if (jobQueryLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7F6F3]">
+      <div className="min-h-screen flex items-center justify-center bg-[#F9F9F9]">
         <Loader2 className="w-8 h-8 text-[#0D4A7A] animate-spin" />
       </div>
     );
   }
 
-  if (!job) {
+  if (jobQueryError || !job) {
     return (
-      <div className="min-h-screen bg-[#F7F6F3] flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold text-[#0D4A7A] mb-4">Job Not Found</h1>
+      <div className="min-h-screen bg-[#F9F9F9] flex flex-col items-center justify-center px-4 text-center">
+        <h1 className="text-2xl font-bold text-[#0D4A7A] mb-4">
+          {jobQueryError ? "Unable to Load Job" : "Job Not Found"}
+        </h1>
+        <p className="text-gray-600 font-['DM_Sans'] mb-6 max-w-md">
+          {jobQueryError
+            ? (jobQueryErrorDetail instanceof Error
+                ? jobQueryErrorDetail.message
+                : "Failed to fetch job details. Please try again.")
+            : "The job you are looking for does not exist or is no longer available."}
+        </p>
         <Link href="/careers">
           <Button className="bg-[#0D4A7A] hover:bg-[#08345c]">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -106,8 +174,10 @@ export default function JobDetail() {
     );
   }
 
+  const requirementSections = parseSectionedRequirements(job.requirements || "");
+
   return (
-    <div className="min-h-screen bg-[#F7F6F3] overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-[#F9F9F9] overflow-x-hidden font-sans">
       {/* ═══════════════════════════════════════════
           HERO SECTION
       ═══════════════════════════════════════════ */}
@@ -124,11 +194,12 @@ export default function JobDetail() {
         }}
       >
         <motion.div
-          className="relative z-10 flex flex-col items-center text-center px-4 sm:px-6 md:px-10 lg:px-[150px] w-full max-w-[1440px]"
+          className="relative z-10 w-full navbar-align-outer"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
         >
+          <div className="navbar-align-inner flex flex-col items-center text-center w-full">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -136,8 +207,7 @@ export default function JobDetail() {
             className="text-white font-['Outfit'] font-semibold mb-6 md:mb-8 text-[32px] sm:text-[44px] md:text-[54px] lg:text-[60px] leading-[1.1]"
             style={{ maxWidth: "843px" }}
           >
-            Build meaningful careers{" "}
-            <span className="block">that create real impact</span>
+            {job.title}
           </motion.h1>
 
           <motion.p
@@ -146,8 +216,7 @@ export default function JobDetail() {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="text-white/90 font-['DM_Sans'] font-normal text-[16px] sm:text-[18px] md:text-[20px] leading-relaxed max-w-[750px] mb-8 md:mb-10"
           >
-            Join in WINGS and become part of a purpose-driven team dedicated to
-            emotional wellness, counselling support, and community well-being.
+            {job.summary || job.description}
           </motion.p>
 
           <motion.button
@@ -173,14 +242,16 @@ export default function JobDetail() {
               />
             </svg>
           </motion.button>
+          </div>
         </motion.div>
       </section>
 
       {/* ═══════════════════════════════════════════
           BREADCRUMBS
       ═══════════════════════════════════════════ */}
-      <div className="bg-[#F7F6F3] py-5">
-        <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-[150px] flex items-center gap-2 text-[16px] font-['DM_Sans']">
+      <div className="bg-[#F9F9F9] py-5">
+        <div className="navbar-align-outer">
+          <div className="navbar-align-inner flex items-center gap-2 text-[16px] font-['DM_Sans']">
           <Link href="/">
             <span className="text-gray-800 hover:text-[#1B4585] transition-colors cursor-pointer underline">
               Home
@@ -196,6 +267,7 @@ export default function JobDetail() {
           <span className="text-gray-800">
             {job.title}
           </span>
+          </div>
         </div>
       </div>
 
@@ -203,7 +275,8 @@ export default function JobDetail() {
         id="job-detail-section"
         className="bg-[#0D4A7A] pt-8 pb-10 border-b-4 border-[#1E3A8A]"
       >
-        <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-[150px]">
+        <div className="navbar-align-outer">
+          <div className="navbar-align-inner">
           {/* Tags */}
           <div className="flex items-center gap-3 mb-5 flex-wrap">
             <span className="px-4 py-1.5 rounded-full border border-white/60 text-white text-xs font-semibold font-['Plus_Jakarta_Sans'] tracking-wide">
@@ -221,14 +294,20 @@ export default function JobDetail() {
             {job.title}
           </h1>
 
+          {job.summary && (
+            <p className="text-white/90 font-['DM_Sans'] text-[16px] md:text-[17px] leading-relaxed mb-6 max-w-[900px]">
+              {job.summary}
+            </p>
+          )}
+
           {/* Meta Info */}
           <div className="flex flex-wrap items-center gap-5 mb-6 text-white/90 font-['DM_Sans'] font-medium text-[15px]">
             <div className="flex items-center gap-2">
-              <MapPin className="w-[18px] h-[18px] text-white" />
+              <SiteMapPinIcon size={18} color="#FFFFFF" />
               <span>{job.location}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Clock className="w-[18px] h-[18px] text-white" />
+              <SiteClockIcon size={18} color="#FFFFFF" />
               <span>{job.experience}</span>
             </div>
             <div className="flex items-center gap-2">
@@ -241,7 +320,7 @@ export default function JobDetail() {
           <div className="flex items-center gap-4 flex-wrap">
             {applicationCheck?.hasApplied ? (
               <span className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold transition-all duration-300 bg-green-100 text-green-700 shadow-sm text-[15px] font-['DM_Sans']">
-                <Check className="w-5 h-5" />
+                <SiteCheckIcon size={20} color="#FFFFFF" />
                 Already Applied
               </span>
             ) : (
@@ -274,7 +353,7 @@ export default function JobDetail() {
 
             <div className="relative" ref={shareRef}>
               <button
-                onClick={handleNativeShare}
+                onClick={() => handleNativeShare(job.title)}
                 className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold transition-all duration-300 bg-white hover:bg-gray-100 text-[#0D4A7A] shadow-sm text-[15px] font-['DM_Sans']"
               >
                 Share
@@ -295,7 +374,7 @@ export default function JobDetail() {
                       className="flex items-center gap-3 w-full px-4 py-3.5 text-sm text-gray-700 hover:bg-[#0D4A7A]/10 hover:text-[#0D4A7A] transition-colors"
                     >
                       {copied ? (
-                        <Check className="w-4 h-4 text-green-600" />
+                        <SiteCheckIcon size={16} color="#16a34a" />
                       ) : (
                         <Copy className="w-4 h-4 text-gray-500" />
                       )}
@@ -304,7 +383,7 @@ export default function JobDetail() {
 
                     <a
                       href={`https://wa.me/?text=${encodeURIComponent(
-                        `Check out this job at WINGS: ReactJS Developer - ${window.location.href}`
+                        `Check out this job at WINGS: ${job.title} - ${window.location.href}`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -332,14 +411,16 @@ export default function JobDetail() {
               </AnimatePresence>
             </div>
           </div>
+          </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════
           ABOUT THIS ROLE
       ═══════════════════════════════════════════ */}
-      <section className="pt-5 pb-6 md:pt-8 md:pb-8 bg-[#F7F6F3]">
-        <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-[150px]">
+      <section className="pt-5 pb-6 md:pt-8 md:pb-8 bg-[#F9F9F9]">
+        <div className="navbar-align-outer">
+          <div className="navbar-align-inner">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -348,20 +429,22 @@ export default function JobDetail() {
             className="bg-white rounded-[20px] p-7 md:p-10 border border-gray-200"
           >
             <h2 className="text-[24px] sm:text-[26px] md:text-[25px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-6">
-              About This Role
+              About this role
             </h2>
-            <div className="text-gray-700 font-['DM_Sans'] leading-[1.85] text-[16px] md:text-[17px] space-y-5 max-w-[900px] whitespace-pre-wrap">
-              {job.description}
+            <div className="text-gray-700 font-['DM_Sans'] leading-[1.85] text-[16px] md:text-[17px] space-y-5 max-w-[1400px] whitespace-pre-wrap">
+              {job.description || "No description provided."}
             </div>
           </motion.div>
+          </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════
           KEY RESPONSIBILITIES
       ═══════════════════════════════════════════ */}
-      <section className="pb-6 md:pb-8 bg-[#F7F6F3]">
-        <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-[150px]">
+      <section className="pb-6 md:pb-8 bg-[#F9F9F9]">
+        <div className="navbar-align-outer">
+          <div className="navbar-align-inner">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -370,178 +453,21 @@ export default function JobDetail() {
             className="bg-white rounded-[20px] p-7 md:p-10 border border-gray-200"
           >
             <h2 className="text-[24px] sm:text-[26px] md:text-[25px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-8">
-              Key Responsibilities
+              Key responsibilities
             </h2>
             <ul className="space-y-4 text-gray-700 font-['DM_Sans'] text-[16px] md:text-[17px] leading-relaxed max-w-[900px]">
-              {[
-                "Develop responsive and user-friendly frontend applications using React.js",
-                "Convert UI/UX designs into functional and optimized interfaces",
-                "Collaborate with UI/UX designers to improve accessibility and user experience",
-                "Integrate frontend applications with APIs and backend services",
-                "Maintain code quality, scalability, and performance standards",
-                "Optimize applications for responsiveness across devices",
-                "Participate in planning, debugging, testing, and deployment",
-                "Work closely with cross-functional teams during development cycles",
-              ].map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="mt-[7px] min-w-[7px] w-[7px] h-[7px] rounded-full bg-[#1B4585] shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
+              {requirementSections.responsibilities.length ? (
+                requirementSections.responsibilities.map((item, i) => (
+                  <li key={`${item}-${i}`} className="flex items-start gap-3">
+                    <span className="mt-[7px] min-w-[7px] w-[7px] h-[7px] rounded-full bg-[#1B4585] shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="text-gray-500 italic">No requirements provided.</li>
+              )}
             </ul>
           </motion.div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════
-          SKILLS SECTION (3 Columns)
-      ═══════════════════════════════════════════ */}
-      <section className="pb-6 md:pb-8 bg-[#F7F6F3]">
-        <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-[150px]">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Technical Skills */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0 }}
-              className="bg-white rounded-[20px] p-7 md:p-8 border border-gray-200"
-            >
-              <h3 className="text-[22px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-6">
-                Technical Skills
-              </h3>
-              <ul className="space-y-3 text-gray-700 font-['DM_Sans'] text-[15px] leading-relaxed">
-                {[
-                  "Strong knowledge of React.js",
-                  "Good understanding of JavaScript (ES6+)",
-                  "Experience with HTML5, CSS3, and responsive web design",
-                  "Understanding of component-based architecture",
-                  "Experience with REST APIs and API integration",
-                  "Familiarity with Git version control systems",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="mt-[7px] min-w-[6px] w-[6px] h-[6px] rounded-full bg-[#1B4585] shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Preferred Skills */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="bg-white rounded-[20px] p-7 md:p-8 border border-gray-200"
-            >
-              <h3 className="text-[22px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-6">
-                Preferred Skills
-              </h3>
-              <ul className="space-y-3 text-gray-700 font-['DM_Sans'] text-[15px] leading-relaxed">
-                {[
-                  "Basic understanding of Node.js or Express.js",
-                  "Experience working with modern architectures",
-                  "Knowledge of performance optimization techniques",
-                  "Familiarity with UI/UX best practices",
-                  "Understanding of accessibility principles",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="mt-[7px] min-w-[6px] w-[6px] h-[6px] rounded-full bg-[#1B4585] shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Soft Skills */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-              className="bg-white rounded-[20px] p-7 md:p-8 border border-gray-200"
-            >
-              <h3 className="text-[22px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-6">
-                Soft Skills
-              </h3>
-              <ul className="space-y-3 text-gray-700 font-['DM_Sans'] text-[15px] leading-relaxed">
-                {[
-                  "Problem-solving mindset",
-                  "Good communication and collaboration skills",
-                  "Attention to detail",
-                  "Willingness to learn and adapt",
-                  "Ability to work in a team-oriented environment",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="mt-[7px] min-w-[6px] w-[6px] h-[6px] rounded-full bg-[#1B4585] shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════
-          WHAT YOU'LL WORK ON + PREFERRED QUALIFICATIONS
-      ═══════════════════════════════════════════ */}
-      <section className="pb-6 md:pb-8 bg-[#F7F6F3]">
-        <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-[150px]">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* What You'll Work On */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4 }}
-              className="bg-white rounded-[20px] p-7 md:p-8 border border-gray-200"
-            >
-              <h3 className="text-[22px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-6">
-                What You'll Work On
-              </h3>
-              <ul className="space-y-3 text-gray-700 font-['DM_Sans'] text-[15px] leading-relaxed">
-                {[
-                  "Counselling platform systems",
-                  "Appointment booking systems",
-                  "Community engagement features",
-                  "Mental wellness awareness platforms",
-                  "Responsive website experiences",
-                  "Internal dashboards and management tools",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="mt-[7px] min-w-[6px] w-[6px] h-[6px] rounded-full bg-[#1B4585] shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Preferred Qualifications */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="bg-white rounded-[20px] p-7 md:p-8 border border-gray-200"
-            >
-              <h3 className="text-[22px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-6">
-                Preferred Qualifications
-              </h3>
-              <ul className="space-y-3 text-gray-700 font-['DM_Sans'] text-[15px] leading-relaxed">
-                {[
-                  "Bachelor's degree in Computer Science, IT, or related field",
-                  "Internship or prior project experience in ReactJS development",
-                  "Portfolio/GitHub projects showcasing frontend work is a plus",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="mt-[7px] min-w-[6px] w-[6px] h-[6px] rounded-full bg-[#1B4585] shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
           </div>
         </div>
       </section>
@@ -549,8 +475,9 @@ export default function JobDetail() {
       {/* ═══════════════════════════════════════════
           APPLY BUTTON (Bottom CTA)
       ═══════════════════════════════════════════ */}
-      <section className="pb-6 md:pb-8 bg-[#F7F6F3]">
-        <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-[150px]">
+      <section className="pb-6 md:pb-8 bg-[#F9F9F9]">
+        <div className="navbar-align-outer">
+          <div className="navbar-align-inner">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -559,7 +486,7 @@ export default function JobDetail() {
           >
             {applicationCheck?.hasApplied ? (
               <span className="inline-flex items-center gap-2 px-8 py-4 bg-green-100 text-green-700 rounded-full font-bold shadow-md text-[16px] font-['DM_Sans']">
-                <Check className="w-5 h-5" />
+                <SiteCheckIcon size={20} color="#FFFFFF" />
                 You have already applied for this position
               </span>
             ) : (
@@ -590,6 +517,7 @@ export default function JobDetail() {
               </Link>
             )}
           </motion.div>
+          </div>
         </div>
       </section>
 

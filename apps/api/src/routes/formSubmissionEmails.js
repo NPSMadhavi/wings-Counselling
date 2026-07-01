@@ -7,22 +7,26 @@ const router = express.Router();
 async function ensureFormSubmissionEmailsTable() {
   await db.execute(`
     CREATE TABLE IF NOT EXISTS form_submission_emails (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       form_type VARCHAR(120) NOT NULL,
       source_id INT NULL,
       primary_mail TEXT NOT NULL,
       cc_mail TEXT NULL,
       subject VARCHAR(500) NOT NULL,
-      content MEDIUMTEXT NOT NULL,
+      content TEXT NOT NULL,
       remarks TEXT NULL,
       sender_email VARCHAR(320) NULL,
-      is_read TINYINT(1) NOT NULL DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      INDEX idx_form_submission_emails_created (created_at DESC),
-      INDEX idx_form_submission_emails_type (form_type)
+      is_read BOOLEAN NOT NULL DEFAULT false,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+  await db.execute(
+    `CREATE INDEX IF NOT EXISTS idx_form_submission_emails_created ON form_submission_emails (created_at DESC)`
+  );
+  await db.execute(
+    `CREATE INDEX IF NOT EXISTS idx_form_submission_emails_type ON form_submission_emails (form_type)`
+  );
 }
 
 ensureFormSubmissionEmailsTable().catch((err) => {
@@ -127,7 +131,7 @@ router.patch("/admin/settings/primary-cc-mails/:id", requireAdmin, async (req, r
 
     if (isRead !== undefined) {
       updates.push("is_read = ?");
-      params.push(isRead ? 1 : 0);
+      params.push(isRead ? true : false);
     }
 
     if (updates.length === 0) {
@@ -136,12 +140,12 @@ router.patch("/admin/settings/primary-cc-mails/:id", requireAdmin, async (req, r
 
     params.push(id);
 
-    const [result] = await db.execute(
-      `UPDATE form_submission_emails SET ${updates.join(", ")} WHERE id = ?`,
+    const [updatedRows] = await db.execute(
+      `UPDATE form_submission_emails SET ${updates.join(", ")} WHERE id = ? RETURNING id`,
       params
     );
 
-    if (result.affectedRows === 0) {
+    if (updatedRows.length === 0) {
       return res.status(404).json({ error: "Email not found" });
     }
 
@@ -167,12 +171,12 @@ router.delete("/admin/settings/primary-cc-mails/:id", requireAdmin, async (req, 
       return res.status(400).json({ error: "Invalid mail id" });
     }
 
-    const [result] = await db.execute(
-      "DELETE FROM form_submission_emails WHERE id = ?",
+    const [deletedRows] = await db.execute(
+      "DELETE FROM form_submission_emails WHERE id = ? RETURNING id",
       [id]
     );
 
-    if (result.affectedRows === 0) {
+    if (deletedRows.length === 0) {
       return res.status(404).json({ error: "Email not found" });
     }
 
@@ -200,12 +204,12 @@ router.post("/admin/settings/primary-cc-mails/bulk-delete", requireAdmin, async 
     }
 
     const placeholders = numericIds.map(() => "?").join(", ");
-    const [result] = await db.execute(
-      `DELETE FROM form_submission_emails WHERE id IN (${placeholders})`,
+    const [deletedRows] = await db.execute(
+      `DELETE FROM form_submission_emails WHERE id IN (${placeholders}) RETURNING id`,
       numericIds
     );
 
-    res.json({ success: true, deleted: result.affectedRows });
+    res.json({ success: true, deleted: deletedRows.length });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to delete emails" });

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../config/db.js";
+import { db, getTableColumns } from "../config/db.js";
 import { requireAdmin } from "../middlewares/auth.js";
 import { sendSubscriberNotification } from "../lib/email.js";
 
@@ -10,16 +10,15 @@ let articleStoragePromise;
 async function detectArticleStorage() {
   if (!articleStoragePromise) {
     articleStoragePromise = (async () => {
-      const [columns] = await db.query("SHOW COLUMNS FROM articles");
-
-      const names = new Set(columns.map((c) => c.Field));
+      const columns = await getTableColumns("articles");
+      const names = new Set(columns);
 
       return {
-        coverImage: names.has("coverImage") ? "coverImage" : "cover_image",
-        isPublished: names.has("isPublished") ? "isPublished" : "is_published",
-        publishedAt: names.has("publishedAt") ? "publishedAt" : "published_at",
-        createdAt: names.has("createdAt") ? "createdAt" : "created_at",
-        updatedAt: names.has("updatedAt") ? "updatedAt" : "updated_at",
+        coverImage: names.has("coverimage") ? "coverImage" : "cover_image",
+        isPublished: names.has("ispublished") ? "isPublished" : "is_published",
+        publishedAt: names.has("publishedat") ? "publishedAt" : "published_at",
+        createdAt: names.has("createdat") ? "createdAt" : "created_at",
+        updatedAt: names.has("updatedat") ? "updatedAt" : "updated_at",
       };
     })();
   }
@@ -53,7 +52,7 @@ function buildPayload(body, storage) {
     [storage.coverImage]: body.coverImage ?? "",
     author: body.author ?? "WINGS Team",
     category: body.category ?? "General",
-    [storage.isPublished]: body.isPublished ? 1 : 0,
+    [storage.isPublished]: Boolean(body.isPublished),
   };
 
   payload[storage.publishedAt] = body.isPublished
@@ -70,7 +69,7 @@ router.get("/articles", async (_req, res) => {
 
     const [rows] = await db.query(
       `SELECT * FROM articles
-       WHERE ${storage.isPublished} = 1
+       WHERE ${storage.isPublished} = true
        ORDER BY ${storage.publishedAt} DESC, id DESC`
     );
 

@@ -20,7 +20,7 @@ import { DateOfBirthPicker, calculateAgeFromDob } from "../ui/DateOfBirthFields"
 
 // List of countries for nationality/citizenship reference if needed
 const countries = [
-  "Singaporean", "Malaysian", "Indonesian", "Indian", "Chinese", "Australian", 
+  "Singapore", "Malaysian", "Indonesian", "Indian", "Chinese", "Australian", 
   "American", "British", "Canadian", "Filipino", "Vietnamese", "Thai", 
   "Japanese", "South Korean", "Other"
 ];

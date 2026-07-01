@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Footer } from "../components/Layout/Footer.jsx";
 import { useLocation } from "wouter";
 import { useAppointment } from "@/context/AppointmentContext";
@@ -13,6 +13,21 @@ export default function ArticlePage() {
     const [loading, setLoading] = useState(true);
     const [subEmail, setSubEmail] = useState("");
     const [subStatus, setSubStatus] = useState("idle"); // idle | loading | success | duplicate | error
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [selectedFilter, setSelectedFilter] = useState("All articles");
+
+    const articleFilterOptions = [
+        "All articles",
+        "Burnout",
+        "Parenting",
+        "Relationship",
+        "Grief & Loss",
+    ];
+
+    const filteredArticles = articles.filter((article) => {
+        if (selectedFilter === "All articles") return true;
+        return article.category === selectedFilter;
+    });
 
     const cleanArticleContent = (content = "") =>
         content
@@ -27,12 +42,13 @@ export default function ArticlePage() {
         if (!subEmail.trim()) return;
         setSubStatus("loading");
         try {
-            const res = await fetch("/api/event-subscribe", {
+            const res = await fetch("/api/notify/subscribe", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: subEmail.trim() }),
+                body: JSON.stringify({ email: subEmail.trim(), type: "article" }),
             });
-            if (res.status === 409) { setSubStatus("duplicate"); return; }
+            const data = await res.json().catch(() => ({}));
+            if (res.status === 409 || data.alreadySubscribed) { setSubStatus("duplicate"); return; }
             if (!res.ok) throw new Error();
             setSubStatus("success");
             setSubEmail("");
@@ -66,37 +82,48 @@ export default function ArticlePage() {
         fetchArticles();
     }, []);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (isDropdownOpen && !event.target.closest(".dropdown-container")) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
+    }, [isDropdownOpen]);
+
     return (
         <div className="w-full flex flex-col min-h-screen bg-[#FAFAF5]">
 
             {/* HERO SECTION */}
             <div
-                className="relative w-full overflow-hidden"
+                className="relative flex w-full shrink-0 overflow-hidden"
                 style={{
-                    height: "780px",
-                    background: `linear-gradient(180deg, rgba(58, 58, 58, 0.8) 0%, rgba(0, 0, 0, 0.8) 75.96%), url('/assets/EventsHeroImage.jpg')`,
+                    minHeight: "480px",
+                    height: "clamp(480px, 55vw, 790px)",
+                    background: `linear-gradient(180deg, rgba(58, 58, 58, 0.5) 0%, rgba(0, 0, 0, 0.6) 100%), url('/assets/articlesection.jpeg')`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                 }}
             >
-                <div className="relative w-full h-full flex flex-col items-center justify-center text-center px-6">
+                <div className="relative w-full h-full flex flex-col items-center justify-center text-center px-4 min-[375px]:px-6 md:px-10 lg:px-12">
 
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
-                        className="text-white text-[60px] font-semibold mb-6"
+                        className="text-white font-semibold mb-4 md:mb-6 text-[clamp(28px,6vw,60px)] leading-[1.1] max-w-[900px]"
                     >
-                        Articles & mental health resources
+                        Articles & Mental health resources
                     </motion.h1>
 
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="text-white text-[20px] max-w-[750px]"
+                        className="text-white text-[clamp(15px,2.5vw,20px)] leading-[1.5] max-w-[750px] px-2"
                     >
-                        Practical guides, expert insights, and compassionate advice.
+                        Practical guides, expert insights and compassionate advice.
                     </motion.p>
 
                     <motion.button
@@ -113,7 +140,7 @@ export default function ArticlePage() {
                                     block: "start",
                                 });
                         }}
-                        className="mt-10 bg-[#1B4585] rounded-full px-8 py-4 flex items-center gap-3 text-white"
+                        className="mt-6 md:mt-10 bg-[#1B4585] rounded-full px-6 min-[375px]:px-8 py-3.5 min-[375px]:py-4 flex items-center gap-2 sm:gap-3 text-white text-[15px] sm:text-[16px] font-medium"
                     >
                         Explore our articles
                      <svg
@@ -134,66 +161,28 @@ export default function ArticlePage() {
                 </div>
             </div>
             {/* FEATURED ARTICLES SECTION */}
-        <div className="w-full flex flex-col items-center py-16 md:py-24 bg-[#FAFAF5]">
-                <div className="w-full px-6 md:px-12 lg:px-24 xl:px-[150px] flex flex-col">
+        <div className="w-full flex flex-col items-center py-10 sm:py-14 md:py-20 lg:py-24 bg-[#FAFAF5]">
+                <div className="w-full px-4 min-[375px]:px-6 md:px-12 lg:px-24 xl:px-[150px] flex flex-col">
                     {/* Title */}
                     <div id="featured-articles">
-                        <h2
-                            style={{
-                                fontFamily: "'Outfit', sans-serif",
-                                fontWeight: 600,
-                                fontSize: "clamp(28px, 5vw, 35px)",
-                                lineHeight: "100%",
-                                color: "#0D4A7A",
-                                marginBottom: "40px",
-                            }}
-                        >
+                        <h2 className="font-['Outfit'] font-semibold text-[clamp(24px,5vw,35px)] leading-tight text-[#0D4A7A] mb-6 sm:mb-8 md:mb-10">
                             Featured articles
                         </h2>
                     </div>
 
                     {/* Featured Box */}
-                    <div
-                        className="w-full flex flex-col md:flex-row bg-white overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.05)]"
-                        style={{
-                            minHeight: "420px",
-                            borderRadius: "10px",
-                        }}
-                    >
+                    <div className="w-full flex flex-col md:flex-row bg-white overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.05)] rounded-[10px] min-h-0 md:min-h-[380px] lg:min-h-[420px]">
                         {/* IMAGE */}
                         <div
-                            className="w-full md:w-[420px] shrink-0 relative"
+                            className="w-full md:w-[45%] lg:w-[420px] shrink-0 relative aspect-[16/10] sm:aspect-[4/3] md:aspect-auto md:min-h-[280px] lg:min-h-[420px] bg-cover bg-center"
                             style={{
                                 backgroundImage: `url('/assets/Articleimage.jpg')`,
-                                backgroundSize: "cover",
-                                backgroundPosition: "center",
                             }}
                         >
-                            <style>{`
-                                @media (min-width: 768px) {
-                                    .featured-image { height: 420px !important; }
-                                }
-                                .featured-image { height: 300px; }
-                            `}</style>
-                            <div className="featured-image w-full h-full relative">
+                            <div className="w-full h-full relative min-h-[200px] md:min-h-full">
                                 {/* Tag on Image */}
-                                <div
-                                    className="absolute top-5 left-5 bg-white flex items-center justify-center px-4"
-                                    style={{
-                                        height: "26px",
-                                        borderRadius: "9999px",
-                                        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-                                    }}
-                                >
-                                    <span
-                                        style={{
-                                            fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                            fontWeight: 700,
-                                            fontSize: "10px",
-                                            letterSpacing: "1.2px",
-                                            color: "#1E3A8A",
-                                        }}
-                                    >
+                                <div className="absolute top-4 left-4 sm:top-5 sm:left-5 bg-white flex items-center justify-center px-3 sm:px-4 h-[24px] sm:h-[26px] rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+                                    <span className="font-['Plus_Jakarta_Sans'] font-bold text-[9px] sm:text-[10px] tracking-[1.2px] text-[#1E3A8A]">
                                         Anxiety & Stress
                                     </span>
                                 </div>
@@ -201,69 +190,24 @@ export default function ArticlePage() {
                         </div>
 
                         {/* CONTENT */}
-                        <div
-                            className="flex-1 flex flex-col justify-center p-8 md:px-12"
-                        >
-                            <span
-                                style={{
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontWeight: 500,
-                                    fontSize: "16px",
-                                    color: "#1E3A8A",
-                                    marginBottom: "12px",
-                                }}
-                            >
-                                Sin Teck · TA Practitioner – May 2025
+                        <div className="flex-1 flex flex-col justify-center p-5 sm:p-6 md:p-8 lg:px-12 min-w-0">
+                            <span className="font-['DM_Sans'] font-medium text-[14px] sm:text-[15px] md:text-[16px] text-[#1E3A8A] mb-2 sm:mb-3">
+                                Sin Teck · TA Practitioner-May 2025
                             </span>
 
-                            <h3
-                                style={{
-                                    fontFamily: "'Outfit', sans-serif",
-                                    fontWeight: 600,
-                                    fontSize: "clamp(22px, 4vw, 28px)",
-                                    lineHeight: "1.2",
-                                    color: "#000000",
-                                    marginBottom: "16px",
-                                    maxWidth: "900px",
-                                }}
-                            >
-                                Understanding anxiety: what it is, why it happens, and how counselling can help
+                            <h3 className="font-['Outfit'] font-semibold text-[clamp(20px,4vw,28px)] leading-[1.2] text-black mb-3 sm:mb-4 max-w-[900px]">
+                                Understanding anxiety: what it is, why it happens and how counselling can help
                             </h3>
 
-                            <p
-                                style={{
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontWeight: 400,
-                                    fontSize: "16px",
-                                    lineHeight: "26px",
-                                    color: "#333333",
-                                    marginBottom: "24px",
-                                    maxWidth: "900px",
-                                }}
-                            >
-                                Anxiety is one of the most common reasons people seek counselling support. But what exactly is it? In this guide, our senior counsellor explains the difference between everyday worry and clinical anxiety, the physical signs to look out for, and the evidence-based approaches WINGS uses to support clients through their anxiety journey.
+                            <p className="font-['DM_Sans'] font-normal text-[14px] sm:text-[15px] md:text-[16px] leading-[22px] sm:leading-[26px] text-[#333333] mb-5 sm:mb-6 max-w-[900px] line-clamp-4 md:line-clamp-none">
+                                Anxiety is one of the most common reasons people seek counselling support But what exactly is it? In this guide, our senior counsellor explains the difference between everyday worry and clinical anxiety, the physical signs to look out for and the evidence-based approaches. WINGS uses to support clients through their anxiety journey.
                             </p>
 
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => navigate("/GroundingTechniques")}
-                                style={{
-                                    width: "190px",
-                                    height: "50px",
-                                    background: "#1E4B8A",
-                                    borderRadius: "9999px",
-                                    color: "#fff",
-                                    border: "none",
-                                    fontSize: "16px",
-                                    fontWeight: 600,
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: "10px",
-                                    fontFamily: "'DM Sans', sans-serif",
-                                }}
+                                className="w-full sm:w-[190px] min-h-[46px] sm:h-[50px] bg-[#1E4B8A] rounded-full text-white border-none text-[15px] sm:text-[16px] font-semibold cursor-pointer flex items-center justify-center gap-2 sm:gap-[10px] font-['DM_Sans']"
                             >
                                 <span>Read full article</span>
                                 <svg
@@ -286,111 +230,109 @@ export default function ArticlePage() {
                 </div>
             </div>
 
-            {/* FILTER & SEARCH SECTION */}
-            <div className="w-full flex flex-col items-center py-10 bg-[#FAFAF5]">
-                <div className="w-full px-6 md:px-12 lg:px-24 xl:px-[150px] flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-                    {/* Categories */}
-                    <div className="flex flex-wrap items-center gap-3 md:gap-4">
-                        {[
-                            { name: "All", active: true },
-                            { name: "Counselling & Therapy", active: false },
-                            { name: "Supervision", active: false },
-                            { name: "Training & Workshop", active: false },
-                        ].map((cat) => (
-                            <button
-                                key={cat.name}
+            {/* FILTER SECTION */}
+            <div className="w-full flex flex-col items-center pt-4 sm:pt-5 pb-6 sm:pb-8 bg-[#FAFAF5]">
+                <div className="w-full px-4 min-[375px]:px-6 md:px-12 lg:px-24 xl:px-[150px] flex flex-wrap justify-between items-center gap-4">
+                    <h2
+                        className="text-[26px] sm:text-[30px] md:text-[35px]"
+                        style={{
+                            fontFamily: "'Outfit', sans-serif",
+                            fontWeight: 500,
+                            color: "#0D4A7A",
+                            lineHeight: "100%",
+                        }}
+                    >
+                        All articles
+                    </h2>
+
+                    <div className="relative dropdown-container">
+                        <button
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            className="flex items-center justify-between bg-white"
+                            style={{
+                                width: "160px",
+                                height: "44px",
+                                padding: "0 16px",
+                                borderRadius: "8px",
+                                border: "1px solid #E5E7EB",
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontWeight: 500,
+                                fontSize: "16px",
+                                color: "#000000",
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                                cursor: "pointer",
+                            }}
+                        >
+                            {selectedFilter}
+                            <ChevronDown
+                                size={20}
+                                color="#6B7280"
                                 style={{
-                                    height: "50px",
-                                    padding: "0 24px",
-                                    borderRadius: "16px",
-                                    backgroundColor: cat.active ? "#1B4585" : "#FFFFFF",
-                                    color: cat.active ? "#FFFFFF" : "#000000CC",
-                                    border: cat.active ? "none" : "1px solid #E5E7EB",
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: "16px",
-                                    fontWeight: 500,
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    transition: "all 0.3s ease",
+                                    transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                                    transition: "transform 0.3s ease",
+                                }}
+                            />
+                        </button>
+
+                        {isDropdownOpen && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-100 z-50"
+                                style={{
+                                    minWidth: "160px",
+                                    overflow: "hidden",
                                 }}
                             >
-                                {cat.name}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Search Bar */}
-                    <div
-                        className="relative w-full lg:max-w-[420px]"
-                        style={{ height: "60px" }}
-                    >
-                        <div
-                            className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"
-                            style={{ width: "24px", height: "24px" }}
-                        >
-                            <svg
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <circle cx="11" cy="11" r="8" />
-                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                            </svg>
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="Search article"
-                            style={{
-                                width: "100%",
-                                height: "100%",
-                                borderRadius: "20px",
-                                border: "1px solid #E5E7EB",
-                                paddingLeft: "55px",
-                                paddingRight: "20px",
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: "20px",
-                                fontWeight: 500,
-                                color: "#000000CC",
-                                outline: "none",
-                                background: "#FFFFFF",
-                            }}
-                        />
+                                {articleFilterOptions.map((option) => (
+                                    <button
+                                        key={option}
+                                        onClick={() => {
+                                            setSelectedFilter(option);
+                                            setIsDropdownOpen(false);
+                                        }}
+                                        className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                                        style={{
+                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontWeight: 500,
+                                            fontSize: "14px",
+                                            color: selectedFilter === option ? "#0D4A7A" : "#333333",
+                                            backgroundColor: selectedFilter === option ? "#F0F7FF" : "transparent",
+                                        }}
+                                    >
+                                        {option}
+                                    </button>
+                                ))}
+                            </motion.div>
+                        )}
                     </div>
                 </div>
             </div>
 
             {/* ARTICLES GRID - Reduced bottom padding */}
-            <div className="w-full flex flex-col items-center pt-6 pb-12 bg-[#FAFAF5]">
-                <div className="w-full px-6 md:px-12 lg:px-24 xl:px-[150px]">
+            <div className="w-full flex flex-col items-center pt-4 sm:pt-6 pb-10 sm:pb-12 bg-[#FAFAF5]">
+                <div className="w-full px-4 min-[375px]:px-6 md:px-12 lg:px-24 xl:px-[150px]">
 
                     {loading ? (
-                        <div className="text-center text-[20px]">
+                        <div className="text-center text-[16px] sm:text-[18px] md:text-[20px]">
                             Loading articles...
                         </div>
-                    ) : articles.length === 0 ? (
-                        <div className="text-center text-[20px]">
+                    ) : filteredArticles.length === 0 ? (
+                        <div className="text-center text-[16px] sm:text-[18px] md:text-[20px]">
                             No articles found
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
 
-                            {articles.map((article, idx) => (
-                                <motion.div
+                            {filteredArticles.map((article, idx) => (
+                                <div
                                     key={article.id}
                                     onClick={() => navigate("/GroundingTechniques")}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5, delay: idx * 0.1 }}
-                                    viewport={{ once: true }}
-                                    className="bg-white group cursor-pointer rounded-[10px] overflow-hidden shadow-md"
+                                    className="bg-white group cursor-pointer rounded-[10px] overflow-hidden shadow-md flex flex-col h-full"
                                 >
                                     {/* IMAGE */}
-                                    <div className="relative w-full h-[220px] overflow-hidden">
+                                    <div className="relative w-full aspect-[16/10] sm:aspect-[4/3] md:h-[200px] lg:h-[220px] md:aspect-auto overflow-hidden">
                                         <img
                                             src={
                                                 article.coverImage
@@ -402,23 +344,23 @@ export default function ArticlePage() {
                                         />
 
                                         {/* CATEGORY */}
-                                        <div className="absolute top-4 left-4 bg-white px-4 py-1 rounded-full">
-                                            <span className="text-[#1E3A8A] text-[11px] font-semibold ">
+                                        <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-white px-3 sm:px-4 py-1 rounded-full max-w-[calc(100%-1.5rem)]">
+                                            <span className="text-[#1E3A8A] text-[10px] sm:text-[11px] font-semibold line-clamp-1">
                                                 {article.category}
                                             </span>
                                         </div>
                                     </div>
 
                                     {/* CONTENT */}
-                                    <div className="p-6 flex flex-col">
+                                    <div className="p-4 sm:p-5 md:p-6 flex flex-col flex-1 min-w-0">
 
                                         {/* AUTHOR + DATE */}
-                                        <div className="flex justify-between items-center mb-4">
-                                            <span className="text-[#1E3A8A] text-[13px] font-medium">
+                                        <div className="flex justify-between items-start gap-2 mb-3 sm:mb-4 min-w-0">
+                                            <span className="text-[#1E3A8A] text-[12px] sm:text-[13px] font-medium line-clamp-1 min-w-0">
                                                 {article.author}
                                             </span>
 
-                                            <span className="text-[#1E3A8A] text-[13px] font-medium">
+                                            <span className="text-[#1E3A8A] text-[12px] sm:text-[13px] font-medium shrink-0">
                                                 {article.publishedAt
                                                     ? new Date(article.publishedAt).toLocaleDateString()
                                                     : ""}
@@ -426,12 +368,12 @@ export default function ArticlePage() {
                                         </div>
 
                                         {/* TITLE */}
-                                        <h3 className="text-[20px] font-semibold leading-[1.4] mb-3">
+                                        <h3 className="text-[clamp(16px,3.5vw,20px)] font-semibold leading-[1.35] mb-2 sm:mb-3 line-clamp-3">
                                             {article.title}
                                         </h3>
 
                                         {/* EXCERPT */}
-                                        <p className="text-[14px] leading-[1.7] text-[#555] mb-5">
+                                        <p className="text-[13px] sm:text-[14px] leading-[1.65] sm:leading-[1.7] text-[#555] mb-4 sm:mb-5 line-clamp-3 flex-1">
                                             {cleanArticleContent(article.content)}
                                         </p>
 
@@ -448,7 +390,7 @@ export default function ArticlePage() {
                                             >
                                                 <path
                                                     d="M9 18L15 12L9 6"
-                                                    stroke="currentColor"
+                                                    stroke="#1B4585"
                                                     strokeWidth="3.5"
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
@@ -456,7 +398,7 @@ export default function ArticlePage() {
                                             </svg>
                                         </button>
                                     </div>
-                                </motion.div>
+                                </div>
                             ))}
 
                         </div>
@@ -464,85 +406,33 @@ export default function ArticlePage() {
                 </div>
             </div>
             
-            {/* NEWSLETTER / UPCOMING ARTICLES SECTION - Reduced top padding */}
-            <div className="w-full flex flex-col items-center py-12 bg-[#FAFAF5]">
-                <div
-                    className="w-full mx-[150px] flex flex-col items-center justify-center relative overflow-hidden"
-                    style={{
-                        width: "calc(100% - 300px)",
-                        height: "338px",
-                        backgroundColor: "#0D4A7A",
-                        borderRadius: "20px",
-                        padding: "40px",
-                    }}
-                >
+            {/* NEWSLETTER / UPCOMING ARTICLES SECTION */}
+            <div className="w-full flex flex-col items-center py-10 sm:py-12 bg-[#FAFAF5]">
+                <div className="w-full px-4 min-[375px]:px-6 md:px-12 lg:px-24 xl:px-[150px]">
+                <div className="w-full flex flex-col items-center justify-center relative overflow-hidden bg-[#0D4A7A] rounded-[16px] md:rounded-[20px] px-5 py-10 sm:px-8 sm:py-12 md:py-14 min-h-[280px] sm:min-h-[300px] md:min-h-[338px]">
                     {/* Badge */}
-                    <div
-                        className="flex items-center justify-center border border-white mb-6"
-                        style={{
-                            padding: "6px 16px",
-                            borderRadius: "9999px",
-                        }}
-                    >
-                        <span
-                            style={{
-                                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                fontWeight: 600,
-                                fontSize: "16px",
-                                letterSpacing: "1.2px",
-                                color: "#FFFFFF",
-                            }}
-                        >
-                            Upcoming articles
-                        </span>
-                    </div>
+              
 
                     {/* Title */}
-                    <h2
-                        style={{
-                            fontFamily: "'Outfit', sans-serif",
-                            fontWeight: 500,
-                            fontSize: "35px",
-                            lineHeight: "100%",
-                            color: "#FFFFFF",
-                            marginBottom: "16px",
-                        }}
-                    >
+                    <h2 className="font-['Outfit'] font-medium text-[clamp(24px,5vw,35px)] leading-tight text-white mb-3 sm:mb-4 text-center px-2">
                         Articles in your inbox
                     </h2>
 
                     {/* Subtitle */}
-                    <p
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontWeight: 500,
-                            fontSize: "20px",
-                            lineHeight: "100%",
-                            color: "#FFFFFF",
-                            marginBottom: "40px",
-                            textAlign: "center",
-                        }}
-                    >
-                        Monthly insights from our counsellors. No spam — ever.
+                    <p className="font-['DM_Sans'] font-medium text-[clamp(15px,2.5vw,20px)] leading-snug text-white mb-6 sm:mb-8 md:mb-10 text-center max-w-[600px] px-2">
+                        Monthly insights from our counsellors. No spam-ever.
                     </p>
 
                     {/* Form */}
-                    <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full justify-center max-w-[720px]">
                         {subStatus === "success" ? (
-                            <p style={{ color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: "17px", textAlign: "center" }}>
-                                ✅ You're subscribed! We'll notify you when new articles are published.
+                            <p className="text-white font-['DM_Sans'] font-semibold text-[15px] sm:text-[17px] text-center">
+                                Thank you for subscribing! We'll keep you updated on future events.
                             </p>
                         ) : (
-                            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
-                                <div
-                                    className="relative"
-                                    style={{
-                                        width: "100%",
-                                        maxWidth: "483px",
-                                        height: "60px",
-                                    }}
-                                >
-                                    <div className="absolute left-6 top-1/2 -translate-y-1/2">
+                            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full justify-center">
+                                <div className="relative w-full sm:flex-1 sm:max-w-[483px] h-[52px] sm:h-[56px] md:h-[60px]">
+                                    <div className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2">
                                         <svg
                                             width="20"
                                             height="20"
@@ -563,19 +453,7 @@ export default function ArticlePage() {
                                         onChange={(e) => { setSubEmail(e.target.value); setSubStatus("idle"); }}
                                         placeholder="Enter your email address"
                                         required
-                                        style={{
-                                            width: "100%",
-                                            height: "100%",
-                                            borderRadius: "30px",
-                                            border: "none",
-                                            paddingLeft: "60px",
-                                            paddingRight: "20px",
-                                            fontFamily: "'DM Sans', sans-serif",
-                                            fontWeight: 400,
-                                            fontSize: "18px",
-                                            outline: "none",
-                                            background: "#FFFFFF",
-                                        }}
+                                        className="w-full h-full rounded-[24px] sm:rounded-[30px] border-none pl-12 sm:pl-[60px] pr-4 sm:pr-5 font-['DM_Sans'] font-normal text-[15px] sm:text-[16px] md:text-[18px] outline-none bg-white"
                                     />
                                 </div>
 
@@ -584,28 +462,7 @@ export default function ArticlePage() {
                                     disabled={subStatus === "loading"}
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    style={{
-                                        width: "160px",
-                                        height: "60px",
-                                        background: "transparent",
-                                        borderRadius: "9999px",
-                                        border: "1px solid #FFFFFF",
-                                        color: "#F5F9FF",
-                                        fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                        fontWeight: 600,
-                                        fontSize: "18px",
-                                        cursor: "pointer",
-                                        transition: "all 0.3s ease",
-                                        opacity: subStatus === "loading" ? 0.7 : 1,
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = "white";
-                                        e.currentTarget.style.color = "#0D4A7A";
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = "transparent";
-                                        e.currentTarget.style.color = "#F5F9FF";
-                                    }}
+                                    className="w-full sm:w-[160px] h-[52px] sm:h-[56px] md:h-[60px] shrink-0 bg-transparent rounded-full border border-white text-[#F5F9FF] font-['Plus_Jakarta_Sans'] font-semibold text-[16px] sm:text-[17px] md:text-[18px] cursor-pointer transition-all duration-300 hover:bg-white hover:text-[#0D4A7A] disabled:opacity-70"
                                 >
                                     {subStatus === "loading" ? "..." : "Notify me"}
                                 </motion.button>
@@ -613,15 +470,16 @@ export default function ArticlePage() {
                         )}
                     </div>
                     {subStatus === "duplicate" && (
-                        <p style={{ color: "#FFD700", fontFamily: "'DM Sans', sans-serif", fontSize: "14px", marginTop: "10px", textAlign: "center" }}>
-                            You're already subscribed — we'll keep you posted!
+                        <p className="text-[#FFD700] font-['DM_Sans'] text-[13px] sm:text-[14px] mt-3 sm:mt-[10px] text-center">
+                            You're already subscribed. Please enter another email.
                         </p>
                     )}
                     {subStatus === "error" && (
-                        <p style={{ color: "#FCA5A5", fontFamily: "'DM Sans', sans-serif", fontSize: "14px", marginTop: "10px", textAlign: "center" }}>
+                        <p className="text-[#FCA5A5] font-['DM_Sans'] text-[13px] sm:text-[14px] mt-3 sm:mt-[10px] text-center">
                             Something went wrong. Please try again.
                         </p>
                     )}
+                </div>
                 </div>
             </div>
             <Footer />

@@ -2,6 +2,7 @@
 
 import express from "express";
 import { db } from "../config/db.js";
+import { isDuplicateColumnError } from "../config/pg-helpers.js";
 import { sendAppointmentConfirmationEmail } from "../lib/email.js";
 import { broadcastToAdmin } from "../lib/sse.js";
 
@@ -10,18 +11,21 @@ const router = express.Router();
 async function ensureAppointmentColumns() {
     try {
         const [cols] = await db.execute(
-            `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-             WHERE TABLE_SCHEMA = DATABASE()
-               AND TABLE_NAME = 'appointments'
-               AND COLUMN_NAME = 'sub_counselling_types'`
+            `SELECT column_name FROM information_schema.columns
+             WHERE table_schema = current_schema()
+               AND table_name = 'appointments'
+               AND column_name = 'sub_counselling_types'`
         );
         if (cols.length === 0) {
-            await db.execute(
-                `ALTER TABLE appointments
-                 ADD COLUMN sub_counselling_types TEXT NULL
-                 AFTER counselling_type`
-            );
-            console.log("[Appointments] Added sub_counselling_types column");
+            try {
+                await db.execute(
+                    `ALTER TABLE appointments
+                     ADD COLUMN sub_counselling_types TEXT NULL`
+                );
+                console.log("[Appointments] Added sub_counselling_types column");
+            } catch (err) {
+                if (!isDuplicateColumnError(err)) throw err;
+            }
         }
     } catch (error) {
         console.error("[Appointments] Schema check failed:", error.message);

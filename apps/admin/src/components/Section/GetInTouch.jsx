@@ -1,38 +1,7 @@
-import { motion } from "framer-motion";
 import { useAppointment } from "@/context/AppointmentContext";
+import { SiteClockIcon, SiteMapPinIcon, SITE_ICON_SIZE_LG } from "@/components/ui/SiteIcons";
 
-/* ─── SVG Icons ────────────────────────────────────────────── */
-
-function RedPinIcon() {
-    return (
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-                d="M12 2C8.14 2 5 5.14 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.14 15.86 2 12 2Z"
-                fill="#FF0000"
-            />
-            <circle cx="12" cy="9" r="3" fill="#FFF" />
-        </svg>
-    );
-}
-
-function OutlinePinIcon() {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#1E3A8A"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-            <circle cx="12" cy="10" r="3"></circle>
-        </svg>
-    );
-}
+/* ─── SVG Icons (phone, email — not part of site icon set) ─── */
 
 function OutlinePhoneIcon() {
     return (
@@ -48,25 +17,6 @@ function OutlinePhoneIcon() {
             strokeLinejoin="round"
         >
             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-        </svg>
-    );
-}
-
-function OutlineClockIcon() {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#1E3A8A"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
     );
 }
@@ -132,51 +82,46 @@ export function GetInTouch() {
     return (
         <section
             id="contact"
-            className="w-full flex flex-col items-center pt-[40px] pb-[60px] box-border"
-            style={{ background: "#F7F6F3" }}
+            className="w-full flex flex-col items-center pt-[40px] pb-[60px] box-border scroll-mt-[100px]"
+            style={{ background: "#F9F9F9" }}
         >
           <div className="w-full navbar-align-outer">
           <div className="navbar-align-inner flex flex-col items-center">
-          <motion.h2
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.6 }}
+          <h2
     className="
-        text-[28px]
-        sm:text-[32px]
+        text-[clamp(26px,4.8vw,28px)]
         md:text-[35px]
-        font-semibold
+        font-medium
         text-center
         mb-4
         font-['Outfit']
+        leading-[1.2]
         text-[#0D4A7A]
     "
 >
     Get in touch
-</motion.h2>
+</h2>
 
-            <motion.p
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.1 }}
+            <p
                 className="
-                    text-[16px]
-                    sm:text-[18px]
-                    md:text-[20px]
+                    text-black
                     text-center
+                    font-['DM_Sans']
+                    text-[16px]
+                    md:text-[20px]
+                    font-normal
+                    leading-[1.5]
+                    line-clamp-2
+                    md:line-clamp-none
+                    max-w-[700px]
                     mb-8
                     md:mb-10
-                    font-['DM_Sans']
-                    font-medium
                 "
-                style={{ color: "#333" }}
             >
                 We are here to help you. Reach us during working hours
-            </motion.p>
+            </p>
 
-            <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 w-full max-w-[1440px] mx-auto items-stretch">
+            <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 w-full items-stretch">
 
                 {/* Left Side */}
                 <div className="flex flex-col lg:flex-[1.2] xl:flex-[1.3]">
@@ -184,14 +129,11 @@ export function GetInTouch() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
 
                         {/* Address Card */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
+                        <div
                             className="w-full h-auto md:h-[180px] rounded-[20px] bg-white border border-[#EAEAEA] p-[24px] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
                         >
                             <div className="w-[45px] h-[45px] rounded-[10px] bg-[#E8F4FD] flex items-center justify-center mb-3">
-                                <OutlinePinIcon />
+                                <SiteMapPinIcon size={SITE_ICON_SIZE_LG} color="#1E3A8A" />
                             </div>
 
                             <h3 className="font-['DM_Sans'] font-semibold text-[20px] m-0 mb-1">
@@ -199,16 +141,12 @@ export function GetInTouch() {
                             </h3>
 
                             <p className="font-['DM_Sans'] font-normal text-[15px] text-[#333] m-0 leading-relaxed max-w-[240px]">
-                                179 Bartley road, singapore 539784
+                                179 Bartley road, Singapore 539784
                             </p>
-                        </motion.div>
+                        </div>
 
                         {/* Phone Card */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.1 }}
+                        <div
                             className="w-full h-auto md:h-[180px] rounded-[20px] bg-white border border-[#EAEAEA] p-[24px] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
                         >
                             <div className="w-[45px] h-[45px] rounded-[10px] bg-[#E8F4FD] flex items-center justify-center mb-3">
@@ -222,18 +160,14 @@ export function GetInTouch() {
                             <p className="font-['DM_Sans'] font-normal text-[15px] text-[#333] m-0 leading-relaxed">
                                 (+65) 6383 5745
                             </p>
-                        </motion.div>
+                        </div>
 
                         {/* Operating Hours */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.2 }}
+                        <div
                             className="w-full h-auto md:h-[300px] rounded-[20px] bg-white border border-[#EAEAEA] p-[24px] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
                         >
-                            <div className="w-[45px] h-[45px] rounded-[10px] bg-[#E8F4FD] flex items-center justify-center mb-3">
-                                <OutlineClockIcon />
+                            <div className="w-[45px] h-[45px] rounded-[10px] bg-[#E8F4FD] flex items-center justify-center mb-0">
+                                <SiteClockIcon size={SITE_ICON_SIZE_LG} color="#1E3A8A" />
                             </div>
 
                             <h3 className="font-['DM_Sans'] font-semibold text-[20px] m-0 mb-4">
@@ -241,55 +175,60 @@ export function GetInTouch() {
                             </h3>
 
                             <div className="flex flex-col gap-3">
-
-                                <div className="flex justify-between items-start">
-                                    <span className="font-['DM_Sans'] font-medium text-[15px] text-[#000] w-[140px] leading-tight">
-                                        Mon - Fri (exc. Thu)
+                                     <div className="flex justify-between items-center gap-2">
+                                    <span className="font-['DM_Sans'] font-medium text-[14px] sm:text-[15px] text-[#000] min-w-0 flex-1 leading-tight">
+                                        Monday
                                     </span>
 
-                                    <span className="font-['DM_Sans'] font-medium text-[14px] text-[#1B4585] text-right">
+                                    <span className="font-['DM_Sans'] font-medium text-[13px] sm:text-[14px] text-[#1B4585] text-right whitespace-nowrap shrink-0">
+                                        1:00pm – 8:30pm
+                                    </span>
+                                </div>
+
+                                <div className="flex justify-between items-center gap-2">
+                                    <span className="font-['DM_Sans'] font-medium text-[14px] sm:text-[15px] text-[#000] min-w-0 flex-1 leading-tight">
+                                        Tue - Fri (exc. Thu)
+                                    </span>
+
+                                    <span className="font-['DM_Sans'] font-medium text-[13px] sm:text-[14px] text-[#1B4585] text-right whitespace-nowrap shrink-0">
                                         8:30am – 5:30pm
                                     </span>
                                 </div>
 
-                                <div className="flex justify-between items-start">
-                                    <span className="font-['DM_Sans'] font-medium text-[15px] text-[#000] w-[140px] leading-tight">
+                                <div className="flex justify-between items-center gap-2">
+                                    <span className="font-['DM_Sans'] font-medium text-[14px] sm:text-[15px] text-[#000] min-w-0 flex-1 leading-tight">
                                         Thursdays
                                     </span>
 
-                                    <span className="font-['DM_Sans'] font-medium text-[14px] text-[#1B4585] text-right">
+                                    <span className="font-['DM_Sans'] font-medium text-[13px] sm:text-[14px] text-[#1B4585] text-right whitespace-nowrap shrink-0">
                                         8:30am – 7:30pm
                                     </span>
                                 </div>
 
-                                <div className="flex justify-between items-start">
-                                    <span className="font-['DM_Sans'] font-medium text-[15px] text-[#000] w-[140px] leading-tight">
+                                <div className="flex justify-between items-center gap-2">
+                                    <span className="font-['DM_Sans'] font-medium text-[14px] sm:text-[15px] text-[#000] min-w-0 flex-1 leading-tight">
                                         Saturdays (2nd & 4th)
                                     </span>
 
-                                    <span className="font-['DM_Sans'] font-medium text-[14px] text-[#1B4585] text-right">
+                                    <span className="font-['DM_Sans'] font-medium text-[13px] sm:text-[14px] text-[#1B4585] text-right whitespace-nowrap shrink-0">
                                         9:00am – 12:30pm
                                     </span>
                                 </div>
 
-                                <div className="flex justify-between items-start">
-                                    <span className="font-['DM_Sans'] font-medium text-[15px] text-[#000] w-[140px] leading-tight">
+                                <div className="flex justify-between items-center gap-2">
+                                    <span className="font-['DM_Sans'] font-medium text-[14px] sm:text-[15px] text-[#000] min-w-0 flex-1 leading-tight">
                                         Sun & Public holidays
                                     </span>
 
-                                    <span className="font-['DM_Sans'] font-medium text-[14px] text-[#1B4585] text-right">
+                                    <span className="font-['DM_Sans'] font-medium text-[13px] sm:text-[14px] text-[#1B4585] text-right whitespace-nowrap shrink-0">
                                         Closed
                                     </span>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
 
                         {/* Email Card */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.3 }}
+                        <div
                             className="w-full h-auto md:h-[300px] rounded-[20px] bg-white border border-[#EAEAEA] p-[24px] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
                         >
                             <div className="w-[45px] h-[45px] rounded-[10px] bg-[#E8F4FD] flex items-center justify-center mb-3">
@@ -306,19 +245,15 @@ export function GetInTouch() {
                             >
                                 admin@wingscounselling.org.sg
                             </a>
-                        </motion.div>
+                        </div>
                     </div>
 
-                    {/* Appointment Button */}
-                    <motion.button
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        // transition={{ delay: 0.4 }}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                    {/* Appointment Button — desktop */}
+                    <button
                         onClick={() => openModal()}
                         className="
+                            hidden
+                            lg:flex
                             mt-6
                             bg-[#1B4585]
                             text-white
@@ -329,12 +264,13 @@ export function GetInTouch() {
                             font-semibold
                             text-[17px]
                             w-fit
-                            flex
                             items-center
                             gap-3
                             shadow-lg                            
                             transition-all
                             duration-300
+                            hover:scale-[1.02]
+                            active:scale-[0.98]
                         "
                     >
                         Book an appointment
@@ -353,14 +289,11 @@ export function GetInTouch() {
                                 strokeLinejoin="round"
                             />
                         </svg>
-                    </motion.button>
+                    </button>
                 </div>
 
                 {/* Right Side Map - Clickable */}
-                <motion.div
-                    initial={{ opacity: 0, x: 50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
+                <div
                     onClick={openGoogleMaps}
                     className="
                         w-full
@@ -394,11 +327,6 @@ export function GetInTouch() {
                             179 Bartley Rd, Singapore 539784
                         </p>
                     </div>
-
-                    {/* Red Pin */}
-                    {/* <div className="absolute top-[40%] left-[75%] -translate-x-1/2 -translate-y-full z-10 drop-shadow-md scale-125 pointer-events-none">
-                        <RedPinIcon />
-                    </div> */}
 
                     {/* Overlay text on hover */}
                     <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
@@ -453,7 +381,49 @@ export function GetInTouch() {
                             </svg>
                         </div>
                     </div>
-                </motion.div>
+                </div>
+
+                {/* Appointment Button — mobile (after map) */}
+                <button
+                    onClick={() => openModal()}
+                    className="
+                        lg:hidden
+                        flex
+                        items-center
+                        gap-3
+                        bg-[#1B4585]
+                        text-white
+                        px-8
+                        py-3.5
+                        rounded-full
+                        font-['DM_Sans']
+                        font-semibold
+                        text-[17px]
+                        w-fit
+                        shadow-lg
+                        transition-all
+                        duration-300
+                        hover:scale-[1.02]
+                        active:scale-[0.98]
+                    "
+                >
+                    Book an appointment
+
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                    >
+                        <path
+                            d="M9 18L15 12L9 6"
+                            stroke="currentColor"
+                            strokeWidth="3.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                    </svg>
+                </button>
             </div>
           </div>
           </div>

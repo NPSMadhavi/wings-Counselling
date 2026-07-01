@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
-import { Loader2, Phone, CheckCircle, ChevronRight } from "lucide-react";
+import { Loader2, Phone, ChevronRight } from "lucide-react";
+import { SiteCheckIcon } from "@/components/ui/SiteIcons";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -120,7 +121,7 @@ export default function CareersVerify() {
                 <div className="space-y-4">
                   <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
                     <p className="text-green-700 text-sm font-semibold flex items-center justify-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> OTP sent to your mobile number
+                      <SiteCheckIcon size={16} color="#16a34a" /> OTP sent to your mobile number
                     </p>
                   </div>
 

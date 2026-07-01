@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-    Calendar,
-    Clock,
-    MapPin,
     ArrowRight,
     ChevronDown,
     ArrowDown,
-    Mail
 } from "lucide-react";
+import {
+    SiteCalendarIcon,
+    SiteClockIcon,
+    SiteMapPinIcon,
+    SITE_ICON_SIZE_SM,
+} from "@/components/ui/SiteIcons";
 
 import { Footer } from "../components/Layout/Footer.jsx";
 
@@ -211,20 +213,9 @@ function Events() {
                             const isOnline = eventType === "Online";
 
                             return (
-                                <motion.div
+                                <div
                                     key={event.id}
-                                    initial={{ opacity: 0, y: 30 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{
-                                        delay: index * 0.08,
-                                        duration: 0.5,
-                                    }}
-                                    whileHover={{
-                                        y: -5,
-                                        transition: { duration: 0.3 },
-                                    }}
-                                    className="flex flex-col"
+                                    className="flex flex-col transition-all duration-300 hover:-translate-y-1"
                                     style={{
                                         width: "100%",
                                         minHeight: "500px",
@@ -240,7 +231,7 @@ function Events() {
                                             width: "100%",
                                             height: "220px",
                                             backgroundImage: `url('${event.photoUrls?.[0] ||
-                                                "/assets/eventImage1.jpg"
+                                                "/assets/eventherosection.png"
                                                 }')`,
                                             backgroundSize: "cover",
                                             backgroundPosition: "center",
@@ -306,7 +297,7 @@ function Events() {
                                         {/* DETAILS */}
                                         <div className="flex flex-col gap-3 mb-6">
                                             <div className="flex items-center gap-3">
-                                                <Calendar size={16} color="#1E3A8A" />
+                                                <SiteCalendarIcon size={SITE_ICON_SIZE_SM} />
                                                 <span
                                                     style={{
                                                         fontFamily: "'DM Sans', sans-serif",
@@ -320,7 +311,7 @@ function Events() {
                                             </div>
 
                                             <div className="flex items-center gap-3">
-                                                <Clock size={16} color="#1E3A8A" />
+                                                <SiteClockIcon size={SITE_ICON_SIZE_SM} />
                                                 <span
                                                     style={{
                                                         fontFamily: "'DM Sans', sans-serif",
@@ -334,7 +325,7 @@ function Events() {
                                             </div>
 
                                             <div className="flex items-center gap-3">
-                                                <MapPin size={16} color="#1E3A8A" />
+                                                <SiteMapPinIcon size={SITE_ICON_SIZE_SM} />
                                                 <span
                                                     className="line-clamp-1"
                                                     style={{
@@ -362,11 +353,10 @@ function Events() {
                                                 {event.price || "Free"}
                                             </span>
 
-                                            <motion.button
+                                            <button
                                                 onMouseEnter={() => setHoveredButton(index)}
                                                 onMouseLeave={() => setHoveredButton(null)}
-                                                whileTap={{ scale: 0.95 }}
-                                                 onClick={() => window.open("https://ramakrishna.org.sg/event", "_blank") }
+                                                onClick={() => window.open("https://ramakrishna.org.sg/event", "_blank")}
                                                 style={{
                                                     height: "40px",
                                                     padding: "0 18px",
@@ -377,7 +367,7 @@ function Events() {
                                                     alignItems: "center",
                                                     gap: "8px",
                                                     cursor: "pointer",
-                                                    transition: "background-color 0.3s ease",
+                                                    transition: "all 0.3s ease",
                                                 }}
                                             >
                                                 <span
@@ -396,19 +386,19 @@ function Events() {
                                                     height="20"
                                                     viewBox="0 0 24 24"
                                                     fill="none"
-                                                    >
+                                                >
                                                     <path
                                                         d="M9 18L15 12L9 6"
-                                                        stroke={hoveredButton ? "#FFFFFF" : "#1B4585"}
+                                                        stroke={hoveredButton === index ? "#FFFFFF" : "#1B4585"}
                                                         strokeWidth="3.5"
                                                         strokeLinecap="round"
                                                         strokeLinejoin="round"
                                                     />
                                                 </svg>
-                                            </motion.button>
+                                            </button>
                                         </div>
                                     </div>
-                                </motion.div>
+                                </div>
                             );
                         })}
                     </div>
@@ -433,12 +423,13 @@ export default function EventsPage() {
         if (!subEmail.trim()) return;
         setSubStatus("loading");
         try {
-            const res = await fetch("/api/event-subscribe", {
+            const res = await fetch("/api/notify/subscribe", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: subEmail.trim() }),
+                body: JSON.stringify({ email: subEmail.trim(), type: "event" }),
             });
-            if (res.status === 409) { setSubStatus("duplicate"); return; }
+            const data = await res.json().catch(() => ({}));
+            if (res.status === 409 || data.alreadySubscribed) { setSubStatus("duplicate"); return; }
             if (!res.ok) throw new Error();
             setSubStatus("success");
             setSubEmail("");
@@ -454,7 +445,7 @@ export default function EventsPage() {
                 style={{
                     minHeight: "480px",
                     height: "clamp(480px, 55vw, 790px)",
-                    background: "linear-gradient(180deg, rgba(58,58,58,0.8) 0%, rgba(0,0,0,0.7) 100%), url('/assets/EventsHeroImage.jpg')",
+                    background: "linear-gradient(180deg, rgba(58,58,58,0.5) 0%, rgba(0,0,0,0.6) 100%), url('/assets/eventherosection.png')",
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                 }}
@@ -495,7 +486,7 @@ export default function EventsPage() {
                                 marginBottom: "32px",
                             }}
                         >
-                            Join our evidence-based workshops and community
+                            Join our evidence based workshops and community
                             programs designed to support your mental wellness
                             journey
                         </p>
@@ -542,136 +533,76 @@ export default function EventsPage() {
             {/* EVENTS */}
             <Events />
 
-            {/* NEWSLETTER SECTION - Reduced top and bottom padding */}
-            <div className="w-full py-8 md:py-12 bg-[#FAFAF5] px-6 md:px-12 lg:px-[100px]">
-                <div
-                    className="w-full flex flex-col items-center justify-center py-12 md:py-16 px-6 rounded-[30px]"
-                    style={{ background: "#0D4A7A" }}
-                >
-                    <div
-                        style={{
-                            padding: "6px 16px",
-                            borderRadius: "9999px",
-                            border: "1.5px solid rgba(255, 255, 255, 0.4)",
-                            marginBottom: "20px",
-                        }}
-                    >
-                        <span
-                            style={{
-                                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                fontWeight: 600,
-                                fontSize: "16px",
-                                letterSpacing: "1.5px",
-                                color: "#FFFFFF",
-                                textTransform: "captalize",
-                            }}
-                        >
-                            Upcoming events
-                        </span>
-                    </div>
+            {/* NEWSLETTER / UPCOMING EVENTS SECTION */}
+            <div className="w-full flex flex-col items-center py-10 sm:py-12 bg-[#FAFAF5]">
+                <div className="w-full px-4 min-[375px]:px-6 md:px-12 lg:px-24 xl:px-[150px]">
+                    <div className="w-full flex flex-col items-center justify-center relative overflow-hidden bg-[#0D4A7A] rounded-[16px] md:rounded-[20px] px-5 py-10 sm:px-8 sm:py-12 md:py-14 min-h-[280px] sm:min-h-[300px] md:min-h-[338px]">
+                       
 
-                    <h2
-                        className="text-[28px] sm:text-[36px] md:text-[44px]"
-                        style={{
-                            fontFamily: "'Outfit', sans-serif",
-                            lineHeight: "1.1",
-                            maxWidth: "850px",
-                            color: "#FFFFFF",
-                            fontWeight: 500,
-                            textAlign: "center",
-                            marginBottom: "16px",
-                        }}
-                    >
-                        Great things are being planned!
-                    </h2>
+                        <h2 className="font-['Outfit'] font-medium text-[clamp(24px,5vw,35px)] leading-tight text-white mb-3 sm:mb-4 text-center px-2">
+                            Upcoming Workshops & Events
+                        </h2>
 
-                    <p
-                        className="text-[16px] md:text-[18px]"
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontWeight: 500,
-                            maxWidth: "940px",
-                            opacity: 0.9,
-                            color: "#FFFFFF",
-                            textAlign: "center",
-                            lineHeight: "1.6",
-                            marginBottom: "32px",
-                        }}
-                    >
-                        Our team is busy crafting meaningful workshops and
-                        events for the community.
-                    </p>
+                        <p className="font-['DM_Sans'] font-medium text-[clamp(15px,2.5vw,20px)] leading-snug text-white mb-6 sm:mb-8 md:mb-10 text-center max-w-[600px] px-2">
+                            Our team is busy crafting meaningful workshops and events for the community.
+                        </p>
 
-                    <div
-                        className="flex flex-col sm:flex-row items-center gap-4 w-full"
-                        style={{ maxWidth: "665px" }}
-                    >
-                        {subStatus === "success" ? (
-                            <p style={{ color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: "17px", textAlign: "center" }}>
-                                ✅ You're subscribed! We'll notify you when new events are published.
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full justify-center max-w-[720px]">
+                            {subStatus === "success" ? (
+                                <p className="text-white font-['DM_Sans'] font-semibold text-[15px] sm:text-[17px] text-center">
+                                     Thank you for subscribing! We'll keep you updated on future events.
+                                </p>
+                            ) : (
+                                <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full justify-center">
+                                    <div className="relative w-full sm:flex-1 sm:max-w-[483px] h-[52px] sm:h-[56px] md:h-[60px]">
+                                        <div className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2">
+                                            <svg
+                                                width="20"
+                                                height="20"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="#9CA3AF"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                                <polyline points="22,6 12,13 2,6" />
+                                            </svg>
+                                        </div>
+                                        <input
+                                            type="email"
+                                            value={subEmail}
+                                            onChange={(e) => { setSubEmail(e.target.value); setSubStatus("idle"); }}
+                                            placeholder="Enter your email address"
+                                            required
+                                            className="w-full h-full rounded-[24px] sm:rounded-[30px] border-none pl-12 sm:pl-[60px] pr-4 sm:pr-5 font-['DM_Sans'] font-normal text-[15px] sm:text-[16px] md:text-[18px] outline-none bg-white"
+                                        />
+                                    </div>
+
+                                    <motion.button
+                                        type="submit"
+                                        disabled={subStatus === "loading"}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="w-full sm:w-[160px] h-[52px] sm:h-[56px] md:h-[60px] shrink-0 bg-transparent rounded-full border border-white text-[#F5F9FF] font-['Plus_Jakarta_Sans'] font-semibold text-[16px] sm:text-[17px] md:text-[18px] cursor-pointer transition-all duration-300 hover:bg-white hover:text-[#0D4A7A] disabled:opacity-70"
+                                    >
+                                        {subStatus === "loading" ? "..." : "Notify me"}
+                                    </motion.button>
+                                </form>
+                            )}
+                        </div>
+                        {subStatus === "duplicate" && (
+                            <p className="text-[#FFD700] font-['DM_Sans'] text-[13px] sm:text-[14px] mt-3 sm:mt-[10px] text-center">
+                                You're already subscribed. Please enter another email.
                             </p>
-                        ) : (
-                            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-center gap-4 w-full">
-                                <div className="relative w-full" style={{ height: "60px" }}>
-                                    <Mail
-                                        size={20}
-                                        color="#A1A0A0"
-                                        style={{
-                                            position: "absolute",
-                                            top: "50%",
-                                            transform: "translateY(-50%)",
-                                            left: "24px",
-                                        }}
-                                    />
-                                    <input
-                                        type="email"
-                                        value={subEmail}
-                                        onChange={(e) => { setSubEmail(e.target.value); setSubStatus("idle"); }}
-                                        placeholder="Enter your email address"
-                                        required
-                                        className="w-full h-full rounded-full border-none pl-[58px] pr-6 bg-white outline-none"
-                                        style={{
-                                            fontFamily: "'DM Sans', sans-serif",
-                                            fontSize: "17px",
-                                        }}
-                                    />
-                                </div>
-
-                                <motion.button
-                                    type="submit"
-                                    disabled={subStatus === "loading"}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="w-full sm:w-auto px-9"
-                                    style={{
-                                        height: "60px",
-                                        borderRadius: "9999px",
-                                        border: "1.5px solid rgba(255,255,255,0.4)",
-                                        backgroundColor: "transparent",
-                                        color: "#FFFFFF",
-                                        cursor: "pointer",
-                                        fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                        fontWeight: 600,
-                                        fontSize: "17px",
-                                        flexShrink: 0,
-                                        opacity: subStatus === "loading" ? 0.7 : 1,
-                                    }}
-                                >
-                                    {subStatus === "loading" ? "..." : "Notify me"}
-                                </motion.button>
-                            </form>
+                        )}
+                        {subStatus === "error" && (
+                            <p className="text-[#FCA5A5] font-['DM_Sans'] text-[13px] sm:text-[14px] mt-3 sm:mt-[10px] text-center">
+                                Something went wrong. Please try again.
+                            </p>
                         )}
                     </div>
-                    {subStatus === "duplicate" && (
-                        <p style={{ color: "#FFD700", fontFamily: "'DM Sans', sans-serif", fontSize: "14px", marginTop: "10px" }}>
-                            You're already subscribed — we'll keep you posted!
-                        </p>
-                    )}
-                    {subStatus === "error" && (
-                        <p style={{ color: "#FCA5A5", fontFamily: "'DM Sans', sans-serif", fontSize: "14px", marginTop: "10px" }}>
-                            Something went wrong. Please try again.
-                        </p>
-                    )}
                 </div>
             </div>
 

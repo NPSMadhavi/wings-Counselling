@@ -145,7 +145,13 @@ export default function AnxietyPage() {
       </style>
 
       {/* HERO SECTION */}
-      <section className="relative min-h-screen">
+      <section
+        className="relative flex w-full shrink-0 overflow-hidden"
+        style={{
+          minHeight: "480px",
+          height: "clamp(480px, 55vw, 790px)",
+        }}
+      >
         <img
           src={img1}
           className="absolute inset-0 w-full h-full object-cover"
@@ -155,20 +161,23 @@ export default function AnxietyPage() {
         <div className="absolute inset-0 bg-black/65" />
 
         {/* HERO CONTENT */}
-        <div className="relative z-10 navbar-align-outer flex items-center justify-center min-h-screen">
-          <div className="navbar-align-inner flex items-center justify-center w-full">
-          <div className="max-w-[900px] flex items-center flex-col text-center text-white w-full">
+        <div className="relative z-10 w-full h-full flex items-center justify-center px-6 md:px-12 lg:px-[100px]">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+            className="flex flex-col items-center justify-center text-center w-full"
+            style={{ maxWidth: "840px" }}
+          >
             <h1
-              className="text-[64px] leading-[90px] font-medium mb-6"
-              style={{
-                fontFamily: "Outfit",
-              }}
+              className="text-[32px] sm:text-[44px] md:text-[54px] lg:text-[60px] font-semibold leading-[1.2] text-white mb-6"
+              style={{ fontFamily: "Outfit, sans-serif" }}
             >
               You don’t have to navigate anxiety alone
             </h1>
 
             <p
-              className="max-w-[720px] mx-auto text-[24px] leading-[34px] opacity-90 mb-10"
+              className="text-[16px] md:text-[20px] leading-[1.8] text-white max-w-[700px] mb-8"
               style={styles.body}
             >
               Learn more about stress and anxiety, explore practical coping
@@ -176,101 +185,79 @@ export default function AnxietyPage() {
               needs.
             </p>
 
-            {/* Explore support resources */}
             <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => {
                 document
                   .getElementById("anxiety-section")
                   ?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="group flex items-center gap-3 cursor-pointer"
-              style={{
-                height: "56px",
-                padding: "0 28px",
-                borderRadius: "9999px",
-                backgroundColor: "#1B4585",
-                color: "#FFFFFF",
-                fontWeight: 600,
-                border: "none",
-              }}
+              className="flex items-center justify-center gap-2.5 h-[60px] px-8 rounded-full bg-[#1B4585] cursor-pointer"
             >
-              <span>Explore support resources</span>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
+              <span className="text-white font-['Plus_Jakarta_Sans'] font-semibold text-[16px] sm:text-[18px]">
+                Explore support resources
+              </span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M6 9L12 15L18 9"
                   stroke="white"
-                  strokeWidth="3"
+                  strokeWidth="3.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </svg>
             </motion.button>
-          </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* BREADCRUMB */}
-      <div className="navbar-align-outer py-10">
-        <div className="navbar-align-inner">
-        <p style={styles.body}>
-          <span
-            onClick={() => navigate("/")}
-            className="underline cursor-pointer hover:opacity-70 transition"
-          >
-            Home
-          </span>{" "}
-          <div id="anxiety-section" className="inline-flex items-center gap-2"> 
-            / Stress & Anxiety
-          </div>
-        </p>
+      <div className="w-full navbar-align-outer">
+        <div className="navbar-align-inner py-4 sm:py-6 lg:py-10">
+          <p className="text-[14px] sm:text-[16px]" style={styles.body}>
+            <span
+              onClick={() => navigate("/")}
+              className="underline cursor-pointer hover:opacity-70 transition"
+            >
+              Back to Home
+            </span>{" "}
+            <span id="anxiety-section" className="inline-flex items-center gap-2">
+              / Stress & Anxiety
+            </span>
+          </p>
         </div>
       </div>
 
       {/* UNDERSTANDING SECTION */}
-      <section className="w-full pb-13">
-        <div className="grid lg:grid-cols-2 min-h-[420px]">
-
+      <section className="w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2">
           {/* LEFT SIDE */}
-          <div className="bg-[#0D4A7A] text-white flex">
-            <div className="w-full navbar-align-outer py-14 sm:py-16 flex items-center">
-              <div className="navbar-align-inner max-w-[650px]">
-                <h2
-                  className="mb-8 text-white text-[20px] sm:text-[30px] lg:text-[35px] leading-[110%] "
-                  style={{
-                    fontFamily: "Outfit",
-                    fontWeight: 500,
-                  }}
-                >
-                  Understanding anxiety: Signs, Causes & How to cope
-                </h2>
+          <div className="bg-[#0D4A7A] text-white flex items-center px-5 py-10 sm:px-8 sm:py-12 md:px-12 lg:px-16 xl:px-20 lg:py-14">
+            <div className="w-full max-w-[650px]">
+              <h2
+                className="mb-4 sm:mb-8 text-white text-[clamp(24px,6vw,35px)] leading-[1.15] font-medium"
+                style={{ fontFamily: "Outfit, sans-serif" }}
+              >
+                Understanding anxiety: Signs, Causes & How to cope
+              </h2>
 
-                <p
-                  className="text-[15px] sm:text-[16px] leading-[180%] text-white/90"
-                  style={styles.body}
-                >
-                  Anxiety is a feeling of fear, worry, or nervousness when one is
-                  about to do something challenging. Everybody experiences anxiety
-                  across different situations, and it is a normal experience.
-                  However, anxiety becomes a medical condition when it is
-                  prolonged and starts to impact the way one would normally
-                  perform ordinary tasks.
-                </p>
-              </div>
+              <p
+                className="text-[15px] sm:text-[16px] leading-[1.7] sm:leading-[180%] text-white/90"
+                style={styles.body}
+              >
+                Anxiety is a feeling of fear, worry, or nervousness when one is
+                about to do something challenging. Everybody experiences anxiety
+                across different situations, and it is a normal experience.
+                However, anxiety becomes a medical condition when it is
+                prolonged and starts to impact the way one would normally
+                perform ordinary tasks.
+              </p>
             </div>
           </div>
 
           {/* RIGHT SIDE */}
-          <div className="relative min-h-[320px] lg:min-h-full">
+          <div className="relative min-h-[260px] sm:min-h-[340px] lg:min-h-[420px]">
             <img
               src={img2}
               alt=""
@@ -320,16 +307,12 @@ export default function AnxietyPage() {
           </div>
         </div>
 
-        {/* Cards Grid */}
+        {/* Cards Grid - Animation Removed */}
         <div className="grid md:grid-cols-2 2xl:grid-cols-3 gap-8">
           {filteredArticles.map((article, index) => (
-            <motion.div
+            <div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="bg-white group cursor-pointer"
+              className="bg-white group cursor-pointer transition-transform duration-300 hover:-translate-y-1"
               onClick={() => navigate("/GroundingTechniques")}
               style={{
                 width: "100%",
@@ -407,7 +390,7 @@ export default function AnxietyPage() {
                   </svg>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
         </div>
@@ -564,13 +547,13 @@ export default function AnxietyPage() {
           </p>
         </div>
 
-        {/* Cards */}
+        {/* Cards - Animation Removed */}
         <div className="grid lg:grid-cols-3 gap-7">
 
           {services.map((service, index) => (
             <div
               key={index}
-              className="bg-white rounded-[14px] overflow-hidden shadow-md flex flex-col h-full"
+              className="bg-white rounded-[14px] overflow-hidden shadow-md flex flex-col h-full transition-transform duration-300 hover:-translate-y-1"
             >
 
               {/* Image */}

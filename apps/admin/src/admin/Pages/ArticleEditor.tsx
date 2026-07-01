@@ -52,8 +52,8 @@ export default function ArticleEditor({ onBack, initialData, article, isSidebarO
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Publish Settings
-    const [category, setCategory] = useState(editData?.category || "Psychology");
-    const [author, setAuthor] = useState(editData?.author || "WINGS Team");
+    const [category, setCategory] = useState(editData?.category || "");
+    const [author, setAuthor] = useState(editData?.author || "");
     const [excerpt, setExcerpt] = useState(editData?.excerpt || "");
 
     const editorRef = useRef<HTMLDivElement>(null);
@@ -603,17 +603,13 @@ useEffect(() => {
 
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Category *</label>
-                                    <select
+                                    <input
+                                        type="text"
                                         value={category}
                                         onChange={(e) => setCategory(e.target.value)}
+                                        placeholder="Enter category"
                                         className="w-full h-[52px] px-4 rounded-xl border border-gray-200 focus:border-[#0A66C2] focus:ring-1 focus:ring-[#0A66C2] outline-none transition-all"
-                                    >
-                                        <option>Anxiety & Stress</option>
-                                        <option>Burnout</option>
-                                        <option>Relationship</option>
-                                        <option>Grief & Loss</option>
-                                        <option>Parenting</option>
-                                    </select>
+                                    />
                                 </div>
 
                                 <div>

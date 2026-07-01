@@ -4,15 +4,13 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
   Briefcase,
-  MapPin,
-  Clock,
   ArrowRight,
   Building2,
   ChevronRight,
   Users,
   Eye,
-  CheckCircle,
 } from "lucide-react";
+import { SiteCheckIcon } from "@/components/ui/SiteIcons";
 
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
@@ -68,7 +66,7 @@ export default function Careers() {
         className="relative w-full flex flex-col items-center justify-center overflow-hidden shrink-0"
         style={{
           background:
-            'linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.72)), url("/assets/career1.png")',
+            'linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.72)), url("/assets/careersection.png")',
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -119,9 +117,9 @@ export default function Careers() {
               maxWidth: "850px",
             }}
           >
-            Build Meaningful Careers
+            Build meaningful careers
             <br />
-            That Create Real Impact
+            that create real impact
           </motion.h1>
 
           {/* Description */}
@@ -145,7 +143,7 @@ export default function Careers() {
             }}
           >
             Join WINGS and become part of a compassionate team
-            dedicated to emotional wellness, counselling support,
+            dedicated to emotional wellness, counselling support
             and community well-being.
           </motion.p>
 
@@ -241,7 +239,7 @@ export default function Careers() {
                   mb-3
                 "
               >
-                Open Positions
+                Open positions
               </h2>
 
               <p
@@ -490,7 +488,9 @@ export default function Careers() {
 
                       {/* View Details */}
                       <Link href={`/career/${job.jobId}`}>
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                           className="
                             flex
                             items-center
@@ -503,7 +503,7 @@ export default function Careers() {
                             border
                             border-[#0D4A7A]
                             bg-white
-                            hover:bg-[#0D4A7A]
+                            
                             group
                             transition-all
                             duration-300
@@ -513,7 +513,7 @@ export default function Careers() {
                           <span
                             className="
                               text-[#0D4A7A]
-                              group-hover:text-white
+                            
                               text-center
                               font-['DM_Sans']
                               text-[15px]
@@ -525,7 +525,7 @@ export default function Careers() {
                           >
                             View details
                           </span>
-                        </button>
+                        </motion.button>
                       </Link>
 
                       {hasAppliedToJob(job) ? (
@@ -546,7 +546,7 @@ export default function Careers() {
                             text-[15px]
                           "
                         >
-                          <CheckCircle className="w-4 h-4" />
+                          <SiteCheckIcon size={16} color="#15803d" />
                           Already Applied
                         </div>
                       ) : (
@@ -557,7 +557,9 @@ export default function Careers() {
                             sessionStorage.setItem("returnTo", careersApplyPath(job.jobId));
                           }}
                         >
-                          <button
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             className="
                               flex
                               items-center
@@ -568,7 +570,7 @@ export default function Careers() {
                               h-[45px]
                               rounded-full
                               bg-[#0D4A7A]
-                              hover:bg-[#08345c]
+                              
                               transition-all
                               duration-300
                             "
@@ -587,20 +589,20 @@ export default function Careers() {
                               Apply now
                             </span>
                              <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-    >
-      <path
-        d="M9 18L15 12L9 6"
-        stroke="white"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-                          </button>
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                            >
+                              <path
+                                d="M9 18L15 12L9 6"
+                                stroke="white"
+                                strokeWidth="3.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </motion.button>
                         </Link>
                       )}
                     </div>
@@ -643,7 +645,7 @@ export default function Careers() {
                 mb-5
               "
             >
-              Why Work With WINGS?
+              Why work with WINGS?
             </h2>
 
             <p
@@ -725,7 +727,7 @@ export default function Careers() {
                   mb-4
                 "
               >
-                Purpose-Driven Work
+                Purpose-driven work
               </h3>
 
               <p
@@ -738,7 +740,7 @@ export default function Careers() {
                 "
               >
                 Be part of initiatives that positively impact individuals,
-                families, and communities through emotional wellness and
+                families and communities through emotional wellness and
                 counselling support.
               </p>
             </div>
@@ -795,7 +797,7 @@ export default function Careers() {
                   mb-4
                 "
               >
-                Supportive Culture
+                Supportive culture
               </h3>
 
               <p
@@ -808,7 +810,7 @@ export default function Careers() {
                 "
               >
                 Be part of initiatives that positively impact individuals,
-                families, and communities through emotional wellness and
+                families and communities through emotional wellness and
                 counselling support.
               </p>
             </div>
@@ -865,7 +867,7 @@ export default function Careers() {
                   mb-4
                 "
               >
-                Professional Growth
+                Professional growth
               </h3>
 
               <p
@@ -877,8 +879,8 @@ export default function Careers() {
                   leading-[1.55]
                 "
               >
-                Gain opportunities to learn, contribute, and grow through
-                real-world experience, mentorship, and meaningful projects.
+                Gain opportunities to learn, contribute and grow through
+                real-world experience, mentorship and meaningful projects.
               </p>
             </div>
 
@@ -935,7 +937,7 @@ export default function Careers() {
                   mb-4
                 "
               >
-                Inclusive Culture
+                Inclusive culture
               </h3>
 
               <p
@@ -947,7 +949,7 @@ export default function Careers() {
                   leading-[1.55]
                 "
               >
-                We value empathy, teamwork, respect, and continuous improvement
+                We value empathy, teamwork, respect and continuous improvement
                 across all roles and departments.
               </p>
             </div>

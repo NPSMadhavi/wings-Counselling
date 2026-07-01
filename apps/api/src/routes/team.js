@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../config/db.js";
+import { db, getTableColumns, tableExists } from "../config/db.js";
 import { requireAdmin } from "../middlewares/auth.js";
 import fs from "fs";
 
@@ -22,14 +22,12 @@ function parseJsonArray(value) {
 async function detectTeamStorage() {
   if (!teamStoragePromise) {
     teamStoragePromise = (async () => {
-      const [camelTables] = await db.query(
-        "SHOW TABLES LIKE 'teamMembers'"
-      );
+      const tableName = (await tableExists("teammembers"))
+        ? "teammembers"
+        : "team_members";
 
-      const tableName = camelTables.length ? "teamMembers" : "team_members";
-
-      const [columns] = await db.query(`SHOW COLUMNS FROM ${tableName}`);
-      const names = new Set(columns.map((c) => c.Field));
+      const columns = await getTableColumns(tableName);
+      const names = new Set(columns);
 
       return {
         tableName,
@@ -38,13 +36,13 @@ async function detectTeamStorage() {
         bio: names.has("bio") ? "bio" : null,
         credentials: names.has("credentials") ? "credentials" : null,
         specialisations: names.has("specialisations") ? "specialisations" : null,
-        experience: names.has("experience") ? "experience" : null, // Added experience field
-        photoUrl: names.has("photoUrl") ? "photoUrl" : "photo_url",
+        experience: names.has("experience") ? "experience" : null,
+        photoUrl: names.has("photourl") ? "photoUrl" : "photo_url",
         email: names.has("email") ? "email" : null,
-        displayOrder: names.has("displayOrder") ? "displayOrder" : "display_order",
-        isVisible: names.has("isVisible") ? "isVisible" : "is_visible",
-        createdAt: names.has("createdAt") ? "createdAt" : "created_at",
-        updatedAt: names.has("updatedAt") ? "updatedAt" : "updated_at",
+        displayOrder: names.has("displayorder") ? "displayOrder" : "display_order",
+        isVisible: names.has("isvisible") ? "isVisible" : "is_visible",
+        createdAt: names.has("createdat") ? "createdAt" : "created_at",
+        updatedAt: names.has("updatedat") ? "updatedAt" : "updated_at",
       };
     })();
   }
@@ -80,7 +78,7 @@ function buildWritePayload(body, storage) {
     [storage.photoUrl]: body.photoUrl ?? "",
     [storage.email]: body.email ?? "",
     [storage.displayOrder]: Number(body.displayOrder ?? 0),
-    [storage.isVisible]: body.isVisible ? 1 : 0,
+    [storage.isVisible]: Boolean(body.isVisible),
   };
   
   // Add experience if the field exists in the database
@@ -98,7 +96,7 @@ router.get("/team", async (_req, res) => {
 
     const [rows] = await db.query(
       `SELECT * FROM ${storage.tableName}
-       WHERE ${storage.isVisible} = 1
+       WHERE ${storage.isVisible} = true
        ORDER BY ${storage.displayOrder} ASC, id ASC`
     );
 

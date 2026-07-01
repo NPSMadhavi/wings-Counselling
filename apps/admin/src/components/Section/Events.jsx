@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Clock, MapPin, ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
+import {
+  SiteCalendarIcon,
+  SiteClockIcon,
+  SiteMapPinIcon,
+  SITE_ICON_SIZE_MD,
+} from "@/components/ui/SiteIcons";
 
 const eventData = [
     {
@@ -131,21 +137,21 @@ export function Events() {
 
                                 <div className="flex flex-col gap-3 mt-auto">
                                     <div className="flex items-center gap-3">
-                                        <Calendar size={20} color="#1E3A8A" className="shrink-0" />
+                                        <SiteCalendarIcon size={SITE_ICON_SIZE_MD} />
                                         <span className="font-['DM_Sans'] font-medium text-base text-[#333333]">
                                             {event.date}
                                         </span>
                                     </div>
 
                                     <div className="flex items-center gap-3">
-                                        <Clock size={20} color="#1E3A8A" className="shrink-0" />
+                                        <SiteClockIcon size={SITE_ICON_SIZE_MD} />
                                         <span className="font-['DM_Sans'] font-medium text-base text-[#333333]">
                                             {event.time}
                                         </span>
                                     </div>
 
                                     <div className="flex items-start gap-3">
-                                        <MapPin size={20} color="#1E3A8A" className="shrink-0 mt-0.5" />
+                                        <SiteMapPinIcon size={SITE_ICON_SIZE_MD} className="mt-0.5" />
                                         <span className="font-['DM_Sans'] font-medium text-base text-[#333333] break-words">
                                             {event.location}
                                         </span>

@@ -3,20 +3,26 @@ import { db } from "../config/db.js";
 async function ensureFormSubmissionEmailsTable() {
   await db.execute(`
     CREATE TABLE IF NOT EXISTS form_submission_emails (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       form_type VARCHAR(120) NOT NULL,
       source_id INT NULL,
       primary_mail TEXT NOT NULL,
       cc_mail TEXT NULL,
       subject VARCHAR(500) NOT NULL,
-      content MEDIUMTEXT NOT NULL,
+      content TEXT NOT NULL,
       remarks TEXT NULL,
       sender_email VARCHAR(320) NULL,
-      is_read TINYINT(1) NOT NULL DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      is_read BOOLEAN NOT NULL DEFAULT false,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+  await db.execute(
+    `CREATE INDEX IF NOT EXISTS idx_form_submission_emails_created ON form_submission_emails (created_at DESC)`
+  );
+  await db.execute(
+    `CREATE INDEX IF NOT EXISTS idx_form_submission_emails_type ON form_submission_emails (form_type)`
+  );
 }
 
 let tableReady = false;

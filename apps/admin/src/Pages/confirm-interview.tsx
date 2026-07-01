@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, Calendar, Clock, Briefcase, Loader2 } from "lucide-react";
+import { XCircle, Briefcase, Loader2 } from "lucide-react";
+import {
+  SiteCalendarIcon,
+  SiteClockIcon,
+  SiteCheckIcon,
+  SITE_ICON_SIZE_LG,
+} from "@/components/ui/SiteIcons";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
@@ -118,7 +124,7 @@ export default function ConfirmInterview() {
                                         animate={{ scale: 1 }}
                                         transition={{ type: "spring", stiffness: 200, damping: 15 }}
                                     >
-                                        <CheckCircle className="w-20 h-20 text-green-500 mb-6" />
+                                        <SiteCheckIcon size={80} color="#22c55e" className="mb-6" />
                                     </motion.div>
                                     <h2 className="text-2xl font-bold text-black font-['Outfit'] mb-2">Interview Confirmed!</h2>
                                     <p className="text-gray-600 mb-6 leading-relaxed">
@@ -132,11 +138,11 @@ export default function ConfirmInterview() {
                                                 <span className="font-bold">{interviewDetails.jobTitle}</span>
                                             </div>
                                             <div className="flex items-center gap-3 mb-2 text-gray-700 font-medium">
-                                                <Calendar className="w-5 h-5 text-gray-400" />
+                                                <SiteCalendarIcon size={SITE_ICON_SIZE_LG} color="#9ca3af" />
                                                 <span>{formatDate(interviewDetails.scheduledDate)}</span>
                                             </div>
                                             <div className="flex items-center gap-3 text-gray-700 font-medium">
-                                                <Clock className="w-5 h-5 text-gray-400" />
+                                                <SiteClockIcon size={SITE_ICON_SIZE_LG} color="#9ca3af" />
                                                 <span>{formatTime(interviewDetails.scheduledTime)}</span>
                                             </div>
                                         </div>
@@ -149,7 +155,7 @@ export default function ConfirmInterview() {
                             ) : interviewDetails ? (
                                 <div className="py-4">
                                     <div className="text-center mb-8">
-                                        <Calendar className="w-16 h-16 text-[#1B4585] mx-auto mb-4" />
+                                        <SiteCalendarIcon size={64} color="#1B4585" className="mx-auto mb-4" />
                                         <h2 className="text-2xl font-bold text-black font-['Outfit'] mb-2">Confirm Your Interview</h2>
                                         <p className="text-gray-500">Please confirm your attendance for the scheduled interview.</p>
                                     </div>
@@ -167,11 +173,11 @@ export default function ConfirmInterview() {
                                         <div className="border-t border-gray-200 pt-4 mt-4">
                                             <p className="text-xs text-gray-400 font-bold uppercase mb-3">Interview Schedule</p>
                                             <div className="flex items-center gap-3 mb-2 text-gray-700 font-medium">
-                                                <Calendar className="w-5 h-5 text-[#0D4A7A]" />
+                                                <SiteCalendarIcon size={SITE_ICON_SIZE_LG} />
                                                 <span>{formatDate(interviewDetails.scheduledDate)}</span>
                                             </div>
                                             <div className="flex items-center gap-3 text-gray-700 font-medium">
-                                                <Clock className="w-5 h-5 text-[#0D4A7A]" />
+                                                <SiteClockIcon size={SITE_ICON_SIZE_LG} />
                                                 <span>{formatTime(interviewDetails.scheduledTime)}</span>
                                             </div>
                                         </div>
@@ -190,7 +196,7 @@ export default function ConfirmInterview() {
                                             </>
                                         ) : (
                                             <>
-                                                <CheckCircle className="w-5 h-5 mr-2" />
+                                                <SiteCheckIcon size={20} color="#FFFFFF" className="mr-2" />
                                                 Confirm Interview
                                             </>
                                         )}

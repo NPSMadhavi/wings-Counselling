@@ -1,196 +1,232 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { GetInTouch } from "./GetInTouch";
 import { RecentArticles } from "./RecentArticles";
-import { CalendarDays, Clock3, MapPin } from "lucide-react";
+import {
+    SiteCalendarIcon,
+    SiteClockIcon,
+    SiteMapPinIcon,
+    SITE_ICON_SIZE_SM,
+} from "@/components/ui/SiteIcons";
+import { Partners } from "./Partner";
 
-const events = [
-    {
-        id: 1,
-        type: "Workshop",
-        title: "Managing anxiety in modern life",
-        description:
-            "A practical, evidence-based workshop on understanding the anxiety cycle and developing personalised tools to reclaim calm.",
-        date: "Saturday, 10 May 2025",
-        time: "9:00 AM – 12:00 PM",
-        location: "Wings center, Orchard road",
-        btnLabel: "Register now"
-    },
-    {
-        id: 2,
-        type: "Webinar",
-        title: "Mindful parenting programme",
-        description:
-            "A 3-session series for parents seeking to deepen connection with their children and manage the unique stresses of modern parenthood.",
-        date: "Wednesday, 21 May 2025",
-        time: "6:00 PM – 7:30 PM",
-        location: "Online - Zoom",
-        btnLabel: "Register now"
-    },
-    {
-        id: 3,
-        type: "Seminar",
-        title: "Building resilience in stressful times",
-        description:
-            "Learn strategies to strengthen emotional resilience and bounce back from setbacks with confidence.",
-        date: "Thursday, 5 June 2025",
-        time: "2:00 PM – 4:00 PM",
-        location: "Harmony hall, Civic center",
-        btnLabel: "Register now"
-    },
-    {
-        id: 4,
-        type: "Seminar",
-        title: "Positive parenting strategies",
-        description:
-            "Build a positive parent-child relationship with effective, compassionate strategies.",
-        date: "Friday, 5 June 2025",
-        time: "2:00 PM – 4:00 PM",
-        location: "Harmony hall, Civic center",
-        btnLabel: "Register now"
+const formatDate = (dateString) => {
+    if (!dateString) return "TBA";
+
+    return new Date(dateString).toLocaleDateString("en-SG", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    });
+};
+
+const formatTime = (dateString) => {
+    if (!dateString) return "TBA";
+
+    return new Date(dateString).toLocaleTimeString("en-SG", {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+};
+
+const getEventType = (location) => {
+    const locationLower = location?.toLowerCase() || "";
+    if (locationLower.includes("zoom") || locationLower.includes("online")) {
+        return "Online";
     }
-];
+    return "In-person";
+};
 
 /* ─── Event Card ───────────────────────────────────────────── */
 
-function EventCard({ event, index }) {
-    const [hovered, setHovered] = useState(false);
-
-    const cardVariants = {
-        hidden: { opacity: 0, y: 50 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                type: "spring",
-                stiffness: 300,
-                damping: 25,
-                delay: index * 0.2
-            }
-        }
-    };
+function EventCard({ event }) {
+    const [hoveredButton, setHoveredButton] = useState(false);
+    const eventType = getEventType(event.location);
+    const isOnline = eventType === "Online";
 
     return (
         <motion.div
-            custom={index}
-            variants={cardVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            className={`
-                w-full
-                max-w-[400px]
-                min-h-[450px]
-                rounded-[10px]
-                bg-[#F7F6F3]
-                overflow-hidden
-                flex
-                flex-col
-                transition-all
-                duration-300
-                ${hovered
-                    ? "shadow-[0_8px_24px_rgba(0,0,0,0.12)] -translate-y-2 scale-[1.02]"
-                    : "shadow-[0_2px_8px_rgba(0,0,0,0.08)]"}
-            `}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col transition-all duration-300 hover:-translate-y-1 w-full max-w-[400px]"
+            style={{
+                minHeight: "500px",
+                borderRadius: "12px",
+                backgroundColor: "#FFFFFF",
+                boxShadow: "0px 10px 30px rgba(0,0,0,0.05)",
+                overflow: "hidden",
+            }}
         >
-            {/* Top Gradient */}
-            <div className="w-full h-[15px] bg-gradient-to-r from-[#1B4585] to-[#42A0BD]" />
-
-            <div className="p-6 flex flex-col flex-1">
-
-                {/* Type Badge */}
-                <div className="inline-flex px-4 py-1 rounded-full border border-[#1B4585] w-fit mb-5">
-                    <span className="text-[#1B4585] text-[12px] font-semibold tracking-[0.5px] font-['DM_Sans']">
-                        {event.type}
+            {/* IMAGE */}
+            <div
+                style={{
+                    width: "100%",
+                    height: "220px",
+                    backgroundImage: `url('${event.photoUrls?.[0] || "/assets/eventImage1.jpg"}')`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    position: "relative",
+                    flexShrink: 0,
+                }}
+            >
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "16px",
+                        right: "16px",
+                        height: "32px",
+                        backgroundColor: isOnline ? "#0D4A7A" : "#1B4585",
+                        borderRadius: "8px",
+                        padding: "0 14px",
+                        display: "flex",
+                        alignItems: "center",
+                    }}
+                >
+                    <span
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontWeight: 500,
+                            fontSize: "13px",
+                            color: "#FFFFFF",
+                        }}
+                    >
+                        {eventType}
                     </span>
                 </div>
+            </div>
 
-                {/* Title */}
-                <h3 className="text-black font-['DM_Sans'] text-[20px] font-semibold mb-3">
+            {/* CONTENT */}
+            <div className="flex flex-col flex-1 p-5">
+                <h3
+                    className="text-[18px] md:text-[20px]"
+                    style={{
+                        fontFamily: "'Outfit', sans-serif",
+                        color: "#000000",
+                        lineHeight: "1.3",
+                        fontWeight: 500,
+                        marginBottom: "12px",
+                    }}
+                >
                     {event.title}
                 </h3>
 
-                {/* Description */}
-                <p className="text-black font-['DM_Sans'] text-[15px] leading-[1.5] mb-6">
+                <p
+                    className="line-clamp-2 text-[14px] md:text-[15px]"
+                    style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontWeight: 400,
+                        color: "#333333",
+                        lineHeight: "1.6",
+                        marginBottom: "20px",
+                    }}
+                >
                     {event.description}
                 </p>
 
-                {/* Info - Fixed position section */}
-                <div className="flex flex-col gap-4 mt-auto mb-6">
-                    {/* Date */}
-                    <div className="flex items-center gap-4">
-                        <CalendarDays className="text-[#1E3A8A] w-5 h-5" />
-                        <span className="text-[15px] font-medium text-black font-['DM_Sans']">
-                            {event.date}
+                <div className="flex flex-col gap-3 mb-6">
+                    <div className="flex items-center gap-3">
+                        <SiteCalendarIcon size={SITE_ICON_SIZE_SM} />
+                        <span
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontWeight: 500,
+                                fontSize: "14px",
+                                color: "#333333",
+                            }}
+                        >
+                            {formatDate(event.eventDate)}
                         </span>
                     </div>
 
-                    {/* Time */}
-                    <div className="flex items-center gap-4">
-                        <Clock3 className="text-[#1E3A8A] w-5 h-5" />
-                        <span className="text-[15px] font-medium text-black font-['DM_Sans']">
-                            {event.time}
+                    <div className="flex items-center gap-3">
+                        <SiteClockIcon size={SITE_ICON_SIZE_SM} />
+                        <span
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontWeight: 500,
+                                fontSize: "14px",
+                                color: "#333333",
+                            }}
+                        >
+                            {formatTime(event.eventDate)}
                         </span>
                     </div>
 
-                    {/* Location */}
-                    <div className="flex items-start gap-4">
-                        <MapPin className="text-[#1E3A8A] w-5 h-5 mt-0.5" />
-                        <span className="text-[15px] font-medium text-black font-['DM_Sans'] leading-[1.4]">
+                    <div className="flex items-center gap-3">
+                        <SiteMapPinIcon size={SITE_ICON_SIZE_SM} />
+                        <span
+                            className="line-clamp-1"
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontWeight: 500,
+                                fontSize: "14px",
+                                color: "#333333",
+                            }}
+                        >
                             {event.location}
                         </span>
                     </div>
                 </div>
 
-                {/* Register Button */}
-                <motion.a
-                    href="#"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => window.open("https://ramakrishna.org.sg/event", "_blank") }
-                    className={`
-                        w-full
-                        h-[42px]
-                        rounded-full
-                        border
-                        border-[#1B4585]
-                        flex
-                        items-center
-                        justify-center
-                        gap-3
-                        font-['DM_Sans']
-                        text-[15px]
-                        font-medium
-                        transition-all
-                        duration-300
-                        ${hovered
-                            ? "bg-[#1B4585] text-white"
-                            : "bg-white text-[#1B4585]"}
-                    `}
-                >
-                    {event.btnLabel}
-
-                    {/* Arrow Icon */}
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className={`transition-transform duration-300 ${hovered ? "translate-x-1" : ""}`}
+                <div className="mt-auto flex items-center justify-between">
+                    <span
+                        className="text-[20px] md:text-[24px]"
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            color: "#000000",
+                            fontWeight: 700,
+                        }}
                     >
-                        <path
-                            d="M8 5L16 12L8 19"
-                            stroke={hovered ? "white" : "#1B4585"}
-                            strokeWidth="2.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                </motion.a>
+                        {event.price || "Free"}
+                    </span>
+
+                    <button
+                        onMouseEnter={() => setHoveredButton(true)}
+                        onMouseLeave={() => setHoveredButton(false)}
+                        onClick={() =>
+                            window.open(
+                                event.registrationUrl || "https://ramakrishna.org.sg/event",
+                                "_blank"
+                            )
+                        }
+                        style={{
+                            height: "40px",
+                            padding: "0 18px",
+                            borderRadius: "9999px",
+                            border: "1px solid #1E3A8A",
+                            backgroundColor: hoveredButton ? "#1E3A8A" : "transparent",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            cursor: "pointer",
+                            transition: "all 0.3s ease",
+                        }}
+                    >
+                        <span
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontWeight: 500,
+                                fontSize: "14px",
+                                color: hoveredButton ? "#FFFFFF" : "#1E3A8A",
+                                transition: "color 0.3s ease",
+                            }}
+                        >
+                            Register now
+                        </span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M9 18L15 12L9 6"
+                                stroke={hoveredButton ? "#FFFFFF" : "#1B4585"}
+                                strokeWidth="3.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </motion.div>
     );
@@ -201,6 +237,8 @@ function EventCard({ event, index }) {
 export function Upcoming() {
     const sectionRef = useRef(null);
     const [, navigate] = useLocation();
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const { scrollYProgress } = useScroll({
         target: sectionRef,
@@ -209,13 +247,35 @@ export function Upcoming() {
 
     const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "5%"]);
 
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const response = await fetch("/api/events");
+                if (!response.ok) throw new Error("Failed to fetch events");
+                const data = await response.json();
+                setEvents(Array.isArray(data) ? data.slice(0, 4) : []);
+            } catch (error) {
+                console.error("Error fetching events:", error);
+                setEvents([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEvents();
+
+        const eventSource = new EventSource("/api/events/stream");
+        eventSource.addEventListener("event_created", fetchEvents);
+        eventSource.addEventListener("event_updated", fetchEvents);
+        eventSource.addEventListener("event_deleted", fetchEvents);
+        eventSource.onerror = (error) => console.error("SSE Error:", error);
+
+        return () => eventSource.close();
+    }, []);
+
     return (
-        <motion.div
+        <div
             ref={sectionRef}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{ duration: 1 }}
             className="
                 relative
                 w-full
@@ -223,7 +283,7 @@ export function Upcoming() {
                 flex-col
                 items-center
                 overflow-hidden
-                bg-[#F7F6F3]
+                bg-[#F9F9F9]
             "
         >
             <motion.div
@@ -245,12 +305,12 @@ export function Upcoming() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                     className="
-                        text-[28px]
-                        sm:text-[32px]
+                        text-[clamp(26px,4.8vw,28px)]
                         md:text-[35px]
                         text-center
                         font-medium
                         font-['Outfit']
+                        leading-[1.2]
                         mb-4
                         text-[#0D4A7A]
                     "
@@ -265,22 +325,29 @@ export function Upcoming() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.1 }}
                     className="
-                        text-[16px]
-                        sm:text-[18px]
-                        md:text-[20px]
+                        text-black
                         text-center
                         font-['DM_Sans']
-                        font-medium
+                        text-[16px]
+                        md:text-[20px]
+                        font-normal
                         leading-[1.5]
-                        max-w-[800px]
+                        line-clamp-2
+                        md:line-clamp-none
+                        max-w-[700px]
                         mb-8
                     "
                 >
-                    Join our community events designed to educate, connect,
+                    Join our community events designed to educate, connect
                     and empower. Healing doesn't always happen alone
                 </motion.p>
 
                 {/* Events Grid */}
+                {loading ? (
+                    <div className="w-full flex justify-center py-16">
+                        <div className="w-8 h-8 rounded-full border-2 border-[#0D4A7A] border-t-transparent animate-spin" />
+                    </div>
+                ) : events.length > 0 ? (
                 <div className="
                     grid
                     grid-cols-1
@@ -292,24 +359,22 @@ export function Upcoming() {
                     mb-6
                     justify-items-center
                 ">
-                    {events.map((event, index) => (
+                    {events.map((event) => (
                         <EventCard
                             key={event.id}
                             event={event}
-                            index={index}
                         />
                     ))}
                 </div>
+                ) : (
+                    <p className="text-[#666] font-['DM_Sans'] font-medium text-[18px] text-center py-12 mb-6">
+                        No upcoming events at the moment.
+                    </p>
+                )}
 
                 {/* View All Button */}
                 <div className="mt-2 md:mt-4">
-                    <motion.button
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        // transition={{ duration: 0.6, delay: 0.6 }}
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
+                    <button
                         onClick={() => navigate("/events")}
                         className="
                             group
@@ -326,6 +391,8 @@ export function Upcoming() {
                             transition-all
                             duration-300
                             shadow-[0_4px_12px_rgba(27,69,133,0.3)]
+                            hover:scale-105
+                            active:scale-95
                         "
                         style={{
                             height: "46px",
@@ -348,7 +415,7 @@ export function Upcoming() {
                                 strokeLinejoin="round"
                             />
                         </svg>
-                    </motion.button>
+                    </button>
                 </div>
                 </div>
                 </div>
@@ -357,8 +424,11 @@ export function Upcoming() {
             {/* RECENT ARTICLES */}
             <RecentArticles />
 
+            {/* PARTNERS */}
+            <Partners />
+
             {/* GET IN TOUCH */}
             <GetInTouch />
-        </motion.div>
+        </div>
     );
 }

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { db } from "../config/db.js";
+import { isFkViolation, isUniqueViolation } from "../config/pg-helpers.js";
 import { requireAdmin } from "../middlewares/auth.js";
 
 const router = Router();
@@ -107,17 +108,17 @@ router.delete("/categories/:id", requireAdmin, async (req, res) => {
 const jobSelect = `
   SELECT
     c.id,
-    c.job_id AS jobId,
+    c.job_id AS "jobId",
     c.title,
-    c.category_id AS categoryId,
+    c.category_id AS "categoryId",
     c.location,
-    c.employment_type AS employmentType,
+    c.employment_type AS "employmentType",
     c.experience,
     c.summary,
     c.description,
     c.requirements,
-    c.is_active AS isActive,
-    c.created_at AS createdAt,
+    c.is_active AS "isActive",
+    c.created_at AS "createdAt",
     jc.name AS category_name
   FROM job_postings c
   LEFT JOIN job_categories jc ON jc.id = c.category_id
@@ -127,25 +128,25 @@ function mapJobRow(row) {
   if (!row) return null;
   return {
     id: row.id,
-    jobId: row.jobId,
+    jobId: row.jobId ?? row.jobid,
     title: row.title,
-    categoryId: row.categoryId,
+    categoryId: row.categoryId ?? row.categoryid,
     department: row.category_name || "General",
     location: row.location || "",
-    employmentType: row.employmentType || "",
+    employmentType: row.employmentType ?? row.employmenttype ?? "",
     experience: row.experience || "",
     summary: row.summary || "",
     description: row.description || "",
     requirements: row.requirements || "",
-    isActive: Boolean(row.isActive),
-    createdAt: row.createdAt,
+    isActive: Boolean(row.isActive ?? row.isactive),
+    createdAt: row.createdAt ?? row.createdat,
   };
 }
 
 router.get("/jobs", async (req, res) => {
   try {
     const activeOnly = req.query.active === "true";
-    const where = activeOnly ? " WHERE c.is_active = 1" : "";
+    const where = activeOnly ? " WHERE c.is_active = true" : "";
     const [rows] = await db.execute(
       `${jobSelect}${where} ORDER BY c.created_at DESC`
     );
@@ -253,39 +254,23 @@ router.post("/jobs", requireAdmin, async (req, res) => {
         summary || "",
         description || "",
         requirements || "",
-        isActive ? 1 : 0
+        isActive ? true : false
       ]
     );
 
     const [rows] = await db.execute(
-      `SELECT
-        c.id,
-        c.job_id AS jobId,
-        c.title,
-        c.category_id AS categoryId,
-        c.location,
-        c.employment_type AS employmentType,
-        c.experience,
-        c.summary,
-        c.description,
-        c.requirements,
-        c.is_active AS isActive,
-        c.created_at AS createdAt,
-        jc.name AS category_name
-      FROM job_postings c
-      LEFT JOIN job_categories jc ON jc.id = c.category_id
-      WHERE c.id = ?`,
+      `${jobSelect} WHERE c.id = ?`,
       [result.insertId]
     );
 
     res.status(201).json(mapJobRow(rows[0]) || rows[0] || null);
   } catch (error) {
-    if (error?.errno === 1062) {
+    if (isUniqueViolation(error)) {
       return res.status(409).json({
         error: "Job ID already exists. Please use a different Job ID or leave it blank to auto-generate one.",
       });
     }
-    if (error?.errno === 1452) {
+    if (isFkViolation(error)) {
       return res.status(400).json({ error: "Selected category is invalid" });
     }
     console.error("POST /jobs:", error);
@@ -313,7 +298,7 @@ router.patch("/jobs/:id", requireAdmin, async (req, res) => {
     for (const [key, column] of Object.entries(fieldMap)) {
       if (body[key] !== undefined) {
         updates.push(`${column} = ?`);
-        params.push(key === "isActive" ? (body[key] ? 1 : 0) : body[key]);
+        params.push(key === "isActive" ? Boolean(body[key]) : body[key]);
       }
     }
     if (!updates.length) return res.status(400).json({ error: "No fields to update" });
@@ -323,26 +308,10 @@ router.patch("/jobs/:id", requireAdmin, async (req, res) => {
       params
     );
     const [rows] = await db.execute(
-      `SELECT
-        c.id,
-        c.job_id AS jobId,
-        c.title,
-        c.category_id AS categoryId,
-        c.location,
-        c.employment_type AS employmentType,
-        c.experience,
-        c.summary,
-        c.description,
-        c.requirements,
-        c.is_active AS isActive,
-        c.created_at AS createdAt,
-        jc.name AS category_name
-      FROM job_postings c
-      LEFT JOIN job_categories jc ON jc.id = c.category_id
-      WHERE c.id = ?`,
+      `${jobSelect} WHERE c.id = ?`,
       [req.params.id]
     );
-    res.json(rows[0] || null);
+    res.json(mapJobRow(rows[0]) || null);
   } catch (error) {
     res.status(500).json({ error: "Failed to update job" });
   }

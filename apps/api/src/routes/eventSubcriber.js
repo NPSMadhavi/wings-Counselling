@@ -1,38 +1,54 @@
 import { Router } from "express";
-import { ddb as db, eventSubscribers } from "../config/db.js";
-import { eq, desc } from "drizzle-orm";
+import { db } from "../config/db.js";
 import { requireAdmin } from "../middlewares/auth.js";
+import { subscribe } from "../lib/notifyService.js";
 
 const router = Router();
 
-/* Public — subscribe */
+/* Public — subscribe (legacy endpoint, event type only) */
 router.post("/event-subscribe", async (req, res) => {
   const { email } = req.body ?? {};
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return res.status(400).json({ error: "Please enter a valid email address." });
-  }
   try {
-    await db.insert(eventSubscribers).values({ email: email.toLowerCase().trim() });
+    const result = await subscribe(email, "event");
+
+    if (!result.ok) {
+      return res.status(result.status || 400).json({ error: result.error });
+    }
+
+    if (result.alreadySubscribed) {
+      return res.status(409).json({
+        error: "This email is already subscribed. Please enter another email.",
+        alreadySubscribed: true,
+      });
+    }
+
     return res.status(201).json({ ok: true });
   } catch (e) {
-    if (e?.code === "23505" || e?.code === "ER_DUP_ENTRY") {
-      return res.status(409).json({ error: "already_subscribed" });
-    }
     res.status(500).json({ error: e.message });
   }
 });
 
-/* Admin — list subscribers */
+/* Admin — list event subscribers */
 router.get("/admin/event-subscribers", requireAdmin, async (_req, res) => {
-  const rows = await db.select().from(eventSubscribers).orderBy(desc(eventSubscribers.subscribedAt));
-  res.json(rows);
+  const [rows] = await db.execute(
+    `SELECT id, email, created_at
+     FROM events_notify
+     WHERE status = 'active'
+     ORDER BY created_at DESC`
+  );
+  res.json(
+    rows.map((r) => ({
+      id: r.id,
+      email: r.email,
+      subscribedAt: r.created_at,
+    }))
+  );
 });
 
-/* Admin — delete subscriber */
+/* Admin — unsubscribe / remove subscriber */
 router.delete("/admin/event-subscribers/:id", requireAdmin, async (req, res) => {
-  await db.delete(eventSubscribers).where(eq(eventSubscribers.id, Number(req.params.id)));
+  await db.execute(`DELETE FROM events_notify WHERE id = ?`, [Number(req.params.id)]);
   res.json({ ok: true });
 });
 
 export default router;
-

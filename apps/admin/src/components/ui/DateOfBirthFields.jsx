@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Calendar, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { SiteCalendarIcon } from "@/components/ui/SiteIcons";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -382,7 +383,7 @@ export function DateOfBirthPicker({ value, onChange, error = false, placeholder 
         <span className={value ? "text-[#3A3A3A]" : "text-[#999]"}>
           {value ? formatDobDisplay(value) : placeholder}
         </span>
-        <Calendar size={18} className="text-[#0D4A7A] shrink-0 ml-2" />
+        <SiteCalendarIcon size={18} color="#0D4A7A" className="shrink-0 ml-2" />
       </button>
     </div>
   );

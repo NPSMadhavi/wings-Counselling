@@ -18,6 +18,26 @@ const P = {
   surface: "#f8fafc",
 };
 
+function resolveApplicantDisplayName(app) {
+  const direct = (
+    app.applicantName ||
+    app.applicantname ||
+    app.candidateName ||
+    app.candidatename ||
+    [app.firstName || app.firstname, app.lastName || app.lastname].filter(Boolean).join(" ")
+  )?.trim();
+
+  if (direct && direct !== "Unknown") return direct;
+
+  const email = (app.applicantEmail || app.applicantemail || "").trim();
+  if (email) {
+    const local = email.split("@")[0]?.replace(/[._-]+/g, " ").trim();
+    if (local) return local;
+  }
+
+  return "Unknown";
+}
+
 const STATUS_CONFIG = {
   submitted: { label: "Submitted", color: "#3b82f6", bg: "rgba(59,130,246,0.08)", icon: AlertCircle },
   under_review: { label: "Under Review", color: "#f59e0b", bg: "rgba(245,158,11,0.08)", icon: Clock },
@@ -271,8 +291,7 @@ export default function Dashboard() {
               if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
               return `${Math.floor(s / 86400)}d ago`;
             })();
-            // API returns applicantName; fall back to candidateName for safety
-            const name = app.applicantName || app.candidateName || "Unknown";
+            const name = resolveApplicantDisplayName(app);
             const jobTitle = app.jobTitle || "";
             return (
               <button key={app.id}

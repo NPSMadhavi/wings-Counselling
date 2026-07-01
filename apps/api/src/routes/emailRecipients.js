@@ -1,5 +1,6 @@
 import express from "express";
 import { db } from "../config/db.js";
+import { isUniqueViolation } from "../config/pg-helpers.js";
 import { requireAdmin } from "../middlewares/auth.js";
 
 const router = express.Router();
@@ -7,11 +8,11 @@ const router = express.Router();
 async function ensureEmailRecipientsTable() {
   await db.execute(`
     CREATE TABLE IF NOT EXISTS email_recipients (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       email VARCHAR(320) NOT NULL UNIQUE,
-      type ENUM('primary','cc') NOT NULL DEFAULT 'primary',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      type VARCHAR(20) NOT NULL DEFAULT 'primary' CHECK (type IN ('primary', 'cc')),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
 }
@@ -57,7 +58,7 @@ router.post("/admin/settings/emails", requireAdmin, async (req, res) => {
     res.status(201).json({ id: result.insertId, email: normalized, type: recipientType });
   } catch (error) {
     console.error(error);
-    if (error?.errno === 1062) {
+    if (isUniqueViolation(error)) {
       return res.status(409).json({ error: "This email address is already configured" });
     }
     res.status(500).json({ error: "Failed to create email recipient" });

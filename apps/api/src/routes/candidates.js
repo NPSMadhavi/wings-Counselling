@@ -2,8 +2,17 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { db } from "../config/db.js";
+import { isDuplicateColumnError } from "../config/pg-helpers.js";
 import { sendMobileOtpSms, sendInterviewBookingConfirmation } from "../lib/email.js";
 import { broadcastToAdmin, broadcastToCandidate } from "../lib/sse.js";
+import {
+  countOffersForApplication,
+  fetchOfferedSlotsForApplication,
+  isSlotOfferedToApplication,
+  mapOfferedSlotRow,
+  snapshotInterviewOffersForApplication,
+  statusAllowsInterviewBooking,
+} from "../lib/interviewOffers.js";
 
 const router = Router();
 
@@ -66,16 +75,16 @@ function mapCandidate(row) {
 
 async function ensureCandidateColumns() {
   const alters = [
-    "ADD COLUMN phone_verified TINYINT(1) NOT NULL DEFAULT 0",
+    "ADD COLUMN phone_verified BOOLEAN NOT NULL DEFAULT false",
     "ADD COLUMN mobile_otp VARCHAR(10) NULL",
-    "ADD COLUMN mobile_otp_expiry DATETIME NULL",
+    "ADD COLUMN mobile_otp_expiry TIMESTAMP NULL",
   ];
 
   for (const clause of alters) {
     try {
       await db.execute(`ALTER TABLE candidates ${clause}`);
     } catch (err) {
-      if (err?.errno !== 1060) throw err;
+      if (!isDuplicateColumnError(err)) throw err;
     }
   }
 }
@@ -214,7 +223,7 @@ router.post("/candidate/send-mobile-otp", requireCandidate, async (req, res) => 
 
       await connection.execute(
         `UPDATE candidates
-         SET mobile_otp = ?, mobile_otp_expiry = ?, phone_verified = 0
+         SET mobile_otp = ?, mobile_otp_expiry = ?, phone_verified = false
          WHERE id = ?`,
         [otp, expiry, candidate.id]
       );
@@ -285,7 +294,7 @@ router.post("/candidate/verify-mobile-otp", requireCandidate, async (req, res) =
 
     await db.execute(
       `UPDATE candidates
-       SET phone_verified = 1, mobile_otp = NULL, mobile_otp_expiry = NULL
+       SET phone_verified = true, mobile_otp = NULL, mobile_otp_expiry = NULL
        WHERE id = ?`,
       [candidate.id]
     );
@@ -315,21 +324,21 @@ router.get("/candidate/applications", requireCandidate, async (req, res) => {
     const [rows] = await db.execute(
       `SELECT
         ja.id,
-        ja.application_number AS applicationNumber,
+        ja.application_number AS "applicationNumber",
         ja.status,
-        ja.submitted_at AS submittedAt,
-        ja.updated_at AS updatedAt,
-        ja.cover_letter AS coverLetter,
-        ja.current_employer AS currentEmployer,
-        ja.years_experience AS yearsExperience,
-        ja.notice_period AS noticePeriod,
-        ja.expected_salary AS expectedSalary,
-        ja.admin_notes AS adminNotes,
-        jp.title AS jobTitle,
-        jc.name AS jobDepartment,
-        jp.location AS jobLocation,
-        jp.employment_type AS jobEmploymentType,
-        jp.job_id AS jobRef
+        ja.submitted_at AS "submittedAt",
+        ja.updated_at AS "updatedAt",
+        ja.cover_letter AS "coverLetter",
+        ja.current_employer AS "currentEmployer",
+        ja.years_experience AS "yearsExperience",
+        ja.notice_period AS "noticePeriod",
+        ja.expected_salary AS "expectedSalary",
+        ja.admin_notes AS "adminNotes",
+        jp.title AS "jobTitle",
+        jc.name AS "jobDepartment",
+        jp.location AS "jobLocation",
+        jp.employment_type AS "jobEmploymentType",
+        jp.job_id AS "jobRef"
       FROM job_applications ja
       LEFT JOIN job_postings jp ON jp.id = ja.job_id
       LEFT JOIN job_categories jc ON jc.id = jp.category_id
@@ -341,15 +350,27 @@ router.get("/candidate/applications", requireCandidate, async (req, res) => {
     const result = await Promise.all(
       rows.map(async (app) => {
         const [slots] = await db.execute(
-          `SELECT date, time_slot AS timeSlot, duration, interviewer_name AS interviewerName,
-                  location, meeting_link AS meetingLink
+          `SELECT date, time_slot AS "timeSlot", duration,
+                  interviewer_name AS "interviewerName",
+                  location, meeting_link AS "meetingLink"
            FROM interview_slots WHERE application_id = ? LIMIT 1`,
           [app.id]
         );
+        const slot = slots[0];
+        const interview = slot
+          ? {
+              date: slot.date,
+              timeSlot: slot.timeSlot ?? slot.timeslot ?? slot.time_slot ?? "",
+              duration: slot.duration,
+              interviewerName: slot.interviewerName ?? slot.interviewername ?? slot.interviewer_name ?? "",
+              location: slot.location ?? "",
+              meetingLink: slot.meetingLink ?? slot.meetinglink ?? slot.meeting_link ?? "",
+            }
+          : null;
 
         return {
           ...app,
-          interview: slots[0] ?? null,
+          interview,
         };
       })
     );
@@ -362,74 +383,36 @@ router.get("/candidate/applications", requireCandidate, async (req, res) => {
 });
 
 
-/* ─── Candidate: List available interview slots ────────────────────────── */
+/* ─── Candidate: List interview slots offered for a specific application ─ */
 router.get("/candidate/interview-availability", requireCandidate, async (req, res) => {
   try {
-    const today = new Date().toISOString().slice(0, 10);
-    // Ensure the table exists, create it if not
-    await db.execute(`
-      CREATE TABLE IF NOT EXISTS interview_availability (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        date VARCHAR(20) NOT NULL,
-        time_slot VARCHAR(30) NOT NULL,
-        duration INT NOT NULL DEFAULT 45,
-        interviewer_name TEXT NOT NULL DEFAULT '',
-        location TEXT NOT NULL DEFAULT '',
-        meeting_link TEXT NOT NULL DEFAULT '',
-        notes TEXT NOT NULL DEFAULT '',
-        is_booked TINYINT(1) NOT NULL DEFAULT 0,
-        booked_application_id INT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+    const applicationId = Number(req.query.applicationId);
+    if (!Number.isFinite(applicationId) || applicationId <= 0) {
+      return res.status(400).json({ error: "applicationId query parameter is required" });
+    }
 
-    await db.execute(`
-      CREATE TABLE IF NOT EXISTS interview_dates (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        date VARCHAR(20) NOT NULL UNIQUE,
-        is_active TINYINT(1) NOT NULL DEFAULT 1,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-    `);
-
-    await db.execute(`
-      CREATE TABLE IF NOT EXISTS interview_slot_settings (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        round_number INT NOT NULL,
-        time_slot VARCHAR(30) NOT NULL,
-        is_active TINYINT(1) NOT NULL DEFAULT 1,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-    `);
-
-    const [rows] = await db.execute(
-      `SELECT
-        interview_availability.id,
-        interview_availability.date,
-        interview_availability.time_slot AS timeSlot,
-        interview_availability.duration,
-        interview_availability.interviewer_name AS interviewerName,
-        interview_availability.location,
-        interview_availability.meeting_link AS meetingLink,
-        interview_availability.notes
-       FROM interview_availability
-       LEFT JOIN interview_dates d
-         ON d.date = interview_availability.date COLLATE utf8mb4_unicode_ci
-       WHERE interview_availability.is_booked = 0
-         AND interview_availability.date >= ?
-         AND (d.id IS NULL OR d.is_active = 1)
-         AND EXISTS (
-           SELECT 1
-           FROM interview_slot_settings s
-           WHERE s.time_slot = interview_availability.time_slot COLLATE utf8mb4_unicode_ci
-             AND s.is_active = 1
-         )
-       ORDER BY interview_availability.date ASC, interview_availability.time_slot ASC`,
-      [today]
+    const [apps] = await db.execute(
+      `SELECT id, candidate_id, status FROM job_applications WHERE id = ? LIMIT 1`,
+      [applicationId]
     );
-    res.json(rows);
+    if (!apps.length) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+    if (apps[0].candidate_id !== req.candidate.id) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    if (!statusAllowsInterviewBooking(apps[0].status)) {
+      return res.status(400).json({ error: "Interview booking is not open for this application" });
+    }
+
+    let offerCount = await countOffersForApplication(applicationId);
+    if (offerCount === 0) {
+      await snapshotInterviewOffersForApplication(applicationId, apps[0].status);
+      offerCount = await countOffersForApplication(applicationId);
+    }
+
+    const rows = await fetchOfferedSlotsForApplication(applicationId);
+    res.json(rows.map(mapOfferedSlotRow));
   } catch (err) {
     console.error("candidate/interview-availability:", err);
     res.status(500).json({ error: err.message || "Failed to fetch slots" });
@@ -457,71 +440,45 @@ router.post("/candidate/applications/:id/book-interview", requireCandidate, asyn
     if (apps[0].candidate_id !== req.candidate.id) {
       return res.status(403).json({ error: "Forbidden" });
     }
+    if (!statusAllowsInterviewBooking(apps[0].status)) {
+      return res.status(409).json({ error: "Interview booking is not open for this application" });
+    }
 
-    // Check the slot exists and is not booked
+    const [existingSlots] = await db.execute(
+      `SELECT id FROM interview_slots WHERE application_id = ? LIMIT 1`,
+      [appId]
+    );
+    if (existingSlots.length) {
+      return res.status(409).json({ error: "You have already booked an interview for this application" });
+    }
+
+    const offered = await isSlotOfferedToApplication(appId, Number(availabilityId));
+    if (!offered) {
+      return res.status(409).json({
+        error: "This slot is not part of your interview invitation. Please choose from the listed options.",
+      });
+    }
+
     const [avail] = await db.execute(
       `SELECT id, date, time_slot, duration, interviewer_name, location, meeting_link
-       FROM interview_availability WHERE id = ? AND is_booked = 0 LIMIT 1`,
+       FROM interview_availability WHERE id = ? AND is_booked = false LIMIT 1`,
       [Number(availabilityId)]
     );
     if (!avail.length) {
-      return res.status(409).json({ error: "Slot not available or already booked" });
+      return res.status(409).json({ error: "This slot is no longer available. Please refresh and choose another." });
     }
     const slot = avail[0];
 
-    await db.execute(`
-      CREATE TABLE IF NOT EXISTS interview_dates (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        date VARCHAR(20) NOT NULL UNIQUE,
-        is_active TINYINT(1) NOT NULL DEFAULT 1,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-    `);
-
-    await db.execute(`
-      CREATE TABLE IF NOT EXISTS interview_slot_settings (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        round_number INT NOT NULL,
-        time_slot VARCHAR(30) NOT NULL,
-        is_active TINYINT(1) NOT NULL DEFAULT 1,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-    `);
-
-    const [dateRows] = await db.execute(
-      `SELECT id, is_active AS isActive
-       FROM interview_dates
-       WHERE date = ?
-       LIMIT 1`,
-      [slot.date]
-    );
-    if (dateRows.length && !dateRows[0].isActive) {
-      return res.status(409).json({ error: "This date is not available" });
-    }
-
-    const [slotSettingRows] = await db.execute(
-      `SELECT id
-       FROM interview_slot_settings
-       WHERE time_slot = ? AND is_active = 1
-       LIMIT 1`,
-      [slot.time_slot]
-    );
-    if (!slotSettingRows.length) {
-      return res.status(409).json({ error: "This time slot is not available" });
-    }
-
     // Mark slot as booked
     await db.execute(
-      `UPDATE interview_availability SET is_booked = 1, booked_application_id = ? WHERE id = ?`,
+      `UPDATE interview_availability SET is_booked = true, booked_application_id = ? WHERE id = ?`,
       [appId, slot.id]
     );
 
     // Ensure interview_slots table exists
     await db.execute(`
       CREATE TABLE IF NOT EXISTS interview_slots (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         application_id INT NOT NULL,
         date VARCHAR(20) NOT NULL,
         time_slot VARCHAR(30) NOT NULL,
@@ -530,7 +487,7 @@ router.post("/candidate/applications/:id/book-interview", requireCandidate, asyn
         location TEXT NOT NULL DEFAULT '',
         meeting_link TEXT NOT NULL DEFAULT '',
         status VARCHAR(30) NOT NULL DEFAULT 'scheduled',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
@@ -552,20 +509,28 @@ router.post("/candidate/applications/:id/book-interview", requireCandidate, asyn
 
     const [appRows] = await db.execute(`
       SELECT
-        c.email AS candidateEmail,
-        c.first_name AS firstName,
-        COALESCE(jp.title, ca.title, '') AS jobTitle,
-        COALESCE(jp.job_id, ca.job_id, '') AS jobIdCode
+        c.email AS "candidateEmail",
+        c.first_name AS "firstName",
+        COALESCE(jp.title, ca.title, '') AS "jobTitle",
+        COALESCE(jp.job_id, ca.job_id, '') AS "jobIdCode"
       FROM job_applications ja
       LEFT JOIN candidates c ON c.id = ja.candidate_id
       LEFT JOIN careers ca ON ca.id = ja.job_id
-      LEFT JOIN job_postings jp ON jp.job_id = ca.job_id COLLATE utf8mb4_unicode_ci
+      LEFT JOIN job_postings jp ON jp.job_id = ca.job_id
       WHERE ja.id = ?
       LIMIT 1
     `, [appId]);
 
-    if (appRows.length > 0 && appRows[0].candidateEmail) {
-      const appData = appRows[0];
+    const appData = appRows[0]
+      ? {
+          candidateEmail: appRows[0].candidateEmail ?? appRows[0].candidateemail,
+          firstName: appRows[0].firstName ?? appRows[0].firstname,
+          jobTitle: appRows[0].jobTitle ?? appRows[0].jobtitle,
+          jobIdCode: appRows[0].jobIdCode ?? appRows[0].jobidcode,
+        }
+      : null;
+
+    if (appData?.candidateEmail) {
       sendInterviewBookingConfirmation(appData.candidateEmail, {
         firstName: appData.firstName,
         jobTitle: appData.jobTitle,
@@ -622,14 +587,14 @@ router.post("/candidate/applications/:id/request-interview-time", requireCandida
     // Ensure table exists
     await db.execute(`
       CREATE TABLE IF NOT EXISTS interview_custom_requests (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         application_id INT,
         candidate_id INT,
         preferred_date VARCHAR(20) NOT NULL,
         preferred_time_slot VARCHAR(30) NOT NULL,
         notes TEXT NOT NULL DEFAULT '',
         status VARCHAR(30) NOT NULL DEFAULT 'pending',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 

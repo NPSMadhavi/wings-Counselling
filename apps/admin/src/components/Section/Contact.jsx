@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Phone, Mail, Clock, MapPin } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
+import { SiteClockIcon, SiteMapPinIcon, SITE_ICON_SIZE_LG } from "@/components/ui/SiteIcons";
 
 export function Contact() {
   return (
@@ -22,7 +23,7 @@ export function Contact() {
             <div className="space-y-8">
               <div className="flex gap-5">
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <Clock className="w-6 h-6 text-primary" />
+                  <SiteClockIcon size={SITE_ICON_SIZE_LG} />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground mb-3">Operating Hours</h3>
@@ -73,7 +74,7 @@ export function Contact() {
 
               <div className="flex gap-5">
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <MapPin className="w-6 h-6 text-primary" />
+                  <SiteMapPinIcon size={SITE_ICON_SIZE_LG} />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground mb-1">Address</h3>

@@ -1,3 +1,4 @@
+import "../config/env.js";
 import { Router } from "express";
 import multer from "multer";
 import path from "path";
@@ -46,11 +47,16 @@ import {
 import {
   sendApplicationAcknowledgement,
   sendApplicationStatusUpdateEmail,
-  sendInterviewSlotInvitation
+  sendInterviewSlotInvitation,
+  sendInterviewInvite,
+  sendInterviewBookingConfirmation,
 } from "../lib/email.js";
 import { buildInterviewBookingLink } from "../lib/candidatePortalLinks.js";
-
-const INTERVIEW_BOOKING_STATUSES = ["Shortlisted", "Round 1 Selected", "Round 2 Selected"];
+import {
+  INTERVIEW_BOOKING_STATUSES,
+  snapshotInterviewOffersForApplication,
+  clearInterviewOffersForApplication,
+} from "../lib/interviewOffers.js";
 
 /** Normalise legacy/snake_case statuses to the Title Case values used in CareersAdmin tabs. */
 function normalizeAdminApplicationStatus(status) {
@@ -101,70 +107,174 @@ function normalizeAdminApplicationStatus(status) {
 }
 
 function roundLabelForStatus(status) {
-  if (status === "Shortlisted") return "Round 1 - Technical Interview";
-  if (status === "Round 1 Selected") return "Round 2 - LSP-E";
-  if (status === "Round 2 Selected") return "Round 3 - Manager/HR Interview";
+  if (status === "Shortlisted" || status === "Reschedule Round 1") {
+    return "Round 1 - Technical Interview";
+  }
+  if (status === "Round 1 Selected" || status === "Reschedule Round 2") {
+    return "Round 2 - LSP-E";
+  }
+  if (status === "Round 2 Selected" || status === "Reschedule Round 3") {
+    return "Round 3 - Manager/HR Interview";
+  }
+  if (status === "Reschedule Interview") return "Interview Round";
   return "Interview Round";
+}
+
+function mapEmailAppRow(row) {
+  if (!row) return null;
+  return {
+    candidateEmail: row.candidateEmail ?? row.candidateemail ?? "",
+    firstName: row.firstName ?? row.firstname ?? "",
+    jobTitle: row.jobTitle ?? row.jobtitle ?? "",
+    jobIdCode: row.jobIdCode ?? row.jobidcode ?? "",
+    applicationNumber: row.applicationNumber ?? row.applicationnumber ?? "",
+  };
+}
+
+let applicationSchemaReady = false;
+
+async function ensureApplicationSchema() {
+  if (applicationSchemaReady) return;
+  try {
+    const [rows] = await db.execute(
+      `SELECT column_name
+       FROM information_schema.columns
+       WHERE table_schema = current_schema()
+         AND table_name = 'job_applications'
+         AND column_name = 'internal_remarks'`
+    );
+    if (!rows.length) {
+      await db.execute(
+        `ALTER TABLE job_applications ADD COLUMN internal_remarks TEXT DEFAULT ''`
+      );
+    }
+  } catch (err) {
+    console.warn("[Applications] ensureApplicationSchema:", err.message);
+  }
+  applicationSchemaReady = true;
+}
+
+function rescheduleStatusForApplication(status) {
+  const normalized = normalizeAdminApplicationStatus(status);
+  if (
+    ["Round 1 Scheduled", "Round 1 Confirmed", "Round 1 Completed", "Shortlisted"].includes(
+      normalized
+    )
+  ) {
+    return "Reschedule Round 1";
+  }
+  if (
+    ["Round 2 Scheduled", "Round 2 Confirmed", "Round 2 Completed", "Round 1 Selected"].includes(
+      normalized
+    )
+  ) {
+    return "Reschedule Round 2";
+  }
+  if (
+    ["Round 3 Scheduled", "Round 3 Confirmed", "Round 3 Completed", "Round 2 Selected"].includes(
+      normalized
+    )
+  ) {
+    return "Reschedule Round 3";
+  }
+  return "Reschedule Interview";
 }
 
 async function fetchApplicationEmailData(applicationId) {
   const [appRows] = await db.execute(
     `SELECT 
-      c.email AS candidateEmail,
-      c.first_name AS firstName,
-      COALESCE(jp.title, ca.title, '') AS jobTitle,
-      COALESCE(jp.job_id, ca.job_id, '') AS jobIdCode
+      c.email AS "candidateEmail",
+      c.first_name AS "firstName",
+      COALESCE(jp.title, ca.title, '') AS "jobTitle",
+      COALESCE(jp.job_id, ca.job_id, '') AS "jobIdCode",
+      ja.application_number AS "applicationNumber"
     FROM job_applications ja
     LEFT JOIN candidates c ON c.id = ja.candidate_id
     LEFT JOIN careers ca ON ca.id = ja.job_id
-    LEFT JOIN job_postings jp ON jp.job_id = ca.job_id COLLATE utf8mb4_unicode_ci
+    LEFT JOIN job_postings jp ON jp.job_id = ca.job_id
     WHERE ja.id = ?
     LIMIT 1`,
     [applicationId]
   );
-  return appRows[0] ?? null;
+  return mapEmailAppRow(appRows[0]);
 }
 
-async function fetchAvailableInterviewSlots() {
-  const [slotRows] = await db.execute(`
-    SELECT date, time_slot AS timeSlot, duration
-    FROM interview_availability
-    WHERE is_booked = 0 AND date >= CURDATE()
-    ORDER BY date ASC, time_slot ASC
-    LIMIT 20
-  `);
-  return slotRows;
+async function fetchLatestInterviewSlot(applicationId) {
+  const [rows] = await db.execute(
+    `SELECT id, date, time_slot, duration, interviewer_name, location, meeting_link
+     FROM interview_slots
+     WHERE application_id = ?
+     ORDER BY id DESC
+     LIMIT 1`,
+    [applicationId]
+  );
+  return rows[0] ?? null;
+}
+
+function isValidCandidateEmail(email) {
+  return (
+    typeof email === "string" &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+  );
 }
 
 async function sendApplicationStatusEmailNotification({ applicationId, status, remarks = "" }) {
+  console.log(
+    `[Email] Status notification requested — applicationId=${applicationId} status="${status}"`
+  );
+
   const appData = await fetchApplicationEmailData(applicationId);
-  if (!appData?.candidateEmail) {
-    return { sent: false, reason: "Candidate email not found" };
+  const candidateEmail = String(appData?.candidateEmail ?? "").trim();
+
+  if (!candidateEmail) {
+    const reason = "Candidate email not found";
+    console.error(
+      `[Email] ${reason} — applicationId=${applicationId} lookup=`,
+      appData
+    );
+    return { sent: false, reason };
   }
+
+  if (!isValidCandidateEmail(candidateEmail)) {
+    const reason = `Invalid candidate email: ${candidateEmail}`;
+    console.error(`[Email] ${reason} — applicationId=${applicationId}`);
+    return { sent: false, reason };
+  }
+
+  console.log(
+    `[Email] Preparing status notification — applicationId=${applicationId} to=${candidateEmail} status="${status}"`
+  );
 
   const needsSlotBooking = INTERVIEW_BOOKING_STATUSES.includes(status);
 
   if (needsSlotBooking) {
-    const slotRows = await fetchAvailableInterviewSlots();
+    await snapshotInterviewOffersForApplication(applicationId, status);
     const portalLink = buildInterviewBookingLink(applicationId);
     console.log(
       `[Email] Sending interview slot invitation — applicationId=${applicationId} bookingLink=${portalLink}`
     );
 
-    await sendInterviewSlotInvitation(appData.candidateEmail, {
-      applicationId,
-      firstName: appData.firstName,
-      jobTitle: appData.jobTitle,
-      jobIdCode: appData.jobIdCode,
-      round: roundLabelForStatus(status),
-      availableSlots: slotRows,
-      portalLink,
-    });
+    try {
+      await sendInterviewSlotInvitation(candidateEmail, {
+        applicationId,
+        firstName: appData.firstName,
+        jobTitle: appData.jobTitle,
+        jobIdCode: appData.jobIdCode,
+        round: roundLabelForStatus(status),
+        portalLink,
+      });
+    } catch (err) {
+      const reason = err?.message || "Failed to send interview slot invitation email";
+      console.error(
+        `[Email] ${reason} — applicationId=${applicationId} to=${candidateEmail}`
+      );
+      return { sent: false, reason };
+    }
 
     broadcastToAdmin("email_sent", {
       context: "interview_slot_invitation",
       applicationId,
-      email: appData.candidateEmail,
+      email: candidateEmail,
       status,
       bookingLink: portalLink,
     });
@@ -172,20 +282,32 @@ async function sendApplicationStatusEmailNotification({ applicationId, status, r
     return { sent: true, type: "interview_slot_invitation", bookingLink: portalLink };
   }
 
-  await sendApplicationStatusUpdateEmail(appData.candidateEmail, {
-    firstName: appData.firstName,
-    jobTitle: appData.jobTitle,
-    jobIdCode: appData.jobIdCode,
-    status,
-    remarks,
-  });
+  try {
+    await sendApplicationStatusUpdateEmail(candidateEmail, {
+      firstName: appData.firstName,
+      jobTitle: appData.jobTitle,
+      jobIdCode: appData.jobIdCode,
+      status,
+      remarks,
+    });
+  } catch (err) {
+    const reason = err?.message || "Failed to send application status update email";
+    console.error(
+      `[Email] ${reason} — applicationId=${applicationId} to=${candidateEmail}`
+    );
+    return { sent: false, reason };
+  }
 
   broadcastToAdmin("email_sent", {
     context: "application_status_update",
     applicationId,
-    email: appData.candidateEmail,
+    email: candidateEmail,
     status,
   });
+
+  console.log(
+    `[Email] Status notification sent — applicationId=${applicationId} to=${candidateEmail} status="${status}"`
+  );
 
   return { sent: true, type: "application_status_update" };
 }
@@ -414,7 +536,7 @@ router.post(
         // Insert a minimal careers row to satisfy the FK constraint
         const [careersInsert] = await db.execute(
           `INSERT INTO careers (job_id, title, department, location, description, requirements, employment_type, salary_range, is_active)
-           VALUES (?, ?, '', '', '', '', '', '', 1)`,
+           VALUES (?, ?, '', '', '', '', '', '', true)`,
           [job.job_id, job.title]
         );
         careersId = careersInsert.insertId;
@@ -523,7 +645,7 @@ router.get(
           jp.id AS jobPostingId
         FROM job_applications ja
         LEFT JOIN careers ca ON ca.id = ja.job_id
-        LEFT JOIN job_postings jp ON jp.job_id = ca.job_id COLLATE utf8mb4_unicode_ci
+        LEFT JOIN job_postings jp ON jp.job_id = ca.job_id
         WHERE ja.candidate_id = ?
         ORDER BY ja.submitted_at DESC`,
         [req.candidate.id]
@@ -549,7 +671,7 @@ router.get("/applications/check/:jobId", requireCandidate, async (req, res) => {
       `SELECT ja.id
        FROM job_applications ja
        INNER JOIN careers ca ON ca.id = ja.job_id
-       INNER JOIN job_postings jp ON jp.job_id = ca.job_id COLLATE utf8mb4_unicode_ci
+       INNER JOIN job_postings jp ON jp.job_id = ca.job_id
        WHERE ja.candidate_id = ? AND jp.id = ?
        LIMIT 1`,
       [req.candidate.id, jobId]
@@ -611,61 +733,131 @@ router.get(
   }
 );
 
+function resolveApplicantName(row) {
+  if (!row) return null;
+
+  const combined = String(row.applicantName ?? row.applicantname ?? "").trim();
+  if (combined) return combined;
+
+  const first = String(row.firstName ?? row.firstname ?? row.first_name ?? "").trim();
+  const last = String(row.lastName ?? row.lastname ?? row.last_name ?? "").trim();
+  const full = [first, last].filter(Boolean).join(" ").trim();
+  if (full) return full;
+
+  const email = String(row.applicantEmail ?? row.applicantemail ?? row.email ?? "").trim();
+  if (email) {
+    const local = email.split("@")[0]?.replace(/[._-]+/g, " ").trim();
+    if (local) return local;
+  }
+
+  return null;
+}
+
+function mapAdminApplicationRow(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    applicationNumber: row.applicationNumber ?? row.applicationnumber ?? "",
+    jobId: row.jobId ?? row.jobid,
+    userId: row.userId ?? row.userid,
+    coverLetter: row.coverLetter ?? row.coverletter ?? row.cover_letter ?? "",
+    resumePath: row.resumePath ?? row.resumepath ?? row.resume_url ?? "",
+    status: normalizeAdminApplicationStatus(row.status),
+    adminRemarks: row.adminRemarks ?? row.adminremarks ?? row.admin_notes ?? null,
+    internalRemarks: row.internalRemarks ?? row.internalremarks ?? null,
+    createdAt: row.createdAt ?? row.createdat ?? row.submitted_at ?? null,
+    applicantName: resolveApplicantName(row) ?? "Unknown",
+    applicantEmail: row.applicantEmail ?? row.applicantemail ?? row.email ?? "",
+    jobTitle: row.jobTitle ?? row.jobtitle ?? "",
+    jobIdCode: row.jobIdCode ?? row.jobidcode ?? "",
+    categoryId: row.categoryId ?? row.categoryid ?? 0,
+    categoryName: row.categoryName ?? row.categoryname ?? "",
+    screeningFullName: row.screeningFullName ?? row.screeningfullname ?? null,
+    screeningDob: row.screeningDob ?? row.screeningdob ?? null,
+    screeningGender: row.screeningGender ?? row.screeninggender ?? null,
+    screeningCurrentLocation: row.screeningCurrentLocation ?? row.screeningcurrentlocation ?? null,
+    screeningWillingWorkFromOffice: row.screeningWillingWorkFromOffice ?? row.screeningwillingworkfromoffice ?? null,
+    screeningWillingProvideExpDocs: row.screeningWillingProvideExpDocs ?? row.screeningwillingprovideexpdocs ?? null,
+    screeningWillingBankStatements: row.screeningWillingBankStatements ?? row.screeningwillingbankstatements ?? null,
+    screeningYearsExperience: row.screeningYearsExperience ?? row.screeningyearsexperience ?? null,
+    screeningEducationalQualification: row.screeningEducationalQualification ?? row.screeningeducationalqualification ?? null,
+    screeningCurrentCtc: row.screeningCurrentCtc ?? row.screeningcurrentctc ?? null,
+    screeningExpectedCtc: row.screeningExpectedCtc ?? row.screeningexpectedctc ?? null,
+    screeningWillingBackgroundCheck: row.screeningWillingBackgroundCheck ?? row.screeningwillingbackgroundcheck ?? null,
+    screeningNoticePeriod: row.screeningNoticePeriod ?? row.screeningnoticeperiod ?? null,
+    screeningWillingJoinDate: row.screeningWillingJoinDate ?? row.screeningwillingjoindate ?? null,
+    screeningUpdatedAt: row.screeningUpdatedAt ?? row.screeningupdatedat ?? null,
+    interviewAvailableFrom: row.interviewAvailableFrom ?? row.interviewavailablefrom ?? null,
+    interviewAvailableTo: row.interviewAvailableTo ?? row.interviewavailableto ?? null,
+    interviewPreferredTime: row.interviewPreferredTime ?? row.interviewpreferredtime ?? null,
+    interviewUpdatedAt: row.interviewUpdatedAt ?? row.interviewupdatedat ?? null,
+    scheduledInterviewDate: row.scheduledInterviewDate ?? row.scheduledinterviewdate ?? null,
+    scheduledInterviewTime: row.scheduledInterviewTime ?? row.scheduledinterviewtime ?? null,
+    interviewConfirmed: row.interviewConfirmed ?? row.interviewconfirmed ?? null,
+    interviewConfirmedAt: row.interviewConfirmedAt ?? row.interviewconfirmedat ?? null,
+    meetingLink: row.meetingLink ?? row.meetinglink ?? null,
+    currentRound: row.currentRound ?? row.currentround ?? null,
+  };
+}
+
 /* ─── ADMIN APPLICATIONS ────────────────────── */
 router.get(
   "/admin/applications",
   requireAdmin,
   async (req, res) => {
     try {
+      await ensureApplicationSchema();
       // Return enriched applications with candidate name/email, job title/code,
       // and category — exactly the shape CareersAdmin.tsx expects.
       const [rows] = await db.execute(`
         SELECT
           ja.id,
-          ja.application_number  AS applicationNumber,
-          ja.job_id              AS jobId,
-          ja.candidate_id        AS userId,
-          ja.cover_letter        AS coverLetter,
-          ja.resume_url          AS resumePath,
+          ja.application_number  AS "applicationNumber",
+          ja.job_id              AS "jobId",
+          ja.candidate_id        AS "userId",
+          ja.cover_letter        AS "coverLetter",
+          ja.resume_url          AS "resumePath",
           ja.status,
-          ja.admin_notes         AS adminRemarks,
-          NULL                   AS internalRemarks,
-          ja.submitted_at        AS createdAt,
-          CONCAT(c.first_name, ' ', c.last_name) AS applicantName,
-          c.email                AS applicantEmail,
-          COALESCE(jp.title, ca.title, '') AS jobTitle,
-          COALESCE(jp.job_id, ca.job_id, '') AS jobIdCode,
-          COALESCE(jp.category_id, 0) AS categoryId,
-          COALESCE(jc.name, '') AS categoryName,
-          NULL AS screeningFullName,
-          NULL AS screeningDob,
-          NULL AS screeningGender,
-          NULL AS screeningCurrentLocation,
-          NULL AS screeningWillingWorkFromOffice,
-          NULL AS screeningWillingProvideExpDocs,
-          NULL AS screeningWillingBankStatements,
-          NULL AS screeningYearsExperience,
-          NULL AS screeningEducationalQualification,
-          NULL AS screeningCurrentCtc,
-          NULL AS screeningExpectedCtc,
-          NULL AS screeningWillingBackgroundCheck,
-          NULL AS screeningNoticePeriod,
-          NULL AS screeningWillingJoinDate,
-          NULL AS screeningUpdatedAt,
-          NULL AS interviewAvailableFrom,
-          NULL AS interviewAvailableTo,
-          NULL AS interviewPreferredTime,
-          NULL AS interviewUpdatedAt,
-          latest_slot.date AS scheduledInterviewDate,
-          latest_slot.time_slot AS scheduledInterviewTime,
-          NULL AS interviewConfirmed,
-          NULL AS interviewConfirmedAt,
-          latest_slot.meeting_link AS meetingLink,
-          NULL AS currentRound
+          ja.admin_notes         AS "adminRemarks",
+          ja.internal_remarks    AS "internalRemarks",
+          ja.submitted_at        AS "createdAt",
+          c.first_name           AS "firstName",
+          c.last_name            AS "lastName",
+          NULLIF(TRIM(CONCAT(COALESCE(c.first_name, ''), ' ', COALESCE(c.last_name, ''))), '') AS "applicantName",
+          c.email                AS "applicantEmail",
+          COALESCE(jp.title, ca.title, '') AS "jobTitle",
+          COALESCE(jp.job_id, ca.job_id, '') AS "jobIdCode",
+          COALESCE(jp.category_id, 0) AS "categoryId",
+          COALESCE(jc.name, '') AS "categoryName",
+          NULL AS "screeningFullName",
+          NULL AS "screeningDob",
+          NULL AS "screeningGender",
+          NULL AS "screeningCurrentLocation",
+          NULL AS "screeningWillingWorkFromOffice",
+          NULL AS "screeningWillingProvideExpDocs",
+          NULL AS "screeningWillingBankStatements",
+          NULL AS "screeningYearsExperience",
+          NULL AS "screeningEducationalQualification",
+          NULL AS "screeningCurrentCtc",
+          NULL AS "screeningExpectedCtc",
+          NULL AS "screeningWillingBackgroundCheck",
+          NULL AS "screeningNoticePeriod",
+          NULL AS "screeningWillingJoinDate",
+          NULL AS "screeningUpdatedAt",
+          NULL AS "interviewAvailableFrom",
+          NULL AS "interviewAvailableTo",
+          NULL AS "interviewPreferredTime",
+          NULL AS "interviewUpdatedAt",
+          latest_slot.date AS "scheduledInterviewDate",
+          latest_slot.time_slot AS "scheduledInterviewTime",
+          NULL AS "interviewConfirmed",
+          NULL AS "interviewConfirmedAt",
+          latest_slot.meeting_link AS "meetingLink",
+          NULL AS "currentRound"
         FROM job_applications ja
         LEFT JOIN candidates c ON c.id = ja.candidate_id
         LEFT JOIN careers ca ON ca.id = ja.job_id
-        LEFT JOIN job_postings jp ON jp.job_id = ca.job_id COLLATE utf8mb4_unicode_ci
+        LEFT JOIN job_postings jp ON jp.job_id = ca.job_id
         LEFT JOIN job_categories jc ON jc.id = jp.category_id
         LEFT JOIN (
           SELECT s1.application_id, s1.date, s1.time_slot, s1.meeting_link
@@ -679,12 +871,7 @@ router.get(
         ORDER BY ja.submitted_at DESC
       `);
 
-      const normalised = rows.map((row) => ({
-        ...row,
-        status: normalizeAdminApplicationStatus(row.status),
-      }));
-
-      res.json(normalised);
+      res.json(rows.map(mapAdminApplicationRow).filter(Boolean));
     } catch (err) {
       console.error("GET /admin/applications:", err);
       res.status(500).json({ error: err.message });
@@ -729,24 +916,44 @@ router.put(
       );
 
       // Send email notification to candidate if status was updated
+      let emailResult = null;
       if (status !== undefined) {
         try {
-          await sendApplicationStatusEmailNotification({
+          emailResult = await sendApplicationStatusEmailNotification({
             applicationId: id,
             status,
             remarks: adminNotes || "",
           });
+          if (!emailResult?.sent) {
+            console.error(
+              `[Email] Status saved but notification not sent — applicationId=${id} reason=${emailResult?.reason || "unknown"}`
+            );
+            broadcastToAdmin("email_failed", {
+              context: "application_status_update",
+              applicationId: id,
+              status,
+              reason: emailResult?.reason || "Failed to send email",
+            });
+          }
         } catch (emailErr) {
-          console.error("[Email] Error sending status update email:", emailErr);
+          console.error(
+            `[Email] Error sending status update email — applicationId=${id}:`,
+            emailErr
+          );
           broadcastToAdmin("email_failed", {
             context: "application_status_update",
             applicationId: id,
+            status,
             reason: emailErr?.message || "Failed to send email",
           });
         }
       }
 
-      res.json({ ok: true });
+      res.json({
+        ok: true,
+        emailSent: emailResult?.sent ?? false,
+        emailError: emailResult?.sent ? null : (emailResult?.reason ?? null),
+      });
     } catch (err) {
       console.error("PUT /admin/applications/:id:", err);
       res.status(500).json({ error: err.message });
@@ -760,8 +967,9 @@ router.patch(
   requireAdmin,
   async (req, res) => {
     try {
+      await ensureApplicationSchema();
       const id = Number(req.params.id);
-      const { status, internalRemarks } = req.body || {};
+      const { status, remarks, internalRemarks } = req.body || {};
       
       if (!Number.isFinite(id)) {
         return res.status(400).json({ error: "Invalid application ID" });
@@ -774,9 +982,13 @@ router.patch(
         updates.push("status = ?");
         params.push(status);
       }
-      if (internalRemarks !== undefined) {
+      if (remarks !== undefined) {
         updates.push("admin_notes = ?");
-        params.push(internalRemarks);
+        params.push(remarks ?? "");
+      }
+      if (internalRemarks !== undefined) {
+        updates.push("internal_remarks = ?");
+        params.push(internalRemarks ?? "");
       }
       
       if (updates.length > 0) {
@@ -795,22 +1007,49 @@ router.patch(
           emailResult = await sendApplicationStatusEmailNotification({
             applicationId: id,
             status,
-            remarks: internalRemarks || "",
+            remarks: remarks || "",
           });
+
+          if (!emailResult?.sent) {
+            const reason = emailResult?.reason || "Unknown email failure";
+            console.error(
+              `[Email] Status saved but notification not sent — applicationId=${id} status="${status}" reason=${reason}`
+            );
+            broadcastToAdmin("email_failed", {
+              context: "application_status_update",
+              applicationId: id,
+              status,
+              reason,
+            });
+          }
         } catch (emailErr) {
-          console.error("[Email] Error sending status update email:", emailErr);
+          console.error(
+            `[Email] Error sending status update email — applicationId=${id} status="${status}":`,
+            emailErr
+          );
           broadcastToAdmin("email_failed", {
             context: "application_status_update",
             applicationId: id,
+            status,
             reason: emailErr?.message || "Failed to send email",
           });
+          emailResult = {
+            sent: false,
+            reason: emailErr?.message || "Failed to send email",
+          };
         }
+      } else {
+        console.warn(
+          `[Email] Status PATCH skipped email — applicationId=${id} (status not provided in request body)`
+        );
       }
 
       res.json({
         success: true,
         bookingLink: emailResult?.bookingLink ?? null,
         emailType: emailResult?.type ?? null,
+        emailSent: emailResult?.sent ?? false,
+        emailError: emailResult?.sent ? null : (emailResult?.reason ?? null),
       });
     } catch (err) {
       console.error("PATCH /admin/applications/:id/status:", err);
@@ -824,6 +1063,7 @@ router.patch(
   requireAdmin,
   async (req, res) => {
     try {
+      await ensureApplicationSchema();
       const id = Number(req.params.id);
       const { internalRemarks } = req.body || {};
       
@@ -832,7 +1072,7 @@ router.patch(
       }
       if (internalRemarks !== undefined) {
         await db.execute(
-          "UPDATE job_applications SET admin_notes = ?, updated_at = NOW() WHERE id = ?",
+          "UPDATE job_applications SET internal_remarks = ?, updated_at = NOW() WHERE id = ?",
           [internalRemarks, id]
         );
       }
@@ -849,8 +1089,48 @@ router.post(
   requireAdmin,
   async (req, res) => {
     try {
+      const id = Number(req.params.id);
+      const { scheduledDate, scheduledTime } = req.body || {};
+
+      if (!Number.isFinite(id)) {
+        return res.status(400).json({ error: "Invalid application ID" });
+      }
+      if (!scheduledDate || !scheduledTime) {
+        return res.status(400).json({ error: "scheduledDate and scheduledTime are required" });
+      }
+
+      const [apps] = await db.execute(
+        `SELECT id, status FROM job_applications WHERE id = ? LIMIT 1`,
+        [id]
+      );
+      if (!apps.length) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+
+      await db.execute(
+        `INSERT INTO interview_slots
+          (application_id, date, time_slot, duration, interviewer_name, location, meeting_link, status)
+         VALUES (?, ?, ?, 60, '', '', '', 'scheduled')`,
+        [id, scheduledDate, scheduledTime]
+      );
+
+      const appData = await fetchApplicationEmailData(id);
+      if (appData?.candidateEmail) {
+        await sendInterviewInvite(appData.candidateEmail, {
+          firstName: appData.firstName,
+          jobTitle: appData.jobTitle,
+          applicationNumber: appData.applicationNumber,
+          date: scheduledDate,
+          timeSlot: scheduledTime,
+          duration: 60,
+          interviewerName: "WINGS Recruitment Team",
+          meetingLink: "",
+        });
+      }
+
       res.json({ success: true });
     } catch (err) {
+      console.error("POST /admin/applications/:id/schedule-interview:", err);
       res.status(500).json({ error: err.message });
     }
   }
@@ -903,8 +1183,45 @@ router.patch(
   requireAdmin,
   async (req, res) => {
     try {
+      const id = Number(req.params.id);
+      const { meetingLink } = req.body || {};
+
+      if (!Number.isFinite(id)) {
+        return res.status(400).json({ error: "Invalid application ID" });
+      }
+      if (!meetingLink || !String(meetingLink).trim()) {
+        return res.status(400).json({ error: "meetingLink is required" });
+      }
+
+      const slot = await fetchLatestInterviewSlot(id);
+      if (!slot) {
+        return res.status(404).json({ error: "No scheduled interview found for this application" });
+      }
+
+      await db.execute(
+        `UPDATE interview_slots SET meeting_link = ? WHERE id = ?`,
+        [String(meetingLink).trim(), slot.id]
+      );
+
+      const appData = await fetchApplicationEmailData(id);
+      if (appData?.candidateEmail) {
+        await sendInterviewBookingConfirmation(appData.candidateEmail, {
+          firstName: appData.firstName,
+          jobTitle: appData.jobTitle,
+          jobIdCode: appData.jobIdCode,
+          round: "Interview Round",
+          date: slot.date,
+          timeSlot: slot.time_slot,
+          duration: slot.duration,
+          interviewerName: slot.interviewer_name || "WINGS Recruitment Team",
+          location: slot.location || "",
+          meetingLink: String(meetingLink).trim(),
+        });
+      }
+
       res.json({ success: true });
     } catch (err) {
+      console.error("PATCH /admin/applications/:id/meeting-link:", err);
       res.status(500).json({ error: err.message });
     }
   }
@@ -915,8 +1232,54 @@ router.post(
   requireAdmin,
   async (req, res) => {
     try {
+      await ensureApplicationSchema();
+      const id = Number(req.params.id);
+      const { message } = req.body || {};
+
+      if (!Number.isFinite(id)) {
+        return res.status(400).json({ error: "Invalid application ID" });
+      }
+
+      const [apps] = await db.execute(
+        `SELECT id, status FROM job_applications WHERE id = ? LIMIT 1`,
+        [id]
+      );
+      if (!apps.length) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+
+      const rescheduleStatus = rescheduleStatusForApplication(apps[0].status);
+      const candidateMessage = message || "We need to reschedule your interview.";
+
+      await db.execute(
+        `UPDATE interview_availability
+         SET is_booked = false, booked_application_id = NULL
+         WHERE booked_application_id = ?`,
+        [id]
+      );
+      await db.execute(`DELETE FROM interview_slots WHERE application_id = ?`, [id]);
+      await clearInterviewOffersForApplication(id);
+
+      await db.execute(
+        `UPDATE job_applications
+         SET status = ?, admin_notes = ?, updated_at = NOW()
+         WHERE id = ?`,
+        [rescheduleStatus, candidateMessage, id]
+      );
+
+      try {
+        await sendApplicationStatusEmailNotification({
+          applicationId: id,
+          status: rescheduleStatus,
+          remarks: candidateMessage,
+        });
+      } catch (emailErr) {
+        console.error("[Email] Reschedule notification failed:", emailErr);
+      }
+
       res.json({ success: true });
     } catch (err) {
+      console.error("POST /admin/applications/:id/request-reschedule:", err);
       res.status(500).json({ error: err.message });
     }
   }

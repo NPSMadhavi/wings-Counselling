@@ -9,8 +9,9 @@ import { Upcoming } from "../components/Section/Upcoming";
 import { Footer } from "../components/Layout/Footer";
 import { CursorGlow } from "../components/Layout/CursorGlow";
 import { LogoIntro } from "../components/ui/LogoIntro";
-import { useState, useEffect } from "react";
+import { useState, useLayoutEffect } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
+import { scrollToContactWithRetry } from "@/lib/scrollToSection";
 
 export default function Home() {
   // Skip intro if arriving via hash link (e.g., /#contact) or when
@@ -37,6 +38,40 @@ export default function Home() {
     } catch (err) { }
   };
 
+  useLayoutEffect(() => {
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+
+    try {
+      if (sessionStorage.getItem("scrollToHero")) {
+        sessionStorage.removeItem("scrollToHero");
+        window.history.replaceState(null, "", "/");
+        window.scrollTo(0, 0);
+        return;
+      }
+
+      if (sessionStorage.getItem("scrollToContact")) {
+        sessionStorage.removeItem("scrollToContact");
+        scrollToContactWithRetry();
+        return;
+      }
+
+      if (window.location.hash) {
+        window.history.replaceState(null, "", "/");
+      }
+      window.scrollTo(0, 0);
+    } catch {
+      window.scrollTo(0, 0);
+    }
+
+    return () => {
+      if ("scrollRestoration" in history) {
+        history.scrollRestoration = "auto";
+      }
+    };
+  }, []);
+
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -47,29 +82,6 @@ export default function Home() {
   return (
     <>
       {showIntro && <LogoIntro onComplete={handleIntroComplete} />}
-
-      {/* Ensure we scroll to any hash target (e.g., #contact) once intro is not shown */}
-      {(!showIntro) && (() => {
-        try {
-          const hash = window.location.hash;
-          if (hash) {
-            const el = document.querySelector(hash);
-            if (el) {
-              // small timeout to let layout settle
-              setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 50);
-            } else {
-              // try again shortly after in case element mounts late
-              setTimeout(() => {
-                const el2 = document.querySelector(hash);
-                if (el2) el2.scrollIntoView({ behavior: 'smooth' });
-              }, 300);
-            }
-          }
-        } catch (err) {
-          // ignore
-        }
-        return null;
-      })()}
 
       <motion.div
         initial={{ opacity: 0 }}

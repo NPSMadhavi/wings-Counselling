@@ -4,6 +4,8 @@ export interface JobPosting {
   title: string;
   department: string;
   location: string;
+  experience?: string;
+  summary: string;
   description: string;
   requirements: string;
   employmentType: string;

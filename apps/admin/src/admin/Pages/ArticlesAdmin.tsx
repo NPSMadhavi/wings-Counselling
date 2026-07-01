@@ -49,15 +49,6 @@ export default function ArticlesAdmin({
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewingArticle, setViewingArticle] = useState<Article | null>(null);
 
-  // Category options
-  const categoryOptions = [
-    "Anxiety & Stress",
-    "Burnout",
-    "Relationship",
-    "Grief & Loss",
-    "Parenting"
-  ];
-
   async function load() {
     setLoading(true);
     try {
@@ -531,7 +522,7 @@ export default function ArticlesAdmin({
               </div>
 
               {/* Author & Category */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Author *</label>
                   <input
@@ -544,18 +535,13 @@ export default function ArticlesAdmin({
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-                  <select
+                  <input
+                    type="text"
                     value={editForm.category}
                     onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                  >
-                    <option value="">Select a category</option>
-                    {categoryOptions.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter category"
+                  />
                 </div>
               </div>
 

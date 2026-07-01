@@ -207,6 +207,8 @@ export const api = {
       body: JSON.stringify({ ids }),
     }),
 
+  getNotifySubscribers: () => apiFetch("/admin/notify-subscribers"),
+
   uploadFiles: async (files) => {
     const fd = new FormData();
 

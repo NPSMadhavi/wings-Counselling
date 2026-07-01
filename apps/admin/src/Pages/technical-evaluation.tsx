@@ -11,10 +11,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Loader2, AlertTriangle, CheckCircle, XCircle, Clock,
+  Loader2, AlertTriangle, XCircle,
   ChevronLeft, ChevronRight, Brain, ShieldAlert, MonitorX,
   Trophy, BookOpen, Camera, CameraOff, Eye
 } from "lucide-react";
+import { SiteClockIcon, SiteCheckIcon } from "@/components/ui/SiteIcons";
 
 const TOTAL_QUESTIONS = 30;
 const MAX_WARNINGS = 5;
@@ -104,7 +105,7 @@ function TimerChip({ seconds }: { seconds: number }) {
 
   return (
     <div className={`flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm font-bold shadow-lg ${colorClass} ${pulseClass}`}>
-      <Clock className="w-4 h-4 shrink-0" />
+      <SiteClockIcon size={16} color="currentColor" className="shrink-0" />
       <span>{prefix}{label}</span>
     </div>
   );
@@ -1042,7 +1043,7 @@ export default function TechnicalEvaluation() {
                             : "bg-gray-700 border-gray-600 text-gray-400"
                           }`}>{letter}</span>
                           <span className="text-sm leading-relaxed pt-0.5">{text}</span>
-                          {isCorrect && <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5 ml-auto" />}
+                          {isCorrect && <SiteCheckIcon size={16} color="#34d399" className="shrink-0 mt-0.5 ml-auto" />}
                           {isChosen && !isCorrect && <XCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5 ml-auto" />}
                         </div>
                       );
@@ -1400,7 +1401,7 @@ export default function TechnicalEvaluation() {
           <AlertDialogContent className="bg-gray-900 border border-gray-700 text-white max-w-md">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-white text-lg flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-400" /> Ready to submit?
+                <SiteCheckIcon size={20} color="#4ade80" /> Ready to submit?
               </AlertDialogTitle>
               <AlertDialogDescription className="text-gray-400 text-sm space-y-2 pt-1">
                 <span className="block">

@@ -11,19 +11,28 @@ export interface AuthUser {
   phoneVerified?: boolean;
 }
 
+function readCandidateToken(): string | null {
+  return localStorage.getItem("wings_candidate_token");
+}
+
 async function fetchUser(): Promise<AuthUser | null> {
-  const token = localStorage.getItem("wings_candidate_token");
+  const token = readCandidateToken();
+  if (!token) {
+    return null;
+  }
+
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), 5000);
 
   try {
     const response = await fetch(apiUrl("/api/candidate/me"), {
       credentials: "include",
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      headers: { Authorization: `Bearer ${token}` },
       signal: controller.signal,
     });
 
     if (response.status === 401) {
+      localStorage.removeItem("wings_candidate_token");
       return null;
     }
 
@@ -42,10 +51,12 @@ async function fetchUser(): Promise<AuthUser | null> {
 export function useAuth() {
   const queryClient = useQueryClient();
   const candidateAuth = useCandidateAuth();
+  const authToken = candidateAuth.token || readCandidateToken();
 
   const { data: user, isLoading } = useQuery<AuthUser | null>({
-    queryKey: ["/api/candidate/me"],
+    queryKey: ["/api/candidate/me", authToken ?? ""],
     queryFn: fetchUser,
+    enabled: !!authToken,
     retry: false,
     staleTime: 1000 * 60 * 5,
   });

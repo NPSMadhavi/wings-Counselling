@@ -1,4 +1,7 @@
 import * as nodemailer from "nodemailer";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import { db } from "../config/db.js";
 import { buildInterviewBookingLink, getCandidatePortalOrigin } from "./candidatePortalLinks.js";
 import {
@@ -7,6 +10,12 @@ import {
   formatApplicationEmailContent,
   formatVolunteerEmailContent,
 } from "./formSubmissionEmailLog.js";
+import {
+  getActiveSubscribers,
+  wasNotificationSent,
+  recordMailLog,
+  ensureNotifyTables,
+} from "./notifyService.js";
 
 /**
  * Create email transporter — always uses Gmail SMTP with SSL (port 465).
@@ -985,42 +994,23 @@ function resolveInterviewBookingUrl(data) {
 }
 
 /**
- * Send interview slot booking invitation with available slots
+ * Send interview slot booking invitation with a link to the booking page.
+ * Available slots are shown on the booking page, not in the email.
  */
 export async function sendInterviewSlotInvitation(candidateEmail, data) {
   const transporters = getTransporterCandidates();
   if (!transporters.length) {
-    console.log("[Email] SMTP not configured – skipping send");
-    return false;
+    const err = new Error("SMTP not configured (SMTP_USER / SMTP_PASS missing)");
+    console.error(`[Email] ${err.message}`);
+    throw err;
   }
 
-  const { firstName, jobTitle, jobIdCode, round, availableSlots, applicationId } = data;
+  const { firstName, jobTitle, jobIdCode, round, applicationId } = data;
 
   const bookingUrl = resolveInterviewBookingUrl(data);
   console.log(
     `[Email] Interview slot invitation booking URL: ${bookingUrl} (applicationId=${applicationId ?? "missing"})`
   );
-
-  // Build available slots table
-  const slotsHtml = availableSlots && availableSlots.length > 0 ? availableSlots.map((slot, index) => `
-    <tr style="background: ${index % 2 === 0 ? '#ffffff' : '#f9fafb'};">
-      <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; color: #1e293b; font-size: 14px;">
-        📅 ${slot.date}
-      </td>
-      <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; color: #1e293b; font-size: 14px;">
-        ⏰ ${slot.timeSlot}
-      </td>
-      <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 13px;">
-        ${slot.duration || 60} min
-      </td>
-    </tr>
-  `).join('') : `
-    <tr>
-      <td colspan="3" style="padding: 20px; text-align: center; color: #64748b; font-size: 14px;">
-        No slots available at the moment. Please check back later.
-      </td>
-    </tr>
-  `;
 
   const content = `
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
@@ -1045,31 +1035,8 @@ export async function sendInterviewSlotInvitation(candidateEmail, data) {
         <td style="background: #fffbeb; border: 2px solid #fbbf24; border-radius: 12px; padding: 20px 22px;">
           <p style="margin: 0 0 8px 0; color: #92400e; font-weight: 700; font-size: 15px;">⚠️ Action Required</p>
           <p style="margin: 0; color: #78350f; font-size: 14px; line-height: 1.6;">
-            Please select and book one of the available interview slots below. <strong>Only the listed slots are available</strong>, so please choose based on your convenience.
+            Please click the button below to open the interview booking page and select a convenient date and time from the available slots.
           </p>
-        </td>
-      </tr>
-    </table>
-
-    <!-- Available Slots -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
-      <tr>
-        <td style="background: #ffffff; border-radius: 14px; padding: 24px; border: 1px solid #e2e8f0;">
-          <h3 style="margin: 0 0 16px 0; color: #0D4A7A; font-size: 18px; font-weight: 700;">
-            📅 Available Interview Slots
-          </h3>
-          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
-            <thead>
-              <tr style="background: linear-gradient(135deg, #0D4A7A 0%, #1a3a5c 100%);">
-                <th style="padding: 12px 16px; color: #ffffff; font-size: 13px; font-weight: 600; text-align: left;">Date</th>
-                <th style="padding: 12px 16px; color: #ffffff; font-size: 13px; font-weight: 600; text-align: left;">Time</th>
-                <th style="padding: 12px 16px; color: #ffffff; font-size: 13px; font-weight: 600; text-align: left;">Duration</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${slotsHtml}
-            </tbody>
-          </table>
         </td>
       </tr>
     </table>
@@ -1185,8 +1152,11 @@ export async function sendInterviewSlotInvitation(candidateEmail, data) {
     console.log(`[Email] Interview slot invitation sent to: ${candidateEmail}`);
     return true;
   } catch (err) {
-    console.error("[Email] Failed to send interview slot invitation:", err);
-    return false;
+    console.error(
+      `[Email] Failed to send interview slot invitation to ${candidateEmail}:`,
+      err?.message || err
+    );
+    throw err;
   }
 }
 
@@ -1341,9 +1311,426 @@ export async function sendInterviewBookingConfirmation(candidateEmail, data) {
 }
 
 /**
- * Send a notification email to all event subscribers when a new event or article is published.
+ * Send a notification email to subscribers when a new article or event is published.
  * type: "event" | "article"
  */
+function getPublicSiteUrl() {
+  return (
+    process.env.CLIENT_URL ||
+    process.env.SITE_URL ||
+    "http://localhost:5173"
+  ).replace(/\/$/, "");
+}
+
+function buildUnsubscribeLink(token) {
+  return `${getPublicSiteUrl()}/api/notify/unsubscribe/${encodeURIComponent(token)}`;
+}
+
+const NOTIFY_BRAND = {
+  navy: "#1B4585",
+  navyDark: "#0D4A7A",
+  text: "#1F2937",
+  muted: "#64748B",
+  lightBlue: "#DBEAFE",
+  footerNavy: "#1B4585",
+  contactEmail: "info@wingscounselling.org.sg",
+  contactPhone: "+65 6777 3933",
+  contactWebsite: "wingscounselling.org.sg",
+};
+
+const __emailDir = path.dirname(fileURLToPath(import.meta.url));
+const NOTIFY_LOGO_CID = "wings-logo@wings";
+const NOTIFY_LOGO_FILE = path.resolve(
+  __emailDir,
+  "../../../admin/public/assets/wingsLogo.png"
+);
+
+function getNotifyLogoSrc() {
+  return `cid:${NOTIFY_LOGO_CID}`;
+}
+
+function getNotifyLogoAttachments() {
+  if (!fs.existsSync(NOTIFY_LOGO_FILE)) {
+    console.warn(`[Email] Logo not found at ${NOTIFY_LOGO_FILE}`);
+    return [];
+  }
+
+  return [
+    {
+      filename: "wingsLogo.png",
+      path: NOTIFY_LOGO_FILE,
+      cid: NOTIFY_LOGO_CID,
+    },
+  ];
+}
+
+function withNotifyLogoAttachments(mailOptions) {
+  const attachments = getNotifyLogoAttachments();
+  if (!attachments.length) return mailOptions;
+
+  return {
+    ...mailOptions,
+    attachments: [...(mailOptions.attachments || []), ...attachments],
+  };
+}
+
+function buildNotifyListCheckIcon() {
+  return `
+    <table cellpadding="0" cellspacing="0" border="0" role="presentation">
+      <tr>
+        <td width="28" height="28" align="center" valign="middle" style="width:28px;height:28px;border-radius:50%;background:${NOTIFY_BRAND.lightBlue};color:${NOTIFY_BRAND.navy};font-size:14px;font-weight:700;line-height:28px;">
+          ✓
+        </td>
+      </tr>
+    </table>
+  `;
+}
+
+function buildNotifyEmailHeader() {
+  const logoSrc = getNotifyLogoSrc();
+  return `
+    <tr>
+      <td align="center" style="background:#ffffff;padding:28px 32px 24px;border-bottom:1px solid #E8EDF2;text-align:center;">
+        <img src="${logoSrc}" alt="WINGS Counselling Centre" width="220" style="display:block;margin:0 auto;max-width:220px;width:220px;height:auto;border:0;" />
+      </td>
+    </tr>
+  `;
+}
+
+function buildNotifyEmailContactFooter(unsubscribeUrl) {
+  const siteUrl = getPublicSiteUrl();
+  const year = new Date().getFullYear();
+
+  return `
+    <tr>
+      <td style="background:#FFFFFF;padding:32px 32px 28px;">
+        <h3 style="margin:0 0 20px;color:${NOTIFY_BRAND.text};font-size:22px;font-weight:700;line-height:1.3;font-family:'Segoe UI',Arial,sans-serif;">
+          Have Questions? We're here to help.
+        </h3>
+        <table cellpadding="0" cellspacing="0" border="0" role="presentation">
+          <tr>
+            <td style="padding:0 0 12px;color:${NOTIFY_BRAND.navy};font-size:15px;line-height:1.5;font-family:'Segoe UI',Arial,sans-serif;">
+              <span style="display:inline-block;width:22px;">✉</span>
+              <a href="mailto:${NOTIFY_BRAND.contactEmail}" style="color:${NOTIFY_BRAND.navy};text-decoration:none;">${NOTIFY_BRAND.contactEmail}</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 12px;color:${NOTIFY_BRAND.navy};font-size:15px;line-height:1.5;font-family:'Segoe UI',Arial,sans-serif;">
+              <span style="display:inline-block;width:22px;">☎</span>
+              <a href="tel:${NOTIFY_BRAND.contactPhone.replace(/\s/g, "")}" style="color:${NOTIFY_BRAND.navy};text-decoration:none;">${NOTIFY_BRAND.contactPhone}</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0;color:${NOTIFY_BRAND.navy};font-size:15px;line-height:1.5;font-family:'Segoe UI',Arial,sans-serif;">
+              <span style="display:inline-block;width:22px;">🌐</span>
+              <a href="${siteUrl}" style="color:${NOTIFY_BRAND.navy};text-decoration:none;">${NOTIFY_BRAND.contactWebsite}</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="background:${NOTIFY_BRAND.footerNavy};padding:28px 32px 32px;color:#ffffff;font-family:'Segoe UI',Arial,sans-serif;">
+        <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#ffffff;">
+          You're receiving this email because you subscribed to receive updates about WINGS events and programmes.
+        </p>
+        <p style="margin:0 0 24px;font-size:14px;line-height:1.7;color:#ffffff;">
+          If you'd like to change how we stay in touch, you can
+          <a href="${unsubscribeUrl}" style="color:#ffffff;text-decoration:underline;">unsubscribe</a>
+          at any time.
+        </p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-top:1px solid rgba(255,255,255,0.2);">
+          <tr>
+            <td style="padding-top:18px;font-size:13px;line-height:1.6;color:#ffffff;">
+              © ${year} WINGS Counselling Centre. All rights reserved.
+            </td>
+            <td align="right" style="padding-top:18px;font-size:13px;line-height:1.6;color:#ffffff;">
+              <a href="${siteUrl}/about-us" style="color:#ffffff;text-decoration:underline;">Privacy Policy</a>
+              <span style="color:rgba(255,255,255,0.5);padding:0 8px;">|</span>
+              <a href="${siteUrl}/about-us" style="color:#ffffff;text-decoration:underline;">Terms of Use</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  `;
+}
+
+function buildNotifyEmailDocument({ title, bodyRowsHtml, unsubscribeUrl }) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${escapeHtml(title)}</title>
+</head>
+<body style="margin:0;padding:0;background:#EEF2F6;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background:#EEF2F6;padding:24px 12px 32px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="max-width:640px;width:100%;background:#ffffff;">
+          ${buildNotifyEmailHeader()}
+          ${bodyRowsHtml}
+          ${buildNotifyEmailContactFooter(unsubscribeUrl)}
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+function buildSubscribeConfirmationEmail(unsubscribeUrl) {
+  const expectations = [
+    {
+      title: "Upcoming Workshops",
+      description: "Learn new skills and connect with the community.",
+    },
+    {
+      title: "Mental Wellness Talks",
+      description: "Gain practical insights from experienced professionals.",
+    },
+    {
+      title: "Support Groups",
+      description: "Join safe, supportive spaces to share and grow.",
+    },
+    {
+      title: "Parenting & Family Programmes",
+      description: "Resources designed to strengthen family relationships.",
+    },
+    {
+      title: "Community Updates",
+      description: "Stay informed about new initiatives and special events.",
+    },
+  ];
+
+  const listHtml = expectations
+    .map(
+      (item) => `
+        <tr>
+          <td width="36" valign="top" style="padding:0 0 22px;">
+            ${buildNotifyListCheckIcon()}
+          </td>
+          <td valign="top" style="padding:0 0 22px;">
+            <p style="margin:0 0 4px;color:#2D2D2D;font-size:16px;font-weight:700;line-height:1.4;font-family:'Segoe UI',Arial,sans-serif;">
+              ${escapeHtml(item.title)}
+            </p>
+            <p style="margin:0;color:${NOTIFY_BRAND.muted};font-size:14px;line-height:1.6;font-family:'Segoe UI',Arial,sans-serif;">
+              ${escapeHtml(item.description)}
+            </p>
+          </td>
+        </tr>
+      `
+    )
+    .join("");
+
+  const bodyRowsHtml = `
+    <tr>
+      <td style="background:${NOTIFY_BRAND.navy};padding:40px 32px 36px;text-align:center;">
+        <table cellpadding="0" cellspacing="0" border="0" role="presentation" align="center" style="margin:0 auto 20px;">
+          <tr>
+            <td width="56" height="56" align="center" valign="middle" style="width:56px;height:56px;border-radius:50%;background:#ffffff;color:${NOTIFY_BRAND.navy};font-size:30px;font-weight:700;line-height:56px;">
+              ✓
+            </td>
+          </tr>
+        </table>
+        <h1 style="margin:0 0 12px;color:#ffffff;font-size:34px;font-weight:700;line-height:1.2;font-family:'Segoe UI',Arial,sans-serif;">
+          You're Subscribed!
+        </h1>
+        <p style="margin:0 0 16px;color:#ffffff;font-size:18px;line-height:1.5;font-family:'Segoe UI',Arial,sans-serif;">
+          Thank you for joining the WINGS community.
+        </p>
+        <p style="margin:0;color:rgba(255,255,255,0.92);font-size:15px;line-height:1.7;font-family:'Segoe UI',Arial,sans-serif;">
+          You'll be among the first to know about upcoming workshops, mental wellness talks, support groups, and community events designed to promote emotional well-being.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="background:#F9F9F9;padding:36px 32px 28px;">
+        <h2 style="margin:0 0 8px;color:#2D2D2D;font-size:24px;font-weight:500;line-height:1.3;font-family:'Outfit','Segoe UI',Arial,sans-serif;">
+          Here's what you can expect
+        </h2>
+        <div style="width:72px;height:4px;background:${NOTIFY_BRAND.navy};margin:0 0 28px;border-radius:999px;"></div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+          ${listHtml}
+        </table>
+      </td>
+    </tr>
+  `;
+
+  return {
+    subject: "You're Subscribed! - WINGS Counselling Centre",
+    html: buildNotifyEmailDocument({
+      title: "You're Subscribed!",
+      bodyRowsHtml,
+      unsubscribeUrl,
+    }),
+  };
+}
+
+export async function sendSubscribeConfirmationEmail({
+  email,
+  type,
+  subscriber = null,
+  subscribers = null,
+}) {
+  const transporters = getTransporterCandidates();
+  if (!transporters.length || !isValidEmail(email)) {
+    console.log("[Email] SMTP not configured or invalid email – skipping subscribe confirmation");
+    return false;
+  }
+
+  await ensureNotifyTables();
+
+  let unsubscribeUrl = null;
+  if (type === "all" && subscribers) {
+    unsubscribeUrl = buildUnsubscribeLink(
+      subscribers.article?.unsubscribe_token ||
+        subscribers.event?.unsubscribe_token ||
+        ""
+    );
+  } else if (subscriber?.unsubscribe_token) {
+    unsubscribeUrl = buildUnsubscribeLink(subscriber.unsubscribe_token);
+  }
+
+  if (!unsubscribeUrl || unsubscribeUrl.endsWith("/")) {
+    console.warn("[Email] Missing unsubscribe token for subscribe confirmation");
+    unsubscribeUrl = getPublicSiteUrl();
+  }
+
+  const mail = buildSubscribeConfirmationEmail(unsubscribeUrl);
+
+  try {
+    await sendWithFallback(withNotifyLogoAttachments({
+      from: FROM,
+      to: email,
+      subject: mail.subject,
+      html: mail.html,
+    }));
+    console.log(`[Email] Subscribe confirmation sent to: ${email} (${type})`);
+    return true;
+  } catch (err) {
+    console.error("[Email] Failed to send subscribe confirmation:", err?.message);
+    return false;
+  }
+}
+
+function formatEventDateTime(eventDate) {
+  if (!eventDate) return { date: "TBA", time: "TBA" };
+  const d = new Date(eventDate);
+  if (Number.isNaN(d.getTime())) return { date: "TBA", time: "TBA" };
+  return {
+    date: d.toLocaleDateString("en-SG", { day: "numeric", month: "long", year: "numeric" }),
+    time: d.toLocaleTimeString("en-SG", { hour: "2-digit", minute: "2-digit" }),
+  };
+}
+
+function buildArticleNotificationEmail(article, unsubscribeUrl) {
+  const siteUrl = getPublicSiteUrl();
+  const title = article.title || "New Article";
+  const excerpt = (article.excerpt || article.content || "").replace(/<[^>]+>/g, " ").trim().slice(0, 280);
+  const articleUrl = article.slug
+    ? `${siteUrl}/articles/${article.slug}`
+    : `${siteUrl}/articles`;
+
+  const bodyRowsHtml = `
+    <tr>
+      <td style="background:#ffffff;padding:36px 32px 28px;font-family:'Segoe UI',Arial,sans-serif;">
+        <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0 0 20px;">Hello,</p>
+        <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0 0 24px;">
+          We have just published a new article on WINGS Counselling Centre.
+        </p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background:#F4F8FC;border:1px solid #D4E4ED;border-radius:12px;margin:0 0 28px;">
+          <tr>
+            <td style="padding:24px;">
+              <p style="margin:0 0 8px;color:${NOTIFY_BRAND.muted};font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Title</p>
+              <h2 style="color:${NOTIFY_BRAND.navyDark};font-size:24px;margin:0 0 16px;line-height:1.3;font-weight:700;">${escapeHtml(title)}</h2>
+              ${excerpt ? `<p style="margin:0 0 8px;color:${NOTIFY_BRAND.muted};font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Short Description</p>
+              <p style="color:#475569;font-size:15px;line-height:1.7;margin:0;">${escapeHtml(excerpt)}${excerpt.length >= 280 ? "…" : ""}</p>` : ""}
+            </td>
+          </tr>
+        </table>
+        <table cellpadding="0" cellspacing="0" border="0" role="presentation" align="center" style="margin:0 auto 28px;">
+          <tr>
+            <td align="center" style="border-radius:999px;background:${NOTIFY_BRAND.navy};">
+              <a href="${articleUrl}" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-weight:600;font-size:16px;font-family:'Segoe UI',Arial,sans-serif;">Read Article</a>
+            </td>
+          </tr>
+        </table>
+        <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0 0 12px;">We hope this article supports your wellbeing.</p>
+        <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0 0 12px;">Thank you for being part of the WINGS community.</p>
+        <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0;">Regards,<br><strong>WINGS Counselling Centre</strong></p>
+      </td>
+    </tr>
+  `;
+
+  return {
+    subject: "New Article Published - WINGS Counselling Centre",
+    html: buildNotifyEmailDocument({
+      title: "New Article Published",
+      bodyRowsHtml,
+      unsubscribeUrl,
+    }),
+  };
+}
+
+function buildEventNotificationEmail(event, unsubscribeUrl) {
+  const siteUrl = getPublicSiteUrl();
+  const title = event.title || "New Event";
+  const description = (event.description || "").replace(/<[^>]+>/g, " ").trim().slice(0, 320);
+  const { date, time } = formatEventDateTime(event.eventDate);
+  const location = event.location || "TBA";
+  const eventUrl = event.registrationUrl || `${siteUrl}/events`;
+
+  const bodyRowsHtml = `
+    <tr>
+      <td style="background:#ffffff;padding:36px 32px 28px;font-family:'Segoe UI',Arial,sans-serif;">
+        <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0 0 20px;">Hello,</p>
+        <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0 0 24px;">
+          We are excited to announce a new event.
+        </p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background:#F4F8FC;border:1px solid #D4E4ED;border-radius:12px;margin:0 0 28px;">
+          <tr>
+            <td style="padding:24px;">
+              <h2 style="color:${NOTIFY_BRAND.navyDark};font-size:24px;margin:0 0 16px;line-height:1.3;font-weight:700;">${escapeHtml(title)}</h2>
+              <p style="margin:0 0 8px;color:#475569;font-size:15px;line-height:1.6;"><strong>Date:</strong> ${escapeHtml(date)}</p>
+              <p style="margin:0 0 8px;color:#475569;font-size:15px;line-height:1.6;"><strong>Time:</strong> ${escapeHtml(time)}</p>
+              <p style="margin:0 0 8px;color:#475569;font-size:15px;line-height:1.6;"><strong>Location:</strong> ${escapeHtml(location)}</p>
+              ${description ? `<p style="margin:16px 0 0;color:#475569;font-size:15px;line-height:1.7;">${escapeHtml(description)}${description.length >= 320 ? "…" : ""}</p>` : ""}
+            </td>
+          </tr>
+        </table>
+        <table cellpadding="0" cellspacing="0" border="0" role="presentation" align="center" style="margin:0 auto 28px;">
+          <tr>
+            <td align="center" style="border-radius:999px;background:${NOTIFY_BRAND.navy};">
+              <a href="${eventUrl}" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-weight:600;font-size:16px;font-family:'Segoe UI',Arial,sans-serif;">View Event</a>
+            </td>
+          </tr>
+        </table>
+        <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0 0 12px;">We look forward to seeing you.</p>
+        <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0;">Regards,<br><strong>WINGS Counselling Centre</strong></p>
+      </td>
+    </tr>
+  `;
+
+  return {
+    subject: "New Event Announced - WINGS Counselling Centre",
+    html: buildNotifyEmailDocument({
+      title: "New Event Announced",
+      bodyRowsHtml,
+      unsubscribeUrl,
+    }),
+  };
+}
+
+export async function sendArticleNotification(article) {
+  return sendSubscriberNotification("article", article);
+}
+
+export async function sendEventNotification(event) {
+  return sendSubscriberNotification("event", event);
+}
+
 export async function sendSubscriberNotification(type, item) {
   const transporters = getTransporterCandidates();
   if (!transporters.length) {
@@ -1351,64 +1738,68 @@ export async function sendSubscriberNotification(type, item) {
     return;
   }
 
-  // Fetch all subscribers
-  let subscribers = [];
-  try {
-    const [rows] = await db.execute("SELECT email FROM event_subscribers ORDER BY id ASC");
-    subscribers = rows.map((r) => r.email).filter(isValidEmail);
-  } catch (err) {
-    console.warn("[Email] Could not fetch subscribers:", err?.message);
+  await ensureNotifyTables();
+
+  const normalizedType = type === "event" ? "event" : "article";
+  const referenceId = Number(item?.id);
+  if (!Number.isFinite(referenceId)) {
+    console.warn("[Email] Invalid reference id for subscriber notification");
     return;
   }
 
+  const subscribers = await getActiveSubscribers(normalizedType);
   if (!subscribers.length) {
-    console.log("[Email] No subscribers to notify.");
+    console.log(`[Email] No active ${normalizedType} subscribers to notify.`);
     return;
   }
 
-  const isEvent = type === "event";
-  const title = item.title || (isEvent ? "New Event" : "New Article");
-  const siteUrl = process.env.SITE_URL || "http://localhost:5173";
-  const link = isEvent ? `${siteUrl}/events` : `${siteUrl}/articles`;
-
-  const subject = isEvent
-    ? `🗓️ New Event: ${title} | WINGS Counselling Centre`
-    : `📰 New Article: ${title} | WINGS Counselling Centre`;
-
-  const content = `
-    <h2 style="color: #1a3a5c; font-size: 24px; margin: 0 0 16px 0;">
-      ${isEvent ? "🗓️ New Event Published!" : "📰 New Article Published!"}
-    </h2>
-    <p style="color: #4a6a7f; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      We have just published a new ${isEvent ? "event" : "article"} that we think you'll love:
-    </p>
-    <div style="background: linear-gradient(135deg, #e8f4fc 0%, #f0f7fa 100%); border-radius: 16px; padding: 25px; margin: 20px 0; border: 1px solid #d4e4ed;">
-      <h3 style="color: #0D4A7A; font-size: 20px; margin: 0 0 12px 0;">${escapeHtml(title)}</h3>
-      ${item.description || item.excerpt ? `<p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">${escapeHtml((item.description || item.excerpt || "").slice(0, 200))}${(item.description || item.excerpt || "").length > 200 ? "…" : ""}</p>` : ""}
-      <a href="${link}" style="display: inline-block; background: #1B4585; color: #ffffff; padding: 12px 28px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 15px;">
-        ${isEvent ? "View Event →" : "Read Article →"}
-      </a>
-    </div>
-    <p style="color: #64748b; font-size: 13px; margin: 20px 0 0 0;">
-      You're receiving this because you subscribed to WINGS updates.<br>
-      To unsubscribe, reply to this email with "Unsubscribe".
-    </p>
-  `;
-
-  const html = getMentalHealthEmailWrapper(content, isEvent ? "New Event" : "New Article");
-
-  // Send to each subscriber individually (BCC would expose all emails)
   let sent = 0;
-  for (const email of subscribers) {
+  for (const subscriber of subscribers) {
+    const email = subscriber.email;
+    if (!isValidEmail(email)) continue;
+
     try {
-      await sendWithFallback({ from: FROM, to: email, subject, html });
+      const alreadySent = await wasNotificationSent(email, normalizedType, referenceId);
+      if (alreadySent) continue;
+
+      const unsubscribeUrl = buildUnsubscribeLink(subscriber.unsubscribe_token);
+      const mail = normalizedType === "event"
+        ? buildEventNotificationEmail(item, unsubscribeUrl)
+        : buildArticleNotificationEmail(item, unsubscribeUrl);
+
+      await sendWithFallback(withNotifyLogoAttachments({
+        from: FROM,
+        to: email,
+        subject: mail.subject,
+        html: mail.html,
+      }));
+
+      await recordMailLog({
+        subscriberId: subscriber.id,
+        email,
+        type: normalizedType,
+        referenceId,
+        status: "sent",
+      });
+
       sent++;
     } catch (err) {
       console.error(`[Email] Failed to notify subscriber ${email}:`, err?.message);
+      try {
+        await recordMailLog({
+          subscriberId: subscriber.id,
+          email,
+          type: normalizedType,
+          referenceId,
+          status: "failed",
+        });
+      } catch {
+        // ignore log failure
+      }
     }
   }
 
-  console.log(`[Email] Subscriber notifications sent: ${sent}/${subscribers.length}`);
+  console.log(`[Email] ${normalizedType} notifications sent: ${sent}/${subscribers.length}`);
 }
 
 /**
@@ -1417,8 +1808,9 @@ export async function sendSubscriberNotification(type, item) {
 export async function sendApplicationStatusUpdateEmail(candidateEmail, data) {
   const transporters = getTransporterCandidates();
   if (!transporters.length) {
-    console.log("[Email] SMTP not configured – skipping send");
-    return false;
+    const err = new Error("SMTP not configured (SMTP_USER / SMTP_PASS missing)");
+    console.error(`[Email] ${err.message}`);
+    throw err;
   }
 
   const { firstName, jobTitle, jobIdCode, status, remarks } = data;
@@ -1543,10 +1935,15 @@ export async function sendApplicationStatusUpdateEmail(candidateEmail, data) {
 
   try {
     await sendWithFallback(mailOptions);
-    console.log(`[Email] Application status update sent to: ${candidateEmail}`);
+    console.log(
+      `[Email] Application status update sent to: ${candidateEmail} (status="${status}" job="${jobTitle}")`
+    );
     return true;
   } catch (err) {
-    console.error("[Email] Failed to send application status update:", err);
-    return false;
+    console.error(
+      `[Email] Failed to send application status update to ${candidateEmail}:`,
+      err?.message || err
+    );
+    throw err;
   }
 }

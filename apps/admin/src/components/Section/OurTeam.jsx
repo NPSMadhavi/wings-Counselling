@@ -55,7 +55,7 @@ export function OurTeam() {
         let scrollDirection = 1;
         let lastTimestamp = 0;
 
-        const SCROLL_SPEED = 120;
+        const SCROLL_SPEED = 30;
 
         const autoScroll = (currentTime) => {
             if (!scrollContainer) return;
@@ -123,41 +123,15 @@ export function OurTeam() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.8 }}
-            className="relative w-full flex flex-col items-center pt-[40px] pb-[40px] overflow-hidden bg-[#F7F6F3]"
+            className="relative w-full flex flex-col items-center pt-[40px] pb-[40px] overflow-hidden bg-[#F9F9F9]"
         >
             {/* Background Motion */}
             <motion.div
-                className="absolute inset-0 pointer-events-none opacity-40"
+                className="absolute inset-0 pointer-events-none opacity-20"
                 style={{ y: bgY }}
             />
 
             <div className="w-full flex flex-col items-center">
-
-                {/* Badge */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    style={{
-                        display: "inline-flex",
-                        padding: "8px 20px",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: "9999px",
-                        background: "linear-gradient(90deg,#0D4A7A,#42A0BD)",
-                        color: "#FFF",
-                        fontFamily: "'Plus Jakarta Sans', sans-serif",
-                        fontSize: "20px",
-                        fontWeight: "600",
-                        letterSpacing: "1.2px",
-                        marginBottom: "24px",
-                        minWidth: "180px",
-                        height: "42px"
-                    }}
-                >
-                    Our team
-                </motion.div>
 
                 {/* Heading */}
                 <motion.h2
@@ -166,12 +140,13 @@ export function OurTeam() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.1 }}
                     className="
-                        text-[28px]
+                        text-[clamp(26px,4.8vw,28px)]
                         md:text-[35px]
                         text-center
                         mb-4
                         font-['Outfit']
                         font-medium
+                        leading-[1.2]
                     "
                     style={{ color: "#0D4A7A" }}
                 >
@@ -184,10 +159,9 @@ export function OurTeam() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.2 }}
-                    className="text-lg md:text-[20px] text-center mb-10 md:mb-[60px] text-black font-['DM_Sans'] font-normal leading-[1.6] max-w-[760px] px-5"
+                    className="text-black text-center font-['DM_Sans'] text-[16px] md:text-[20px] font-normal leading-[1.5] line-clamp-2 md:line-clamp-none max-w-[700px] mb-10 md:mb-[60px] px-5"
                 >
-                    Our team of accredited professionals are not just highly trained —
-                    they are genuinely compassionate people who care about your wellbeing.
+                    Our team of accredited professionals is not only highly trained but also genuinely compassionate, caring deeply about your wellbeing.
                 </motion.p>
 
                 {/* TEAM CARDS */}
@@ -207,12 +181,8 @@ export function OurTeam() {
                             const isHovered = hoveredId === member.id;
 
                             return (
-                                <motion.div
+                                <div
                                     key={member.id}
-                                    initial={{ opacity: 0, y: 30 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.5, delay: index * 0.05 }}
                                     className="w-[280px] md:w-[350px] flex-shrink-0 flex flex-col"
                                     onMouseEnter={() => setHoveredId(member.id)}
                                     onMouseLeave={() => setHoveredId(null)}
@@ -224,19 +194,18 @@ export function OurTeam() {
                                             backgroundImage: `url('${member.photoUrl}')`
                                         }}
                                     >
-                                           {/* GRADIENT OVERLAY */}
-    <div
-        className="absolute inset-0 z-10"
-        style={{
-            background:
-                "linear-gradient(180deg, rgba(0, 0, 0, 0.00) 48.5%, rgba(0, 0, 0, 0.80) 100%)"
-        }}
-    />
+                                        {/* GRADIENT OVERLAY */}
+                                        <div
+                                            className="absolute inset-0 z-10"
+                                            style={{
+                                                background:
+                                                    "linear-gradient(180deg, rgba(0, 0, 0, 0.00) 48.5%, rgba(0, 0, 0, 0.80) 100%)"
+                                            }}
+                                        />
 
                                         {/* DEFAULT CONTENT */}
                                         {!isHovered && (
                                             <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5 z-10">
-
                                                 {/* NAME */}
                                                 <h3 className="text-white text-xl md:text-[23px] font-medium mb-3 font-['DM_Sans']">
                                                     {member.name}
@@ -246,7 +215,6 @@ export function OurTeam() {
                                                 <p className="text-white text-sm md:text-[15px] font-medium font-['DM_Sans']">
                                                     {member.role}
                                                 </p>
-
                                             </div>
                                         )}
 
@@ -279,17 +247,16 @@ export function OurTeam() {
                                                     </motion.p>
 
                                                     {/* ROLE */}
-                                                 {/* ROLE */}
-<motion.div
-    initial={{ y: 20, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-    transition={{ delay: 0.15 }}
-    className="mb-4 flex justify-start"
->
-    <span className="inline-flex items-center px-0 py-1 text-white text-xs md:text-sm font-medium">
-        {member.role}
-    </span>
-</motion.div>
+                                                    <motion.div
+                                                        initial={{ y: 20, opacity: 0 }}
+                                                        animate={{ y: 0, opacity: 1 }}
+                                                        transition={{ delay: 0.15 }}
+                                                        className="mb-4 flex justify-start"
+                                                    >
+                                                        <span className="inline-flex items-center px-0 py-1 text-white text-xs md:text-sm font-medium">
+                                                            {member.role}
+                                                        </span>
+                                                    </motion.div>
 
                                                     {/* EXPERTISE */}
                                                     <motion.div
@@ -320,7 +287,7 @@ export function OurTeam() {
                                             )}
                                         </AnimatePresence>
                                     </div>
-                                </motion.div>
+                                </div>
                             );
                         })}
                     </div>

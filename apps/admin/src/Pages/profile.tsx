@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Loader2, User, Mail, Phone, CheckCircle, AlertCircle, Send, ClipboardList } from "lucide-react";
+import { Loader2, User, Mail, Phone, AlertCircle, Send, ClipboardList } from "lucide-react";
+import { SiteCheckIcon } from "@/components/ui/SiteIcons";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -152,7 +153,7 @@ export default function Profile() {
               <CardContent className="p-6 space-y-6">
                 <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-[#FAFAF5]">
                   {user.phoneVerified ? (
-                    <CheckCircle className="w-6 h-6 text-green-600 shrink-0" />
+                    <SiteCheckIcon size={24} color="#16a34a" className="shrink-0" />
                   ) : (
                     <AlertCircle className="w-6 h-6 text-yellow-500 shrink-0" />
                   )}

@@ -60,7 +60,7 @@ export default function Apply() {
 
   const { data: job, isLoading: jobQueryLoading } = useQuery<JobPosting>({
     queryKey: [`/api/jobs/by-job-id/${slug}`],
-    enabled: !!slug && !location.startsWith("/apply/"),
+    enabled: !!slug && slug !== "undefined" && !location.startsWith("/apply/"),
   });
 
   const numericJobId = job?.id;
@@ -206,7 +206,7 @@ const submitMutation = useMutation({
 
   if (!isAuthenticated || applyFlowStage !== "form") {
     return (
-      <div className="min-h-screen bg-[#F7F6F3]">
+      <div className="min-h-screen bg-[#F9F9F9]">
         <Navbar />
         <section className="pt-32 pb-20 dark-gradient-bg">
         <main className="flex-grow flex items-center justify-center px-4 py-16">
@@ -231,7 +231,7 @@ const submitMutation = useMutation({
             </h2>
 
             <p className="text-[15px] sm:text-[16px] text-white/90 font-normal leading-relaxed font-['DM_Sans'] max-w-[370px]">
-              You need to create an account or sign in to apply for job positions at Wings
+              You need to create an account or sign in to apply for job positions at WINGS.
             </p>
 
             <button
@@ -240,7 +240,7 @@ const submitMutation = useMutation({
                 sessionStorage.setItem("returnTo", location);
                 navigate("/career/register");
               }}
-              className="w-full sm:w-auto min-w-[200px] max-w-[244px] h-[46px] bg-white hover:bg-white/95 text-[#0D4A7A] text-[16px] font-medium rounded-full flex items-center justify-center transition-all duration-150 active:scale-[0.98] shadow-[0_4px_12px_rgba(0,0,0,0.08)] font-['DM_Sans']"
+              className="w-full sm:w-auto min-w-[200px] px-6 max-w-[244px] h-[46px] bg-white hover:bg-white/95 text-[#0D4A7A] text-[16px] font-medium rounded-full flex items-center justify-center transition-all duration-150 active:scale-[0.98] shadow-[0_4px_12px_rgba(0,0,0,0.08)] font-['DM_Sans']"
             >
               Sign in / Create account
             </button>
@@ -275,7 +275,7 @@ const submitMutation = useMutation({
 
   if (applicationCheck?.hasApplied && !applicationSubmitted) {
     return (
-      <div className="min-h-screen bg-[#F7F6F3]">
+      <div className="min-h-screen bg-[#F9F9F9]">
         <Navbar />
         <section className="pt-32 pb-20">
           <div className="container mx-auto px-6">
@@ -307,7 +307,7 @@ const submitMutation = useMutation({
 
   if (applicationSubmitted) {
     return (
-      <div className="min-h-screen bg-[#F7F6F3]">
+      <div className="min-h-screen bg-[#F9F9F9]">
         <Navbar />
         <section className="pt-40 pb-20 dark-gradient-bg">
           <div className="container mx-auto px-6">
@@ -416,7 +416,7 @@ const submitMutation = useMutation({
     <div className="min-h-screen bg-gray-950">
       <Navbar />
 
-      {/* <section className="pt-32 pb-12 bg-[#F7F6F3] relative">
+      {/* <section className="pt-32 pb-12 bg-[#F9F9F9] relative">
         <div className="container mx-auto px-6">
           <div className="flex items-center gap-4 mb-8">
             <Link href={`/career/${job?.jobId || slug}`}>
@@ -461,7 +461,7 @@ const submitMutation = useMutation({
         </div>
       </section> */}
 
-      <div className="min-h-screen bg-[#F7F6F3] font-['DM_Sans']">
+      <div className="min-h-screen bg-[#F9F9F9] font-['DM_Sans']">
       {/* <Navbar /> */}
       {/* ═══ HERO SECTION ═══ */}
       <section
@@ -522,7 +522,7 @@ const submitMutation = useMutation({
       </section>
 
       {/* ═══ BREADCRUMBS ═══ */}
-      <div className="bg-[#F7F6F3] py-5">
+      <div className="bg-[#F9F9F9] py-5">
         <div className="container mx-auto px-6 md:px-12 lg:px-[150px] flex items-center gap-2 text-[16px] font-['DM_Sans']">
           <Link href="/">
             <span className="text-gray-800 hover:text-[#1B4585] transition-colors cursor-pointer underline">
@@ -611,7 +611,7 @@ const submitMutation = useMutation({
       </section>
 
       {/* ═══ APPLICATION FORM ═══ */}
-      <section id="application-form-section" className="py-10 md:py-14 bg-[#F7F6F3]">
+      <section id="application-form-section" className="py-10 md:py-14 bg-[#F9F9F9]">
         <div className="container mx-auto px-6 md:px-12 lg:px-[150px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

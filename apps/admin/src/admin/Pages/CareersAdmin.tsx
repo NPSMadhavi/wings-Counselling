@@ -88,6 +88,7 @@ interface InterviewBooking {
 
 interface EnrichedApplication {
   id: number;
+  applicationNumber?: string | null;
   jobId: number;
   userId: number;
   coverLetter: string;
@@ -1646,7 +1647,22 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
 
   const { data: applications, isLoading: applicationsLoading } = useQuery<EnrichedApplication[]>({
     queryKey: ['applications'],
-    queryFn: () => apiFetch<EnrichedApplication[]>('/api/admin/applications'),
+    queryFn: async () => {
+      const rows = await apiFetch<EnrichedApplication[]>('/api/admin/applications');
+      return rows.map((row) => {
+        const r = row as EnrichedApplication & Record<string, unknown>;
+        return {
+          ...row,
+          coverLetter: row.coverLetter || String(r.coverletter || ''),
+          resumePath: row.resumePath || String(r.resumepath || ''),
+          createdAt: row.createdAt || String(r.createdat || ''),
+          applicantName: row.applicantName || String(r.applicantname || 'Unknown'),
+          applicantEmail: row.applicantEmail || String(r.applicantemail || ''),
+          jobTitle: row.jobTitle || String(r.jobtitle || ''),
+          jobIdCode: row.jobIdCode || String(r.jobidcode || ''),
+        };
+      });
+    },
     enabled: activeTab === 'applications',
     refetchInterval: 5000,
   });
@@ -2062,10 +2078,10 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
     return applications.filter(app => {
       const matchesStatus = statuses.includes(normalizeStatus(app.status));
       const matchesSearch = appSearchQuery === '' ||
-        app.applicantName.toLowerCase().includes(appSearchQuery.toLowerCase()) ||
-        app.applicantEmail.toLowerCase().includes(appSearchQuery.toLowerCase()) ||
-        app.jobTitle.toLowerCase().includes(appSearchQuery.toLowerCase()) ||
-        app.jobIdCode.toLowerCase().includes(appSearchQuery.toLowerCase());
+        (app.applicantName || '').toLowerCase().includes(appSearchQuery.toLowerCase()) ||
+        (app.applicantEmail || '').toLowerCase().includes(appSearchQuery.toLowerCase()) ||
+        (app.jobTitle || '').toLowerCase().includes(appSearchQuery.toLowerCase()) ||
+        (app.jobIdCode || '').toLowerCase().includes(appSearchQuery.toLowerCase());
       return matchesStatus && matchesSearch;
     });
   };
@@ -2647,40 +2663,36 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
   // =============================================================================
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <section className="pt-4 sm:pt-6 pb-6 bg-gray-50 relative">
-            <div className="container mx-auto px-4 sm:px-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleBack}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
-                title="Go Back"
+    <div className="min-h-screen w-full bg-gray-50">
+      <div className="w-full px-6 py-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 pb-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleBack}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
+              title="Go Back"
+            >
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
               >
-                                <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <path
-                      d="M15 18L9 12L15 6"
-                      stroke="#0D4A7A"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-              </button>
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-[#0D4A7A] mb-1">Job Management</h1>
-
-              </div>
+                <path
+                  d="M15 18L9 12L15 6"
+                  stroke="#0D4A7A"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-[#0D4A7A] mb-1">Job Management</h1>
             </div>
           </div>
-      </section>
+        </div>
 
-      <section className="py-6 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6">
         <div className="flex gap-2 mb-8 overflow-x-auto pb-1 scrollbar-hide">
   {[
     { id: 'jobs', icon: <Briefcase className="w-4 h-4" />, label: 'Job Postings', testId: 'tab-jobs', onClick: () => setActiveTab('jobs') },
@@ -3148,7 +3160,7 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
                               <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
                                 <div className="flex-1 space-y-4">
                                   <div className="text-sm text-gray-500">
-                                    Applied: {new Date(app.createdAt).toLocaleDateString()}
+                                    Applied: {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'N/A'}
                                   </div>
 
                                   {app.coverLetter && (
@@ -3686,7 +3698,6 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </section>
     </div>
   );
 }

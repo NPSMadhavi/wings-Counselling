@@ -219,7 +219,7 @@ export default function CareersRegister() {
   return (
     <div className="min-h-screen bg-[#FAFAF5] overflow-x-hidden font-sans">
       <Navbar />
-      <div className="min-h-screen bg-[#F7F6F3] font-['DM_Sans']">
+      <div className="min-h-screen bg-[#F9F9F9] font-['DM_Sans']">
         {/* ═══════════════════════════════════════════
             MAIN CONTENT
         ═══════════════════════════════════════════ */}
@@ -231,7 +231,7 @@ export default function CareersRegister() {
             transition={{ duration: 0.6 }}
             className="text-[28px] sm:text-[34px] md:text-[40px] font-semibold text-[#0D4A7A] font-['Outfit'] text-center leading-tight"
           >
-            Welcome to Wings Counselling Center
+            Welcome to WINGS Counselling Centre
           </motion.h1>
 
           <motion.p
@@ -534,7 +534,7 @@ export default function CareersRegister() {
         {/* ═══════════════════════════════════════════
             FOOTER
         ═══════════════════════════════════════════ */}
-        <Footer />
+
       </div>
 
       <Footer />

@@ -1,64 +1,70 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { navigate } from "wouter/use-browser-location";
-
 /* ─── Service Data ─────────────────────────────────────────── */
 const services = [
   {
     id: 1,
-    title: "Personal therapy",
+    title: "Personal therapy (for counsellors)",
     description:
-      "One-on-one sessions tailored to your unique needs, using evidence-based approaches like CBT, EMDR, and mindfulness.",
-    image: "/assets/aboutImage1.jpg",
+      "WINGS Counselling Centre has been a popular destination for internships since...",
+    image: "/assets/personaltherpayservice.png",
   },
   {
     id: 2,
     title: "Supervision",
     description:
-      "Interactive sessions focusing on stress management, communication skills, and building resilience for all age groups.",
-    image: "/assets/supervisonImage.png",
+      "While you are pursuing your studies to become a professional counsellor, it is...",
+    image: "/assets/supervisionservicesection.png",
+    href: "/Clinicalsupervision",
   },
   {
     id: 3,
-    title: "Family support & Counseling",
+    title: "Family support & Counselling program",
     description:
-      "Support for families navigating challenges such as conflict resolution, parenting strategies, and improving family dynamics.",
-    image: "/assets/FamilySupport.png",
+      "Family Support & Counselling Program (FSCP) is an integrated counselling programme...",
+    image: "/assets/familysupportservice.png",
+    href: "/Familysupport",
   },
   {
     id: 4,
-    title: "Couples counselling",
+    title: "Individual therapy",
     description:
-      "One-on-one support for adults, youth, and children (2.5–65 years). Covering anxiety, grief, depression, life transitions, and more.",
+      "The friendly counsellors at WINGS Counselling Centre provide assistance to...",
     image: "/assets/couplesImage.png",
+    href: "/SubService",
   },
   {
     id: 5,
-    title: "Youth counselling",
+    title: "Marital & Couple therapy",
     description:
-      "Specialised support for adolescents navigating the pressures of school, identity, relationships, and mental health challenges.",
+      "Couples today face a myriad of stressors – juggling work, home, children, and trying to...",
     image: "/assets/aboutImage2.jpg",
+    href: "/Marital",
   },
   {
     id: 6,
-    title: "Grief & Loss support",
+    title: "Family & Parenting",
     description:
-      "Compassionate guidance to help individuals process loss and find a path toward healing and acceptance.",
+      "Parenting brings unique pressures—from managing behaviour and school...",
     image: "/assets/aboutImage3.jpg",
+    href: "/FamilyParenting",
   },
   {
     id: 7,
-    title: "Trauma & PTSD therapy",
+    title: "Youth",
     description:
-      "Evidence-based trauma therapy using EMDR, somatic approaches, and narrative techniques to help you heal from past wounds.",
+      "The children and youth of today face many challenges that range from self-esteem to...",
     image: "/assets/howituseImage.jpg",
+    href: "/Youth",
   },
   {
     id: 8,
-    title: "Child & Play therapy",
+    title: "Pre-school children",
     description:
-      "Creative, child-friendly therapeutic approaches for children aged 2.5–12 years to express and process their emotions.",
-    image: "/assets/FamilySupport.png",
+      "Younger children aged between 2.5 and 7 years not only display developmental...",
+    image: "/assets/counselling4.jpg",
+    href: "/Pre-school",
   },
 ];
 
@@ -83,24 +89,6 @@ function ArrowIcon({ direction = "right" }) {
   );
 }
 
-/* ─── Animations ───────────────────────────────────────────── */
-const cardVariants = {
-  hidden: {
-    opacity: 0,
-    y: 60,
-    scale: 0.95,
-  },
-  visible: (custom) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.6,
-      delay: custom * 0.12,
-    },
-  }),
-};
-
 /* ─── Main Component ───────────────────────────────────────── */
 export function Services() {
   const scrollRef = useRef(null);
@@ -111,6 +99,7 @@ export function Services() {
 
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -151,6 +140,15 @@ export function Services() {
     setCanScrollRight(
       el.scrollLeft < el.scrollWidth - el.clientWidth - 5
     );
+
+    if (cardsPerView === 1) {
+      const cardWidth = el.children[0]?.offsetWidth || 0;
+      const gap = 20;
+      const index = cardWidth
+        ? Math.round(el.scrollLeft / (cardWidth + gap))
+        : 0;
+      setActiveIndex(Math.min(Math.max(index, 0), services.length - 1));
+    }
   };
 
   useEffect(() => {
@@ -205,6 +203,23 @@ export function Services() {
     setTimeout(updateArrows, 300);
   };
 
+  const scrollToIndex = (index) => {
+    const container = scrollRef.current;
+
+    if (!container) return;
+
+    const cardWidth = container.children[0]?.offsetWidth || 0;
+    const gap = 20;
+
+    container.scrollTo({
+      left: index * (cardWidth + gap),
+      behavior: "smooth",
+    });
+
+    setActiveIndex(index);
+    setTimeout(updateArrows, 300);
+  };
+
   /* Card Width */
   const getCardWidth = () => {
     const totalGap = 20 * (cardsPerView - 1);
@@ -223,7 +238,6 @@ export function Services() {
         bg-[#D9E1E8]
         pt-[40px]
         pb-[60px]
-
       "
     >
       {/* Background Motion */}
@@ -238,33 +252,6 @@ export function Services() {
 
         {/* Header */}
         <div className="relative flex flex-col items-center mb-10">
-
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            style={{
-              display: "inline-flex",
-              padding: "8px 20px",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: "9999px",
-              background: "linear-gradient(90deg,#0D4A7A,#42A0BD)",
-              color: "#FFF",
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontSize: "20px",
-              fontWeight: "600",
-              letterSpacing: "1.2px",
-              marginBottom: "24px",
-              minWidth: "180px",
-              height: "42px"
-            }}
-          >
-            What we offer
-          </motion.div>
-
           {/* Heading */}
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -272,16 +259,17 @@ export function Services() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="
-              text-[28px]
+              text-[clamp(26px,4.8vw,28px)]
               md:text-[35px]
               text-center
               mb-4
               font-['Outfit']
               font-medium
+              leading-[1.2]
               "
             style={{ color: "#0D4A7A" }}
           >
-            Our services
+            What WINGS Counselling Centre offers
           </motion.h2>
 
           {/* Subheading */}
@@ -293,15 +281,17 @@ export function Services() {
               text-black
               text-center
               font-['DM_Sans']
-              text-[15px]
+              text-[16px]
               md:text-[20px]
               font-normal
               max-w-[700px]
+              leading-[1.5]
+              line-clamp-2
+              md:line-clamp-none
             "
           >
             Comprehensive counselling support for every stage of life
           </motion.p>
-
         </div>
 
         {/* Cards Row with side arrows */}
@@ -328,20 +318,15 @@ export function Services() {
             <ArrowIcon direction="left" />
           </button>
 
-          {/* Scrollable Cards */}
+          {/* Scrollable Cards - Animation Removed */}
           <div
             ref={scrollRef}
             onScroll={updateArrows}
             className="flex items-stretch gap-5 overflow-x-auto scroll-smooth no-scrollbar flex-1"
           >
             {services.map((service, index) => (
-              <motion.div
+              <div
                 key={service.id}
-                custom={index}
-                variants={cardVariants}
-                initial="hidden"
-                animate={isVisible ? "visible" : "hidden"}
-                viewport={{ once: true, amount: 0.2 }}
                 style={{
                   width: getCardWidth(),
                   minWidth: getCardWidth(),
@@ -349,7 +334,7 @@ export function Services() {
                 className="flex-shrink-0 flex flex-col"
               >
                 <ServiceCard service={service} />
-              </motion.div>
+              </div>
             ))}
           </div>
 
@@ -375,6 +360,23 @@ export function Services() {
           </button>
 
         </div>
+
+        {/* Mobile carousel dots */}
+        <div className="flex md:hidden justify-center items-center gap-2 mt-6">
+          {services.map((service, index) => (
+            <button
+              key={service.id}
+              type="button"
+              aria-label={`Go to ${service.title}`}
+              onClick={() => scrollToIndex(index)}
+              className={`rounded-full transition-all duration-300 ${
+                activeIndex === index
+                  ? "w-2.5 h-2.5 bg-[#1B4585]"
+                  : "w-2 h-2 bg-[#B0BAC4]"
+              }`}
+            />
+          ))}
+        </div>
         </div>
       </div>
     </motion.section>
@@ -386,13 +388,17 @@ function ServiceCard({ service }) {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <motion.div
+    <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      animate={{
-        boxShadow: hovered
-          ? "0 20px 40px rgba(0,0,0,0.15)"
-          : "0 2px 8px rgba(0,0,0,0.08)",
+      onClick={() => navigate(service.href)}
+      role="link"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          navigate(service.href);
+        }
       }}
       className="
         w-full
@@ -405,7 +411,8 @@ function ServiceCard({ service }) {
         transition-all
         duration-300
         cursor-pointer
-        
+        hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)]
+        shadow-[0_2px_8px_rgba(0,0,0,0.08)]
       "
     >
       {/* Image */}
@@ -428,7 +435,8 @@ function ServiceCard({ service }) {
           className="
             text-white
             font-['Outfit']
-            text-[22px]
+            text-[24px]
+            md:text-[22px]
             font-medium
             max-w-[260px]
           "
@@ -445,47 +453,49 @@ function ServiceCard({ service }) {
           className="
             text-black
             font-['DM_Sans']
-            text-[15px]
+            text-[16px]
+            md:text-[15px]
             leading-[1.6]
-            line-clamp-3
-            min-h-[4.8rem]
+            line-clamp-2
+            min-h-[3.4rem]
             flex-1
           "
         >
           {service.description}
         </p>
 
-     {/* Learn More */}
-<div className="flex items-center gap-2 mt-auto pt-4 cursor-pointer shrink-0">
-  <span
-  onClick={() => navigate("/SubService")}
-    className="
-      text-[#1E3A8A]
-      font-['DM_Sans']
-      text-[15px]
-      font-medium
-      flex items-center gap-1
-    "
-  >
-    Read more
+        {/* Learn More */}
+        <div className="flex items-center gap-2 mt-auto pt-4 cursor-pointer shrink-0">
+          <span
+            onClick={() => navigate(service.href)}
+            className="
+              text-[#1E3A8A]
+              font-['DM_Sans']
+              text-[16px]
+              md:text-[15px]
+              font-medium
+              flex items-center gap-1
+            "
+          >
+            Read more
 
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-    >
-      <path
-        d="M9 18L15 12L9 6"
-        stroke="currentColor"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  </span>
-</div>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path
+                d="M9 18L15 12L9 6"
+                stroke="currentColor"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

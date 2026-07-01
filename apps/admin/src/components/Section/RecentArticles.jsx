@@ -30,11 +30,7 @@ function ArticleCard({ article, index }) {
     const plainContent = (article.content || "").replace(/<[^>]+>/g, "");
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: index * 0.1 }}
+        <div
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onClick={() => navigate("/GroundingTechniques")}
@@ -152,9 +148,7 @@ function ArticleCard({ article, index }) {
 
                 {/* Bottom Arrow */}
                 <div className="mt-auto flex justify-end">
-                    <motion.div
-                        animate={{ x: isHovered ? 5 : 0 }}
-                        transition={{ duration: 0.3 }}
+                    <div
                         className="flex items-center justify-center"
                     >
                         <div
@@ -181,10 +175,10 @@ function ArticleCard({ article, index }) {
                                 />
                             </svg>
                         </div>
-                    </motion.div>
+                    </div>
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 }
 
@@ -289,15 +283,11 @@ export function RecentArticles() {
 
                 {/* Header */}
                 <div className="text-center mb-10">
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
+                    <h2
                         className="
                             font-['Outfit']
                             font-medium
-                            text-[28px]
-                            sm:text-[32px]
+                            text-[clamp(26px,4.8vw,28px)]
                             md:text-[35px]
                             leading-[1.2]
                             mb-4
@@ -306,26 +296,24 @@ export function RecentArticles() {
                         "
                     >
                         Our recent articles
-                    </motion.h2>
+                    </h2>
 
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1 }}
+                    <p
                         className="
-                            font-['DM_Sans']
-                            font-medium
-                            text-[16px]
-                            sm:text-[18px]
-                            md:text-[20px]
-                            leading-[1.4]
                             text-black
                             text-center
+                            font-['DM_Sans']
+                            text-[16px]
+                            md:text-[20px]
+                            font-normal
+                            leading-[1.5]
+                            line-clamp-2
+                            md:line-clamp-none
+                            max-w-[700px]
                         "
                     >
                         Stay informed with our latest insights
-                    </motion.p>
+                    </p>
                 </div>
 
                 {/* Articles Grid */}
@@ -361,11 +349,8 @@ export function RecentArticles() {
 
                 {/* View All Button */}
                 <motion.button
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => navigate("/articles")}
                     className="
                         group

@@ -18,7 +18,13 @@ import applicationsRouter from "./routes/applications.js";
 import emailRecipientsRouter from "./routes/emailRecipients.js";
 import formSubmissionEmailsRouter from "./routes/formSubmissionEmails.js";
 import candidatesRouter from "./routes/candidates.js";
+import notifyRouter, { ensureNotifyTables } from "./routes/notify.js";
+import eventSubscribersRouter from "./routes/eventSubcriber.js";
 import { db } from "./config/db.js";
+import {
+  isDuplicateColumnError,
+  isDuplicateTableError,
+} from "./config/pg-helpers.js";
 import { requireAdmin } from "./middlewares/auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -125,6 +131,8 @@ app.use("/api", applicationsRouter);
 app.use("/api", candidatesRouter);
 app.use("/api", emailRecipientsRouter);
 app.use("/api", formSubmissionEmailsRouter);
+app.use("/api", notifyRouter);
+app.use("/api", eventSubscribersRouter);
 app.use("/api/appointments", appointmentRouter);
 app.use("/api/volunteers", volunteersRouter);
 app.use("/api/counselling-types", counsellingTypesRouter);
@@ -159,11 +167,11 @@ const DEFAULT_INTERVIEW_SLOT_KEYS = new Set(
 async function ensureInterviewCalendarTables() {
   const ensureColumn = async (tableName, columnName, definition) => {
     const [rows] = await db.execute(
-      `SELECT COLUMN_NAME
-       FROM INFORMATION_SCHEMA.COLUMNS
-       WHERE TABLE_SCHEMA = DATABASE()
-         AND TABLE_NAME = ?
-         AND COLUMN_NAME = ?`,
+      `SELECT column_name
+       FROM information_schema.columns
+       WHERE table_schema = current_schema()
+         AND table_name = ?
+         AND column_name = ?`,
       [tableName, columnName]
     );
 
@@ -174,86 +182,86 @@ async function ensureInterviewCalendarTables() {
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS interview_dates (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       date VARCHAR(20) NOT NULL UNIQUE,
-      is_active TINYINT(1) NOT NULL DEFAULT 1,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      is_active BOOLEAN NOT NULL DEFAULT true,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS interview_slot_settings (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       round_number INT NOT NULL,
       time_slot VARCHAR(30) NOT NULL,
-      is_active TINYINT(1) NOT NULL DEFAULT 1,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      UNIQUE KEY uq_round_time_slot (round_number, time_slot)
+      is_active BOOLEAN NOT NULL DEFAULT true,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT uq_round_time_slot UNIQUE (round_number, time_slot)
     )
   `);
 
   const [slotColumns] = await db.execute(
-    `SELECT COLUMN_NAME
-     FROM INFORMATION_SCHEMA.COLUMNS
-     WHERE TABLE_SCHEMA = DATABASE()
-       AND TABLE_NAME = 'interview_slot_settings'`
+    `SELECT column_name
+     FROM information_schema.columns
+     WHERE table_schema = current_schema()
+       AND table_name = 'interview_slot_settings'`
   );
-  const slotColumnNames = new Set(slotColumns.map((row) => row.COLUMN_NAME));
+  const slotColumnNames = new Set(slotColumns.map((row) => row.column_name));
 
-  if (slotColumnNames.has('round') && !slotColumnNames.has('round_number')) {
+  if (slotColumnNames.has("round") && !slotColumnNames.has("round_number")) {
     await db.execute(
       `ALTER TABLE interview_slot_settings
-       CHANGE COLUMN round round_number INT NOT NULL`
+       RENAME COLUMN round TO round_number`
     );
   }
 
   await ensureColumn(
     "interview_slot_settings",
     "created_at",
-    "created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
   );
   await ensureColumn(
     "interview_slot_settings",
     "updated_at",
-    "updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+    "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
   );
 
   const [slotIndexes] = await db.execute(
-    `SELECT INDEX_NAME
-     FROM INFORMATION_SCHEMA.STATISTICS
-     WHERE TABLE_SCHEMA = DATABASE()
-       AND TABLE_NAME = 'interview_slot_settings'
-       AND NON_UNIQUE = 0
-       AND INDEX_NAME = 'uq_round_time_slot'`
+    `SELECT constraint_name
+     FROM information_schema.table_constraints
+     WHERE table_schema = current_schema()
+       AND table_name = 'interview_slot_settings'
+       AND constraint_type = 'UNIQUE'
+       AND constraint_name = 'uq_round_time_slot'`
   );
   if (!slotIndexes.length) {
     await db.execute(
       `ALTER TABLE interview_slot_settings
-       ADD UNIQUE KEY uq_round_time_slot (round_number, time_slot)`
+       ADD CONSTRAINT uq_round_time_slot UNIQUE (round_number, time_slot)`
     );
   }
 
   const [dateColumns] = await db.execute(
-    `SELECT COLUMN_NAME
-     FROM INFORMATION_SCHEMA.COLUMNS
-     WHERE TABLE_SCHEMA = DATABASE()
-       AND TABLE_NAME = 'interview_dates'`
+    `SELECT column_name
+     FROM information_schema.columns
+     WHERE table_schema = current_schema()
+       AND table_name = 'interview_dates'`
   );
-  const dateColumnNames = new Set(dateColumns.map((row) => row.COLUMN_NAME));
+  const dateColumnNames = new Set(dateColumns.map((row) => row.column_name));
 
   if (!dateColumnNames.has("created_at")) {
     await db.execute(
       `ALTER TABLE interview_dates
-       ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`
+       ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`
     );
   }
 
   if (!dateColumnNames.has("updated_at")) {
     await db.execute(
       `ALTER TABLE interview_dates
-       ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`
+       ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`
     );
   }
 
@@ -261,8 +269,10 @@ async function ensureInterviewCalendarTables() {
     await db.execute(
       `INSERT INTO interview_slot_settings (round_number, time_slot, is_active)
        VALUES (?, ?, ?)
-       ON DUPLICATE KEY UPDATE is_active = VALUES(is_active), updated_at = CURRENT_TIMESTAMP`,
-      [slot.round, slot.timeSlot, slot.isActive ? 1 : 0]
+       ON CONFLICT (round_number, time_slot) DO UPDATE SET
+         is_active = EXCLUDED.is_active,
+         updated_at = CURRENT_TIMESTAMP`,
+      [slot.round, slot.timeSlot, slot.isActive]
     );
   }
 }
@@ -321,7 +331,7 @@ async function ensureInterviewAvailabilityTable() {
   try {
     await db.execute(`
       CREATE TABLE IF NOT EXISTS interview_availability (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         date VARCHAR(20) NOT NULL,
         time_slot VARCHAR(30) NOT NULL,
         duration INT NOT NULL DEFAULT 45,
@@ -329,30 +339,23 @@ async function ensureInterviewAvailabilityTable() {
         location TEXT NOT NULL DEFAULT '',
         meeting_link TEXT NOT NULL DEFAULT '',
         notes TEXT NOT NULL DEFAULT '',
-        is_booked TINYINT(1) NOT NULL DEFAULT 0,
+        is_booked BOOLEAN NOT NULL DEFAULT false,
         booked_application_id INT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
   } catch (err) {
-    if (err?.errno !== 1050) console.error("[DB] interview_availability table:", err?.message);
+    if (!isDuplicateTableError(err)) console.error("[DB] interview_availability table:", err?.message);
   }
-}
-
-try {
-  await ensureInterviewCalendarTables();
-  await ensureInterviewAvailabilityTable();
-} catch (err) {
-  console.error("[DB] interview calendar bootstrap:", err?.message);
 }
 
 app.get("/api/admin/interview-availability", requireAdmin, async (_req, res) => {
   try {
     const [rows] = await db.execute(
-      `SELECT id, date, time_slot AS timeSlot, duration,
-              interviewer_name AS interviewerName,
-              location, meeting_link AS meetingLink, notes, is_booked AS isBooked,
-              booked_application_id AS bookedApplicationId
+      `SELECT id, date, time_slot AS "timeSlot", duration,
+              interviewer_name AS "interviewerName",
+              location, meeting_link AS "meetingLink", notes, is_booked AS "isBooked",
+              booked_application_id AS "bookedApplicationId"
        FROM interview_availability ORDER BY date ASC, time_slot ASC`
     );
     res.json(rows);
@@ -430,14 +433,14 @@ app.get("/api/admin/interview-custom-requests", requireAdmin, async (_req, res) 
   try {
     await db.execute(`
       CREATE TABLE IF NOT EXISTS interview_custom_requests (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         application_id INT,
         candidate_id INT,
         preferred_date VARCHAR(20) NOT NULL,
         preferred_time_slot VARCHAR(30) NOT NULL,
         notes TEXT NOT NULL DEFAULT '',
         status VARCHAR(30) NOT NULL DEFAULT 'pending',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `).catch(() => {});
     const [rows] = await db.execute(
@@ -461,9 +464,9 @@ app.get("/api/admin/interview-custom-requests", requireAdmin, async (_req, res) 
 // Ensure is_blocked column exists
 (async () => {
   try {
-    await db.execute("ALTER TABLE candidates ADD COLUMN is_blocked TINYINT(1) NOT NULL DEFAULT 0");
+    await db.execute("ALTER TABLE candidates ADD COLUMN is_blocked BOOLEAN NOT NULL DEFAULT false");
   } catch (err) {
-    if (err?.errno !== 1060) console.error("[DB] is_blocked column:", err?.message);
+    if (!isDuplicateColumnError(err)) console.error("[DB] is_blocked column:", err?.message);
   }
 })();
 
@@ -525,7 +528,7 @@ app.patch("/api/admin/users/:id/block", requireAdmin, async (req, res) => {
   try {
     const id = Number(req.params.id);
     const { isBlocked } = req.body ?? {};
-    await db.execute("UPDATE candidates SET is_blocked = ? WHERE id = ?", [isBlocked ? 1 : 0, id]);
+    await db.execute("UPDATE candidates SET is_blocked = ? WHERE id = ?", [Boolean(isBlocked), id]);
     res.json({ success: true });
   } catch (err) {
     console.error("/admin/users/:id/block:", err);
@@ -566,10 +569,10 @@ app.delete("/api/admin/users/:id", requireAdmin, async (req, res) => {
       const placeholders = applicationIds.map(() => "?").join(", ");
 
       await connection.execute(
-        `DELETE aa
-         FROM application_answers aa
-         INNER JOIN application_questions aq ON aq.id = aa.question_id
-         WHERE aq.application_id IN (${placeholders})`,
+        `DELETE FROM application_answers aa
+         USING application_questions aq
+         WHERE aq.id = aa.question_id
+           AND aq.application_id IN (${placeholders})`,
         applicationIds
       );
 
@@ -632,25 +635,25 @@ app.get("/api/admin/interview-bookings", requireAdmin, async (_req, res) => {
     const [rows] = await db.execute(
       `SELECT ia.id,
               ia.date,
-              ia.time_slot AS timeSlot,
+              ia.time_slot AS "timeSlot",
               ia.duration,
-              ia.interviewer_name AS interviewerName,
+              ia.interviewer_name AS "interviewerName",
               ia.location,
-              ia.meeting_link AS meetingLink,
+              ia.meeting_link AS "meetingLink",
               ia.notes,
-              ia.booked_application_id AS bookedApplicationId,
-              ia.created_at AS createdAt,
-              ja.application_number AS applicationNumber,
-              CONCAT(c.first_name, ' ', c.last_name) AS candidateName,
-              c.email AS candidateEmail,
-              jp.title AS jobTitle,
-              jp.job_id AS jobIdCode
+              ia.booked_application_id AS "bookedApplicationId",
+              ia.created_at AS "createdAt",
+              ja.application_number AS "applicationNumber",
+              CONCAT(c.first_name, ' ', c.last_name) AS "candidateName",
+              c.email AS "candidateEmail",
+              jp.title AS "jobTitle",
+              jp.job_id AS "jobIdCode"
        FROM interview_availability ia
        LEFT JOIN job_applications ja ON ja.id = ia.booked_application_id
        LEFT JOIN candidates c ON c.id = ja.candidate_id
        LEFT JOIN careers ca ON ca.id = ja.job_id
-       LEFT JOIN job_postings jp ON jp.job_id = ca.job_id COLLATE utf8mb4_unicode_ci
-       WHERE ia.is_booked = 1
+       LEFT JOIN job_postings jp ON jp.job_id = ca.job_id
+       WHERE ia.is_booked = true
        ORDER BY ia.date DESC, ia.time_slot DESC`
     );
     res.json(rows);
@@ -663,10 +666,10 @@ app.get("/api/admin/interview-dates", requireAdmin, async (_req, res) => {
   try {
     const [rows] = await db.execute(
       `SELECT id,
-              date AS availableDate,
-              is_active AS isActive,
-              created_at AS createdAt,
-              updated_at AS updatedAt
+              date AS "availableDate",
+              is_active AS "isActive",
+              created_at AS "createdAt",
+              updated_at AS "updatedAt"
        FROM interview_dates
        ORDER BY date ASC`
     );
@@ -683,16 +686,18 @@ app.post("/api/admin/interview-dates/toggle", requireAdmin, async (req, res) => 
     await db.execute(
       `INSERT INTO interview_dates (date, is_active)
        VALUES (?, ?)
-       ON DUPLICATE KEY UPDATE is_active = VALUES(is_active), updated_at = CURRENT_TIMESTAMP`,
-      [date, isActive ? 1 : 0]
+       ON CONFLICT (date) DO UPDATE SET
+         is_active = EXCLUDED.is_active,
+         updated_at = CURRENT_TIMESTAMP`,
+      [date, Boolean(isActive)]
     );
 
     const [rows] = await db.execute(
       `SELECT id,
-              date AS availableDate,
-              is_active AS isActive,
-              created_at AS createdAt,
-              updated_at AS updatedAt
+              date AS "availableDate",
+              is_active AS "isActive",
+              created_at AS "createdAt",
+              updated_at AS "updatedAt"
        FROM interview_dates
        WHERE date = ?
        LIMIT 1`,
@@ -718,8 +723,10 @@ app.post("/api/admin/interview-dates/bulk-update", requireAdmin, async (req, res
       await db.execute(
         `INSERT INTO interview_dates (date, is_active)
          VALUES (?, ?)
-         ON DUPLICATE KEY UPDATE is_active = VALUES(is_active), updated_at = CURRENT_TIMESTAMP`,
-        [date, isActive ? 1 : 0]
+         ON CONFLICT (date) DO UPDATE SET
+           is_active = EXCLUDED.is_active,
+           updated_at = CURRENT_TIMESTAMP`,
+        [date, Boolean(isActive)]
       );
       updatedDates.push(date);
     }
@@ -745,9 +752,9 @@ app.get("/api/admin/slot-settings", requireAdmin, async (_req, res) => {
   try {
     const [rows] = await db.execute(
       `SELECT id,
-              round_number AS round,
-              time_slot AS timeSlot,
-              is_active AS isActive
+              round_number AS "round",
+              time_slot AS "timeSlot",
+              is_active AS "isActive"
        FROM interview_slot_settings
        ORDER BY round_number ASC, time_slot ASC`
     );
@@ -770,14 +777,14 @@ app.patch("/api/admin/slot-settings/:id", requireAdmin, async (req, res) => {
       `UPDATE interview_slot_settings
        SET is_active = ?, updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`,
-      [isActive ? 1 : 0, id]
+      [Boolean(isActive), id]
     );
 
     const [rows] = await db.execute(
       `SELECT id,
-              round_number AS round,
-              time_slot AS timeSlot,
-              is_active AS isActive
+              round_number AS "round",
+              time_slot AS "timeSlot",
+              is_active AS "isActive"
        FROM interview_slot_settings
        WHERE id = ?
        LIMIT 1`,
@@ -839,11 +846,21 @@ app.delete("/api/categories/:id", requireAdmin, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`🌐 API URL: http://localhost:${PORT}/api`);
   console.log(`📝 Test endpoint: http://localhost:${PORT}/api/test`);
   console.log(`📰 Articles endpoint: http://localhost:${PORT}/api/articles`);
   console.log(`📧 Candidate portal origin: ${getCandidatePortalOrigin()}`);
 });
+
+void (async () => {
+  try {
+    await ensureInterviewCalendarTables();
+    await ensureInterviewAvailabilityTable();
+    await ensureNotifyTables();
+  } catch (err) {
+    console.error("[DB] startup bootstrap:", err?.message);
+  }
+})();
 

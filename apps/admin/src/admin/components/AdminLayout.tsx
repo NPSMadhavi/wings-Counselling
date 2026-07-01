@@ -310,8 +310,11 @@ export default function AdminLayout({
   }
 
   const isPrimaryCcMailsRoute = location.startsWith("/admin/settings/primary-cc-mails");
+  const isNotifyMailsRoute = location.startsWith("/admin/settings/notify-mails");
   const isEmailsRoute =
-    isPrimaryCcMailsRoute || location.startsWith("/admin/settings/emails");
+    isPrimaryCcMailsRoute ||
+    isNotifyMailsRoute ||
+    location.startsWith("/admin/settings/emails");
 
   useEffect(() => {
     if (isEmailsRoute) {
@@ -506,6 +509,10 @@ export default function AdminLayout({
 
     if (href === "/admin/settings/primary-cc-mails") {
       return isPrimaryCcMailsRoute;
+    }
+
+    if (href === "/admin/settings/notify-mails") {
+      return isNotifyMailsRoute;
     }
 
     if (href === "__emails_section__") {
@@ -839,26 +846,67 @@ export default function AdminLayout({
     )}
   </button> */}
 
-  {/* Emails  */}
+  {/* Mails dropdown */}
 
- <div className="relative w-full">
+ <div className="relative w-full" ref={emailsMenuRef}>
   <button
     type="button"
-    onClick={() => handleNavigate("/admin/settings/primary-cc-mails")}
+    onClick={() => {
+      if (sidebarCollapsed) {
+        handleNavigate("/admin/settings/primary-cc-mails");
+      } else {
+        setEmailsDropdownOpen((v) => !v);
+      }
+    }}
     className={`relative w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
-      isActive("/admin/settings/primary-cc-mails")
+      isActive("__emails_section__")
         ? "bg-blue-50 text-gray-900"
         : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
     }`}
   >
-    {isActive("/admin/settings/primary-cc-mails") && (
+    {isActive("__emails_section__") && (
       <div className="absolute left-0 top-2 bottom-2 w-1.5 bg-[#004689] rounded-r-full" />
     )}
 
     <Mail size={18} />
 
-    {!sidebarCollapsed && <span>Mails</span>}
+    {!sidebarCollapsed && (
+      <>
+        <span className="flex-1 text-left">Mails</span>
+        <ChevronDown
+          size={16}
+          className={`transition-transform ${emailsDropdownOpen ? "rotate-180" : ""}`}
+        />
+      </>
+    )}
   </button>
+
+  {!sidebarCollapsed && emailsDropdownOpen && (
+    <div className="mt-1 ml-4 pl-4 border-l border-gray-200 space-y-1">
+      <button
+        type="button"
+        onClick={() => handleNavigate("/admin/settings/primary-cc-mails")}
+        className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[16px] transition-all ${
+          isActive("/admin/settings/primary-cc-mails")
+            ? "bg-blue-50 text-[#004689] font-medium"
+            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+        }`}
+      >
+        Mails
+      </button>
+      <button
+        type="button"
+        onClick={() => handleNavigate("/admin/settings/notify-mails")}
+        className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[16px] transition-all ${
+          isActive("/admin/settings/notify-mails")
+            ? "bg-blue-50 text-[#004689] font-medium"
+            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+        }`}
+      >
+        Notify mails
+      </button>
+    </div>
+  )}
 </div>
   {/* Logout */}
 

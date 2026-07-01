@@ -43,52 +43,36 @@ export function Needhelp() {
   };
 
   return (
-    <motion.section
+    <section
       id="needhelp"
       ref={sectionRef}
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.1 }}
-      transition={{ duration: 1 }}
-      className="relative w-full flex flex-col items-center justify-center pt-[60px] pb-[60px] lg:pb-16 overflow-hidden"
+      className="relative w-full flex flex-col items-center justify-center pt-[60px] pb-[60px] lg:pb-16 overflow-hidden bg-[#F9F9F9]"
     >
       <div className="w-full navbar-align-outer">
       <div className="navbar-align-inner">
       <div className="w-full flex flex-col items-center justify-center py-12 md:py-20 px-4 sm:px-6 rounded-[30px] relative overflow-hidden bg-[#0D4A7A]">
         
-        <motion.div
+        <div
           className="absolute inset-0 pointer-events-none opacity-20"
           style={{ y: bgY }}
         />
 
         {/* Heading */}
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+        <h2
           className="text-[28px] sm:text-[36px] md:text-[50px] text-center mb-4 text-white font-['Outfit'] font-medium leading-[1.1] max-w-[850px]"
         >
           Need help now? We're here for you
-        </motion.h2>
+        </h2>
 
         {/* Subheading */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.1 }}
+        <p
           className="text-base md:text-[20px] text-center mb-10 text-white/90 font-['DM_Sans'] font-medium leading-[1.4] max-w-[600px]"
         >
           Reach out in the way that feels most comfortable
-        </motion.p>
+        </p>
 
         {/* Buttons Row */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+        <div
           className="flex flex-col sm:flex-row flex-wrap justify-center gap-5 w-full sm:w-auto"
         >
           {buttons.map((btn) => (
@@ -102,9 +86,11 @@ export function Needhelp() {
               }}
               className={`
                 transition-all duration-300 hover:scale-105
-                flex items-center justify-center gap-3
-                px-8 h-[60px] min-w-[220px] w-full sm:w-auto
-                rounded-full font-semibold text-[17px]
+                flex items-center justify-center gap-2 sm:gap-3
+                px-5 sm:px-8 h-[52px] sm:h-[60px]
+                w-auto sm:min-w-[220px]
+                rounded-full font-semibold
+                text-[14px] min-[375px]:text-[15px] sm:text-[17px]
                 font-['Plus_Jakarta_Sans'] no-underline cursor-pointer
                 ${
                   btn.id === "call"
@@ -115,7 +101,7 @@ export function Needhelp() {
             >
               {btn.icon}
 
-              <span>{btn.label}</span>
+              <span className="whitespace-nowrap">{btn.label}</span>
 
               <svg
                 width="20"
@@ -133,10 +119,10 @@ export function Needhelp() {
               </svg>
             </a>
           ))}
-        </motion.div>
+        </div>
       </div>
       </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

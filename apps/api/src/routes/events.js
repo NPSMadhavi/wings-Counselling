@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../config/db.js";
+import { db, getTableColumns } from "../config/db.js";
 import { requireAdmin } from "../middlewares/auth.js";
 import fs from "fs";
 import { addPublicSSEClient, broadcastToPublic } from "../lib/sse.js";
@@ -32,26 +32,23 @@ function parsePhotoUrls(value) {
 async function detectEventStorage() {
   if (!eventStoragePromise) {
     eventStoragePromise = (async () => {
-      const [columns] = await db.query(
-        "SHOW COLUMNS FROM events"
-      );
-
-      const names = new Set(columns.map((c) => c.Field));
+      const columns = await getTableColumns("events");
+      const names = new Set(columns);
 
       return {
-        photoUrls: names.has("photoUrls") ? "photoUrls" : "photo_urls",
-        eventDate: names.has("eventDate") ? "eventDate" : "event_date",
-        registrationUrl: names.has("registrationUrl")
+        photoUrls: names.has("photourls") ? "photoUrls" : "photo_urls",
+        eventDate: names.has("eventdate") ? "eventDate" : "event_date",
+        registrationUrl: names.has("registrationurl")
           ? "registrationUrl"
           : "registration_url",
-        showDonationButton: names.has("showDonationButton")
+        showDonationButton: names.has("showdonationbutton")
           ? "showDonationButton"
           : "show_donation_button",
-        isPublished: names.has("isPublished")
+        isPublished: names.has("ispublished")
           ? "isPublished"
           : "is_published",
-        createdAt: names.has("createdAt") ? "createdAt" : "created_at",
-        updatedAt: names.has("updatedAt") ? "updatedAt" : "updated_at",
+        createdAt: names.has("createdat") ? "createdAt" : "created_at",
+        updatedAt: names.has("updatedat") ? "updatedAt" : "updated_at",
         price: names.has("price") ? "price" : "event_price",
       };
     })();
@@ -88,8 +85,8 @@ function buildPayload(body, storage) {
     location: body.location ?? "",
     price: body.price ?? "",
     [storage.registrationUrl]: body.registrationUrl ?? "",
-    [storage.showDonationButton]: body.showDonationButton ? 1 : 0,
-    [storage.isPublished]: body.isPublished ? 1 : 0,
+    [storage.showDonationButton]: Boolean(body.showDonationButton),
+    [storage.isPublished]: Boolean(body.isPublished),
   };
 }
 

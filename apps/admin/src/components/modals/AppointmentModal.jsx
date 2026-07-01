@@ -145,7 +145,16 @@ const APPOINTMENT_SELECTION_ALIASES = {
   "youth counselling": "Group Counselling",
   "youth counseling": "Group Counselling",
   "pre school children ages 2 5 7": "Family Counselling",
+  "pre school children": "Family Counselling",
   "child and play therapy": "Family Counselling",
+  "family support counselling program": "Family Counselling",
+  youth: "Group Counselling",
+  adults: "Individual Counselling",
+  "clinical supervision": "Supervision",
+  "personal therapy for counsellors": "Personal therapy ( For counsellors )",
+  workshops: "Workshops",
+  "training and workshops": "Training & Workshops",
+  "training workshop": "Training & Workshops",
 };
 
 const resolvePreselectedCounselling = (types, selection) => {
@@ -173,6 +182,33 @@ const resolvePreselectedCounselling = (types, selection) => {
         return {
           type: matchedTypeById,
           subType: matchedSubTypeById || null,
+        };
+      }
+    }
+
+    const typeName =
+      selection.counsellingTypeName ?? selection.counselling_type_name;
+    const subTypeName =
+      selection.subTypeName ??
+      selection.sub_type_name ??
+      selection.serviceName;
+
+    if (typeName) {
+      const matchedType = types.find(
+        (type) => normalizeSelectionText(type.name) === normalizeSelectionText(typeName)
+      );
+
+      if (matchedType) {
+        const matchedSubType = subTypeName
+          ? (matchedType.sub_types || []).find(
+              (subType) =>
+                normalizeSelectionText(subType.name) === normalizeSelectionText(subTypeName)
+            )
+          : null;
+
+        return {
+          type: matchedType,
+          subType: matchedSubType || null,
         };
       }
     }
@@ -210,8 +246,23 @@ const resolvePreselectedCounselling = (types, selection) => {
   const aliasTargetName = APPOINTMENT_SELECTION_ALIASES[normalizedSelection];
 
   if (aliasTargetName) {
+    const normalizedAliasTarget = normalizeSelectionText(aliasTargetName);
+
+    for (const type of types) {
+      const aliasMatchedSubType = (type.sub_types || []).find(
+        (subType) => normalizeSelectionText(subType.name) === normalizedAliasTarget
+      );
+
+      if (aliasMatchedSubType) {
+        return {
+          type,
+          subType: aliasMatchedSubType,
+        };
+      }
+    }
+
     const aliasMatchedType = types.find(
-      (type) => normalizeSelectionText(type.name) === normalizeSelectionText(aliasTargetName)
+      (type) => normalizeSelectionText(type.name) === normalizedAliasTarget
     );
 
     if (aliasMatchedType) {
@@ -256,13 +307,33 @@ const CustomNationalityDropdown = ({ value, onChange, onBlur, error }) => {
     setSearchTerm("");
   };
 
+  const handleTriggerBlur = (e) => {
+    if (dropdownRef.current?.contains(e.relatedTarget)) return;
+    onBlur?.({
+      target: { name: "nationality", value },
+    });
+  };
+
+  const handleTriggerKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setIsOpen((open) => !open);
+    }
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
-      <div
+      <button
+        type="button"
+        id="appointment-nationality"
+        name="nationality"
         onClick={() => setIsOpen(!isOpen)}
-        onBlur={onBlur}
-        className={`w-full px-5 py-4 border rounded-[10px] text-[16px] bg-[#FAF8F4] outline-none flex items-center justify-between cursor-pointer transition-all ${error ? 'border-red-500' : 'border-[#E3E1E1]'
-          } ${isOpen ? 'border-[#0D4A7A] ring-2 ring-[#0D4A7A]/20' : ''}`}
+        onBlur={handleTriggerBlur}
+        onKeyDown={handleTriggerKeyDown}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        className={`w-full px-5 py-4 border rounded-[10px] text-[16px] bg-[#FAF8F4] outline-none flex items-center justify-between cursor-pointer transition-all text-left ${error ? 'border-red-500' : 'border-[#E3E1E1]'
+          } ${isOpen ? 'border-[#0D4A7A] ring-2 ring-[#0D4A7A]/20' : ''} focus:border-[#0D4A7A]`}
       >
         <span className={value ? "text-[#3A3A3A]" : "text-[#8F8F8F]"}>
           {value || "Select Nationality"}
@@ -271,7 +342,7 @@ const CustomNationalityDropdown = ({ value, onChange, onBlur, error }) => {
           size={18}
           className={`text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
-      </div>
+      </button>
 
       {isOpen && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-[#E3E1E1] rounded-[10px] shadow-lg">
@@ -318,8 +389,7 @@ export function AppointmentModal({ isOpen, onClose, preSelectedService }) {
   const [counsellingData, setCounsellingData] = useState([]);
   const [loadingTypes, setLoadingTypes] = useState(false);
   const [counsellingTypesError, setCounsellingTypesError] = useState("");
-
-
+  const [nameTouched, setNameTouched] = useState(false);
   const [formData, setFormData] = useState({
     nric_fin_number: "",
     name: "",
@@ -338,6 +408,68 @@ export function AppointmentModal({ isOpen, onClose, preSelectedService }) {
   const [submitted, setSubmitted] = useState(false);
   const [completedSteps, setCompletedSteps] = useState([]);
   const [phoneCountry, setPhoneCountry] = useState("Singapore");
+  const modalPanelRef = useRef(null);
+
+  const getModalFocusableElements = () => {
+    if (!modalPanelRef.current) return [];
+    return Array.from(
+      modalPanelRef.current.querySelectorAll(
+        'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(
+      (el) =>
+        el.getAttribute("aria-hidden") !== "true" &&
+        !el.closest("[aria-hidden='true']")
+    );
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleTabKey = (e) => {
+      if (e.key !== "Tab") return;
+
+      const focusable = getModalFocusableElements();
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleTabKey);
+    return () => document.removeEventListener("keydown", handleTabKey);
+  }, [isOpen, step, submitted, loadingTypes, counsellingData.length, formData.counselling_type_id]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const timer = window.setTimeout(() => {
+      if (step === 2 && !loadingTypes && counsellingData.length > 0) {
+        const firstCounsellingOption = modalPanelRef.current?.querySelector(
+          "[data-counselling-type-option]"
+        );
+        firstCounsellingOption?.focus();
+        return;
+      }
+
+      if (step === 3) {
+        const descriptionField = modalPanelRef.current?.querySelector(
+          'textarea[name="description"]'
+        );
+        descriptionField?.focus();
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [isOpen, step, loadingTypes, counsellingData.length]);
 
     useEffect(() => {
     if ("Notification" in window && Notification.permission === "default") {
@@ -378,7 +510,7 @@ export function AppointmentModal({ isOpen, onClose, preSelectedService }) {
       return;
     }
 
-    if (!formData.counselling_type_id && counsellingData.length > 0) {
+    if (!preSelectedService && !formData.counselling_type_id && counsellingData.length > 0) {
       const defaultType = counsellingData[0];
 
       setFormData((prev) => ({
@@ -483,10 +615,14 @@ const validateNRIC = (nric) => {
     return "";
   };
 
-  const validateName = (name) => {    if (!name || name.trim().length === 0) return "Name is required";
-  const nameRegex = /^[A-Z][a-zA-Z'-]*(\s[A-Z][a-zA-Z'-]*)*$/
-    if (!nameRegex.test(name.trim())) return "Name must start with a capital letter";
-    if (name.trim().length < 2) return "Name must be at least 2 characters";
+  const validateName = (name) => {
+    if (!name || name.trim().length === 0) return "Name is required.";
+
+    const trimmed = name.trim();
+    if (!/^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/.test(trimmed)) {
+      return "Name should contain only letters.";
+    }
+
     return "";
   };
 
@@ -502,10 +638,12 @@ const validatePhone = (phone, pCountry) => {
     return "Phone number is required";
   }
 
-  // Remove non-numeric characters
   const digitsOnly = phone.replace(/\D/g, "");
 
-  // Singapore phone number = exactly 8 digits
+  if (digitsOnly.startsWith("0")) {
+    return "Phone number should not start with 0";
+  }
+
   if (!/^\d{8}$/.test(digitsOnly)) {
     return "Phone number must be exactly 8 digits";
   }
@@ -557,6 +695,7 @@ const validatePhone = (phone, pCountry) => {
       setSelectedSubTypeIds([]);
       setCompletedSteps([]);
       setPhoneCountry("Singapore");
+      setNameTouched(false);
     }
     return () => {
       document.body.style.overflow = "unset";
@@ -569,20 +708,11 @@ const validatePhone = (phone, pCountry) => {
     const { name, value } = e.target;
     let processedValue = value;
 
-    if (name === "name") {
-      if (value.length === 1) {
-        processedValue = value.toUpperCase();
-      } else if (value.length > 1) {
-        const words = value.split(' ');
-        const capitalizedWords = words.map(word => {
-          if (word.length === 0) return word;
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        });
-        processedValue = capitalizedWords.join(' ');
-      }
-    }
     if (name === "nric_fin_number") {
       processedValue = value.replace(/\D/g, '').slice(0, 9);
+    }
+    if (name === "name") {
+      processedValue = value.replace(/[^A-Za-z\s'-]/g, "");
     }
     if (name === "age") {
       // Only allow positive integers up to 120
@@ -597,9 +727,7 @@ const validatePhone = (phone, pCountry) => {
       }
     }
     if (name === "phone") {
-      // Only allow digits
-      processedValue = value.replace(/\D/g, '');
-      // Enforce max digits based on selected phone country
+      processedValue = value.replace(/\D/g, "").replace(/^0+/, "");
       const rule = phoneCountry && countryPhoneRules[phoneCountry];
       if (rule) {
         processedValue = processedValue.slice(0, rule.digits);
@@ -632,6 +760,11 @@ const validatePhone = (phone, pCountry) => {
       [name]: processedValue,
     }));
 
+    if (name === "name" && nameTouched) {
+      setErrors((prev) => ({ ...prev, name: validateName(processedValue) }));
+      return;
+    }
+
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -640,6 +773,10 @@ const validatePhone = (phone, pCountry) => {
   const handleBlur = (e) => {
     const { name, value } = e.target;
     let error = "";
+
+    if (name === "name") {
+      setNameTouched(true);
+    }
 
     switch (name) {
       case "nric_fin_number": error = validateNRIC(value); break;
@@ -799,6 +936,9 @@ const handleSubmit = async (e) => {
     return "Share anything you feel comfortable sharing.";
   };
 
+  const isNameValid =
+    nameTouched && formData.name.trim() && !validateName(formData.name);
+
   // Error message component with fixed height
   const ErrorMessage = ({ message }) => (
     <div className="h-5 mt-1">
@@ -809,20 +949,24 @@ const handleSubmit = async (e) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100010] overflow-y-auto overscroll-contain">
+          <div className="flex min-h-full min-h-[100dvh] items-center justify-center p-3 sm:p-4 md:p-6">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
           />
 
           <motion.div
+            ref={modalPanelRef}
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative bg-white w-[90%] max-w-[1100px] max-h-[90vh] overflow-y-auto rounded-[20px] shadow-2xl flex flex-col"
+            className="relative z-10 bg-white w-full max-w-[1100px] max-h-[min(90dvh,calc(100dvh-1.5rem))] overflow-y-auto rounded-[20px] shadow-2xl flex flex-col my-4 sm:my-6"
+            role="dialog"
+            aria-modal="true"
           >
             {/* Left side rectangle and Right side header */}
             <div className="flex items-start justify-between p-4 sm:p-6 md:p-8 pb-0 shrink-0">
@@ -859,8 +1003,10 @@ const handleSubmit = async (e) => {
               {/* Right side - Step and Close */}
               <div className="flex items-center gap-4">
                 <button
+                  type="button"
                   onClick={onClose}
-                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                  aria-label="Close appointment form"
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D4A7A] focus-visible:ring-offset-2"
                 >
                   <X size={20} className="text-black" />
                 </button>
@@ -870,13 +1016,13 @@ const handleSubmit = async (e) => {
             {/* Content with fixed height container */}
             <div className="p-4 sm:p-6 md:p-8 pt-4 sm:pt-6 flex-1 overflow-y-auto">
               {submitted ? (
-                <div className="min-h-[480px] flex flex-col items-center justify-center text-center px-8">
+                <div className="min-h-0 md:min-h-[480px] flex flex-col items-center justify-center text-center px-4 sm:px-8">
                   <div className="w-20 h-20 rounded-full bg-[#E8F3DC] flex items-center justify-center mb-6">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none">
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#1F5500"/>
                     </svg>
                   </div>
-                  <h2 className="text-[#0D4A7A] text-[28px] font-medium mb-3">
+                  <h2 className="text-[#0D4A7A] text-[clamp(20px,5vw,28px)] font-medium mb-3">
                     Appointment Submitted Successfully
                   </h2>
                   <p className="text-[#3A3A3A] text-[16px] leading-relaxed max-w-[600px] mb-2">
@@ -896,9 +1042,9 @@ const handleSubmit = async (e) => {
               ) : (
               <form onSubmit={step === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }}>
                 {/* Top Header Section */}
-                <div className="flex items-start gap-[26px] mb-8">
+                <div className="flex items-start gap-4 sm:gap-[26px] mb-6 sm:mb-8">
                   {/* Icon Box - Changes based on step */}
-                  <div className="w-[70px] h-[70px] rounded-[18px] bg-[#0D4A7A29] flex items-center justify-center flex-shrink-0">
+                  <div className="w-[56px] h-[56px] sm:w-[70px] sm:h-[70px] rounded-[18px] bg-[#0D4A7A29] flex items-center justify-center flex-shrink-0">
                  {/* Step 1 Icon - Wings/Support themed */}
 {step === 1 ? (
   <svg 
@@ -933,25 +1079,25 @@ const handleSubmit = async (e) => {
                   </div>
 
                   {/* Text Content */}
-                  <div className="pt-[2px]">
-                    <h1 className="text-[#0D4A7A] text-[25px] font-medium leading-normal font-[Outfit] mb-[6px]">
+                  <div className="pt-[2px] min-w-0 flex-1">
+                    <h1 className="text-[#0D4A7A] text-[clamp(18px,4.5vw,25px)] font-medium leading-snug sm:leading-normal font-[Outfit] mb-[6px]">
                       {getStepTitle()}
                     </h1>
-                    <p className="text-[#0D4A7A] text-[15px] font-normal leading-normal font-['DM_Sans'] max-w-[700px]">
+                    <p className="text-[#0D4A7A] text-[clamp(13px,3.5vw,15px)] font-normal leading-snug sm:leading-normal font-['DM_Sans'] max-w-[700px]">
                       {getStepSubtitle()}
                     </p>
                   </div>
                 </div>
 
                 {/* Fixed height container for form content */}
-                <div className="min-h-[480px]">
+                <div className="min-h-0 md:min-h-[480px]">
                   {/* Step 1 - Personal Details */}
                   {step === 1 && (
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                       {/* Row 1: NRIC/FIN Number and Name */}
-                      <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div>
-                          <label className="text-[#0D4A7A] text-[18px] font-medium block mb-2">
+                          <label className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2">
                             NRIC/FIN Number <span className="text-red-500">*</span>
                           </label>
                     <input
@@ -985,7 +1131,7 @@ const handleSubmit = async (e) => {
                         </div>
 
                         <div>
-                          <label className="text-[#0D4A7A] text-[18px] font-medium block mb-2">
+                          <label className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2">
                             Name (As per NRIC/FIN Number)<span className="text-red-500">*</span>
                           </label>
                           <input
@@ -994,18 +1140,23 @@ const handleSubmit = async (e) => {
                             value={formData.name}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            placeholder="Full name as shown on NRIC/FIN"
-                            className={`w-full px-5 py-4 border rounded-[10px] text-[16px] bg-[#FAF8F4] outline-none transition-all ${errors.name ? 'border-red-500' : 'border-[#E3E1E1]'
-                              } focus:border-[#0D4A7A]`}
+                            placeholder="Enter your name"
+                            className={`w-full px-5 py-4 border rounded-[10px] text-[16px] bg-[#FAF8F4] outline-none transition-all ${
+                              errors.name
+                                ? "border-red-500"
+                                : isNameValid
+                                  ? "border-green-500"
+                                  : "border-[#E3E1E1]"
+                            } focus:border-[#0D4A7A]`}
                           />
                           <ErrorMessage message={errors.name} />
                         </div>
                       </div>
 
                       {/* Row 2: Email Address and Phone Number */}
-                      <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div>
-                          <label className="text-[#0D4A7A] text-[18px] font-medium block mb-2">
+                          <label className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2">
                             Email Address <span className="text-red-500">*</span>
                           </label>
                           <input
@@ -1022,7 +1173,7 @@ const handleSubmit = async (e) => {
                         </div>
 
                         <div>
-                          <label className="text-[#0D4A7A] text-[18px] font-medium block mb-2">
+                          <label className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2">
                             Phone Number<span className="text-red-500">*</span>
                           </label>
                           <PhoneInputWithCountry
@@ -1036,9 +1187,9 @@ const handleSubmit = async (e) => {
                       </div>
 
                       {/* Row 3: Age, Gender, Nationality */}
-                      <div className="grid grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         <div>
-                          <label className="text-[#0D4A7A] text-[18px] font-medium block mb-2">
+                          <label className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2">
                             Age <span className="text-red-500">*</span>
                           </label>
                           <input
@@ -1057,7 +1208,7 @@ const handleSubmit = async (e) => {
                         </div>
 
                         <div>
-                          <label className="text-[#0D4A7A] text-[18px] font-medium block mb-2">
+                          <label className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2">
                             Gender <span className="text-red-500">*</span>
                           </label>
                    <select
@@ -1077,8 +1228,11 @@ const handleSubmit = async (e) => {
                           <ErrorMessage message={errors.gender} />
                         </div>
 
-                        <div>
-                          <label className="text-[#0D4A7A] text-[18px] font-medium block mb-2">
+                        <div className="sm:col-span-2 lg:col-span-1">
+                          <label
+                            htmlFor="appointment-nationality"
+                            className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2"
+                          >
                             Nationality <span className="text-red-500">*</span>
                           </label>
                           <CustomNationalityDropdown
@@ -1146,11 +1300,18 @@ const handleSubmit = async (e) => {
             <label className="text-[#0D4A7A] text-[16px] font-medium block mb-4">
               Select Counselling type *
             </label>
-            <div className="grid grid-cols-3 gap-4">
+            <div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
+              role="radiogroup"
+              aria-label="Select counselling type"
+            >
               {counsellingData.map(option => (
                 <button
                   key={option.id}
                   type="button"
+                  data-counselling-type-option
+                  role="radio"
+                  aria-checked={parseInt(formData.counselling_type_id, 10) === option.id}
                   onClick={() => {
                     const event = {
                       target: {
@@ -1163,10 +1324,10 @@ const handleSubmit = async (e) => {
                       setErrors(prev => ({ ...prev, counselling_type_id: "" }));
                     }
                   }}
-                  className={`py-4 px-6 rounded-[10px] text-[16px] font-medium transition-all ${
+                  className={`py-4 px-6 rounded-[10px] text-[16px] font-medium transition-all focus-visible:outline-none focus-visible:ring-0 ${
                     parseInt(formData.counselling_type_id) === option.id
                       ? 'bg-[#E3F1FC] text-[#0D4A7A] border-2 border-[#0D4A7A]'
-                      : 'bg-[#FAF8F4] text-[#3A3A3A] border border-[#E3E1E1] hover:border-[#0D4A7A]'
+                      : 'bg-[#FAF8F4] text-[#3A3A3A] border border-[#E3E1E1] hover:border-[#0D4A7A] focus-visible:border-2 focus-visible:border-[#0D4A7A]'
                   }`}
                   style={{
                     width: '100%',
@@ -1190,16 +1351,23 @@ const handleSubmit = async (e) => {
               <label className="text-[#0D4A7A] text-[16px] font-medium block mb-4">
                 What would you like support with? ({formData.counselling_type_name})
               </label>
-              <div className="grid grid-cols-3 gap-4">
+              <div
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
+                role="group"
+                aria-label="Select support options"
+              >
                 {getCurrentServiceOptions().map(service => (
                   <button
                     key={service.id}
                     type="button"
+                    data-support-option
+                    role="checkbox"
+                    aria-checked={selectedSubTypeIds.includes(service.id)}
                     onClick={() => handleServiceToggle(service)}
-                    className={`py-4 px-6 rounded-[10px] text-[16px] font-medium transition-all text-center ${
+                    className={`py-4 px-6 rounded-[10px] text-[16px] font-medium transition-all text-center focus-visible:outline-none focus-visible:ring-0 ${
                       selectedSubTypeIds.includes(service.id)
                         ? 'bg-[#E3F1FC] text-[#0D4A7A] border-2 border-[#0D4A7A]'
-                        : 'bg-[#FAF8F4] text-[#3A3A3A] border border-[#E3E1E1] hover:border-[#0D4A7A]'
+                        : 'bg-[#FAF8F4] text-[#3A3A3A] border border-[#E3E1E1] hover:border-[#0D4A7A] focus-visible:border-2 focus-visible:border-[#0D4A7A]'
                     }`}
                     style={{
                       width: '100%',
@@ -1279,12 +1447,12 @@ const handleSubmit = async (e) => {
                 </div>
 
                 {/* Navigation Buttons */}
-                <div className="flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 sm:gap-4 pt-6 sm:pt-8 mt-4">
+                <div className="flex flex-row justify-end items-center gap-3 sm:gap-4 pt-6 sm:pt-8 mt-4">
                   {step > 1 && (
                     <button
                       type="button" 
                       onClick={handleBack}
-                      className="px-8 py-3 rounded-full border border-[#0D4A7A] text-[#0D4A7A] font-medium hover:bg-gray-50 transition-all flex items-center gap-2"
+                      className="px-8 py-3 rounded-full border border-[#0D4A7A] text-[#0D4A7A] font-medium hover:bg-gray-50 transition-all flex items-center gap-2 focus-visible:outline-none focus-visible:ring-0 focus-visible:border-2"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -1309,7 +1477,7 @@ const handleSubmit = async (e) => {
                     <button
                       type="button"
                       onClick={handleNext}
-                      className="px-8 py-3 rounded-full bg-[#1B4585] text-white font-medium flex items-center gap-2 hover:bg-[#0D4A7A] transition-all"
+                      className="px-8 py-3 rounded-full bg-[#1B4585] text-white font-medium flex items-center gap-2 hover:bg-[#0D4A7A] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B4585]"
                     >
                       Continue
                       <svg
@@ -1355,6 +1523,7 @@ const handleSubmit = async (e) => {
               )}
             </div>
           </motion.div>
+          </div>
         </div>
       )}
     </AnimatePresence>

@@ -13,10 +13,10 @@ import { useLocation } from "wouter";
 const heroItems = [
   {
     id: 1,
-    badge: "A Safe space for you",
-    headline: "Feeling overwhelmed ?",
+   
+    headline: "Feeling overwhelmed?",
     description:
-      "At Wings, we believe in a sanctuary for the mind. Our non clinical, empathetic approach helps you navigate life's complexities with professional guidance",
+      "At WINGS, we believe in providing a sanctuary for the mind. Our supportive and empathetic approach helps you navigate life's complexities with professional guidance.",
     highlightText: "You're not alone.",
     highlightColor: "#8EC9F0",
     buttonText: "Book an appointment",
@@ -24,10 +24,9 @@ const heroItems = [
   },
   {
     id: 2,
-    badge: "Professional support",
-    headline: "Find the path that feels right for you.",
+    headline: "Professional counselling & Mental wellness support for individuals, couples and families.",
     description:
-      "We offer specialized counselling for every stage of life. Explore our therapeutic services designed to bring clarity and peace to your unique journey.",
+      "Whether you're facing stress, relationship challenges, grief or life transitions. WINGS provides compassionate & confidential counselling to help you move forward with confidence.",
     buttonText: "Book an appointment",
     secondaryButtonText: "Learn our approach",
   },
@@ -39,7 +38,7 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.25,
+      staggerChildren: 0.15,
       delayChildren: 0.15,
     },
   },
@@ -82,7 +81,6 @@ export function Hero() {
   const [, setLocation] = useLocation();
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isHovering, setIsHovering] = useState(false);
 
   const containerRef = useRef(null);
   const videoRef = useRef(null);
@@ -124,6 +122,7 @@ export function Hero() {
 
   return (
     <section
+      id="hero"
       ref={containerRef}
       className="relative w-full min-h-screen flex items-center overflow-hidden"
     >
@@ -154,7 +153,7 @@ export function Hero() {
       >
         <div className="navbar-align-inner text-center w-full flex flex-col items-center">
           {/* TEXT CONTENT */}
-          <div className="w-full min-h-[342px] flex flex-col justify-center">
+          <div className="w-full min-h-[280px] md:min-h-[342px] flex flex-col justify-center">
 
             <AnimatePresence mode="wait">
               <motion.div
@@ -170,39 +169,11 @@ export function Hero() {
                   exit="exit"
                 >
 
-                  {/* BADGE */}
-                  <motion.div variants={itemVariants}>
-                    <div
-                      className="
-                        inline-flex 
-                        items-center 
-                        justify-center 
-                        px-4 py-2 
-                        rounded-full 
-                        border border-white/70 
-                        bg-white/20 
-                        text-white 
-                        backdrop-blur-md
-                        mx-auto mb-6
-                      "
-                      style={{
-                        fontSize: "clamp(14px, 1.2vw, 18px)",
-                        width: "fit-content",
-                        maxWidth: "90%",
-                      }}
-                    >
-                      {currentItem.badge}
-                    </div>
-                  </motion.div>
 
                   {/* HEADING */}
                   <motion.div variants={itemVariants}>
                     <h1
-                      className="font-semibold text-white leading-tight mb-5"
-                      style={{
-                        fontSize: "clamp(28px, 4vw, 64px)",
-                        fontFamily: "Outfit, sans-serif",
-                      }}
+                      className="font-semibold text-white leading-tight mb-2 md:mb-5 font-['Outfit'] text-[24px] min-[375px]:text-[28px] sm:text-[30px] md:text-[clamp(26px,4vw,64px)]"
                     >
                       {currentItem.headline}
 
@@ -221,14 +192,17 @@ export function Hero() {
                   <motion.div variants={itemVariants}>
                     <p
                       className="
-                        text-white/90 
-                        max-w-2xl 
+                        text-white/90
                         mx-auto
+                        max-w-[850px]
+                        pt-2
+                        md:pt-6
+                        text-[14px]
+                        min-[375px]:text-[15px]
+                        md:text-[clamp(16px,1.5vw,20px)]
+                        leading-[1.5]
+                        md:leading-[1.6]
                       "
-                      style={{
-                        fontSize: "clamp(14px, 1.5vw, 20px)",
-                        lineHeight: 1.6,
-                      }}
                     >
                       {currentItem.description}
                     </p>
@@ -243,14 +217,16 @@ export function Hero() {
           {/* STATIC BUTTONS */}
           <div
             className="
-              mt-10
+              mt-2
+              md:mt-4
               flex 
               flex-col 
               sm:flex-row 
               flex-wrap 
               justify-center 
               items-center 
-              gap-4 sm:gap-6
+              gap-2 sm:gap-6
+             
             "
           >
 
@@ -263,7 +239,7 @@ export function Hero() {
               className="
                 flex items-center justify-center gap-2
                 bg-[#1B4585] text-white
-                px-8 py-4
+                px-8 py-4 
                 rounded-full
                 w-full sm:w-auto
                 min-w-[240px]
@@ -285,7 +261,7 @@ export function Hero() {
 
             {/* SECONDARY */}
             <button
-              onClick={() => setLocation("/about-us")}
+              onClick={() => setLocation("/services")}
               className="
                 flex items-center justify-center
                 border border-white/40 
@@ -303,7 +279,10 @@ export function Hero() {
                 fontSize: "clamp(14px, 1.2vw, 18px)",
               }}
             >
-              <span>Learn our approach</span>
+              <span>Explore our services</span>
+              <span className="flex items-center ml-2">
+                <ArrowIcon />
+              </span>
             </button>
 
           </div>

@@ -1,33 +1,34 @@
 import express from "express";
 import { db } from "../config/db.js";
+import { isUniqueViolation } from "../config/pg-helpers.js";
 
 const router = express.Router();
 
 async function ensureCounsellingSchema() {
   await db.query(`
     CREATE TABLE IF NOT EXISTS counselling_types (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       name VARCHAR(255) NOT NULL UNIQUE,
-      description LONGTEXT NULL,
+      description TEXT NULL,
       is_active BOOLEAN DEFAULT true,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
   await db.query(`
     CREATE TABLE IF NOT EXISTS counselling_sub_types (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       counselling_type_id INT NOT NULL,
       name VARCHAR(255) NOT NULL,
-      description LONGTEXT NULL,
+      description TEXT NULL,
       is_active BOOLEAN DEFAULT true,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       CONSTRAINT fk_counselling_sub_type_parent
         FOREIGN KEY (counselling_type_id) REFERENCES counselling_types(id)
         ON DELETE CASCADE,
-      UNIQUE KEY uq_counselling_sub_type_name (counselling_type_id, name)
+      CONSTRAINT uq_counselling_sub_type_name UNIQUE (counselling_type_id, name)
     )
   `);
 }
@@ -171,7 +172,7 @@ router.post("/create", async (req, res) => {
       data: { id: result.insertId, name: name.trim(), description: description || null },
     });
   } catch (error) {
-    if (error?.errno === 1062) {
+    if (isUniqueViolation(error)) {
       return res.status(409).json({ message: "Type already exists" });
     }
     res.status(500).json({
