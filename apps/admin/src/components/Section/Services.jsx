@@ -31,7 +31,7 @@ const services = [
     title: "Individual therapy",
     description:
       "The friendly counsellors at WINGS Counselling Centre provide assistance to...",
-    image: "/assets/couplesImage.png",
+    image: "/assets/indvidualservice.png",
     href: "/SubService",
   },
   {
@@ -39,7 +39,7 @@ const services = [
     title: "Marital & Couple therapy",
     description:
       "Couples today face a myriad of stressors – juggling work, home, children, and trying to...",
-    image: "/assets/aboutImage2.jpg",
+    image: "/assets/counselling2.jpg",
     href: "/Marital",
   },
   {
@@ -47,7 +47,7 @@ const services = [
     title: "Family & Parenting",
     description:
       "Parenting brings unique pressures—from managing behaviour and school...",
-    image: "/assets/aboutImage3.jpg",
+    image: "/assets/family&parenting.png",
     href: "/FamilyParenting",
   },
   {
@@ -55,7 +55,7 @@ const services = [
     title: "Youth",
     description:
       "The children and youth of today face many challenges that range from self-esteem to...",
-    image: "/assets/howituseImage.jpg",
+    image: "/assets/youthservice.png",
     href: "/Youth",
   },
   {
@@ -63,7 +63,7 @@ const services = [
     title: "Pre-school children",
     description:
       "Younger children aged between 2.5 and 7 years not only display developmental...",
-    image: "/assets/counselling4.jpg",
+    image: "/assets/preschoolservice.png",
     href: "/Pre-school",
   },
 ];

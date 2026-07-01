@@ -8,7 +8,6 @@ apps/admin/dist/
 # API
 apps/api/node_modules/
 apps/api/.env
-apps/api/uploads/
 
 # Logs
 *.log
