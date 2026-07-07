@@ -92,6 +92,22 @@ export function Footer() {
 
     navigate("/");
   };
+  const goToPage = (path) => (e) => {
+  e.preventDefault();
+
+  try {
+    sessionStorage.setItem("skipLogoIntro", "1");
+  } catch {
+    // ignore
+  }
+
+  if (location === path) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  navigate(path);
+};
 
   return (
     <footer className="w-full bg-[#1F2937] overflow-x-hidden">
@@ -186,7 +202,7 @@ export function Footer() {
               <div className="w-full max-w-[160px] flex flex-col gap-[16px]">
 
                 {/* Heading */}
-                <h3 className="text-white text-[clamp(1.25rem,4vw,1.875rem)] font-semibold mb-4">
+                <h3 className="text-white text-[clamp(1.25rem,4vw,1.875rem)] font-semibold mb-2">
                   Links
                 </h3>
 
@@ -200,6 +216,7 @@ export function Footer() {
 
                 <Link
                   href="/about-us"
+                  onClick={goToPage("/about-us")}
                   className="text-white/90 text-[15px] hover:text-white transition whitespace-nowrap"
                 >
                   About us
@@ -207,6 +224,7 @@ export function Footer() {
 
                 <Link
                   href="/services"
+                  onClick={goToPage("/services")}
                   className="text-white/90 text-[15px] hover:text-white transition whitespace-nowrap"
                 >
                   Services
@@ -214,6 +232,7 @@ export function Footer() {
 
                 <Link
                   href="/team"
+                  onClick={goToPage("/team")}
                   className="text-white/90 text-[15px] hover:text-white transition whitespace-nowrap"
                 >
                   Team
@@ -221,11 +240,18 @@ export function Footer() {
 
                 <Link
                   href="/events"
+                  onClick={goToPage("/events")}
                   className="text-white/90 text-[15px] hover:text-white transition whitespace-nowrap"
                 >
                   Events
                 </Link>
-
+             <Link
+                  href="/partners"
+                  onClick={goToPage("/partners")}
+                  className="text-white/90 text-[15px] hover:text-white transition whitespace-nowrap"
+                >
+                  Partners
+                </Link>
                 <a
                   href="/#contact"
                   onClick={goToContact}
@@ -233,6 +259,7 @@ export function Footer() {
                 >
                   Contact us
                 </a>
+               
 
               </div>
 
@@ -245,7 +272,7 @@ export function Footer() {
                 Stay connected
               </h3>
 
-              <p className="text-white text-[clamp(0.9375rem,2.5vw,1.0625rem)] leading-relaxed sm:leading-[28px] max-w-full break-words">
+              <p className="text-white/90 text-[clamp(0.9375rem,2.5vw,1.0625rem)] leading-relaxed sm:leading-[28px] max-w-full break-words">
                 We are committed to providing affordable &
                 professional counselling services.
               </p>
@@ -365,7 +392,7 @@ export function Footer() {
                       </svg>
                     )}
                   </span>
-                  <span className="text-white text-[14px] leading-[1.45]">
+                  <span className="text-white/90 text-[14px] leading-[1.45]">
                     <span className="block">By continuing, you accept the privacy policy</span>
                     {/* <Link
                       href="/privacy-policy"
@@ -409,7 +436,7 @@ export function Footer() {
           {/* BOTTOM */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full min-w-0">
 
-            <p className="text-white/80 text-[clamp(0.8125rem,2.5vw,0.9375rem)] text-center md:text-left max-w-full break-words leading-relaxed">
+            <p className="text-white text-[clamp(0.8125rem,2.5vw,0.9375rem)] md:text-[14px] text-center md:text-left max-w-full break-words leading-relaxed">
               © 2026 WINGS Counselling Centre. All rights reserved.
               Powered by{" "}
               <span className="text-[#FF543E]">
@@ -428,7 +455,7 @@ export function Footer() {
 
               <Link
                 href="/privacy-policy"
-                className="text-white/80 hover:text-white transition text-[clamp(0.8125rem,2.5vw,0.9375rem)] whitespace-nowrap"
+                className="text-white hover:underline transition text-[clamp(0.8125rem,2.5vw,0.9375rem)] whitespace-nowrap"
               >
                 Privacy policy
               </Link>

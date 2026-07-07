@@ -110,14 +110,28 @@ router.get("/events", async (_req, res) => {
 /* ================= SSE ================= */
 router.get("/events/stream", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
 
-  res.write("event: connected\ndata: {}\n\n");
+  req.socket.setTimeout(0);
+  req.socket.setNoDelay(true);
+  req.socket.setKeepAlive(true);
+
+  res.flushHeaders?.();
+
+  if (!res.destroyed && !res.writableEnded) {
+    res.write("event: connected\ndata: {}\n\n");
+  }
 
   addPublicSSEClient(res);
 
   const hb = setInterval(() => {
+    if (res.destroyed || res.writableEnded) {
+      clearInterval(hb);
+      return;
+    }
+
     try {
       res.write(": heartbeat\n\n");
     } catch {
@@ -125,7 +139,9 @@ router.get("/events/stream", (req, res) => {
     }
   }, 25000);
 
-  req.on("close", () => clearInterval(hb));
+  req.on("close", () => {
+    clearInterval(hb);
+  });
 });
 
 /* ================= ADMIN GET ================= */

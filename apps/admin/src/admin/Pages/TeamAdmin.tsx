@@ -4,31 +4,11 @@ import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, X, ArrowLeft, Image as Image
 import { ConfirmDialog, AlertDialog } from "../components/ConfirmDialog";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-const ROLES = [
-  "Senior director",
-  "Supervision",
-  "Family & Support counselling",
-  "Couples counselling",
-  "Individual therapy",
-  "Youth counselling",
-  "Children & Youth counselling",
-  "Marital & Couple therapy",
-  "Pre-School children (Ages 2.5–7)",
-  "Adult counselling (Ages 21–65)",
-  "Clinical supervision",
-];
 
 const EMPTY = {
   name: "",
   title: "",
-  role: "counsellor",
-  bio: "",
-  experience: "",
-  credentials: [],
-  specialisations: [],
   photoUrl: "",
-  email: "",
-  displayOrder: 0,
   isVisible: true,
 };
 
@@ -52,8 +32,6 @@ function resolveImageUrl(url) {
 
 function Modal({ member, onSave, onClose }) {
   const [form, setForm] = useState(member || EMPTY);
-  const [credInput, setCredInput] = useState((member?.credentials || []).join("\n"));
-  const [specInput, setSpecInput] = useState((member?.specialisations || []).join("\n"));
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const [saveError, setSaveError] = useState(null);
@@ -105,9 +83,11 @@ function Modal({ member, onSave, onClose }) {
 
     try {
       await onSave({
-        ...form,
-        credentials: credInput.split("\n").map((s) => s.trim()).filter(Boolean),
-        specialisations: specInput.split("\n").map((s) => s.trim()).filter(Boolean),
+        id: form.id,
+        name: form.name,
+        title: form.title,
+        photoUrl: form.photoUrl,
+        isVisible: form.isVisible,
       });
     } catch (err) {
       setSaveError(err.message || "Saving team member failed. Please try again.");
@@ -240,94 +220,6 @@ function Modal({ member, onSave, onClose }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Role</label>
-                <select
-                  className={inputClass}
-                  value={form.role}
-                  onChange={(e) => set("role", e.target.value)}
-                >
-                  {ROLES.map((r) => (
-                    <option key={r} value={r}>
-                      {r.charAt(0).toUpperCase() + r.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className={labelClass}>Display Order</label>
-                <input
-                  type="number"
-                  className={inputClass}
-                  value={form.displayOrder}
-                  onChange={(e) => set("displayOrder", Number(e.target.value))}
-                  placeholder="0"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className={labelClass}>Email</label>
-              <input
-                className={inputClass}
-                value={form.email}
-                onChange={(e) => set("email", e.target.value)}
-                placeholder="email@example.com"
-                type="email"
-              />
-            </div>
-
-            {/* Bio */}
-            <div>
-              <label className={labelClass}>Bio</label>
-              <textarea
-                className={`${inputClass} resize-none`}
-                rows={3}
-                value={form.bio}
-                onChange={(e) => set("bio", e.target.value)}
-                placeholder="Professional biography..."
-              />
-            </div>
-
-            {/* Experience Field */}
-            <div>
-              <label className={labelClass}>Experience</label>
-              <input
-                className={inputClass}
-                value={form.experience}
-                onChange={(e) => set("experience", e.target.value)}
-                placeholder="e.g., 5+ Years Experience"
-              />
-              <p className="text-xs text-gray-400 mt-1">Example: "5+ Years Experience" or "10+ Years in Practice"</p>
-            </div>
-            
-            {/* Credentials & Specialisations */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Credentials</label>
-                <textarea
-                  className={`${inputClass} resize-none`}
-                  rows={4}
-                  value={credInput}
-                  onChange={(e) => setCredInput(e.target.value)}
-                  placeholder="MSc Psychology&#10;BACP Accredited&#10;PhD in Counselling"
-                />
-                <p className="text-xs text-gray-400 mt-1">One per line</p>
-              </div>
-              <div>
-                <label className={labelClass}>Specialisations</label>
-                <textarea
-                  className={`${inputClass} resize-none`}
-                  rows={4}
-                  value={specInput}
-                  onChange={(e) => setSpecInput(e.target.value)}
-                  placeholder="Anxiety&#10;Depression&#10;Trauma&#10;CBT"
-                />
-                <p className="text-xs text-gray-400 mt-1">One per line</p>
-              </div>
-            </div>
-
             {/* Visibility toggle */}
             <div className="flex items-center gap-3 bg-blue-50 px-4 py-3 rounded-lg border border-blue-200">
               <input
@@ -378,23 +270,6 @@ function Modal({ member, onSave, onClose }) {
         onClose={() => setSaveError(null)}
       />
     </AnimatePresence>
-  );
-}
-
-// ─── Tag pill used in the table ───────────────────────────────────────────────
-function TagList({ items }: { items: string[] }) {
-  if (!items?.length) return <span className="text-gray-400 text-sm">—</span>;
-  return (
-    <div className="flex flex-wrap gap-1">
-      {items.map((item, i) => (
-        <span
-          key={i}
-          className="inline-block  text-gray-700 text-xs font-medium px-2 py-1 rounded"
-        >
-          {item}
-        </span>
-      ))}
-    </div>
   );
 }
 
@@ -454,83 +329,26 @@ function ViewModal({ member, onClose }: { member: any; onClose: () => void }) {
               <p className="text-base text-gray-800">{member.title || "—"}</p>
             </div>
 
-            {/* Role + Email side by side */}
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <p className="text-xs font-semibold text-gray-500 mb-1">Role</p>
-                <p className="text-sm text-gray-800">{member.role || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-gray-500 mb-1">Email</p>
-                <p className="text-sm text-gray-800">{member.email || "—"}</p>
-              </div>
+            {/* Visibility */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">Visibility</p>
+              <span
+                className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${
+                  member.isVisible
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gray-100 text-gray-500"
+                }`}
+              >
+                {member.isVisible ? "Visible" : "Hidden"}
+              </span>
             </div>
-
-            {/* Visibility + Display Order side by side */}
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <p className="text-xs font-semibold text-gray-500 mb-1">Visibility</p>
-                <span
-                  className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${
-                    member.isVisible
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  {member.isVisible ? "Visible" : "Hidden"}
-                </span>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-gray-500 mb-1">Display Order</p>
-                <p className="text-sm text-gray-800">{member.displayOrder ?? "—"}</p>
-              </div>
-            </div>
-
-            {/* Experience */}
-            {member.experience && (
-              <div>
-                <p className="text-xs font-semibold text-gray-500 mb-1">Experience</p>
-                <p className="text-sm text-gray-800">{member.experience}</p>
-              </div>
-            )}
-
-            {/* Bio */}
-            {member.bio && (
-              <div>
-                <p className="text-xs font-semibold text-gray-500 mb-1">Bio</p>
-                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{member.bio}</p>
-              </div>
-            )}
-
-            {/* Credentials */}
-            {member.credentials?.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-gray-500 mb-2">Credentials</p>
-                <div className="flex flex-wrap gap-2">
-                  {member.credentials.map((c: string, i: number) => (
-                    <span key={i} className="bg-blue-50 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full border border-blue-200">{c}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Specialisations */}
-            {member.specialisations?.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-gray-500 mb-2">Specialisations</p>
-                <div className="flex flex-wrap gap-2">
-                  {member.specialisations.map((s: string, i: number) => (
-                    <span key={i} className="bg-green-50 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full border border-green-200">{s}</span>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </motion.div>
       </div>
     </AnimatePresence>
   );
 }
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function TeamAdmin() {
   const [members, setMembers] = useState<any[]>([]);
@@ -644,11 +462,6 @@ export default function TeamAdmin() {
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Photo</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Name</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Title</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Role</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Email</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Credentials</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Specialisations</th>
-                    <th className="px-6 py-4 text-right text-sm font-semibold text-blue-900">Order</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Visible</th>
                     <th className="px-6 py-4 text-center text-sm font-semibold text-blue-900">Actions</th>
                   </tr>
@@ -681,20 +494,8 @@ export default function TeamAdmin() {
                         </td>
                         <td className="px-6 py-4">
                           <div className=" text-gray-900">{member.name}</div>
-                          {member.bio && (
-                            <div className="text-xs text-gray-400 mt-1 max-w-xs truncate">{member.bio}</div>
-                          )}
                         </td>
                         <td className="px-6 py-4 text-gray-600 text-sm">{member.title}</td>
-                        <td className="px-6 py-4">
-                          <span className="text-gray-700 text-xs font-medium">
-                            {member.role}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-gray-500 text-sm">{member.email || "—"}</td>
-                        <td className="px-6 py-4"><TagList items={member.credentials} /></td>
-                        <td className="px-6 py-4"><TagList items={member.specialisations} /></td>
-                        <td className="px-6 py-4 text-right text-gray-500 text-sm">{member.displayOrder}</td>
                         <td className="px-6 py-4 text-left">
                           <span className={`text-sm font-medium ${member.isVisible ? "text-green-600" : "text-gray-400"}`}>
                             {member.isVisible ? "Yes" : "No"}
@@ -729,7 +530,7 @@ export default function TeamAdmin() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="11" className="px-6 py-16 text-center">
+                      <td colSpan="6" className="px-6 py-16 text-center">
                         <div className="flex flex-col items-center gap-3">
                           <ImageIcon size={48} className="text-gray-300" />
                           <p className="text-gray-500 text-lg">No team members found</p>

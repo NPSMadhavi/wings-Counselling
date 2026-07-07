@@ -65,7 +65,7 @@ const TeamPage = () => {
             <div className="flex flex-col w-full md:hidden pt-[72px] min-[375px]:pt-[80px] sm:pt-[88px]">
                 <div className="w-full bg-[#E8EEF5]">
                     <img
-                        src="/assets/Group_3.png"
+                        src="/assets/Teamphoto.jpeg"
                         alt="WINGS counselling team"
                         className="w-full h-auto object-contain object-center"
                     />
@@ -121,7 +121,7 @@ const TeamPage = () => {
             <div className="relative hidden md:block w-full bg-[#E8EEF5]">
                 <div className="relative w-full">
                     <img
-                        src="/assets/Group_3 copy.png"
+                        src="/assets/Teamphoto.jpeg"
                         alt="WINGS counselling team"
                         className="w-full h-auto object-contain object-center block"
                     />
@@ -139,7 +139,7 @@ const TeamPage = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.6, delay: 0.6 }}
-                                className="text-white font-['Outfit'] font-semibold mb-3 md:mb-4 lg:mb-5 text-[clamp(32px,4vw,56px)] leading-[1.1]"
+                                className="text-white font-['Outfit'] font-semibold mb-3 md:mb-4 lg:mb-5 text-[32px] sm:text-[44px] md:text-[45px] lg:text-[50px] leading-[1.1]"
                             >
                                 The people behind your healing
                             </motion.h1>
@@ -150,7 +150,7 @@ const TeamPage = () => {
                                 transition={{ duration: 0.6, delay: 0.8 }}
                                 className="text-white font-['DM_Sans'] font-normal mb-4 md:mb-5 lg:mb-6 text-[clamp(15px,1.6vw,19px)] leading-[1.55] text-center max-w-[900px]"
                             >
-                                Our counsellors are not just highly trained professionals-they are genuinely compassionate people who care deeply about your wellbeing. Every practitioner at WINGS brings empathy, clinical expertise, and a personal commitment to your journey.
+                                Our counsellors are not just highly trained professionals; they are genuinely compassionate people who care deeply about your wellbeing. Every practitioner at WINGS brings empathy, professional expertise and a personal commitment to your emotional wellness journey.
                             </motion.p>
 
                             <motion.button

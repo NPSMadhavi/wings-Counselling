@@ -29,11 +29,21 @@ function ArticleCard({ article, index }) {
     // Remove HTML tags from content
     const plainContent = (article.content || "").replace(/<[^>]+>/g, "");
 
+    const getRoute = (category) => {
+        if (!category) return "/GroundingTechniques";
+        const cat = category.toLowerCase();
+        if (cat.includes("relationship") || cat.includes("marital")) return "/RelationshipArticlePage";
+        if (cat.includes("parenting")) return "/ParentingArticlePage";
+        if (cat.includes("grief") || cat.includes("loss")) return "/GriefArticlePage";
+        if (cat.includes("mental health") || cat.includes("mental")) return "/MentalArticlePage";
+        return "/GroundingTechniques";
+    };
+
     return (
         <div
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            onClick={() => navigate("/GroundingTechniques")}
+            onClick={() => navigate(getRoute(article.category))}
             className="flex flex-col bg-white rounded-[10px] overflow-hidden transition-all duration-300 cursor-pointer"
             style={{
                 width: "100%",
@@ -63,28 +73,29 @@ function ArticleCard({ article, index }) {
                     }}
                 />
 
-                {/* Category Tag */}
-                <div
-                    className="absolute top-[15px] left-[15px] flex items-center justify-center rounded-[9999px] px-[16px] py-[6px]"
-                    style={{
-                        backgroundColor: "#FFF",
-                        width: "125px",
-                        height: "26px",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-                    }}
-                >
-                    <span
-                        className="font-['Plus_Jakarta_Sans'] font-semibold text-[9px] tracking-[1.2px] text-center"
-                        style={{
-                            color: "#1E3A8A",
-                            width: "93px",
-                            height: "16px",
-                            lineHeight: "16px"
-                        }}
-                    >
-                        {article.category || "General"}
-                    </span>
-                </div>
+               {/* Category Tag */}
+<div
+    className="absolute top-[15px] left-[15px] inline-flex items-center justify-center rounded-[9999px] px-[16px] py-[6px]"
+    style={{
+        backgroundColor: "#FFF",
+        width: "fit-content",
+        maxWidth: "calc(100% - 30px)",
+        minHeight: "26px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+    }}
+>
+    <span
+        className="font-['Plus_Jakarta_Sans'] font-semibold text-[9px] tracking-[1.2px] text-center"
+        style={{
+            color: "#1E3A8A",
+            lineHeight: "16px",
+            whiteSpace: "normal",
+            wordBreak: "break-word"
+        }}
+    >
+        {article.category || "General"}
+    </span>
+</div>
             </div>
 
             {/* Content Section */}
@@ -107,6 +118,7 @@ function ArticleCard({ article, index }) {
                             ? new Date(article.publishedAt).toLocaleDateString(
                                   "en-US",
                                   {
+                                      day: "numeric", 
                                       month: "long",
                                       year: "numeric",
                                   }
@@ -155,7 +167,7 @@ function ArticleCard({ article, index }) {
                             className="mt-auto pt-4 flex justify-end"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                navigate("/GroundingTechniques");
+                                navigate(getRoute(article.category));
                             }}
                         >
                             <svg
@@ -275,7 +287,7 @@ export function RecentArticles() {
     return (
         <section
             id="recent-articles"
-            className="w-full pt-[40px] pb-[60px] box-border"
+            className="w-full pt-[60px] pb-[60px] box-border"
             style={{ backgroundColor: "#D9E1E8" }}
         >
             <div className="navbar-align-outer">
@@ -287,7 +299,7 @@ export function RecentArticles() {
                         className="
                             font-['Outfit']
                             font-medium
-                            text-[clamp(26px,4.8vw,28px)]
+                            text-[clamp(22px,4.8vw,28px)]
                             md:text-[35px]
                             leading-[1.2]
                             mb-4
@@ -304,7 +316,8 @@ export function RecentArticles() {
                             text-center
                             font-['DM_Sans']
                             text-[16px]
-                            md:text-[20px]
+                            md:text-[18px]
+                            lg:text-[20px]
                             font-normal
                             leading-[1.5]
                             line-clamp-2

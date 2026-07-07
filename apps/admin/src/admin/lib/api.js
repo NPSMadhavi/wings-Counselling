@@ -209,6 +209,40 @@ export const api = {
 
   getNotifySubscribers: () => apiFetch("/admin/notify-subscribers"),
 
+  getPartners: () => apiFetch("/admin/partners"),
+  getPartner: (id) => apiFetch(`/admin/partners/${id}`),
+  createPartner: (data) =>
+    apiFetch("/admin/partners", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updatePartner: (id, data) =>
+    apiFetch(`/admin/partners/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  deletePartner: (id) =>
+    apiFetch(`/admin/partners/${id}`, {
+      method: "DELETE",
+    }),
+
+  getTestimonials: () => apiFetch("/admin/testimonials"),
+  getTestimonial: (id) => apiFetch(`/admin/testimonials/${id}`),
+  createTestimonial: (data) =>
+    apiFetch("/admin/testimonials", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updateTestimonial: (id, data) =>
+    apiFetch(`/admin/testimonials/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  deleteTestimonial: (id) =>
+    apiFetch(`/admin/testimonials/${id}`, {
+      method: "DELETE",
+    }),
+
   uploadFiles: async (files) => {
     const fd = new FormData();
 

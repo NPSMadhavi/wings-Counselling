@@ -14,6 +14,8 @@ import jobsRouter from "./routes/jobs.js";
 import appointmentRouter from "./routes/appointment.js";
 import volunteersRouter from "./routes/volunteers.js";
 import counsellingTypesRouter from "./routes/counsellingTypes.js";
+import partnersRouter from "./routes/partners.js";
+import testimonialsRouter from "./routes/testimonials.js";
 import applicationsRouter from "./routes/applications.js";
 import emailRecipientsRouter from "./routes/emailRecipients.js";
 import formSubmissionEmailsRouter from "./routes/formSubmissionEmails.js";
@@ -136,6 +138,8 @@ app.use("/api", eventSubscribersRouter);
 app.use("/api/appointments", appointmentRouter);
 app.use("/api/volunteers", volunteersRouter);
 app.use("/api/counselling-types", counsellingTypesRouter);
+app.use("/api", partnersRouter);
+app.use("/api", testimonialsRouter);
 const DEFAULT_INTERVIEW_SLOT_SETTINGS = [
   { round: 1, timeSlot: "07:30", isActive: true },
   { round: 1, timeSlot: "08:30", isActive: true },
@@ -846,12 +850,28 @@ app.delete("/api/categories/:id", requireAdmin, async (req, res) => {
   }
 });
 
-app.listen(PORT, "0.0.0.0", () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`🌐 API URL: http://localhost:${PORT}/api`);
   console.log(`📝 Test endpoint: http://localhost:${PORT}/api/test`);
   console.log(`📰 Articles endpoint: http://localhost:${PORT}/api/articles`);
   console.log(`📧 Candidate portal origin: ${getCandidatePortalOrigin()}`);
+});
+
+server.on("error", (err) => {
+  console.error("❌ HTTP server error:", err);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("❌ Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", (reason) => {
+  console.error("❌ Unhandled Rejection:", reason);
+});
+
+process.on("exit", (code) => {
+  console.log("⚠️ Node process exiting with code:", code);
 });
 
 void (async () => {

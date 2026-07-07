@@ -204,7 +204,7 @@ export default function JobDetail() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-white font-['Outfit'] font-semibold mb-6 md:mb-8 text-[32px] sm:text-[44px] md:text-[54px] lg:text-[60px] leading-[1.1]"
+            className="text-white font-['Outfit'] font-semibold mb-6 md:mb-8 text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px] md:pt-[80px] leading-[1.1]"
             style={{ maxWidth: "843px" }}
           >
             {job.title}

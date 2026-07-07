@@ -6,6 +6,8 @@ import {
   Briefcase,
   Calendar,
   HeartHandshake,
+  Handshake,
+  MessageSquareQuote,
   LogOut,
   LayoutDashboard,
   Bell,
@@ -507,6 +509,14 @@ export default function AdminLayout({
       return location === "/admin/volunteers";
     }
 
+    if (href === "/admin/partners") {
+      return location === "/admin/partners";
+    }
+
+    if (href === "/admin/testimonials") {
+      return location === "/admin/testimonials";
+    }
+
     if (href === "/admin/settings/primary-cc-mails") {
       return isPrimaryCcMailsRoute;
     }
@@ -799,6 +809,32 @@ export default function AdminLayout({
     <HeartHandshake size={18} />
 
     {!sidebarCollapsed && <span>Volunteers</span>}
+  </button>
+
+  <button
+    onClick={() => handleNavigate("/admin/partners")}
+    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
+      isActive("/admin/partners")
+        ? "bg-blue-50 text-gray-900"
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    }`}
+  >
+    <Handshake size={18} />
+
+    {!sidebarCollapsed && <span>Partners</span>}
+  </button>
+
+  <button
+    onClick={() => handleNavigate("/admin/testimonials")}
+    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
+      isActive("/admin/testimonials")
+        ? "bg-blue-50 text-gray-900"
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    }`}
+  >
+    <MessageSquareQuote size={18} />
+
+    {!sidebarCollapsed && <span>Testimonials</span>}
   </button>
 </div>
 

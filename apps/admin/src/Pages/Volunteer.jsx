@@ -106,13 +106,13 @@ const whoVolunteers = [
       "University students looking to give back, gain experience and fulfill community involvement hours in a safe, supportive setting.",
   },
   {
-    icon: <Briefcase size={28} strokeWidth={2} color="#1E3A8A"/>,
+    icon: <Briefcase size={28} strokeWidth={2} color="#1E3A8A" />,
     title: "Working professionals",
     description:
       "Those who want to give a couple of hours to a social cause that fits your schedule & a meaningful outlet from your day-to-day.",
   },
   {
-    icon: <Heart size={28} strokeWidth={2} color="#1E3A8A"/>,
+    icon: <Heart size={28} strokeWidth={2} color="#1E3A8A" />,
     title: "Retirees & seniors",
     description:
       "With a lifetime of experience & wisdom and compassion, your steady presence can have a powerful impact on vulnerable communities.",
@@ -139,188 +139,312 @@ const Volunteer = () => {
         >
           <div className="absolute inset-0" style={{ background: "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.65))" }} />
 
-          <div
-            className="relative z-10 flex flex-col items-center justify-center text-center text-white px-4 sm:px-6 md:px-10 h-full"
-          >
-            {/* Title — Outfit 500 60px line-height 100% center #FFFFFF */}
-            <motion.h1
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: "easeOut" }}
-              style={{
-                fontFamily: "'Outfit', sans-serif",
-                fontWeight: 500,
-                fontSize: "clamp(34px, 4.5vw, 60px)",
-                lineHeight: "100%",
-                textAlign: "center",
-                color: "#FFFFFF",
-                maxWidth: "715px",
-              }}
-            >
-              Become a volunteer at WINGS
-            </motion.h1>
-
-            {/* Description — DM Sans 400 20px line-height 100% center */}
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 400,
-                fontSize: "clamp(14px, 1.4vw, 20px)",
-                lineHeight: "160%",
-                textAlign: "center",
-                color: "#FFFFFF",
-                maxWidth: "951px",
-                marginTop: "24px",
-              }}
-            >
-              At WINGS Counselling Centre, volunteers play an important role in
-              supporting our mission of emotional well-being and community care.
-              Whether through assisting events, supporting outreach activities
-              or helping us create a safe and welcoming environment. every
-              contribution matters.
-            </motion.p>
-
-            {/* Button — Plus Jakarta Sans 500 18px color #F5F9FF bg #1B4585 radius 9999 padding 16/32 gap 10 */}
-            <motion.button
-              onClick={() => navigate("/volunteerform")}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.4 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                fontWeight: 500,
-                fontSize: "18px",
-                lineHeight: "28px",
-                color: "#F5F9FF",
-                backgroundColor: "#1B4585",
-                borderRadius: "9999px",
-                padding: "16px 32px",
-                border: "none",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "10px",
-                marginTop: "32px",
-              }}
-            >
-              Become a volunteer
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                style={{ position: "relative", top: "1.7px" }}
+          <div className="relative z-10 w-full h-full navbar-align-outer">
+            <div className="navbar-align-inner h-full flex flex-col items-center justify-center text-center text-white">
+              {/* Title — Outfit 500 60px line-height 100% center #FFFFFF */}
+              <motion.h1
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, ease: "easeOut" }}
+                className="text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px]"
+                style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontWeight: 500,
+                  lineHeight: "100%",
+                  textAlign: "center",
+                  color: "#FFFFFF",
+                  maxWidth: "715px",
+                }}
               >
-                <path
-                  d="M9 18L15 12L9 6"
-                  stroke="currentColor"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </motion.button>
+                Become a volunteer at WINGS
+              </motion.h1>
+
+              {/* Description — DM Sans 400 20px line-height 100% center */}
+              <motion.p
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 400,
+                  fontSize: "clamp(14px, 1.4vw, 20px)",
+                  lineHeight: "160%",
+                  textAlign: "center",
+                  color: "#FFFFFF",
+                  maxWidth: "951px",
+                  marginTop: "24px",
+                }}
+              >
+                At WINGS Counselling Centre, volunteers play an important role in
+                supporting our mission of emotional well-being and community care.
+                Whether through assisting events, supporting outreach activities
+                or helping us create a safe and welcoming environment. every
+                contribution matters.
+              </motion.p>
+
+              {/* Button — Plus Jakarta Sans 500 18px color #F5F9FF bg #1B4585 radius 9999 padding 16/32 gap 10 */}
+              <motion.button
+                onClick={() => navigate("/volunteerform")}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                style={{
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontWeight: 500,
+                  fontSize: "18px",
+                  lineHeight: "28px",
+                  color: "#F5F9FF",
+                  backgroundColor: "#1B4585",
+                  borderRadius: "9999px",
+                  padding: "16px 32px",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  marginTop: "32px",
+                }}
+              >
+                Become a volunteer
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  style={{ position: "relative", top: "1.7px" }}
+                >
+                  <path
+                    d="M9 18L15 12L9 6"
+                    stroke="currentColor"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </motion.button>
+            </div>
           </div>
         </section>
 
         {/* ════════════════════  WHY VOLUNTEER  ════════════════════ */}
         <section style={{ paddingTop: "clamp(60px, 8vw, 100px)", paddingBottom: "clamp(60px, 8vw, 100px)" }}>
-          <div className="container-main">
+          <div className="w-full navbar-align-outer">
+            <div className="navbar-align-inner">
 
-            <div className="flex flex-col items-center text-center">
-              {/* Pill badge */}
-       
+              <div className="flex flex-col items-center text-center">
+                {/* Pill badge */}
 
-              {/* Heading — Outfit 500 */}
-              <h2
-                style={{
-                  fontFamily: "'Outfit', sans-serif",
-                  fontWeight: 500,
-                  fontSize: "clamp(28px, 4vw, 48px)",
-                  lineHeight: "120%",
-                  color: "#0D4A7A",
-              
-                }}
-              >
-                Why volunteer with WINGS?
-              </h2>
-
-              {/* Description — DM Sans 400 */}
-              <p
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 400,
-                  fontSize: "clamp(14px, 1.15vw, 17px)",
-                  lineHeight: "170%",
-                  color: "#000000",
-                  maxWidth: "900px",
-                  marginTop: "20px",
-                }}
-              >
-              Volunteering with WINGS is an opportunity to give back while growing personally and professionally. Gain valuable experience, build meaningful connections and make a lasting impact in the lives of individuals and families.
-              </p>
-            </div>
-
-            {/* ── Volunteer Image Cards with HeartHandshake icon 24×24 ── */}
-            <div
-              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
-              style={{ marginTop: "50px" }}
-            >
-              {volunteerCards.map((card, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col overflow-hidden transition-transform duration-300 hover:-translate-y-1.5"
+                {/* Heading — Outfit 500 */}
+                <h2
                   style={{
-                    borderRadius: "16px",
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                    fontFamily: "'Outfit', sans-serif",
+                    fontWeight: 500,
+                    fontSize: "clamp(28px, 4vw, 48px)",
+                    lineHeight: "120%",
+                    color: "#0D4A7A",
                   }}
                 >
-                  {/* Image */}
-                  <img
-                    src={card.image}
-                    alt={card.title}
-                    style={{
-                      width: "100%",
-                      height: "260px",
-                      objectFit: "cover",
-                      display: "block",
-                    }}
-                  />
+                  Why volunteer with WINGS?
+                </h2>
 
-                  {/* Blue info section */}
+                {/* Description — DM Sans 400 */}
+                <p
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontWeight: 400,
+                    fontSize: "clamp(14px, 1.15vw, 17px)",
+                    lineHeight: "170%",
+                    color: "#000000",
+                    maxWidth: "900px",
+                    marginTop: "20px",
+                  }}
+                >
+                  Volunteering with WINGS is an opportunity to give back while growing personally and professionally. Gain valuable experience, build meaningful connections and make a lasting impact in the lives of individuals and families.
+                </p>
+              </div>
+
+              {/* ── Volunteer Image Cards with HeartHandshake icon 24×24 ── */}
+              <div
+                className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+                style={{ marginTop: "50px" }}
+              >
+                {volunteerCards.map((card, index) => (
                   <div
-                    className="flex flex-col flex-1"
+                    key={index}
+                    className="flex flex-col overflow-hidden transition-transform duration-300 hover:-translate-y-1.5"
                     style={{
-                      backgroundColor: "#0D4A7A",
-                      padding: "23px 20px 20px 20px",
-                      minHeight: "170px",
+                      borderRadius: "16px",
+                      boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
                     }}
                   >
-                    {/* Icon + Title row — HeartHandshake 24×24 */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <HeartHandshake
-                        size={24}
-                        strokeWidth={2}
-                        color="#FFFFFF"
-                        style={{ flexShrink: 0 }}
-                      />
-                      <h3
+                    {/* Image */}
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      style={{
+                        width: "100%",
+                        height: "260px",
+                        objectFit: "cover",
+                        display: "block",
+                      }}
+                    />
+
+                    {/* Blue info section */}
+                    <div
+                      className="flex flex-col flex-1"
+                      style={{
+                        backgroundColor: "#0D4A7A",
+                        padding: "23px 20px 20px 20px",
+                        minHeight: "170px",
+                      }}
+                    >
+                      {/* Icon + Title row — HeartHandshake 24×24 */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <HeartHandshake
+                          size={24}
+                          strokeWidth={2}
+                          color="#FFFFFF"
+                          style={{ flexShrink: 0 }}
+                        />
+                        <h3
+                          style={{
+                            fontFamily: "'Outfit', sans-serif",
+                            fontWeight: 500,
+                            fontSize: "18px",
+                            lineHeight: "130%",
+                            color: "#FFFFFF",
+                            margin: 0,
+                          }}
+                        >
+                          {card.title}
+                        </h3>
+                      </div>
+
+                      {/* Description */}
+                      <p
                         style={{
-                          fontFamily: "'Outfit', sans-serif",
-                          fontWeight: 500,
-                          fontSize: "18px",
-                          lineHeight: "130%",
-                          color: "#FFFFFF",
-                          margin: 0,
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontWeight: 400,
+                          fontSize: "16px",
+                          lineHeight: "170%",
+                          color: "rgba(255,255,255,0.85)",
+                          marginTop: "12px",
                         }}
                       >
-                        {card.title}
-                      </h3>
+                        {card.text}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════════  FOUR WAYS TO SHOW UP  ════════════════════ */}
+        <section style={{ backgroundColor: "#D9E1E8", paddingTop: "clamp(60px, 8vw, 100px)", paddingBottom: "clamp(60px, 8vw, 100px)" }}>
+          <div className="w-full navbar-align-outer">
+            <div className="navbar-align-inner">
+
+              <div>
+                <h2
+                  style={{
+                    fontFamily: "'Outfit', sans-serif",
+                    fontWeight: 500,
+                    fontSize: "clamp(28px, 3.2vw, 40px)",
+                    lineHeight: "100%",
+                    color: "#0D4A7A",
+                  }}
+                >
+                  Four ways to show up
+                </h2>
+
+                <p
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontWeight: 400,
+                    fontSize: "clamp(14px, 1.15vw, 17px)",
+                    lineHeight: "160%",
+                    color: "#000000",
+                    marginTop: "12px",
+                    maxWidth: "600px",
+                  }}
+                >
+                  Pick what fits your skills, schedule and the kind of contribution
+                  that feels meaningful to you.
+                </p>
+              </div>
+
+              {/* Opportunity Cards 2×2 — icon box 60×60 radius 10 bg #DE5753 30% */}
+              <div
+                className="grid gap-6 md:grid-cols-2"
+                style={{ marginTop: "40px" }}
+              >
+                {opportunities.map((item, index) => (
+                  <div
+                    key={index}
+                    className="transition-transform duration-300 hover:-translate-y-1"
+                    style={{
+                      backgroundColor: "#F9F9F9",
+                      borderRadius: "20px",
+                      padding: "28px",
+                    }}
+                  >
+                    {/* Icon + Title + Subtitle ROW */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "16px",
+                      }}
+                    >
+                      {/* Icon box — 60×60 radius 10 bg #DE5753 30% */}
+                      <div
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          minWidth: "60px",
+                          borderRadius: "10px",
+                          backgroundColor: "#E8F4FD",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#DE5753",
+                        }}
+                      >
+                        {item.icon}
+                      </div>
+
+                      {/* Title + Subtitle stacked */}
+                      <div>
+                        <h3
+                          style={{
+                            fontFamily: "'Outfit', sans-serif",
+                            fontWeight: 500,
+                            fontSize: "clamp(20px, 1.8vw, 24px)",
+                            lineHeight: "130%",
+                            color: "#000204",
+                            margin: 0,
+                          }}
+                        >
+                          {item.title}
+                        </h3>
+
+                        <p
+                          style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontWeight: 500,
+                            fontSize: "14px",
+                            lineHeight: "150%",
+                            color: "#0D4A7A",
+                            marginTop: "4px",
+                          }}
+                        >
+                          {item.subtitle}
+                        </p>
+                      </div>
                     </div>
 
                     {/* Description */}
@@ -328,26 +452,47 @@ const Volunteer = () => {
                       style={{
                         fontFamily: "'DM Sans', sans-serif",
                         fontWeight: 400,
-                        fontSize: "16px",
+                        fontSize: "clamp(14px, 1.1vw, 16px)",
                         lineHeight: "170%",
-                        color: "rgba(255,255,255,0.85)",
-                        marginTop: "12px",
+                        color: "#000000",
+                        marginTop: "16px",
                       }}
                     >
-                      {card.text}
+                      {item.description}
                     </p>
+
+                    {/* Tags */}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "18px" }}>
+                      {item.tags.map((tag, i) => (
+                        <span
+                          key={i}
+                          style={{
+                            fontFamily: "'Plus Jakarta Sans', sans-serif",
+                            fontWeight: 500,
+                            fontSize: "12px",
+                            lineHeight: "150%",
+                            color: "#0D4A7A",
+                            backgroundColor: "#D9E1E8",
+                            borderRadius: "9999px",
+                            padding: "5px 14px",
+                          }}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ════════════════════  FOUR WAYS TO SHOW UP  ════════════════════ */}
-        <section style={{ backgroundColor: "#D9E1E8", paddingTop: "clamp(60px, 8vw, 100px)", paddingBottom: "clamp(60px, 8vw, 100px)" }}>
-          <div className="container-main">
+        {/* ════════════════════  YOUR PATH TO IMPACT  ════════════════════ */}
+        <section style={{ paddingTop: "clamp(60px, 8vw, 100px)", paddingBottom: "clamp(60px, 8vw, 100px)" }}>
+          <div className="w-full navbar-align-outer">
+            <div className="navbar-align-inner" style={{ textAlign: "center" }}>
 
-            <div>
               <h2
                 style={{
                   fontFamily: "'Outfit', sans-serif",
@@ -357,7 +502,7 @@ const Volunteer = () => {
                   color: "#0D4A7A",
                 }}
               >
-                Four ways to show up
+                Your path to impact
               </h2>
 
               <p
@@ -368,63 +513,142 @@ const Volunteer = () => {
                   lineHeight: "160%",
                   color: "#000000",
                   marginTop: "12px",
-                  maxWidth: "600px",
                 }}
               >
-                Pick what fits your skills, schedule and the kind of contribution
-                that feels meaningful to you.
+                A simple journey toward making a difference.
               </p>
-            </div>
 
-            {/* Opportunity Cards 2×2 — icon box 60×60 radius 10 bg #DE5753 30% */}
-            <div
-              className="grid gap-6 md:grid-cols-2"
-              style={{ marginTop: "40px" }}
-            >
-              {opportunities.map((item, index) => (
+              {/* Steps with #DE5753 connector bars — 180×5 radius 10 */}
+              <div style={{ marginTop: "60px" }}>
+                {/* Desktop: Circles + Bars inline flex row */}
                 <div
-                  key={index}
-                  className="transition-transform duration-300 hover:-translate-y-1"
+                  className="hidden md:flex"
                   style={{
-                    backgroundColor: "#F9F9F9",
-                    borderRadius: "20px",
-                    padding: "28px",
+                    alignItems: "center",
+                    paddingLeft: "calc(12.5% - 30px)",
+                    paddingRight: "calc(12.5% - 30px)",
+                    marginBottom: "28px",
                   }}
                 >
-                  {/* Icon + Title + Subtitle ROW */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: "16px",
-                    }}
-                  >
-                    {/* Icon box — 60×60 radius 10 bg #DE5753 30% */}
-                    <div
-                      style={{
-                        width: "60px",
-                        height: "60px",
-                        minWidth: "60px",
-                        borderRadius: "10px",
-                        backgroundColor: "#E8F4FD",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "#DE5753",
-                      }}
-                    >
-                      {item.icon}
-                    </div>
+                  {processSteps.map((item, index) => (
+                    <React.Fragment key={index}>
+                      {/* Number circle */}
+                      <div
+                        className="transition-transform duration-300 hover:scale-110"
+                        style={{
+                          width: "80px",
+                          height: "80px",
+                          minWidth: "80px",
+                          borderRadius: "50%",
+                          backgroundColor: "#1B4585",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontFamily: "'Outfit', sans-serif",
+                          fontWeight: 700,
+                          fontSize: "24px",
+                          color: "#FFFFFF",
+                          position: "relative",
+                          zIndex: 2,
+                        }}
+                      >
+                        {item.step}
+                      </div>
 
-                    {/* Title + Subtitle stacked */}
-                    <div>
+                      {/* Connector bar between circles — rounded ends */}
+                      {index < processSteps.length - 1 && (
+                        <div
+                          style={{
+                            flex: 1,
+                            marginLeft: "20px",
+                            marginRight: "20px",
+                            height: "5px",
+                            borderRadius: "10px",
+                            backgroundColor: "#DE5753",
+                          }}
+                        />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+
+                {/* Mobile: circles stacked 2×2 without line */}
+                <div
+                  className="grid grid-cols-2 gap-6 md:hidden"
+                  style={{ marginBottom: "24px" }}
+                >
+                  {processSteps.map((item, index) => (
+                    <div key={index} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                      <div
+                        style={{
+                          width: "80px",
+                          height: "80px",
+                          borderRadius: "50%",
+                          backgroundColor: "#1B4585",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontFamily: "'Outfit', sans-serif",
+                          fontWeight: 700,
+                          fontSize: "24px",
+                          color: "#FFFFFF",
+                        }}
+                      >
+                        {item.step}
+                      </div>
                       <h3
                         style={{
                           fontFamily: "'Outfit', sans-serif",
                           fontWeight: 500,
-                          fontSize: "clamp(20px, 1.8vw, 24px)",
+                          fontSize: "18px",
                           lineHeight: "130%",
-                          color: "#000204",
+                          color: "#1B4585",
+                          margin: 0,
+                          marginTop: "16px",
+                          textAlign: "center",
+                        }}
+                      >
+                        {item.title}
+                      </h3>
+                      <p
+                        style={{
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontWeight: 400,
+                          fontSize: "16px",
+                          lineHeight: "160%",
+                          color: "#000000",
+                          marginTop: "8px",
+                          textAlign: "center",
+                        }}
+                      >
+                        {item.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop: Titles + Descriptions grid below circles */}
+                <div
+                  className="hidden md:grid md:grid-cols-4"
+                  style={{ gap: "0px" }}
+                >
+                  {processSteps.map((item, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        textAlign: "center",
+                      }}
+                    >
+                      <h3
+                        style={{
+                          fontFamily: "'Outfit', sans-serif",
+                          fontWeight: 500,
+                          fontSize: "18px",
+                          lineHeight: "130%",
+                          color: "#1B4585",
                           margin: 0,
                         }}
                       >
@@ -434,239 +658,19 @@ const Volunteer = () => {
                       <p
                         style={{
                           fontFamily: "'DM Sans', sans-serif",
-                          fontWeight: 500,
-                          fontSize: "14px",
-                          lineHeight: "150%",
-                          color: "#0D4A7A",
-                          marginTop: "4px",
+                          fontWeight: 400,
+                          fontSize: "16px",
+                          lineHeight: "160%",
+                          color: "#000000",
+                          marginTop: "8px",
+                          maxWidth: "200px",
                         }}
                       >
-                        {item.subtitle}
+                        {item.desc}
                       </p>
                     </div>
-                  </div>
-
-                  {/* Description */}
-                  <p
-                    style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontWeight: 400,
-                      fontSize: "clamp(14px, 1.1vw, 16px)",
-                      lineHeight: "170%",
-                      color: "#000000",
-                      marginTop: "16px",
-                    }}
-                  >
-                    {item.description}
-                  </p>
-
-                  {/* Tags */}
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "18px" }}>
-                    {item.tags.map((tag, i) => (
-                      <span
-                        key={i}
-                        style={{
-                          fontFamily: "'Plus Jakarta Sans', sans-serif",
-                          fontWeight: 500,
-                          fontSize: "12px",
-                          lineHeight: "150%",
-                          color: "#0D4A7A",
-                          backgroundColor: "#D9E1E8",
-                          borderRadius: "9999px",
-                          padding: "5px 14px",
-                        }}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ════════════════════  YOUR PATH TO IMPACT  ════════════════════ */}
-        <section style={{ paddingTop: "clamp(60px, 8vw, 100px)", paddingBottom: "clamp(60px, 8vw, 100px)" }}>
-          <div className="container-main" style={{ textAlign: "center" }}>
-
-            <h2
-              style={{
-                fontFamily: "'Outfit', sans-serif",
-                fontWeight: 500,
-                fontSize: "clamp(28px, 3.2vw, 40px)",
-                lineHeight: "100%",
-                color: "#0D4A7A",
-              }}
-            >
-              Your path to impact
-            </h2>
-
-            <p
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 400,
-                fontSize: "clamp(14px, 1.15vw, 17px)",
-                lineHeight: "160%",
-                color: "#000000",
-                marginTop: "12px",
-              }}
-            >
-              A simple journey toward making a difference.
-            </p>
-
-            {/* Steps with #DE5753 connector bars — 180×5 radius 10 */}
-            <div style={{ marginTop: "60px" }}>
-              {/* Desktop: Circles + Bars inline flex row */}
-              <div
-                className="hidden md:flex"
-                style={{
-                  alignItems: "center",
-                  paddingLeft: "calc(12.5% - 30px)",
-                  paddingRight: "calc(12.5% - 30px)",
-                  marginBottom: "28px",
-                }}
-              >
-                {processSteps.map((item, index) => (
-                  <React.Fragment key={index}>
-                    {/* Number circle */}
-                    <div
-                      className="transition-transform duration-300 hover:scale-110"
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        minWidth: "80px",
-                        borderRadius: "50%",
-                        backgroundColor: "#1B4585",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontFamily: "'Outfit', sans-serif",
-                        fontWeight: 700,
-                        fontSize: "24px",
-                        color: "#FFFFFF",
-                        position: "relative",
-                        zIndex: 2,
-                      }}
-                    >
-                      {item.step}
-                    </div>
-
-                    {/* Connector bar between circles — rounded ends */}
-                    {index < processSteps.length - 1 && (
-                      <div
-                        style={{
-                          flex: 1,
-                          marginLeft: "20px",
-                          marginRight: "20px",
-                          height: "5px",
-                          borderRadius: "10px",
-                          backgroundColor: "#DE5753",
-                        }}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
-
-              {/* Mobile: circles stacked 2×2 without line */}
-              <div
-                className="grid grid-cols-2 gap-6 md:hidden"
-                style={{ marginBottom: "24px" }}
-              >
-                {processSteps.map((item, index) => (
-                  <div key={index} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <div
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        borderRadius: "50%",
-                        backgroundColor: "#1B4585",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontFamily: "'Outfit', sans-serif",
-                        fontWeight: 700,
-                        fontSize: "24px",
-                        color: "#FFFFFF",
-                      }}
-                    >
-                      {item.step}
-                    </div>
-                    <h3
-                      style={{
-                        fontFamily: "'Outfit', sans-serif",
-                        fontWeight: 500,
-                        fontSize: "18px",
-                        lineHeight: "130%",
-                        color: "#1B4585",
-                        margin: 0,
-                        marginTop: "16px",
-                        textAlign: "center",
-                      }}
-                    >
-                      {item.title}
-                    </h3>
-                    <p
-                      style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontWeight: 400,
-                        fontSize: "16px",
-                        lineHeight: "160%",
-                        color: "#000000",
-                        marginTop: "8px",
-                        textAlign: "center",
-                      }}
-                    >
-                      {item.desc}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Desktop: Titles + Descriptions grid below circles */}
-              <div
-                className="hidden md:grid md:grid-cols-4"
-                style={{ gap: "0px" }}
-              >
-                {processSteps.map((item, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      textAlign: "center",
-                    }}
-                  >
-                    <h3
-                      style={{
-                        fontFamily: "'Outfit', sans-serif",
-                        fontWeight: 500,
-                        fontSize: "18px",
-                        lineHeight: "130%",
-                        color: "#1B4585",
-                        margin: 0,
-                      }}
-                    >
-                      {item.title}
-                    </h3>
-
-                    <p
-                      style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontWeight: 400,
-                        fontSize: "16px",
-                        lineHeight: "160%",
-                        color: "#000000",
-                        marginTop: "8px",
-                        maxWidth: "200px",
-                      }}
-                    >
-                      {item.desc}
-                    </p>
-                  </div>
-                ))}
               </div>
             </div>
           </div>
@@ -674,220 +678,224 @@ const Volunteer = () => {
 
         {/* ════════════════════  WHO VOLUNTEERS WITH US  ════════════════════ */}
         <section style={{ backgroundColor: "#D9E1E8", paddingTop: "clamp(60px, 8vw, 100px)", paddingBottom: "clamp(60px, 8vw, 100px)" }}>
-          <div className="container-main">
+          <div className="w-full navbar-align-outer">
+            <div className="navbar-align-inner">
 
-            <div style={{ textAlign: "center" }}>
-              <h2
-                style={{
-                  fontFamily: "'Outfit', sans-serif",
-                  fontWeight: 500,
-                  fontSize: "clamp(28px, 3.2vw, 40px)",
-                  lineHeight: "100%",
-                  color: "#0D4A7A",
-                }}
-              >
-                Who volunteers with us?
-              </h2>
-
-              <p
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 400,
-                  fontSize: "clamp(14px, 1.15vw, 17px)",
-                  lineHeight: "160%",
-                  color: "#000000",
-                  marginTop: "12px",
-                  maxWidth: "700px",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                }}
-              >
-                Retirees, students, working professionals & parents-anyone with
-                a few hours to give and a quiet kind of care to bring.
-              </p>
-            </div>
-
-            {/* Who volunteers cards — icon box 60×60 radius 10 bg #DE5753 30% */}
-            <div
-              className="grid gap-6 md:grid-cols-3"
-              style={{ marginTop: "50px" }}
-            >
-              {whoVolunteers.map((item, index) => (
-                <div
-                  key={index}
-                  className="transition-transform duration-300 hover:-translate-y-1.5"
+              <div style={{ textAlign: "center" }}>
+                <h2
                   style={{
-                    backgroundColor: "#F9F9F9",
-                    borderRadius: "20px",
-                    padding: "32px",
+                    fontFamily: "'Outfit', sans-serif",
+                    fontWeight: 500,
+                    fontSize: "clamp(28px, 3.2vw, 40px)",
+                    lineHeight: "100%",
+                    color: "#0D4A7A",
                   }}
                 >
-                  {/* Icon box — 60×60 radius 10 bg #DE5753 30% */}
+                  Who volunteers with us?
+                </h2>
+
+                <p
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontWeight: 400,
+                    fontSize: "clamp(14px, 1.15vw, 17px)",
+                    lineHeight: "160%",
+                    color: "#000000",
+                    marginTop: "12px",
+                    maxWidth: "700px",
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                  }}
+                >
+                  Retirees, students, working professionals & parents-anyone with
+                  a few hours to give and a quiet kind of care to bring.
+                </p>
+              </div>
+
+              {/* Who volunteers cards — icon box 60×60 radius 10 bg #DE5753 30% */}
+              <div
+                className="grid gap-6 md:grid-cols-3"
+                style={{ marginTop: "50px" }}
+              >
+                {whoVolunteers.map((item, index) => (
                   <div
+                    key={index}
+                    className="transition-transform duration-300 hover:-translate-y-1.5"
                     style={{
-                      width: "60px",
-                      height: "60px",
-                      borderRadius: "10px",
-                      backgroundColor: "#E8F4FD",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "#DE5753",
-                      marginBottom: "20px",
+                      backgroundColor: "#F9F9F9",
+                      borderRadius: "20px",
+                      padding: "32px",
                     }}
                   >
-                    {item.icon}
+                    {/* Icon box — 60×60 radius 10 bg #DE5753 30% */}
+                    <div
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "10px",
+                        backgroundColor: "#E8F4FD",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#DE5753",
+                        marginBottom: "20px",
+                      }}
+                    >
+                      {item.icon}
+                    </div>
+
+                    {/* Title */}
+                    <h3
+                      style={{
+                        fontFamily: "'Outfit', sans-serif",
+                        fontWeight: 500,
+                        fontSize: "clamp(20px, 1.8vw, 24px)",
+                        lineHeight: "130%",
+                        color: "#1B4585",
+                        margin: 0,
+                      }}
+                    >
+                      {item.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p
+                      style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontWeight: 400,
+                        fontSize: "clamp(14px, 1.1vw, 16px)",
+                        lineHeight: "170%",
+                        color: "#000000",
+                        marginTop: "16px",
+                      }}
+                    >
+                      {item.description}
+                    </p>
                   </div>
-
-                  {/* Title */}
-                  <h3
-                    style={{
-                      fontFamily: "'Outfit', sans-serif",
-                      fontWeight: 500,
-                      fontSize: "clamp(20px, 1.8vw, 24px)",
-                      lineHeight: "130%",
-                      color: "#1B4585",
-                      margin: 0,
-                    }}
-                  >
-                    {item.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p
-                    style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontWeight: 400,
-                      fontSize: "clamp(14px, 1.1vw, 16px)",
-                      lineHeight: "170%",
-                      color: "#000000",
-                      marginTop: "16px",
-                    }}
-                  >
-                    {item.description}
-                  </p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
         {/* ════════════════════  CTA  ════════════════════ */}
         <section style={{ paddingTop: "clamp(60px, 8vw, 100px)", paddingBottom: "clamp(60px, 8vw, 100px)" }}>
-          <div className="container-main">
+          <div className="w-full navbar-align-outer">
+            <div className="navbar-align-inner">
 
-            <div
-              style={{
-                backgroundColor: "#0D4A7A",
-                borderRadius: "24px",
-                padding: "clamp(48px, 6vw, 80px) clamp(24px, 4vw, 60px)",
-                textAlign: "center",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              {/* Subtle decorative gradient circles */}
               <div
                 style={{
-                  position: "absolute",
-                  top: "-80px",
-                  left: "-80px",
-                  width: "240px",
-                  height: "240px",
-                  borderRadius: "50%",
-                  background: "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)",
-                  pointerEvents: "none",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "-60px",
-                  right: "-60px",
-                  width: "200px",
-                  height: "200px",
-                  borderRadius: "50%",
-                  background: "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)",
-                  pointerEvents: "none",
-                }}
-              />
-
-              {/* Title */}
-              <h2
-                style={{
-                  fontFamily: "'Outfit', sans-serif",
-                  fontWeight: 500,
-                  fontSize: "clamp(28px, 3.5vw, 44px)",
-                  lineHeight: "120%",
-                  color: "#FFFFFF",
+                  backgroundColor: "#0D4A7A",
+                  borderRadius: "24px",
+                  padding: "clamp(48px, 6vw, 80px) clamp(24px, 4vw, 60px)",
+                  textAlign: "center",
                   position: "relative",
-                  zIndex: 1,
+                  overflow: "hidden",
                 }}
               >
-                Ready to make a real difference?
-              </h2>
+                {/* Subtle decorative gradient circles */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "-80px",
+                    left: "-80px",
+                    width: "240px",
+                    height: "240px",
+                    borderRadius: "50%",
+                    background: "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)",
+                    pointerEvents: "none",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "-60px",
+                    right: "-60px",
+                    width: "200px",
+                    height: "200px",
+                    borderRadius: "50%",
+                    background: "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)",
+                    pointerEvents: "none",
+                  }}
+                />
 
-              {/* Description */}
-              <p
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 400,
-                  fontSize: "clamp(14px, 1.15vw, 17px)",
-                  lineHeight: "170%",
-                  color: "rgba(255,255,255,0.9)",
-                  maxWidth: "700px",
-                  marginTop: "20px",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                  position: "relative",
-                  zIndex: 1,
-                }}
-              >
-                Take the first step toward becoming a pillar of support for your
-                community. Our application process is warm, welcoming and open
-                to everyone.
-              </p>
-
-              {/* Button */}
-              <button
-                onClick={() => navigate("/volunteerform")}
-                className="transition-transform duration-300 hover:scale-105 active:scale-95"
-                style={{
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  fontWeight: 600,
-                  fontSize: "18px",
-                  lineHeight: "28px",
-                  color: "#1B4585",
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: "9999px",
-                  padding: "16px 32px",
-                  border: "none",
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  marginTop: "36px",
-                  position: "relative",
-                  zIndex: 1,
-                }}
-              >
-                Apply as a volunteer
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
+                {/* Title */}
+                <h2
+                  style={{
+                    fontFamily: "'Outfit', sans-serif",
+                    fontWeight: 500,
+                    fontSize: "clamp(28px, 3.5vw, 44px)",
+                    lineHeight: "120%",
+                    color: "#FFFFFF",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
                 >
-                  <path
-                    d="M9 18L15 12L9 6"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
+                  Ready to make a real difference?
+                </h2>
+
+                {/* Description */}
+                <p
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontWeight: 400,
+                    fontSize: "clamp(14px, 1.15vw, 17px)",
+                    lineHeight: "170%",
+                    color: "rgba(255,255,255,0.9)",
+                    maxWidth: "700px",
+                    marginTop: "20px",
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  Take the first step toward becoming a pillar of support for your
+                  community. Our application process is warm, welcoming and open
+                  to everyone.
+                </p>
+
+                {/* Button */}
+                <button
+                  onClick={() => navigate("/volunteerform")}
+                  className="transition-transform duration-300 hover:scale-105 active:scale-95"
+                  style={{
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    fontWeight: 600,
+                    fontSize: "18px",
+                    lineHeight: "28px",
+                    color: "#1B4585",
+                    backgroundColor: "#FFFFFF",
+                    borderRadius: "9999px",
+                    padding: "16px 32px",
+                    border: "none",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    marginTop: "36px",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  Apply as a volunteer
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M9 18L15 12L9 6"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </section>

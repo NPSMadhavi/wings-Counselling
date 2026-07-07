@@ -482,14 +482,12 @@ export default function AnxietyArticlePage() {
           </span>
 
           <span className="mx-1">/</span>
-
-          <span
-            onClick={() => navigate("/StressAnxiety")}
-            className="cursor-pointer underline hover:opacity-70 transition"
-          >
-            Stress & Anxiety
-          </span>
-
+<span
+  onClick={() => navigate("/articles")}
+  className="cursor-pointer underline hover:opacity-70 transition"
+>
+  Back to articles
+</span>
           <span className="mx-1">/</span>
 
           <span id="anxiety-article">Grounding techniques</span>

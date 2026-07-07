@@ -40,6 +40,7 @@ export default function SubServiceLayout({
   imageAlt = "Service",
   backHash = "counselling",
   teamKeywords = [],
+  assignedTeamMembers = null,
   appointmentSelection,
 }) {
   const { openModal } = useAppointment();
@@ -47,7 +48,14 @@ export default function SubServiceLayout({
   const [teamMembers, setTeamMembers] = useState([]);
   const [teamLoading, setTeamLoading] = useState(true);
 
+  const hasPresetTeam = Array.isArray(assignedTeamMembers);
+
   useEffect(() => {
+    if (hasPresetTeam) {
+      setTeamLoading(false);
+      return undefined;
+    }
+
     let cancelled = false;
 
     const fetchTeamMembers = async () => {
@@ -69,12 +77,12 @@ export default function SubServiceLayout({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [hasPresetTeam]);
 
-  const counsellors = useMemo(
-    () => pickTeamMembers(teamMembers, teamKeywords, 3),
-    [teamMembers, teamKeywords]
-  );
+  const counsellors = useMemo(() => {
+    if (hasPresetTeam) return assignedTeamMembers;
+    return pickTeamMembers(teamMembers, teamKeywords, 3);
+  }, [hasPresetTeam, assignedTeamMembers, teamMembers, teamKeywords]);
 
   return (
     <div className="w-full flex flex-col min-h-screen items-center bg-[#FAFAF5] overflow-x-hidden">
@@ -90,7 +98,7 @@ export default function SubServiceLayout({
         <div className="relative z-10 navbar-align-outer h-full w-full flex items-center justify-center">
           <div className="navbar-align-inner flex flex-col items-center justify-center text-center w-full py-6 sm:py-8 px-2">
             <h1
-              className="text-[clamp(28px,7vw,60px)] font-semibold leading-[1.15] sm:leading-tight mb-3 sm:mb-6 px-2"
+              className="text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px] md:pt-[80px] font-semibold leading-[1.15] sm:leading-tight mb-3 sm:mb-6 px-2"
               style={{ fontFamily: "'Outfit', sans-serif", color: "#FFFFFF" }}
             >
               Professional care, tailored to you
@@ -99,9 +107,7 @@ export default function SubServiceLayout({
               className="text-[15px] sm:text-[18px] md:text-[20px] leading-[1.6] sm:leading-relaxed mb-5 sm:mb-8 max-w-[850px] px-2"
               style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, color: "#FFFFFF" }}
             >
-              We customise every counselling and therapy service to suit each client's unique needs-
-              based on the challenges they face, their developmental stage, and their age.
-              Available to Singapore citizens and permanent residents.
+              We provide a wide range of personalised support services for individuals, families, professionals, schools, workplaces and community organisations. Each service is carefully tailored to meet the unique needs, goals and circumstances of those we serve.
             </p>
             <button
               onClick={() => {
@@ -142,20 +148,20 @@ export default function SubServiceLayout({
 
               <div className="bg-white px-5 py-6 sm:p-10 lg:px-[40px] lg:py-[25px] flex flex-col justify-start h-full pb-8 sm:pb-10">
 
-                <h2 className="mt-4 sm:mt-6 font-['Outfit'] text-[clamp(22px,5.5vw,30px)] font-medium leading-[1.2] text-black">
+                <h2 className="mt-4 sm:mt-6 font-['Outfit'] text-[clamp(24px,5.5vw,32px)] font-medium leading-[1.2] text-black">
                   {sectionTitle}
                 </h2>
 
-                <p className="mt-4 sm:mt-6 max-w-[980px] font-['DM_Sans'] text-[15px] sm:text-[16px] md:text-[18px] leading-[1.65] sm:leading-[30px] text-[#333333] whitespace-pre-line">
+                <p className="mt-4 sm:mt-6 max-w-[980px] font-['DM_Sans'] text-[16px] sm:text-[17px] md:text-[20px] leading-[1.65] sm:leading-[32px] text-[#333333] whitespace-pre-line">
                   {description}
                 </p>
 
                 {bulletPoints.length > 0 && (
-                  <div className="mt-5 sm:mt-7 space-y-4 sm:space-y-5">
+                  <div className="mt-6 sm:mt-8 space-y-5 sm:space-y-6">
                     {bulletPoints.map((item) => (
                       <div
                         key={item}
-                        className="flex items-start sm:items-center gap-3 sm:gap-5 font-['DM_Sans'] text-[15px] sm:text-[16px] md:text-[18px] font-medium text-black"
+                        className="flex items-start sm:items-center gap-3 sm:gap-5 font-['DM_Sans'] text-[16px] sm:text-[17px] md:text-[20px] font-medium text-black"
                       >
                         <SiteCheckBadge className="shrink-0 mt-0.5 sm:mt-0" />
                         {item}

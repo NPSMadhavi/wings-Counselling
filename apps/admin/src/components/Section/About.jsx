@@ -76,7 +76,7 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="font-['Outfit'] font-medium text-[#0D4A7A] text-[clamp(26px,4.8vw,28px)] md:text-[35px] leading-[1.2] text-center mb-8 md:mb-10"
+            className="font-['Outfit'] font-medium text-[#0D4A7A] text-[clamp(22px,4.8vw,28px)] md:text-[35px] leading-[1.2] text-center mb-8 md:mb-10"
           >
             About WINGS Counselling Centre
           </motion.h2>
@@ -92,7 +92,7 @@ export function About() {
               <div>
                 <motion.p
                   variants={item}
-                  className="font-['DM_Sans'] text-[16px] lg:text-[18px] font-normal max-w-[950px] leading-[1.5] lg:leading-[28px] text-black mb-5 lg:mb-6"
+                  className="font-['DM_Sans'] text-[16px] md:text-[18px] lg:text-[20px] font-normal max-w-[950px] leading-[1.5] lg:leading-[28px] text-black mb-5 lg:mb-6"
                 >
                   WINGS Counselling Centre was founded with a simple yet powerful
                   mission to provide accessible & compassionate mental health support
@@ -102,7 +102,7 @@ export function About() {
                 </motion.p>
                 <motion.p
     variants={item}
-    className="font-['DM_Sans'] text-[17px] lg:text-[18px] font-normal max-w-[950px] leading-[1.5] lg:leading-[28px] text-black mb-8 lg:mb-10"
+    className="font-['DM_Sans'] text-[16px] md:text-[18px] lg:text-[20px] font-normal max-w-[950px] leading-[1.5] lg:leading-[28px] text-black mb-8 lg:mb-10"
   >
     At WINGS Counselling Centre, we provide compassionate & personalized mental
     health support for individuals, couples and families. Our experienced
@@ -147,7 +147,7 @@ export function About() {
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => navigate("/about-us")}
-                className="hidden lg:inline-flex items-center gap-2 self-start h-[48px] px-8 rounded-full bg-[#1B4585] text-white text-[16px] font-medium font-['DM_Sans']"
+                className="hidden lg:inline-flex items-center mt-8 gap-2 self-start h-[48px] px-8 rounded-full bg-[#1B4585] text-white text-[16px] font-medium font-['DM_Sans']"
               >
                 Read more <ArrowIcon />
               </motion.button>

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { useLocation } from "wouter";
+import { useLocation, useRoute } from "wouter";
 
 import { Footer } from "@/components/layout/Footer";
 import { useAppointment } from "@/context/AppointmentContext";
@@ -9,96 +9,18 @@ import {
   ShieldCheck,
   Wrench,
   PersonStanding,
-  ArrowRight,
 } from "lucide-react";
+import {
+  getSupportTopicBySlug,
+  filterArticlesForTopic,
+  filterServicesForTopic,
+} from "@/lib/supportTopicsConfig";
 
 
 const img1 = "/assets/ihero1.jpeg";
 const img2 = "/assets/img2.jpg";
-const img3 = "/assets/img3.jpg";
-const img4 = "/assets/img4.jpg";
-const img5 = "/assets/img5.jpg";
-const img6 = "/assets/img6.jpg";
-const img7 = "/assets/img7.jpg";
-const img8 = "/assets/img8.jpg";
-const img9 = "/assets/img9.png";
-const img10 = "/assets/img10.png";
-const img11 = "/assets/img11.png";
-
-const articles = [
-  {
-    category: "Understanding",
-    title: "Understanding stress vs anxiety: the difference matters",
-    desc: "They're often used interchangeably, but knowing which one you're dealing with changes how you can help yourself.",
-    image: img3,
-    author: "Sin Teck",
-    time: "5 mins read",
-    date: "May 2025",
-  },
-  {
-    category: "Techniques",
-    title: "5 grounding techniques for when anxiety spikes",
-    desc: "Quick tools you can use anywhere, even in a meeting.",
-    image: img4,
-    author: "Dr. Elena Morris",
-    time: "4 min read",
-    date: "June 2025",
-  },
-  {
-    category: "Daily life",
-    title: "Healthy ways to manage stress at work",
-    desc: "When you can't quit, but you can't keep going like this either.",
-    image: img5,
-    author: "Marcus Lee",
-    time: "7 min read",
-    date: "July 2025",
-  },
-  {
-    category: "Getting help",
-    title: "When Should You Seek Professional Support?",
-    desc: "They're often used interchangeably, but knowing which one you're dealing with changes how you can help yourself.",
-    image: img6,
-    author: "Sin Teck",
-    time: "5 mins read",
-    date: "May 2025",
-  },
-  {
-    category: "Sleep",
-    title: "5 Healthy Ways to Cope with Everyday Stress",
-    desc: "Quick tools you can use anywhere, even in a meeting.",
-    image: img7,
-    author: "Dr. Elena Morris",
-    time: "4 min read",
-    date: "June 2025",
-  },
-  {
-    category: "Body & Mind",
-    title: "How Counselling Can Help With Anxiety",
-    desc: "When you can't quit, but you can't keep going like this either.",
-    image: img8,
-    author: "Marcus Lee",
-    time: "7 min read",
-    date: "July 2025",
-  },
-];
-
-const services = [
-  {
-    title: "Individual therapy",
-    image: img9,
-    desc: "For individuals experiencing work stress, relationship difficulties, transitional challenges, or personal dilemmas. Our counsellors use systemic communication, CBT, and expressive therapy to help you create lasting, meaningful change and improve your overall wellbeing.",
-  },
-  {
-    title: "Children & Youth counselling",
-    image: img10,
-    desc: "Couples face a myriad of stressors — work, children, differing life goals, and expectations. We employ a systemic therapeutic model that builds self-awareness, fosters understanding, and creates a secure space for both partners to work through challenges together or individually.",
-  },
-  {
-    title: "Adult counselling (Ages 21–65)",
-    image: img11,
-    desc: "Life transitions, grief, marital difficulties, and work-related stress affect adults in profound ways. Our counsellors provide tailored, evidence-based support using therapeutic dialogue, experiential relationship building, and cognitive-behavioural techniques to help you achieve meaningful and lasting change.",
-  },
-];
+const FALLBACK_ARTICLE_IMAGE = "/assets/article.jpg";
+const FALLBACK_SERVICE_IMAGE = "/assets/card2.jpg.jpeg";
 
 const styles = {
   heading: {
@@ -118,22 +40,174 @@ const styles = {
   },
 };
 
-export default function AnxietyPage() {
-  const [, navigate] = useLocation();
+function cleanArticleText(content = "") {
+  return content
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function formatArticleDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-SG", {
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function mapApiArticle(article) {
+  const plain = cleanArticleText(article.content);
+  return {
+    id: article.id,
+    slug: article.slug,
+    category: article.category || "General",
+    title: article.title,
+    desc: article.excerpt || plain.slice(0, 140) || "Read more from our counselling team.",
+    image: article.coverImage || FALLBACK_ARTICLE_IMAGE,
+    author: article.author || "WINGS",
+    time: "5 min read",
+    date: formatArticleDate(article.publishedAt || article.createdAt),
+  };
+}
+
+export default function SupportTopicPage() {
+  const [, params] = useRoute("/support/:slug");
+  const [location, navigate] = useLocation();
+  const topic = getSupportTopicBySlug(params?.slug || "");
 
   const { openModal } = useAppointment();
 
   const [hoveredButton, setHoveredButton] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [articlesLoading, setArticlesLoading] = useState(true);
+  const [servicesLoading, setServicesLoading] = useState(true);
+  const [apiArticles, setApiArticles] = useState([]);
+  const [apiServices, setApiServices] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadArticles = async () => {
+      setArticlesLoading(true);
+      try {
+        const response = await fetch("/api/articles");
+        if (!response.ok) throw new Error("Failed to fetch articles");
+        const data = await response.json();
+        if (!cancelled) {
+          setApiArticles(Array.isArray(data) ? data.map(mapApiArticle) : []);
+        }
+      } catch {
+        if (!cancelled) setApiArticles([]);
+      } finally {
+        if (!cancelled) setArticlesLoading(false);
+      }
+    };
+
+    const loadServices = async () => {
+      setServicesLoading(true);
+      try {
+        const response = await fetch("/api/counselling-types");
+        const json = await response.json();
+        if (!cancelled && json.success && Array.isArray(json.data)) {
+          const flattened = json.data.flatMap((mainType) =>
+            (mainType.sub_types || [])
+              .filter((sub) => sub.is_active !== false)
+              .map((sub) => ({
+                id: sub.id,
+                title: sub.name,
+                desc: sub.description || "",
+                description: sub.description || "",
+                image: sub.image_url || FALLBACK_SERVICE_IMAGE,
+                parentName: mainType.name,
+                appointmentSelection: {
+                  counsellingTypeName: mainType.name,
+                  subTypeName: sub.name,
+                },
+              }))
+          );
+          setApiServices(flattened);
+        } else if (!cancelled) {
+          setApiServices([]);
+        }
+      } catch {
+        if (!cancelled) setApiServices([]);
+      } finally {
+        if (!cancelled) setServicesLoading(false);
+      }
+    };
+
+    loadArticles();
+    loadServices();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [topic?.slug]);
+
+  const topicArticles = useMemo(
+    () => filterArticlesForTopic(apiArticles, topic),
+    [apiArticles, topic]
+  );
+
+  const topicServices = useMemo(
+    () => filterServicesForTopic(apiServices, topic),
+    [apiServices, topic]
+  );
+
+  const categoryOptions = useMemo(() => {
+    const categories = [...new Set(topicArticles.map((item) => item.category).filter(Boolean))];
+    return ["All", ...categories];
+  }, [topicArticles]);
+
+  useEffect(() => {
+    setSelectedCategory("All");
+  }, [topic?.slug]);
 
   const filteredArticles =
-  selectedCategory === "All"
-    ? articles
-    : articles.filter(
-        (article) =>
-          article.category.toLowerCase() ===
-          selectedCategory.toLowerCase()
-      );
+    selectedCategory === "All"
+      ? topicArticles
+      : topicArticles.filter(
+          (article) =>
+            article.category?.toLowerCase() === selectedCategory.toLowerCase()
+        );
+
+  if (!topic) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#F5F5F5] px-4 text-center">
+        <p className="text-[#0D4A7A] text-lg font-medium mb-4">Support topic not found</p>
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="text-[#1B4585] underline"
+        >
+          Back to Home
+        </button>
+      </div>
+    );
+  }
+
+  const handleArticleClick = (article) => {
+    if (article.slug) {
+      navigate(`/articles?highlight=${encodeURIComponent(article.slug)}`);
+      return;
+    }
+    navigate("/articles");
+  };
+
+  const handleServiceClick = (service) => {
+    if (service.id) {
+      navigate(`/services/sub/${service.id}`);
+      return;
+    }
+    openModal({
+      counsellingTypeName: service.parentName,
+      subTypeName: service.title,
+    });
+  };
 
   return (
     <div className="bg-[#F5F5F5] text-black overflow-x-hidden">
@@ -170,19 +244,17 @@ export default function AnxietyPage() {
             style={{ maxWidth: "840px" }}
           >
             <h1
-              className="text-[32px] sm:text-[44px] md:text-[54px] lg:text-[60px] font-semibold leading-[1.2] text-white mb-6"
+              className="text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px] md:pt-[80px] font-semibold leading-[1.2] text-white mb-6"
               style={{ fontFamily: "Outfit, sans-serif" }}
             >
-              You don’t have to navigate anxiety alone
+              {topic.heroTitle}
             </h1>
 
             <p
               className="text-[16px] md:text-[20px] leading-[1.8] text-white max-w-[700px] mb-8"
               style={styles.body}
             >
-              Learn more about stress and anxiety, explore practical coping
-              strategies, and discover professional support tailored to your
-              needs.
+              {topic.heroDescription}
             </p>
 
             <motion.button
@@ -190,7 +262,7 @@ export default function AnxietyPage() {
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 document
-                  .getElementById("anxiety-section")
+                  .getElementById("support-section")
                   ?.scrollIntoView({ behavior: "smooth" });
               }}
               className="flex items-center justify-center gap-2.5 h-[60px] px-8 rounded-full bg-[#1B4585] cursor-pointer"
@@ -222,8 +294,8 @@ export default function AnxietyPage() {
             >
               Back to Home
             </span>{" "}
-            <span id="anxiety-section" className="inline-flex items-center gap-2">
-              / Stress & Anxiety
+            <span id="support-section" className="inline-flex items-center gap-2">
+              / {topic.breadcrumbLabel}
             </span>
           </p>
         </div>
@@ -233,26 +305,21 @@ export default function AnxietyPage() {
       <section className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2">
           {/* LEFT SIDE */}
-          <div className="bg-[#0D4A7A] text-white flex items-center px-5 py-10 sm:px-8 sm:py-12 md:px-12 lg:px-16 xl:px-20 lg:py-14">
-            <div className="w-full max-w-[650px]">
-              <h2
-                className="mb-4 sm:mb-8 text-white text-[clamp(24px,6vw,35px)] leading-[1.15] font-medium"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-              >
-                Understanding anxiety: Signs, Causes & How to cope
-              </h2>
+          <div className="bg-[#0D4A7A] text-white flex items-center py-4 sm:py-12 lg:py-14">
+            <div className="w-full max-w-[650px] support-topic-text-pl">
+                <h2
+                  className="mb-4 sm:mb-8 text-white text-[clamp(24px,6vw,35px)] leading-[1.15] font-medium"
+                  style={{ fontFamily: "Outfit, sans-serif" }}
+                >
+                  {topic.understandingTitle}
+                </h2>
 
-              <p
-                className="text-[15px] sm:text-[16px] leading-[1.7] sm:leading-[180%] text-white/90"
-                style={styles.body}
-              >
-                Anxiety is a feeling of fear, worry, or nervousness when one is
-                about to do something challenging. Everybody experiences anxiety
-                across different situations, and it is a normal experience.
-                However, anxiety becomes a medical condition when it is
-                prolonged and starts to impact the way one would normally
-                perform ordinary tasks.
-              </p>
+                <p
+                  className="text-[15px] sm:text-[16px] leading-[1.7] sm:leading-[180%] text-white/90"
+                  style={styles.body}
+                >
+                  {topic.understandingDescription}
+                </p>
             </div>
           </div>
 
@@ -282,15 +349,7 @@ export default function AnxietyPage() {
 
           {/* Category Buttons */}
           <div className="flex flex-wrap gap-4">
-            {[
-              "All",
-              "Understanding",
-              "Techniques",
-              "Getting help",
-              "Daily life",
-              "Sleep",
-              "Body & Mind",
-            ].map((item, i) => (
+            {categoryOptions.map((item, i) => (
               <button
                 key={i}
                 onClick={() => setSelectedCategory(item)}
@@ -307,13 +366,22 @@ export default function AnxietyPage() {
           </div>
         </div>
 
-        {/* Cards Grid - Animation Removed */}
+        {/* Cards Grid */}
         <div className="grid md:grid-cols-2 2xl:grid-cols-3 gap-8">
-          {filteredArticles.map((article, index) => (
+          {articlesLoading ? (
+            <p className="col-span-full text-center text-[#666]" style={styles.body}>
+              Loading articles...
+            </p>
+          ) : filteredArticles.length === 0 ? (
+            <p className="col-span-full text-center text-[#666]" style={styles.body}>
+              No related articles available right now.
+            </p>
+          ) : (
+          filteredArticles.map((article, index) => (
             <div
-              key={index}
+              key={article.id || index}
               className="bg-white group cursor-pointer transition-transform duration-300 hover:-translate-y-1"
-              onClick={() => navigate("/GroundingTechniques")}
+              onClick={() => handleArticleClick(article)}
               style={{
                 width: "100%",
                 minHeight: "480px",
@@ -391,7 +459,7 @@ export default function AnxietyPage() {
                 </div>
               </div>
             </div>
-          ))}
+          )))}
         </div>
         </div>
         </div>
@@ -547,70 +615,62 @@ export default function AnxietyPage() {
           </p>
         </div>
 
-        {/* Cards - Animation Removed */}
-        <div className="grid lg:grid-cols-3 gap-7">
+        {/* Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 w-full">
 
-          {services.map((service, index) => (
+          {servicesLoading ? (
+            <p className="col-span-full text-center text-[#666]" style={styles.body}>
+              Loading services...
+            </p>
+          ) : topicServices.length === 0 ? (
+            <p className="col-span-full text-center text-[#666]" style={styles.body}>
+              No related services available right now.
+            </p>
+          ) : (
+          topicServices.map((service, index) => (
             <div
-              key={index}
-              className="bg-white rounded-[14px] overflow-hidden shadow-md flex flex-col h-full transition-transform duration-300 hover:-translate-y-1"
+              key={service.id || index}
+              className="flex flex-col w-full transition-all duration-300 hover:-translate-y-1 sm:hover:-translate-y-2 rounded-[10px] bg-white shadow-[0px_10px_30px_rgba(0,0,0,0.05)] overflow-hidden max-w-full h-full"
             >
-
               {/* Image */}
-              <div className="relative">
-                <img
-                  src={service.image}
-                  alt=""
-                  className="w-full h-[220px] object-cover"
-                />
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-                <h3
-                  className="absolute bottom-5 left-5 right-5 text-white text-[24px] sm:text-[26px] leading-[120%]"
-                  style={{
-                    fontFamily: "Outfit",
-                    fontWeight: 500,
-                  }}
-                >
+              <div
+                onClick={() => handleServiceClick(service)}
+                className="w-full relative shrink-0 transition-transform duration-300 hover:scale-[1.02] cursor-pointer aspect-[16/10] sm:aspect-[2/1] md:aspect-auto md:h-[clamp(160px,22vw,206px)] bg-cover bg-center"
+                style={{
+                  backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%), url(${service.image})`,
+                }}
+              >
+                <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 font-['Outfit'] font-medium text-[clamp(14px,2vw,18px)] leading-[1.3] text-white line-clamp-2">
                   {service.title}
-                </h3>
+                </div>
               </div>
 
-              {/* Content */}
-              <div className="p-6 flex flex-col flex-1">
+              {/* Body */}
+              <div className="flex flex-col flex-1 p-4 sm:p-5 min-w-0">
+                <p className="text-[13px] sm:text-[14px] md:text-[15px] leading-relaxed mb-3 sm:mb-4 font-['DM_Sans'] font-normal text-black">
+                  <span className="line-clamp-4 sm:line-clamp-5">
+                    {service.desc}
+                  </span>
 
-                {/* Description */}
-                <p
-                  className="mb-8 flex-1 text-[15px] sm:text-[16px] leading-[170%] text-[#333]"
-                  style={styles.body}
-                >
-                  {service.desc}
+                  <span
+                    onClick={() => handleServiceClick(service)}
+                    className="text-[#1B4585] underline cursor-pointer font-medium ml-1 inline-block mt-1"
+                  >
+                    Read more
+                  </span>
                 </p>
 
-                {/* Button */}
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => openModal(service.title)}
-                  className="flex items-center justify-center gap-2 mt-auto w-full cursor-pointer transition-all duration-300 min-h-[52px]"
-                  style={{
-                    padding: "12px 20px",
-                    borderRadius: "9999px",
-                    backgroundColor:
-                      hoveredButton === index
-                        ? "#1B4585"
-                        : "#FFFFFF",
-                    border: "1px solid #1B4585",
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    color:
-                      hoveredButton === index
-                        ? "#FFFFFF"
-                        : "#1B4585",
-                  }}
-                  onMouseEnter={() => setHoveredButton(index)}
+                <button
+                  type="button"
+                  onClick={() =>
+                    openModal(service.appointmentSelection || service.title)
+                  }
+                  className={`flex items-center justify-center gap-2 mt-auto w-full cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] py-3 px-4 sm:py-3 sm:px-5 rounded-full border border-[#1B4585] font-['DM_Sans'] font-semibold text-[13px] sm:text-[14px] ${
+                    hoveredButton === `support-${index}`
+                      ? "bg-[#1B4585] text-white"
+                      : "bg-white text-[#1B4585]"
+                  }`}
+                  onMouseEnter={() => setHoveredButton(`support-${index}`)}
                   onMouseLeave={() => setHoveredButton(null)}
                 >
                   Book an appointment
@@ -629,10 +689,10 @@ export default function AnxietyPage() {
                       strokeLinejoin="round"
                     />
                   </svg>
-                </motion.button>
+                </button>
               </div>
             </div>
-          ))}
+          )))}
         </div>
         </div>
         </div>

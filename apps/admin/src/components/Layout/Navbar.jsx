@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Heart, Globe, Home as HomeIcon, Users, HandHeart, FileText, Briefcase } from "lucide-react";
+import { Menu, X, ChevronDown, Heart, Globe, Home as HomeIcon, Users, HandHeart, FileText, Briefcase, Handshake } from "lucide-react";
 
 import { useLocation, Link } from "wouter";
-import { scrollToContactWithRetry } from "@/lib/scrollToSection";
+import { scrollToContactWithRetry, scrollToPartnersWithRetry } from "@/lib/scrollToSection";
 
 import { useAppointment } from "@/context/AppointmentContext";
 
@@ -89,6 +89,12 @@ const navLinks = [
   },
 
   {
+    name: "Partners",
+    href: "/partners",
+    route: true,
+  },
+
+  {
     name: "Careers",
     href: "/career",
     route: true,
@@ -101,6 +107,7 @@ const navIcons = {
   "About us": Users,
   Services: HandHeart,
   Resources: FileText,
+  Partners: Handshake,
   Careers: Briefcase,
 };
 
@@ -336,6 +343,14 @@ export function Navbar() {
 
       if (
         location === targetPath &&
+        targetHash === "#partners"
+      ) {
+        scrollToPartnersWithRetry();
+        return;
+      }
+
+      if (
+        location === targetPath &&
         targetHash
       ) {
         const el =
@@ -351,6 +366,26 @@ export function Navbar() {
           window.location.hash =
             targetHash;
         }
+      } else if (
+        targetPath === "/" &&
+        targetHash
+      ) {
+        try {
+          if (targetHash === "#contact") {
+            sessionStorage.setItem(
+              "scrollToContact",
+              "1"
+            );
+          }
+          if (targetHash === "#partners") {
+            sessionStorage.setItem(
+              "scrollToPartners",
+              "1"
+            );
+          }
+        } catch (err) {}
+
+        navigate("/");
       } else {
         navigate(link.href);
       }

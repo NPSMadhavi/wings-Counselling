@@ -82,14 +82,14 @@ export function GetInTouch() {
     return (
         <section
             id="contact"
-            className="w-full flex flex-col items-center pt-[40px] pb-[60px] box-border scroll-mt-[100px]"
+            className="w-full flex flex-col items-center pt-[60px] pb-[60px] box-border scroll-mt-[100px]"
             style={{ background: "#F9F9F9" }}
         >
           <div className="w-full navbar-align-outer">
           <div className="navbar-align-inner flex flex-col items-center">
           <h2
     className="
-        text-[clamp(26px,4.8vw,28px)]
+        text-[clamp(22px,4.8vw,28px)]
         md:text-[35px]
         font-medium
         text-center
@@ -108,7 +108,8 @@ export function GetInTouch() {
                     text-center
                     font-['DM_Sans']
                     text-[16px]
-                    md:text-[20px]
+                    md:text-[18px]
+                    lg:text-[20px]
                     font-normal
                     leading-[1.5]
                     line-clamp-2
@@ -118,7 +119,7 @@ export function GetInTouch() {
                     md:mb-10
                 "
             >
-                We are here to help you. Reach us during working hours
+                We are here to help you. Reach us during working hours.
             </p>
 
             <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 w-full items-stretch">

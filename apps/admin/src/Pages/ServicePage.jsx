@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "../components/Layout/Footer.jsx";
 import { useAppointment } from "@/context/AppointmentContext";
 import { useLocation } from "wouter";
+import { buildServiceCardsByTab } from "@/lib/serviceTabs";
+
 
 const counsellingCards = [
     {
@@ -92,6 +94,28 @@ export default function ServicePage() {
     const [activeTab, setActiveTab] = useState("counselling");
     const [hoveredButton, setHoveredButton] = useState(null);
     const [, setLocation] = useLocation();
+    const [dynamicCardsByTab, setDynamicCardsByTab] = useState(null);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const loadServices = async () => {
+            try {
+                const response = await fetch("/api/counselling-types");
+                const json = await response.json();
+                if (!cancelled && json.success && Array.isArray(json.data)) {
+                    setDynamicCardsByTab(buildServiceCardsByTab(json.data));
+                }
+            } catch {
+                if (!cancelled) setDynamicCardsByTab(null);
+            }
+        };
+
+        loadServices();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const counsellingRoutes = [
         "/Familysupport",
@@ -153,7 +177,11 @@ export default function ServicePage() {
         }
     };
 
-    const getCards = () => {
+    const isTrainingTab = activeTab === "training";
+    const isSupervisionTab = activeTab === "supervision";
+    const isCounsellingTab = activeTab === "counselling";
+
+    const getStaticCards = () => {
         switch (activeTab) {
             case "counselling": return counsellingCards;
             case "supervision": return supervisionData.cards;
@@ -162,9 +190,26 @@ export default function ServicePage() {
         }
     };
 
-    const isTrainingTab = activeTab === "training";
-    const isSupervisionTab = activeTab === "supervision";
-    const isCounsellingTab = activeTab === "counselling";
+    const getCards = () => {
+        const dynamicCards = dynamicCardsByTab?.[activeTab];
+        if (dynamicCards?.length) return dynamicCards;
+        return getStaticCards();
+    };
+
+    const navigateToCard = useCallback((card, index) => {
+        if (card?.id) {
+            setLocation(`/services/sub/${card.id}`);
+            return;
+        }
+
+        if (activeTab === "counselling") {
+            setLocation(counsellingRoutes[index]);
+        } else if (activeTab === "supervision") {
+            setLocation(supervisionRoutes[index]);
+        } else if (activeTab === "training") {
+            setLocation(trainingRoutes[index]);
+        }
+    }, [setLocation, activeTab]);
 
     // Split description into lines for training tab
     const renderDescription = (description) => {
@@ -192,9 +237,10 @@ export default function ServicePage() {
                     backgroundPosition: "center",
                 }}
             >
-                <div className="relative w-full h-full px-4 min-[375px]:px-6 sm:px-10 md:px-16 lg:px-24 xl:px-[150px]">
-                    <div className="flex flex-col items-center justify-center text-center h-full max-w-[900px] mx-auto">
-                        <h1 className="text-[clamp(28px,6vw,60px)] font-semibold leading-[1.1] sm:leading-tight mb-4 sm:mb-6 font-['Outfit'] text-white">
+                <div className="relative w-full h-full navbar-align-outer">
+  <div className="navbar-align-inner h-full">
+    <div className="flex flex-col items-center justify-center text-center h-full max-w-[900px] mx-auto">
+                        <h1 className="text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px] font-semibold leading-[1.1] sm:leading-tight mb-4 sm:mb-6 font-['Outfit'] text-white md:pt-[70px]">
                             Professional care, tailored to you
                         </h1>
 
@@ -202,42 +248,46 @@ export default function ServicePage() {
                          We offer a comprehensive range of counselling & therapy, supervision and training & workshops designed to support individuals, families, professionals, schools, workplaces and community organisations. Every service is tailored to meet the unique needs and goals of those we serve.
                         </p>
 
-                        <button
-                            onClick={() => {
-                                document
-                                    .getElementById("services-tabs")
-                                    ?.scrollIntoView({
-                                        behavior: "smooth",
-                                        block: "start",
-                                    });
-                            }}
-                            className="flex items-center justify-center border-none cursor-pointer h-[clamp(46px,6vw,60px)] rounded-full bg-[#1B4585] px-5 min-[375px]:px-6 sm:px-8 gap-2 sm:gap-[10px]"
-                        >
-                            <span className="text-[14px] sm:text-[16px] md:text-[18px] font-['Plus_Jakarta_Sans'] font-semibold text-white whitespace-nowrap">
-                                Explore our services
-                            </span>
-                            <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                            >
-                                <path
-                                    d="M6 9L12 15L18 9"
-                                    stroke="white"
-                                    strokeWidth="3.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
-                        </button>
+                        <motion.button
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    onClick={() => {
+        document
+            .getElementById("services-tabs")
+            ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+    }}
+    className="flex items-center justify-center border-none cursor-pointer h-[clamp(46px,6vw,60px)] rounded-full bg-[#1B4585] px-5 min-[375px]:px-6 sm:px-8 gap-2 sm:gap-[10px]"
+>
+    <span className="text-[14px] sm:text-[16px] md:text-[18px] font-['Plus_Jakarta_Sans'] font-semibold text-white whitespace-nowrap">
+        Explore our services
+    </span>
+    <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+    >
+        <path
+            d="M6 9L12 15L18 9"
+            stroke="white"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+    </svg>
+</motion.button>
                     </div>
                 </div>
             </div>
-
+</div>
             {/* ── Tabs + Cards Section ── WITH 150px PADDING */}
-            <div className="w-full flex flex-col pb-12 sm:pb-16 md:pb-20 px-4 min-[375px]:px-6 sm:px-10 md:px-12 lg:px-24 xl:px-[150px] overflow-x-hidden">
-
+            
+<div className="w-full pb-12 sm:pb-16 md:pb-20 overflow-x-hidden">
+  <div className="w-full navbar-align-outer">
+    <div className="navbar-align-inner flex flex-col">
                 {/* Tab Selector - CENTERED */}
                 <div
                     id="services-tabs"
@@ -291,15 +341,7 @@ export default function ServicePage() {
                         >
                             {/* Image */}
                             <div
-                                onClick={() => {
-                                    if (isCounsellingTab) {
-                                      setLocation(counsellingRoutes[index]);
-                                    } else if (isSupervisionTab) {
-                                      setLocation(supervisionRoutes[index]);
-                                    } else if (isTrainingTab) {
-                                      setLocation(trainingRoutes[index]);
-                                    }
-                                  }}
+                                onClick={() => navigateToCard(card, index)}
                                 className="w-full relative shrink-0 transition-transform duration-300 hover:scale-[1.02] aspect-[16/10] sm:aspect-[2/1] md:aspect-auto md:h-[clamp(160px,22vw,206px)] bg-cover bg-center"
                                 style={{
                                     backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%), url(${card.image})`,
@@ -319,15 +361,7 @@ export default function ServicePage() {
                                     </span>
 
                                     <span
-                                      onClick={() => {
-                                        if (isCounsellingTab) {
-                                          setLocation(counsellingRoutes[index]);
-                                        } else if (isSupervisionTab) {
-                                          setLocation(supervisionRoutes[index]);
-                                        } else if (isTrainingTab) {
-                                          setLocation(trainingRoutes[index]);
-                                        }
-                                      }}
+                                      onClick={() => navigateToCard(card, index)}
                                         className="text-[#1B4585] underline cursor-pointer font-medium ml-1 inline-block mt-1"
                                     >
                                         Read more
@@ -380,6 +414,8 @@ export default function ServicePage() {
                         </div>
                     ))}
                 </div>
+            </div>
+            </div>
             </div>
 
             {/* Footer */}

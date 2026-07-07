@@ -31,7 +31,7 @@ export const familySupport = {
     bulletPoints: [
       "Individual, couple and family counselling",
       "Child and youth support",
-      "Relationship and communication enhancement",
+      
    
     ],
   therapyImage: "/assets/FamilySupport.png",
@@ -45,6 +45,9 @@ export const maritalTherapy = {
   teamKeywords: ["marital", "couple", "couples", "relationship", "marriage"],
   description:
     "Couples today face a myriad of stressors juggling work, home, children and trying to live up to expectations of their spouse and extended family. As a result, many marriages break down and couples end up on the brink of divorce. Furthermore, the never ending adjustment and challenges that couples face in the early years of marriage adjusting to their new partner, in-laws, expectations, differing life goals, work or simply managing differences pose a threat to them.\n\nAt WINGS Counselling Centre, we employ a systemic model of therapeutic intervention that aims to create self-awareness for the client about issues that could be affecting their marital relationship. Individuals can choose to go for private sessions with the counsellor prior to attending couple sessions with their spouse when they are ready to work on their issues together. Couple sessions generally focus on enhancing the marital relationship by allowing the couple to gain a better understanding of each other's strengths and weaknesses.",
+  bulletPoints: [
+    
+  ],
   therapyImage: "/assets/counselling2.jpg",
   imageAlt: "Marital & Couple therapy",
   backHash: "counselling",
@@ -56,6 +59,9 @@ export const preschoolChildren = {
   teamKeywords: ["pre-school", "preschool", "child", "children", "play"],
   description:
     "Younger children aged between 2.5 and 7 years not only display developmental challenges but also encounter social, emotional, behavioural or learning-related difficulties. Research has shown that these manifested difficulties that children go through may have arisen from deeper underlying issues, things that are unclear or go unseen by parents. Such challenges during the early years of learning may severely limit the child's ability to fully enjoy pre-school leaning and socialise amongst his or her peers. If left undetected, these difficulties could ultimately affect the young child's confidence and self-esteem.\n\nIn 2009, with the support from National Council of Social Service, WINGS Counselling Centre piloted an early childhood programme that aimed to intervene early in the development and well-being of young children. Today, the programme is integrated under the \"Family Support and Counselling Programme\". For younger children, various forms of expressive techniques such as Sand-tray, Art and Play therapy are used to identify and address the child's difficulties.",
+  bulletPoints: [
+   
+  ],
   therapyImage: "/assets/counselling4.jpg",
   imageAlt: "Pre-school children",
   backHash: "counselling",
@@ -70,7 +76,7 @@ export const youthCounselling = {
  bulletPoints: [
     "Timely therapeutic intervention",
     "School-based counselling support",
-    "Youth development and resilience building",
+    
  
   ],
   therapyImage: "/assets/counselling5.jpg",
@@ -100,12 +106,9 @@ export const clinicalSupervision = {
   teamKeywords: ["supervision", "clinical", "supervisor", "internship"],
   description:
     "WINGS Counselling Centre has been a popular destination for internships since 2000. We provide clinical internships and supervision for budding counsellors who have the theoretical knowledge in counselling but lack the micro skills required for its practical implementation. Supervision is a process in which a social service professional such as a counsellor can speak to a trained supervisor for guidance. Supervision can be in the form of clinical internships or attachments for professional counsellors, graduating and graduated students or those seeking supervision for aiming to become a Registered Counsellor at the Singapore Association for Counselling. We have a collaborative relationship with a number of institutions such as UniSIM, Nanyang Polytechnic, Monash University, James Cook University and the Executive Counselling & Training Academy. Those pursuing a Certificate, Diploma, Degree or Masters in Counselling can contact us should they require clinical supervision. Independent counsellors seeking clinical supervision are welcomed as well.",
-    // bulletPoints: [
-    //   "Sand-tray and expressive therapyg",
-    //   "motional and behavioural support",
-      
-   
-    // ],
+  bulletPoints: [
+    
+  ],
   therapyImage: "/assets/supervisionImage.jpg",
   imageAlt: "Clinical supervision",
   backHash: "supervision",
@@ -124,7 +127,7 @@ export const personalTherapy = {
     bulletPoints: [
       "Personal growth and self-awareness",
       "Empathy through lived experience",
-      "Managing transference and counter-transference",
+    
    
     ],
   therapyImage: "/assets/supervisionImage1.jpg",
@@ -162,7 +165,11 @@ export const workplaceWellness = {
   teamKeywords: ["workplace", "wellness", "stress", "burnout", "workshop"],
   description:
     "For national and multinational companies seeking to invest in their employees' mental health. Our workshops cover stress management, burnout prevention, communication skills and emotional resilience. Custom programmes can be designed to meet your organisation's specific goals and workforce profile.",
-  bulletPoints: DEFAULT_BULLETS,
+  bulletPoints: [
+    "Stress management and burnout prevention",
+    "Communication and emotional resilience workshops",
+    "Custom programmes for organisations",
+  ],
   therapyImage: "/assets/training1.jpg",
   imageAlt: "Workplace wellness workshops",
   backHash: "training",
@@ -175,7 +182,11 @@ export const communityProgrammes = {
   teamKeywords: ["community", "outreach", "vwo", "workshop", "organisation"],
   description:
     "Talks and workshops designed for voluntary welfare organisations, religious groups and community centres. We help community leaders and volunteers understand mental health, support vulnerable populations and create environments where residents feel safe to seek help. All programmes are co-designed with your community in mind.",
-  bulletPoints: DEFAULT_BULLETS,
+  bulletPoints: [
+    "Talks for community and voluntary groups",
+    "Mental health awareness programmes",
+    "Co-designed workshops with your community",
+  ],
   therapyImage: "/assets/training2.jpg",
   imageAlt: "Community organisation programmes",
   backHash: "training",
@@ -187,11 +198,9 @@ export const familyParenting = {
   teamKeywords: ["family", "parenting", "parent", "children", "fscp"],
   description:
     "Parenting today brings unique pressures—from managing children's behaviour and school challenges to balancing work, family expectations and your own emotional well-being. Many parents feel unsure about how to respond to conflict at home, support a child through transitions or maintain a strong parent-child relationship during difficult seasons.\n\nAt WINGS Counselling Centre, we work with parents and families through counselling that strengthens communication, builds practical parenting approaches and helps families navigate conflict, stress and emotional difficulties together. Sessions may focus on understanding your child's needs, improving family routines, co-parenting or addressing issues that affect the whole household. Our counsellors provide a confidential, supportive space where families can work toward healthier relationships and more confident parenting.",
-  // bulletPoints: [
-  //   "Parent-child and family relationship support",
-  //   "Guidance on behaviour, school, and developmental concerns",
- 
-  // ],
+  bulletPoints: [
+    
+  ],
   therapyImage: "/assets/aboutImage3.jpg",
   imageAlt: "Family and parenting counselling",
   backHash: "counselling",
@@ -204,7 +213,11 @@ export const skillParenting = {
   teamKeywords: ["parenting", "parent", "family", "workshop", "children"],
   description:
     "Developed originally under the ministry of community youth and sports' family-life education programme, our parenting workshops adopt a three-pronged approach—working with schools, homes and the community together. Practical, skills-based and delivered by counsellors who work with families daily.",
-  bulletPoints: DEFAULT_BULLETS,
+  bulletPoints: [
+    "Skills-based parenting approaches",
+    "School, home and community collaboration",
+    "Practical tools for everyday parenting",
+  ],
   therapyImage: "/assets/training3.jpg",
   imageAlt: "Skill-based parenting workshops",
   backHash: "training",

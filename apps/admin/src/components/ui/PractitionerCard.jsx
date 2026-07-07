@@ -8,10 +8,8 @@ export function resolveImageUrl(url) {
 }
 
 export function getPractitionerDesignation(practitioner) {
-  const role = practitioner.role?.trim();
   const title = practitioner.title?.trim();
-  if (role && title) return `${role} · ${title}`;
-  return role || title || "";
+  return title || "";
 }
 
 export default function PractitionerCard({ practitioner }) {

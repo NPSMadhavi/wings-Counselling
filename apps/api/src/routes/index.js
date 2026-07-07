@@ -12,6 +12,8 @@ import eventSubscribersRouter from "./eventSubcriber.js";
 import emailRecipientsRouter from "./emailRecipients.js";
 import appointmentRouter from "./appointment.js";
 import counsellingTypesRouter from "./counsellingTypes.js";
+import partnersRouter from "./partners.js";
+import testimonialsRouter from "./testimonials.js";
 import formSubmissionEmailsRouter from "./formSubmissionEmails.js";
 import jobsRouter from "./jobs.js";
 import { db } from "../config/db.js";
@@ -39,6 +41,12 @@ router.use("/appointments", appointmentRouter);
 
 // Counselling types
 router.use("/counselling-types", counsellingTypesRouter);
+
+// Partners (logos table)
+router.use(partnersRouter);
+
+// Testimonials (testmonials table)
+router.use(testimonialsRouter);
 
 // Stub routes for disabled features — return empty arrays so the admin panel
 // doesn't show 404 errors for interview availability endpoints

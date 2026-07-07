@@ -59,21 +59,21 @@ export function Needhelp() {
 
         {/* Heading */}
         <h2
-          className="text-[28px] sm:text-[36px] md:text-[50px] text-center mb-4 text-white font-['Outfit'] font-medium leading-[1.1] max-w-[850px]"
+          className="text-[18px]  md:text-[40px] text-center mb-4 text-white font-['Outfit'] font-medium leading-[1.1] max-w-[850px]"
         >
           Need help now? We're here for you
         </h2>
 
         {/* Subheading */}
         <p
-          className="text-base md:text-[20px] text-center mb-10 text-white/90 font-['DM_Sans'] font-medium leading-[1.4] max-w-[600px]"
+          className="text-[14px] md:text-[18px] lg:text-[20px] text-center mb-10 text-white/90 font-['DM_Sans'] font-medium leading-[1.4] max-w-[600px]"
         >
           Reach out in the way that feels most comfortable
         </p>
 
         {/* Buttons Row */}
         <div
-          className="flex flex-col sm:flex-row flex-wrap justify-center gap-5 w-full sm:w-auto"
+          className="flex flex-col sm:flex-row flex-wrap justify-center gap-5 min-w-[220px] sm:w-auto"
         >
           {buttons.map((btn) => (
             <a

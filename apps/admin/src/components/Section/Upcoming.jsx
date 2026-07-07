@@ -9,7 +9,8 @@ import {
     SiteMapPinIcon,
     SITE_ICON_SIZE_SM,
 } from "@/components/ui/SiteIcons";
-import { Partners } from "./Partner";
+import { Testimonial } from "./Testimonial";
+
 
 const formatDate = (dateString) => {
     if (!dateString) return "TBA";
@@ -294,7 +295,7 @@ export function Upcoming() {
             {/* UPCOMING SECTION */}
             <section
                 id="upcoming"
-                className="w-full flex flex-col items-center pt-[40px] pb-[60px] box-border"
+                className="w-full flex flex-col items-center pt-[60px] pb-[60px] box-border"
             >
                 <div className="w-full navbar-align-outer">
                 <div className="navbar-align-inner flex flex-col items-center">
@@ -305,7 +306,7 @@ export function Upcoming() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                     className="
-                        text-[clamp(26px,4.8vw,28px)]
+                        text-[clamp(22px,4.8vw,28px)]
                         md:text-[35px]
                         text-center
                         font-medium
@@ -315,7 +316,7 @@ export function Upcoming() {
                         text-[#0D4A7A]
                     "
                 >
-                    Upcoming events & Workshops
+                    Upcoming Events & Workshops
                 </motion.h2>
 
                 {/* Subheading */}
@@ -329,17 +330,18 @@ export function Upcoming() {
                         text-center
                         font-['DM_Sans']
                         text-[16px]
-                        md:text-[20px]
+                        md:text-[18px]
+                        lg:text-[20px]
                         font-normal
                         leading-[1.5]
-                        line-clamp-2
+                        line-clamp-none
                         md:line-clamp-none
-                        max-w-[700px]
+                        w-full
                         mb-8
                     "
                 >
                     Join our community events designed to educate, connect
-                    and empower. Healing doesn't always happen alone
+                    and empower. Healing doesn't always happen alone.
                 </motion.p>
 
                 {/* Events Grid */}
@@ -424,8 +426,8 @@ export function Upcoming() {
             {/* RECENT ARTICLES */}
             <RecentArticles />
 
-            {/* PARTNERS */}
-            <Partners />
+          <Testimonial />
+       
 
             {/* GET IN TOUCH */}
             <GetInTouch />

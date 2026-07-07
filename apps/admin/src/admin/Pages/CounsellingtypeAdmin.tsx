@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { toast } from "react-toastify";
+import { api, resolveAssetUrl } from "../lib/api";
 
 export default function CounsellingTypesPage() {
 
@@ -34,6 +35,12 @@ export default function CounsellingTypesPage() {
     /* SUB COUNSELLING TYPE STATE */
     const [subName, setSubName] = useState("");
     const [subDescription, setSubDescription] = useState("");
+    const [subHeading, setSubHeading] = useState("");
+    const [subImageUrl, setSubImageUrl] = useState("");
+    const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState<number[]>([]);
+    const [teamMembers, setTeamMembers] = useState<any[]>([]);
+    const [teamLoading, setTeamLoading] = useState(false);
+    const [imageUploading, setImageUploading] = useState(false);
     const [selectedMainTypeId, setSelectedMainTypeId] = useState("");
 
     const handleBack = () => {
@@ -73,6 +80,59 @@ export default function CounsellingTypesPage() {
     useEffect(() => {
         fetchTypes();
     }, []);
+
+    const fetchTeamMembers = async () => {
+        try {
+            setTeamLoading(true);
+            const rows = await api.getTeam();
+            setTeamMembers(Array.isArray(rows) ? rows : []);
+        } catch {
+            toast.error("Failed to load team members");
+            setTeamMembers([]);
+        } finally {
+            setTeamLoading(false);
+        }
+    };
+
+    const resetSubForm = () => {
+        setSubName("");
+        setSubDescription("");
+        setSubHeading("");
+        setSubImageUrl("");
+        setSelectedTeamMemberIds([]);
+        setSelectedMainTypeId("");
+        setEditingSubId(null);
+    };
+
+    const toggleTeamMember = (memberId: number) => {
+        setSelectedTeamMemberIds((prev) =>
+            prev.includes(memberId)
+                ? prev.filter((id) => id !== memberId)
+                : [...prev, memberId]
+        );
+    };
+
+    const handleSubImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            toast.warning("Please upload an image file");
+            return;
+        }
+
+        try {
+            setImageUploading(true);
+            const { urls } = await api.uploadFiles([file]);
+            setSubImageUrl(urls[0] || "");
+            toast.success("Image uploaded");
+        } catch (err: any) {
+            toast.error(err?.message || "Image upload failed");
+        } finally {
+            setImageUploading(false);
+            e.target.value = "";
+        }
+    };
 
 
 
@@ -153,6 +213,9 @@ export default function CounsellingTypesPage() {
             let payload = {
                 name: subName,
                 description: subDescription,
+                heading: subHeading,
+                image_url: subImageUrl,
+                team_member_ids: selectedTeamMemberIds,
                 counselling_type_id: selectedMainTypeId
             };
 
@@ -163,6 +226,9 @@ export default function CounsellingTypesPage() {
                 payload = {
                     name: subName,
                     description: subDescription,
+                    heading: subHeading,
+                    image_url: subImageUrl,
+                    team_member_ids: selectedTeamMemberIds,
                     counselling_type_id: selectedMainTypeId
                 };
             }
@@ -177,10 +243,7 @@ export default function CounsellingTypesPage() {
 
             if (response.ok) {
                 toast.success(editingSubId ? "Sub Type Updated Successfully" : "Sub counselling type added successfully");
-                setSubName("");
-                setSubDescription("");
-                setSelectedMainTypeId("");
-                setEditingSubId(null);
+                resetSubForm();
                 fetchTypes();
                 setIsModalOpen(false);
             } else {
@@ -210,11 +273,9 @@ export default function CounsellingTypesPage() {
 
     const openAddSubModal = () => {
         setModalMode("add_sub");
-        setEditingSubId(null);
-        setSubName("");
-        setSubDescription("");
-        setSelectedMainTypeId("");
+        resetSubForm();
         setIsModalOpen(true);
+        fetchTeamMembers();
     };
 
     const handleEdit = (item) => {
@@ -230,8 +291,16 @@ export default function CounsellingTypesPage() {
         setEditingSubId(subItem.id);
         setSubName(subItem.name);
         setSubDescription(subItem.description || "");
-        setSelectedMainTypeId(mainTypeId);
+        setSubHeading(subItem.heading || "");
+        setSubImageUrl(subItem.image_url || "");
+        setSelectedTeamMemberIds(
+            Array.isArray(subItem.team_member_ids)
+                ? subItem.team_member_ids.map((id: any) => Number(id)).filter((id: number) => id > 0)
+                : []
+        );
+        setSelectedMainTypeId(String(mainTypeId));
         setIsModalOpen(true);
+        fetchTeamMembers();
     };
 
 
@@ -498,7 +567,7 @@ export default function CounsellingTypesPage() {
 
             {/* Modal Body - Sub Type Form (Add & Edit) */}
             {(modalMode === "add_sub" || modalMode === "edit_sub") && (
-                <form onSubmit={handleSubSubmit} className="p-8">
+                <form onSubmit={handleSubSubmit} className="p-8 max-h-[70vh] overflow-y-auto">
                     <div className="space-y-6">
                         <div>
                             <label className="block text-lg font-semibold text-gray-700 mb-3">
@@ -541,6 +610,62 @@ export default function CounsellingTypesPage() {
 
                         <div>
                             <label className="block text-lg font-semibold text-gray-700 mb-3">
+                                Heading
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Enter heading for detail page"
+                                value={subHeading}
+                                onChange={(e) => setSubHeading(e.target.value)}
+                                className="w-full h-14 px-5 text-base border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0D4A7A] focus:border-transparent"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-lg font-semibold text-gray-700 mb-3">
+                                Image
+                            </label>
+                            <div className="space-y-3">
+                                {subImageUrl && (
+                                    <img
+                                        src={resolveAssetUrl(subImageUrl)}
+                                        alt="Sub service preview"
+                                        className="w-full max-h-48 object-cover rounded-xl border"
+                                    />
+                                )}
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <label className="inline-flex items-center px-4 py-2.5 bg-[#0D4A7A] text-white rounded-lg cursor-pointer hover:bg-[#0D4A7A]/90 transition">
+                                        {imageUploading ? "Uploading..." : "Upload Image"}
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handleSubImageUpload}
+                                            disabled={imageUploading}
+                                        />
+                                    </label>
+                                    {subImageUrl && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setSubImageUrl("")}
+                                            className="px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                                        >
+                                            Remove
+                                        </button>
+                                    )}
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Or paste image URL"
+                                    value={subImageUrl}
+                                    onChange={(e) => setSubImageUrl(e.target.value)}
+                                    className="w-full h-12 px-5 text-base border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0D4A7A] focus:border-transparent"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-lg font-semibold text-gray-700 mb-3">
                                 Description (Optional)
                             </label>
                             <textarea
@@ -550,6 +675,40 @@ export default function CounsellingTypesPage() {
                                 className="w-full h-[200px] px-5 py-3 text-base border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0D4A7A] focus:border-transparent resize-y"
                                 rows={4}
                             />
+                        </div>
+
+                        <div>
+                            <label className="block text-lg font-semibold text-gray-700 mb-3">
+                                Team Members
+                            </label>
+                            <div className="border rounded-xl max-h-48 overflow-y-auto p-3 space-y-2 bg-gray-50">
+                                {teamLoading ? (
+                                    <p className="text-sm text-gray-500 px-2 py-3">Loading team members...</p>
+                                ) : teamMembers.length === 0 ? (
+                                    <p className="text-sm text-gray-500 px-2 py-3">No team members found.</p>
+                                ) : (
+                                    teamMembers.map((member) => (
+                                        <label
+                                            key={member.id}
+                                            className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-white cursor-pointer"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedTeamMemberIds.includes(member.id)}
+                                                onChange={() => toggleTeamMember(member.id)}
+                                                className="w-4 h-4 accent-[#0D4A7A]"
+                                            />
+                                            <span className="text-sm text-gray-800">
+                                                {member.name}
+                                                {member.title ? ` — ${member.title}` : ""}
+                                            </span>
+                                        </label>
+                                    ))
+                                )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2">
+                                Select one or more team members for this sub-service.
+                            </p>
                         </div>
                     </div>
 

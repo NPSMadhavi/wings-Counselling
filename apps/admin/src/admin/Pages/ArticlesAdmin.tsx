@@ -126,35 +126,43 @@ export default function ArticlesAdmin({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload an image file");
       return;
     }
 
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image size should be less than 5MB');
+    if (file.size > 8 * 1024 * 1024) {
+      alert("Image size should be less than 8MB");
       return;
     }
 
     setUploadingImage(true);
+
     try {
-      // Create a local URL for preview
-      const imageUrl = URL.createObjectURL(file);
-      setEditForm({ ...editForm, coverImage: imageUrl });
-      
-      // If you have an API endpoint for uploading images to server, use it here
-      // const uploadedUrl = await api.uploadImage(file);
-      // setEditForm({ ...editForm, coverImage: uploadedUrl });
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Failed to upload image. Please try again.');
+      const { urls } = await api.uploadFiles([file]);
+
+      if (!urls?.length) {
+        throw new Error("No image URL returned from server");
+      }
+
+      setEditForm((prev) => ({
+        ...prev,
+        coverImage: urls[0],
+      }));
+    } catch (err) {
+      console.error("Error uploading image:", err);
+
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Failed to upload image. Please try again.";
+
+      alert(message);
     } finally {
       setUploadingImage(false);
-      // Reset file input
+
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };

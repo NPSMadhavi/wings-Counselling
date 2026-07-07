@@ -1,26 +1,10 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ChevronRight } from "lucide-react";
-import { useAppointment } from "@/context/AppointmentContext";
 import { useLocation } from "wouter";
-
-const services = [
-  { id: 1, title: "Family conflicts" },
-  { id: 2, title: "Lifestyle issues" },
-  { id: 3, title: "Trauma & PTSD" },
-  { id: 4, title: "Addiction" },
-  { id: 5, title: "Grief & Loss" },
-  { id: 6, title: "Stress / Anxiety" },
-  { id: 7, title: "Relationship issues" },
-  { id: 8, title: "Parenting challenges" },
-  { id: 9, title: "Financial disputes" },
-  { id: 10, title: "Burnout & Work stress" },
-  { id: 11, title: "Self-esteem & Identity" },
-  { id: 12, title: "Feeling lonely" },
-];
+import { SUPPORT_TOPICS, getSupportTopicPath } from "@/lib/supportTopicsConfig";
 
 export function WhatWeDo() {
-  const { openModal } = useAppointment();
   const [, setLocation] = useLocation();
   const sectionRef = useRef(null);
 
@@ -39,7 +23,7 @@ export function WhatWeDo() {
       viewport={{ once: true }}
       transition={{ duration: 0.35, delay: index * 0.02 }}
       whileHover={{ scale: 1.04 }}
-      onClick={() => setLocation("/StressAnxiety")}
+      onClick={() => setLocation(getSupportTopicPath(service.slug))}
       className="
         group
         flex items-center justify-center
@@ -69,7 +53,7 @@ export function WhatWeDo() {
         "
         style={{ fontFamily: "'DM Sans', sans-serif" }}
       >
-        {service.title}
+        {service.label}
       </h3>
 
       <ChevronRight
@@ -115,7 +99,7 @@ export function WhatWeDo() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="
-              text-[clamp(26px,4.8vw,28px)]
+              text-[clamp(22px,4.8vw,28px)]
               md:text-[35px]
               text-center
               mb-4
@@ -133,8 +117,7 @@ export function WhatWeDo() {
               text-black
               text-center
               font-['DM_Sans']
-              text-[16px]
-              md:text-[20px]
+              text-[16px] md:text-[18px] lg:text-[20px] 
               font-normal
               max-w-[700px]
               mx-auto
@@ -159,7 +142,7 @@ export function WhatWeDo() {
             gap-x-2 gap-y-3 sm:gap-3 md:gap-4
           "
         >
-          {services.map((service, index) =>
+          {SUPPORT_TOPICS.map((service, index) =>
             renderServiceCard(service, index)
           )}
         </div>

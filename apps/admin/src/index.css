@@ -147,6 +147,47 @@ img:not([class*="h-"]):not([style*="height"]) {
     padding-left: clamp(16px, 2vw, 24px);
     padding-right: clamp(16px, 2vw, 24px);
   }
+
+  .support-topic-text-pl {
+    padding-left: calc(0.75rem + clamp(16px, 2vw, 24px));
+    padding-right: clamp(16px, 2vw, 24px);
+  }
+
+  @media (min-width: 640px) {
+    .support-topic-text-pl {
+      padding-left: calc(1rem + clamp(16px, 2vw, 24px));
+    }
+  }
+
+  @media (min-width: 768px) {
+    .support-topic-text-pl {
+      padding-left: calc(1.25rem + clamp(16px, 2vw, 24px));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .support-topic-text-pl {
+      padding-left: calc(
+        1.5rem + clamp(16px, 2vw, 24px) + max(0px, (100vw - 3rem - 1500px) / 2)
+      );
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .support-topic-text-pl {
+      padding-left: calc(
+        2rem + clamp(16px, 2vw, 24px) + max(0px, (100vw - 4rem - 1500px) / 2)
+      );
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .support-topic-text-pl {
+      padding-left: calc(
+        2.5rem + clamp(16px, 2vw, 24px) + max(0px, (100vw - 5rem - 1600px) / 2)
+      );
+    }
+  }
 }
 
 /* =========================================

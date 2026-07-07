@@ -124,7 +124,8 @@ function Events() {
             className="w-full flex flex-col items-center py-10 sm:py-14 md:py-[60px] bg-[#FAFAF5]"
         >
             {/* RESPONSIVE PADDING */}
-            <div className="w-full px-6 md:px-12 lg:px-[100px]">
+            <div className="w-full navbar-align-outer">
+  <div className="navbar-align-inner">
                 {/* HEADER */}
                 <div className="w-full flex flex-wrap justify-between items-center gap-4 mb-10">
                     <h2
@@ -410,6 +411,7 @@ function Events() {
                     </div>
                 )}
             </div>
+            </div>
         </section>
     );
 }
@@ -450,8 +452,9 @@ export default function EventsPage() {
                     backgroundPosition: "center",
                 }}
             >
-                <div className="relative w-full h-full flex items-center justify-center px-6 md:px-12 lg:px-[100px]">
-                    <motion.div
+               <div className="relative w-full h-full navbar-align-outer">
+  <div className="navbar-align-inner h-full flex items-center justify-center">
+    <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{
@@ -463,7 +466,7 @@ export default function EventsPage() {
                         style={{ maxWidth: "840px" }}
                     >
                         <h1
-                            className="text-[32px] sm:text-[44px] md:text-[54px] lg:text-[60px]"
+                            className="text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px]"
                             style={{
                                 fontFamily: "'Outfit', sans-serif",
                                 color: "#FFFFFF",
@@ -527,6 +530,7 @@ export default function EventsPage() {
                             </svg>
                         </motion.button>
                     </motion.div>
+                    </div>
                 </div>
             </div>
 
@@ -534,13 +538,13 @@ export default function EventsPage() {
             <Events />
 
             {/* NEWSLETTER / UPCOMING EVENTS SECTION */}
-            <div className="w-full flex flex-col items-center py-10 sm:py-12 bg-[#FAFAF5]">
-                <div className="w-full px-4 min-[375px]:px-6 md:px-12 lg:px-24 xl:px-[150px]">
-                    <div className="w-full flex flex-col items-center justify-center relative overflow-hidden bg-[#0D4A7A] rounded-[16px] md:rounded-[20px] px-5 py-10 sm:px-8 sm:py-12 md:py-14 min-h-[280px] sm:min-h-[300px] md:min-h-[338px]">
-                       
+           <div className="w-full flex flex-col items-center py-10 sm:py-12 bg-[#FAFAF5]">
+  <div className="w-full navbar-align-outer">
+    <div className="navbar-align-inner">
+      <div className="w-full flex flex-col items-center justify-center relative overflow-hidden bg-[#0D4A7A] rounded-[16px] md:rounded-[20px] px-5 py-10 sm:px-8 sm:py-12 md:py-14 min-h-[280px] sm:min-h-[300px] md:min-h-[338px]">   
 
                         <h2 className="font-['Outfit'] font-medium text-[clamp(24px,5vw,35px)] leading-tight text-white mb-3 sm:mb-4 text-center px-2">
-                            Upcoming Workshops & Events
+                            Upcoming Events & Workshops
                         </h2>
 
                         <p className="font-['DM_Sans'] font-medium text-[clamp(15px,2.5vw,20px)] leading-snug text-white mb-6 sm:mb-8 md:mb-10 text-center max-w-[600px] px-2">
@@ -605,8 +609,9 @@ export default function EventsPage() {
                     </div>
                 </div>
             </div>
-
+</div>
             <Footer />
         </div>
+        
     );
 }

@@ -949,14 +949,13 @@ const handleSubmit = async (e) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100010] overflow-y-auto overscroll-contain">
-          <div className="flex min-h-full min-h-[100dvh] items-center justify-center p-3 sm:p-4 md:p-6">
+        <div className="fixed inset-0 z-[100050] flex items-center justify-center p-3 sm:p-4 md:p-6">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
 
           <motion.div
@@ -964,7 +963,7 @@ const handleSubmit = async (e) => {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative z-10 bg-white w-full max-w-[1100px] max-h-[min(90dvh,calc(100dvh-1.5rem))] overflow-y-auto rounded-[20px] shadow-2xl flex flex-col my-4 sm:my-6"
+            className="relative z-10 bg-white w-full max-w-[1100px] max-h-[min(90dvh,calc(100dvh-2rem))] overflow-hidden rounded-[20px] shadow-2xl flex flex-col"
             role="dialog"
             aria-modal="true"
           >
@@ -1013,9 +1012,8 @@ const handleSubmit = async (e) => {
               </div>
             </div>
 
-            {/* Content with fixed height container */}
-            <div className="p-4 sm:p-6 md:p-8 pt-4 sm:pt-6 flex-1 overflow-y-auto">
-              {submitted ? (
+            {submitted ? (
+            <div className="p-4 sm:p-6 md:p-8 pt-4 sm:pt-6 flex-1 overflow-y-auto min-h-0">
                 <div className="min-h-0 md:min-h-[480px] flex flex-col items-center justify-center text-center px-4 sm:px-8">
                   <div className="w-20 h-20 rounded-full bg-[#E8F3DC] flex items-center justify-center mb-6">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none">
@@ -1026,7 +1024,7 @@ const handleSubmit = async (e) => {
                     Appointment Submitted Successfully
                   </h2>
                   <p className="text-[#3A3A3A] text-[16px] leading-relaxed max-w-[600px] mb-2">
-                    Thank you, <strong>{formData.name}</strong>. We have received your request and will contact you within 24–48 hours.
+                    Thank you, <strong>{formData.name}</strong>. We have received your request and will contact you within 3 Working Days.
                   </p>
                   <p className="text-[#5f6368] text-[14px] max-w-[520px] mb-8">
                     A confirmation email has been sent to <strong>lavetimadhavilatha19@gmail.com</strong>. You can close this window and continue exploring the services.
@@ -1039,8 +1037,13 @@ const handleSubmit = async (e) => {
                     Close
                   </button>
                 </div>
-              ) : (
-              <form onSubmit={step === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }}>
+            </div>
+            ) : (
+              <form
+                onSubmit={step === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }}
+                className="flex flex-col flex-1 min-h-0"
+              >
+                <div className="p-4 sm:p-6 md:p-8 pt-4 sm:pt-6 flex-1 overflow-y-auto min-h-0">
                 {/* Top Header Section */}
                 <div className="flex items-start gap-4 sm:gap-[26px] mb-6 sm:mb-8">
                   {/* Icon Box - Changes based on step */}
@@ -1438,16 +1441,17 @@ const handleSubmit = async (e) => {
   />
   <div className="flex-1">
     <p className="text-[#1F5500] text-[14px] font-medium leading-[19px]">
-      I understand that the information shared will be used to process my appointment request and support my counselling journey confidentially.
+      I understand that the information shared will be used to process my appointment request and support my counselling journey with confidentially.
     </p>
   </div>
 </div>
   </div>
 )}
                 </div>
+                </div>
 
-                {/* Navigation Buttons */}
-                <div className="flex flex-row justify-end items-center gap-3 sm:gap-4 pt-6 sm:pt-8 mt-4">
+                {/* Navigation Buttons — fixed footer, does not scroll */}
+                <div className="flex-shrink-0 flex flex-row justify-end items-center gap-3 sm:gap-4 px-4 sm:px-6 md:px-8 py-4 border-t border-gray-100 bg-white rounded-b-[20px]">
                   {step > 1 && (
                     <button
                       type="button" 
@@ -1520,10 +1524,8 @@ const handleSubmit = async (e) => {
                   )}
                 </div>
               </form>
-              )}
-            </div>
+            )}
           </motion.div>
-          </div>
         </div>
       )}
     </AnimatePresence>

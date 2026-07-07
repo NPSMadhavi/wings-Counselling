@@ -461,7 +461,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100050] flex items-center justify-center p-4 sm:p-6">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -476,7 +476,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative bg-white w-[90%] max-w-[1100px] rounded-[20px] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
+            className="relative z-10 bg-white w-[90%] max-w-[1100px] rounded-[20px] shadow-2xl flex flex-col max-h-[min(90dvh,calc(100dvh-2rem))] overflow-hidden"
           >
             {/* Progress bars & close */}
             <div className="flex items-start justify-between p-6 md:p-8 pb-0 shrink-0">
@@ -511,9 +511,8 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
               </div>
             </div>
 
-            {/* Scrollable Content Form Area */}
+            {submitted ? (
             <div className="flex-1 overflow-y-auto p-6 md:p-8 pt-4 md:pt-6">
-              {submitted ? (
                 <div className="min-h-[480px] flex flex-col items-center justify-center text-center px-4 md:px-8">
                   <div className="w-20 h-20 rounded-full bg-[#E8F3DC] flex items-center justify-center mb-6">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none">
@@ -537,8 +536,13 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                     Close
                   </button>
                 </div>
-              ) : (
-                <form onSubmit={step === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }}>
+            </div>
+            ) : (
+                <form
+                  onSubmit={step === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }}
+                  className="flex flex-col flex-1 min-h-0"
+                >
+                  <div className="flex-1 overflow-y-auto p-6 md:p-8 pt-4 md:pt-6 min-h-0">
                   {/* Header with icon + title */}
                   <div className="flex items-start gap-4 md:gap-[26px] mb-6 md:mb-8">
                     <div className="w-[56px] h-[56px] md:w-[70px] md:h-[70px] rounded-[18px] bg-[#0D4A7A29] flex items-center justify-center flex-shrink-0">
@@ -1091,9 +1095,10 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                   )}
 
                   </div>
+                  </div>
 
-                  {/* Bottom Navigation Buttons */}
-                  <div className="flex justify-end items-center gap-4 pt-8 mt-4 shrink-0">
+                  {/* Bottom Navigation Buttons — fixed footer, does not scroll */}
+                  <div className="flex-shrink-0 flex justify-end items-center gap-4 px-6 md:px-8 py-4 border-t border-gray-100 bg-white rounded-b-[20px]">
                     {step > 1 && (
                       <button
                         type="button"
@@ -1141,8 +1146,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                     )}
                   </div>
                 </form>
-              )}
-            </div>
+            )}
 
           </motion.div>
         </div>

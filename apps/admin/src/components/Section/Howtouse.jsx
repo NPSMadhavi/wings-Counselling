@@ -70,7 +70,7 @@ export function Howtouse() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.1 }}
                     className="
-                        text-[clamp(26px,4.8vw,28px)]
+                        text-[clamp(22px,4.8vw,28px)]
                         md:text-[35px]
                         text-center
                         mb-4
@@ -93,8 +93,7 @@ export function Howtouse() {
                         text-black
                         text-center
                         font-['DM_Sans']
-                        text-[16px]
-                        md:text-[20px]
+                        text-[16px] md:text-[18px] lg:text-[20px] 
                         font-normal
                         max-w-[700px]
                         leading-[1.5]
@@ -130,7 +129,7 @@ export function Howtouse() {
                 />
 
                 {/* Steps - Animation Removed */}
-                <div
+              <div
                     className="
                         w-full
                         grid
@@ -166,19 +165,24 @@ export function Howtouse() {
                                     text-[26px] md:text-[32px]
                                     font-bold
                                     cursor-pointer
-                                    transition-all duration-300
+                                    transition-all duration-500
                                 "
-                                style={{
-                                    background:
-                                        hoveredIndex === index
-                                            ? "linear-gradient(135deg, #0D4A7A 0%, #1888E0 100%)"
-                                            : "#0D4A7A",
-                                    transform: hoveredIndex === index ? "scale(1.1)" : "scale(1)",
-                                    boxShadow:
-                                        hoveredIndex === index
-                                            ? "0 15px 30px rgba(13, 74, 122, 0.4)"
-                                            : "none",
-                                }}
+                               style={{
+    background:
+        hoveredIndex === index
+            ? "#1888E0"
+            : "#0D4A7A",
+    transform:
+        hoveredIndex === index
+            ? "scale(1.08)"
+            : "scale(1)",
+    boxShadow:
+        hoveredIndex === index
+            ? "0 15px 30px rgba(13, 74, 122, 0.4)"
+            : "0 0 0 rgba(13, 74, 122, 0)",
+    transition:
+        "transform 0.4s ease, background-color 0.4s ease, box-shadow 0.4s ease",
+}}
                             >
                                 {step.number}
                             </div>
@@ -186,8 +190,9 @@ export function Howtouse() {
                             {/* Title */}
                             <h3
                                 className="
-                                    text-xl
-                                    md:text-[23px]
+                                    text-[18px]
+                                    md:text-[20px]
+                                    lg:text-[22px] 
                                     mb-3
                                     mt-6
                                     font-['DM_Sans']
@@ -205,8 +210,7 @@ export function Howtouse() {
                             {/* Description */}
                             <p
                                 className="
-                                    text-base
-                                    md:text-[18px]
+                                    text-[14px] md:text-[16px] lg:text-[18px] 
                                     font-['DM_Sans']
                                 "
                                 style={{

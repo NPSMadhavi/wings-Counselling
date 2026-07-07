@@ -11,7 +11,8 @@ import { CursorGlow } from "../components/Layout/CursorGlow";
 import { LogoIntro } from "../components/ui/LogoIntro";
 import { useState, useLayoutEffect } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
-import { scrollToContactWithRetry } from "@/lib/scrollToSection";
+import { scrollToContactWithRetry, scrollToPartnersWithRetry } from "@/lib/scrollToSection";
+import { Partners } from "../components/Section/Partner";
 
 export default function Home() {
   // Skip intro if arriving via hash link (e.g., /#contact) or when
@@ -54,6 +55,12 @@ export default function Home() {
       if (sessionStorage.getItem("scrollToContact")) {
         sessionStorage.removeItem("scrollToContact");
         scrollToContactWithRetry();
+        return;
+      }
+
+      if (sessionStorage.getItem("scrollToPartners")) {
+        sessionStorage.removeItem("scrollToPartners");
+        scrollToPartnersWithRetry();
         return;
       }
 
@@ -100,6 +107,7 @@ export default function Home() {
         <div className="relative z-[2]">
           <main className="flex flex-col">
             <Hero />
+            <Partners />
             <WhatWeDo />
             <About />
             <Howtouse />
@@ -107,6 +115,7 @@ export default function Home() {
             <OurTeam />
             <Needhelp />
             <Upcoming />
+            
             <Footer />
           </main>
         </div>
