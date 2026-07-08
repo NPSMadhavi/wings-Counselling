@@ -14,7 +14,7 @@ import { SiteCheckIcon } from "@/components/ui/SiteIcons";
 
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { Footer } from "@/components/Layout/Footer";
 import { careersApplyPath } from "@/lib/careers-routes";
 import type { JobPosting } from "@/lib/careers-types";
 import { useAuth } from "@/hooks/use-auth";

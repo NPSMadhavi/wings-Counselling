@@ -178,7 +178,7 @@ const Volunteer = () => {
                 At WINGS Counselling Centre, volunteers play an important role in
                 supporting our mission of emotional well-being and community care.
                 Whether through assisting events, supporting outreach activities
-                or helping us create a safe and welcoming environment. every
+                or helping us create a safe and welcoming environment every
                 contribution matters.
               </motion.p>
 

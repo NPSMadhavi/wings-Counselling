@@ -18,7 +18,7 @@ import {
 import { SiWhatsapp } from "react-icons/si";
 import { FaLinkedinIn } from "react-icons/fa6";
 
-import { Footer } from "@/components/layout/Footer";
+import { Footer } from "@/components/Layout/Footer";
 import { Button } from "@/components/ui/button";
 import type { JobPosting } from "@/lib/careers-types";
 import { useAuth } from "@/hooks/use-auth";

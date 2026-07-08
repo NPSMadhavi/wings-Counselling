@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { Footer } from "@/components/Layout/Footer";
 import type { JobPosting, JobCategory, InsertJobPosting, InsertJobCategory, APPLICATION_STATUSES } from "@shared/schema";
 
 const sessionStorage = {

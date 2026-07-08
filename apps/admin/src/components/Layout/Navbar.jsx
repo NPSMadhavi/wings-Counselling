@@ -144,8 +144,11 @@ export function Navbar() {
   const [location, navigate] =
     useLocation();
 
-  const [activeDropdown, setActiveDropdown] =
-    useState(null);
+ const [activeDropdown, setActiveDropdown] =
+  useState(null);
+
+const [hoveredNav, setHoveredNav] =
+  useState(null);
 
   const [
     activeLangDropdown,
@@ -576,6 +579,8 @@ export function Navbar() {
                               location ===
                               d.href
                           ));
+                          const isHovered =
+  hoveredNav === link.name;
 
                       return (
                         <div
@@ -588,19 +593,21 @@ export function Navbar() {
                             group
                           "
 
-                          onMouseEnter={() =>
-                            hasDropdown &&
-                            setActiveDropdown(
-                              link.name
-                            )
-                          }
+                          onMouseEnter={() => {
+  setHoveredNav(link.name);
 
-                          onMouseLeave={() =>
-                            hasDropdown &&
-                            setActiveDropdown(
-                              null
-                            )
-                          }
+  if (hasDropdown) {
+    setActiveDropdown(link.name);
+  }
+}}
+
+onMouseLeave={() => {
+  setHoveredNav(null);
+
+  if (hasDropdown) {
+    setActiveDropdown(null);
+  }
+}}
                         >
                           {/* =====================================================
                              NAV ITEM
@@ -623,12 +630,12 @@ export function Navbar() {
                                     whitespace-nowrap
                                   "
                                   style={{
-                                    color:
-                                      isActive ||
-                                      activeDropdown ===
-                                        link.name
-                                        ? "#1B4585"
-                                        : "#000",
+  color:
+  isActive ||
+  isHovered ||
+  activeDropdown === link.name
+    ? "#1B4585"
+    : "#000",
                                     fontFamily:
                                       "'DM Sans', sans-serif",
                                     fontSize:
@@ -664,12 +671,12 @@ export function Navbar() {
                                 "
 
                                 style={{
-                                  color:
-                                    isActive ||
-                                    activeDropdown ===
-                                      link.name
-                                      ? "#1B4585"
-                                      : "#000",
+                                 color:
+  isActive ||
+  isHovered ||
+  activeDropdown === link.name
+    ? "#1B4585"
+    : "#000",
 
                                   fontFamily:
                                     "'DM Sans', sans-serif",
@@ -741,12 +748,12 @@ export function Navbar() {
                                   whitespace-nowrap
                                 "
                                 style={{
-                                  color:
-                                    isActive ||
-                                    activeDropdown ===
-                                      link.name
-                                      ? "#1B4585"
-                                      : "#000",
+                                 color:
+                                isActive ||
+                                isHovered ||
+                                activeDropdown === link.name
+                                  ? "#1B4585"
+                                  : "#000",
 
                                   fontFamily:
                                     "'DM Sans', sans-serif",
@@ -791,11 +798,9 @@ export function Navbar() {
                             )}
 
                             <AnimatePresence>
-                              {(activeDropdown ===
-                                link.name ||
-                                (isActive &&
-                                  activeDropdown ===
-                                    null)) && (
+                              {(isActive ||
+  isHovered ||
+  activeDropdown === link.name) && (
                                 <motion.div
                                   layoutId="navUnderline"
 
@@ -814,9 +819,10 @@ export function Navbar() {
                                     opacity: 0,
                                   }}
 
-                                  transition={{
-                                    duration: 0.3,
-                                  }}
+                                 transition={{
+  duration: 0.25,
+  ease: "easeOut",
+}}
 
                                   className="
                                     absolute

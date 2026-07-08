@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useRoute } from "wouter";
 
-import { Footer } from "@/components/layout/Footer";
+import { Footer } from "@/components/Layout/Footer";
 import { useAppointment } from "@/context/AppointmentContext";
 import {
   Ear,

@@ -493,20 +493,20 @@
         <div className="flex flex-col flex-1 min-h-0 p-4">
 
           {/* Description */}
-          <p
-            className="
-              text-black
-              font-['DM_Sans']
-              text-[14px]
-              md:text-[15px]
-              leading-[1.6]
-              line-clamp-2
-              min-h-[3.4rem]
-              flex-1
-            "
-          >
-            {service.description}
-          </p>
+         <p
+  className="
+    text-black
+    font-['DM_Sans']
+    text-[14px]
+    md:text-[15px]
+    leading-[1.6]
+    line-clamp-2
+    overflow-hidden
+    h-[3.2em]
+  "
+>
+  {service.description}
+</p>
 
           {/* Learn More */}
           <div className="flex items-center gap-2 mt-auto pt-4 cursor-pointer shrink-0">

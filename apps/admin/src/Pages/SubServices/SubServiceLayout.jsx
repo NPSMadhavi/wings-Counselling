@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Footer } from "@/components/layout/Footer";
+import { Footer } from "@/components/Layout/Footer";
 import { SiteCheckBadge } from "@/components/ui/SiteIcons";
 import PractitionerCard from "@/components/ui/PractitionerCard";
 import { useAppointment } from "@/context/AppointmentContext";

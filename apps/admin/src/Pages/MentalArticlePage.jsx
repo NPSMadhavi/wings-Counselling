@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Copy, Mail, Download, Printer, Check } from "lucide-react";
-import { Footer } from "@/components/layout/Footer";
+import { Footer } from "@/components/Layout/Footer";
 import { useLocation } from "wouter";
 import { useAppointment } from "@/context/AppointmentContext";
 
@@ -428,493 +428,499 @@ export default function MentalArticlePage() {
 
         <div className="absolute inset-0 bg-black/60" />
 
-        <div className="relative z-10 flex items-center justify-center h-full px-5">
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="max-w-[760px] flex flex-col items-center text-center text-white"
-          >
-            <h1
-              className="text-[44px] md:text-[58px] leading-[108%] tracking-[-0.04em] font-medium"
-              style={{
-                ...styles.heading,
-                maxWidth: "620px",
-              }}
+        <div className="relative z-10 w-full h-full navbar-align-outer">
+          <div className="navbar-align-inner h-full flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="max-w-[760px] flex flex-col items-center text-center text-white"
             >
-              You don’t have to navigate mental health challenges alone
-            </h1>
-
-            <p className="max-w-[560px] mx-auto mt-6 text-[15px] md:text-[17px] leading-[190%] text-white/90">
-              Learn more about mental health, understand how stress and emotions can affect you,
-              and discover professional support tailored to your needs.
-            </p>
-
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                document
-                  .getElementById("anxiety-article")
-                  ?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="group flex items-center gap-2 cursor-pointer rounded-full bg-[#15467B] h-[46px] px-6 mt-9"
-            >
-              <span className="text-white text-[14px] font-medium">
-                Explore mental health support
-              </span>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="17"
-                height="17"
-                viewBox="0 0 24 24"
-                fill="none"
+              <h1
+                className="text-[44px] md:text-[58px] leading-[108%] tracking-[-0.04em] font-medium"
+                style={{
+                  ...styles.heading,
+                  maxWidth: "620px",
+                }}
               >
-                <path
-                  d="M6 9L12 15L18 9"
-                  stroke="white"
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </motion.button>
-          </motion.div>
+                You don’t have to navigate mental health challenges alone
+              </h1>
+
+              <p className="max-w-[560px] mx-auto mt-6 text-[15px] md:text-[17px] leading-[190%] text-white/90">
+                Learn more about mental health, understand how stress and emotions can affect you,
+                and discover professional support tailored to your needs.
+              </p>
+
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  document
+                    .getElementById("anxiety-article")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="group flex items-center gap-2 cursor-pointer rounded-full bg-[#15467B] h-[46px] px-6 mt-9"
+              >
+                <span className="text-white text-[14px] font-medium">
+                  Explore mental health support
+                </span>
+
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M6 9L12 15L18 9"
+                    stroke="white"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </motion.button>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* BREADCRUMB */}
-      <div className="max-w-[1630px] mx-auto px-5 py-[22px]">
-        <p className="text-[16px] leading-[160%]">
-          <span
-            onClick={() => navigate("/")}
-            className="cursor-pointer underline hover:opacity-70 transition"
-          >
-            Home
-          </span>
+      <div className="w-full navbar-align-outer">
+        <div className="navbar-align-inner py-[22px]">
+          <p className="text-[16px] leading-[160%]">
+            <span
+              onClick={() => navigate("/")}
+              className="cursor-pointer underline hover:opacity-70 transition"
+            >
+              Home
+            </span>
 
-          <span className="mx-1">/</span>
+            <span className="mx-1">/</span>
 
-          <span
-  onClick={() => navigate("/articles")}
-  className="cursor-pointer underline hover:opacity-70 transition"
->
-  Back to articles
-</span>
-          <span className="mx-1">/</span>
+            <span
+              onClick={() => navigate("/articles")}
+              className="cursor-pointer underline hover:opacity-70 transition"
+            >
+              Back to articles
+            </span>
 
-          <span id="anxiety-article">Mental health</span>
-        </p>
+            <span className="mx-1">/</span>
+
+            <span id="anxiety-article">Mental health</span>
+          </p>
+        </div>
       </div>
 
       {/* INTRO SECTION */}
       <section className="w-full">
         <div className="grid lg:grid-cols-2 min-h-[410px]">
-            {/* LEFT */}
-          <div className="bg-[#0D4A7A] px-[154px] py-[54px] text-white flex items-center">
-  <motion.div
-    initial={{ opacity: 0, y: 28 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.6 }}
-    // Remove max-w-[430px] or increase it significantly
-    className="max-w-[700px]"  // Changed from 430px to 700px
-  >
-    <p className="mb-7 text-white/80 text-[15px] tracking-wide">
-      Last updated on february 27, 2026
-    </p>
+          {/* LEFT */}
+          <div className="bg-[#0D4A7A] px-[24px] md:px-[34px] lg:px-[74px] py-[54px] text-white flex items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="max-w-[700px]"
+            >
+              <p className="mb-7 text-white/80 text-[15px] tracking-wide">
+                Last updated on february 27, 2026
+              </p>
 
-    <h2
-      className="text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
-      // Remove max-w completely from h2
-    >
-      Mental health support
-    </h2>
+              <h2
+                className="text-[25px] md:text-[28px] lg:text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
+              >
+                Mental health support
+              </h2>
 
-    <p className="mt-7 text-white/85 text-[16px] leading-[190%]">
-      Mental health refers to emotional, psychological, and social well-being. It affects how we think, feel, act, cope with stress, maintain relationships, and recover from life’s challenges.
-    </p>
-  </motion.div>
-</div>
-
-            {/* RIGHT */}
-            <div className="relative min-h-[410px] overflow-hidden">
-              <img
-                src={introImg}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            </div>
+              <p className="mt-7 text-white/85 text-[16px] leading-[190%]">
+                Mental health refers to emotional, psychological, and social well-being. It affects how we think, feel, act, cope with stress, maintain relationships, and recover from life’s challenges.
+              </p>
+            </motion.div>
           </div>
+
+          {/* RIGHT */}
+          <div className="relative min-h-[410px] overflow-hidden">
+            <img
+              src={introImg}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </div>
+        </div>
       </section>
 
       {/* ARTICLE */}
-      <section className="bg-[#F5F3F0] lg:h-screen lg:overflow-hidden">
-        <div className="mx-auto max-w-[1630px] px-5 py-[72px] lg:h-full">
-          <div ref={articleRef} className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-[58px] items-start lg:h-full">
-            {/* LEFT SIDEBAR */}
-            <aside className="sidebar-scroll w-full lg:w-[220px] self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              <div>
-                {/* AUTHOR */}
-                <div className="text-[16px] leading-[190%] text-[#595550]">
-                  <p>
-                    By Dr. Priya Anand · Mental health counsellor
-                  </p>
-                </div>
+      <section className="bg-[#F5F3F0] xl:h-screen xl:overflow-hidden">
+        <div className="w-full xl:h-full">
+  <div className="w-full px-[24px] md:px-[34px] lg:px-[74px] py-[72px] xl:h-full">
+            <div ref={articleRef} className="grid grid-cols-1 xl:grid-cols-[220px_1fr] gap-[58px] items-start xl:h-full">
+              {/* LEFT SIDEBAR */}
+              <aside className="sidebar-scroll hidden xl:block w-full xl:w-[220px] self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                <div>
+                  {/* AUTHOR */}
+                  <div className="text-[16px] leading-[190%] text-[#595550]">
+                    <p>
+                      By Dr. Priya Anand · Mental health counsellor
+                    </p>
+                  </div>
 
-                {/* TOC */}
-                <div className="mt-8 space-y-0">
-                  {sections.map((item, index) => {
-                    const isActive = activeSection === item.id;
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          document.getElementById(item.id)?.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start",
-                          });
-                        }}
-                        className={`block w-full text-left text-[16px] leading-[160%] py-[10px] pl-5 border-l-2 transition-all duration-300 ${isActive
+                  {/* TOC */}
+                  <div className="mt-8 space-y-0">
+                    {sections.map((item, index) => {
+                      const isActive = activeSection === item.id;
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            document.getElementById(item.id)?.scrollIntoView({
+                              behavior: "smooth",
+                              block: "start",
+                            });
+                          }}
+                          className={`block w-full text-left text-[16px] leading-[160%] py-[10px] pl-5 border-l-2 transition-all duration-300 ${isActive
                             ? "border-[#0D4A7A] text-[#0D4A7A] font-bold bg-[#EDF3F8]"
                             : "border-[#D8D3CC] text-[#6D6862] hover:text-[#0D4A7A] hover:border-[#9DB4C9]"
                           }`}
+                        >
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* RELATED ARTICLES */}
+                  <div className="mt-[58px]">
+                    {[1, 2, 3, 4].map((_, index) => (
+                      <div
+                        key={index}
+                        className={`${index !== 0 ? "border-t border-[#D7D2CB]" : ""
+                          } pt-[22px] pb-[26px]`}
                       >
+                        <h4
+                          className="text-[18px] leading-[135%] tracking-[-0.02em] text-[#2C2C2A] font-normal"
+                          style={{
+                            fontFamily: "Outfit, sans-serif",
+                          }}
+                        >
+                          Difficult conversations with your partner without
+                          becoming an argument
+                        </h4>
+
+                        <p className="mt-[14px] text-[14px] leading-[165%] text-[#2C2C2A]">
+                          Communication breakdowns are at the heart of most
+                          relationship struggles.
+                        </p>
+
+                        <div className="mt-[10px] flex items-center gap-[10px]">
+                          <span className="text-[13px] text-[#0D4A7A]">
+                            6 min read
+                          </span>
+
+                          <span className="w-[3px] h-[3px] rounded-full bg-[#0D4A7A]" />
+
+                          <span className="text-[13px] text-[#0D4A7A]">
+                            Priya Anand
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </aside>
+
+              {/* RIGHT ARTICLE CONTENT */}
+              <main ref={mainContentRef} className="sidebar-scroll w-full xl:self-stretch xl:overflow-y-auto" style={{ scrollBehavior: "smooth", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                {/* INTRO */}
+                <motion.div
+                  id="what-is-mental-health"
+                  initial={{ opacity: 0, y: 26 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <h2
+                    className="text-[35px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
+                    style={styles.heading}
+                  >
+                    What is mental health?
+                  </h2>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      Mental health refers to emotional, psychological, and social well-being.
+                      It is important to understand that mental health is in no way less important
+                      than physical health.
+                    </p>
+
+                    <p>
+                      Simply speaking, mental health is about how one thinks, feels, acts, and
+                      copes with the stresses of everyday life.
+                    </p>
+
+                    <p>
+                      At times, it can be much more than simple worries or anxieties. It may
+                      become difficult to concentrate, manage unhelpful thoughts, maintain healthy
+                      relationships, sleep well, or feel emotionally steady.
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* SECTION 1 */}
+                <section id="what-mental-health-feels-like" className="mt-[72px]">
+                  <h3
+                    className="text-[26px] leading-[120%] tracking-[-0.03em] font-medium"
+                    style={styles.heading}
+                  >
+                    1. What mental health can feel like
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Mental health can affect thoughts, emotions, behaviour, relationships, and daily life.
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      A person may feel unable to concentrate, constantly disturbed by unhelpful
+                      thoughts, withdrawn, angry, isolated, exhausted, or mentally drained.
+                    </p>
+
+                    <p>
+                      Anxiety or low mood can be extremely debilitating and is often endured in
+                      silence because people around may misunderstand the condition.
+                    </p>
+
+                    <p>
+                      Unhelpful advice such as “quit worrying” or “stay calm” can sometimes make
+                      a person feel worse rather than supported.
+                    </p>
+                  </div>
+                </section>
+
+                {/* SECTION 2 */}
+                <section id="common-mental-health-challenges" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
+                    style={styles.heading}
+                  >
+                    2. Common mental health challenges
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Mental health is more than the absence of a mental disorder.
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      Mental health can be shaped by biological, social, and emotional factors.
+                      Family history, physical health problems, divorce, job loss, chronic pain,
+                      and major life changes can all affect mental well-being.
+                    </p>
+
+                    <p>Common mental health disorders can include:</p>
+
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li>Anxiety disorders</li>
+                      <li>Mood disorders</li>
+                      <li>Schizophrenia</li>
+                      <li>Panic disorders</li>
+                      <li>Phobias</li>
+                      <li>Obsessive-compulsive disorder</li>
+                      <li>Post-traumatic stress disorder</li>
+                    </ul>
+                  </div>
+                </section>
+
+                {/* SECTION 3 */}
+                <section id="mental-wellness-practices" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
+                    style={styles.heading}
+                  >
+                    3. Mental wellness practices
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Mental wellness needs regular care, just like physical health.
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      It is proven that the mind and body are closely linked. When a person improves
+                      physical health, they may also experience greater mental and emotional well-being.
+                    </p>
+
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li>Stay connected with people you feel comfortable with</li>
+                      <li>Share worries with trusted people</li>
+                      <li>Engage in regular exercise or physical activity</li>
+                      <li>Practice mindfulness, yoga, meditation, or deep breathing</li>
+                      <li>Make time for relaxing and enjoyable activities</li>
+                      <li>Practice appreciation and gratitude</li>
+                      <li>Find purpose and meaning in everyday life</li>
+                    </ul>
+                  </div>
+                </section>
+
+                {/* SECTION 4 */}
+                <section id="when-to-seek-support" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
+                    style={styles.heading}
+                  >
+                    4. When to seek support
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Professional support can help when daily functioning feels affected.
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      If consistent efforts to improve mental and emotional health are not helping,
+                      and a person is still not functioning well at home, work, or in relationships,
+                      it may be time to seek professional help.
+                    </p>
+
+                    <p>
+                      A therapist or medical professional can provide support, guidance, and care.
+                      Counselling can help a person understand their circumstances and learn coping
+                      strategies.
+                    </p>
+                  </div>
+                </section>
+
+                {/* FINAL THOUGHT */}
+                <section id="final-thought" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
+                    style={styles.heading}
+                  >
+                    Final thought
+                  </h3>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      If you are experiencing emotional distress, anxiety, low mood, or feeling
+                      mentally drained, you are not alone.
+                    </p>
+
+                    <p>
+                      With the right support, it is possible to understand what you are going
+                      through, build healthier coping strategies, and move toward better mental
+                      and emotional well-being.
+                    </p>
+                  </div>
+                </section>
+
+                {/* ACTION BUTTONS */}
+                <div className="mt-16 flex flex-wrap gap-3 border-t border-[#D9D4CD] pt-8">
+                  {[
+                    {
+                      icon: copied ? Check : Copy,
+                      label: copied ? "Copied!" : "Copy Link",
+                      onClick: handleCopyLink,
+                    },
+                    {
+                      icon: Mail,
+                      label: "Share via Email",
+                      onClick: handleShareEmail,
+                    },
+                    {
+                      icon: Download,
+                      label: "Download PDF",
+                      onClick: handleDownloadPDF,
+                    },
+                    {
+                      icon: Printer,
+                      label: "Print Document",
+                      onClick: handlePrint,
+                    },
+                  ].map((item, index) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <motion.button
+                        key={index}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={item.onClick}
+                        className={`flex items-center gap-2 rounded-[6px] border px-4 h-[34px] text-[12px] cursor-pointer transition-colors ${
+                          copied && index === 0
+                            ? "border-green-400 bg-green-50 text-green-700"
+                            : "border-[#D8D2CB] bg-white text-[#49433E] hover:bg-[#F0EDEA]"
+                        }`}
+                      >
+                        <Icon size={13} />
                         {item.label}
-                      </button>
+                      </motion.button>
                     );
                   })}
                 </div>
-
-                {/* RELATED ARTICLES */}
-                <div className="mt-[58px]">
-                  {[1, 2, 3, 4].map((_, index) => (
-                    <div
-                      key={index}
-                      className={`${index !== 0 ? "border-t border-[#D7D2CB]" : ""
-                        } pt-[22px] pb-[26px]`}
-                    >
-                      <h4
-                        className="text-[18px] leading-[135%] tracking-[-0.02em] text-[#2C2C2A] font-normal"
-                        style={{
-                          fontFamily: "Outfit, sans-serif",
-                        }}
-                      >
-                        Difficult conversations with your partner without
-                        becoming an argument
-                      </h4>
-
-                      <p className="mt-[14px] text-[14px] leading-[165%] text-[#2C2C2A]">
-                        Communication breakdowns are at the heart of most
-                        relationship struggles.
-                      </p>
-
-                      <div className="mt-[10px] flex items-center gap-[10px]">
-                        <span className="text-[13px] text-[#0D4A7A]">
-                          6 min read
-                        </span>
-
-                        <span className="w-[3px] h-[3px] rounded-full bg-[#0D4A7A]" />
-
-                        <span className="text-[13px] text-[#0D4A7A]">
-                          Priya Anand
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </aside>
-
-            {/* RIGHT ARTICLE CONTENT */}
-            <main ref={mainContentRef} className="sidebar-scroll w-full lg:self-stretch lg:overflow-y-auto" style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              {/* INTRO */}
-              <motion.div
-                id="what-is-mental-health"
-                initial={{ opacity: 0, y: 26 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                <h2
-                  className="text-[35px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
-                  style={styles.heading}
-                >
-                  What is mental health?
-                </h2>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    Mental health refers to emotional, psychological, and social well-being.
-                    It is important to understand that mental health is in no way less important
-                    than physical health.
-                  </p>
-
-                  <p>
-                    Simply speaking, mental health is about how one thinks, feels, acts, and
-                    copes with the stresses of everyday life.
-                  </p>
-
-                  <p>
-                    At times, it can be much more than simple worries or anxieties. It may
-                    become difficult to concentrate, manage unhelpful thoughts, maintain healthy
-                    relationships, sleep well, or feel emotionally steady.
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* SECTION 1 */}
-              <section id="what-mental-health-feels-like" className="mt-[72px]">
-                <h3
-                  className="text-[26px] leading-[120%] tracking-[-0.03em] font-medium"
-                  style={styles.heading}
-                >
-                  1. What mental health can feel like
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Mental health can affect thoughts, emotions, behaviour, relationships, and daily life.
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    A person may feel unable to concentrate, constantly disturbed by unhelpful
-                    thoughts, withdrawn, angry, isolated, exhausted, or mentally drained.
-                  </p>
-
-                  <p>
-                    Anxiety or low mood can be extremely debilitating and is often endured in
-                    silence because people around may misunderstand the condition.
-                  </p>
-
-                  <p>
-                    Unhelpful advice such as “quit worrying” or “stay calm” can sometimes make
-                    a person feel worse rather than supported.
-                  </p>
-                </div>
-              </section>
-
-              {/* SECTION 2 */}
-              <section id="common-mental-health-challenges" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
-                  style={styles.heading}
-                >
-                  2. Common mental health challenges
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Mental health is more than the absence of a mental disorder.
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    Mental health can be shaped by biological, social, and emotional factors.
-                    Family history, physical health problems, divorce, job loss, chronic pain,
-                    and major life changes can all affect mental well-being.
-                  </p>
-
-                  <p>Common mental health disorders can include:</p>
-
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>Anxiety disorders</li>
-                    <li>Mood disorders</li>
-                    <li>Schizophrenia</li>
-                    <li>Panic disorders</li>
-                    <li>Phobias</li>
-                    <li>Obsessive-compulsive disorder</li>
-                    <li>Post-traumatic stress disorder</li>
-                  </ul>
-                </div>
-              </section>
-
-              {/* SECTION 3 */}
-              <section id="mental-wellness-practices" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
-                  style={styles.heading}
-                >
-                  3. Mental wellness practices
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Mental wellness needs regular care, just like physical health.
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    It is proven that the mind and body are closely linked. When a person improves
-                    physical health, they may also experience greater mental and emotional well-being.
-                  </p>
-
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>Stay connected with people you feel comfortable with</li>
-                    <li>Share worries with trusted people</li>
-                    <li>Engage in regular exercise or physical activity</li>
-                    <li>Practice mindfulness, yoga, meditation, or deep breathing</li>
-                    <li>Make time for relaxing and enjoyable activities</li>
-                    <li>Practice appreciation and gratitude</li>
-                    <li>Find purpose and meaning in everyday life</li>
-                  </ul>
-                </div>
-              </section>
-
-              {/* SECTION 4 */}
-              <section id="when-to-seek-support" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
-                  style={styles.heading}
-                >
-                  4. When to seek support
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Professional support can help when daily functioning feels affected.
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    If consistent efforts to improve mental and emotional health are not helping,
-                    and a person is still not functioning well at home, work, or in relationships,
-                    it may be time to seek professional help.
-                  </p>
-
-                  <p>
-                    A therapist or medical professional can provide support, guidance, and care.
-                    Counselling can help a person understand their circumstances and learn coping
-                    strategies.
-                  </p>
-                </div>
-              </section>
-
-              {/* FINAL THOUGHT */}
-              <section id="final-thought" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
-                  style={styles.heading}
-                >
-                  Final thought
-                </h3>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    If you are experiencing emotional distress, anxiety, low mood, or feeling
-                    mentally drained, you are not alone.
-                  </p>
-
-                  <p>
-                    With the right support, it is possible to understand what you are going
-                    through, build healthier coping strategies, and move toward better mental
-                    and emotional well-being.
-                  </p>
-                </div>
-              </section>
-
-
-              {/* ACTION BUTTONS */}
-              <div className="mt-16 flex flex-wrap gap-3 border-t border-[#D9D4CD] pt-8">
-                {[
-                  {
-                    icon: copied ? Check : Copy,
-                    label: copied ? "Copied!" : "Copy Link",
-                    onClick: handleCopyLink,
-                  },
-                  {
-                    icon: Mail,
-                    label: "Share via Email",
-                    onClick: handleShareEmail,
-                  },
-                  {
-                    icon: Download,
-                    label: "Download PDF",
-                    onClick: handleDownloadPDF,
-                  },
-                  {
-                    icon: Printer,
-                    label: "Print Document",
-                    onClick: handlePrint,
-                  },
-                ].map((item, index) => {
-                  const Icon = item.icon;
-
-                  return (
-                    <motion.button
-                      key={index}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={item.onClick}
-                      className={`flex items-center gap-2 rounded-[6px] border px-4 h-[34px] text-[12px] cursor-pointer transition-colors ${
-                        copied && index === 0
-                          ? "border-green-400 bg-green-50 text-green-700"
-                          : "border-[#D8D2CB] bg-white text-[#49433E] hover:bg-[#F0EDEA]"
-                      }`}
-                    >
-                      <Icon size={13} />
-                      {item.label}
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </main>
+              </main>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA */}
       <section className="pb-24 bg-[#F5F3F0]">
-        <div className="max-w-[1630px] mx-auto px-5">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="rounded-[12px] bg-[#0D4A7A] px-8 py-[56px] text-center text-white w-full"
-          >
-            <h2
-              className="text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
-              style={styles.heading}
+        <div className="w-full navbar-align-outer">
+          <div className="navbar-align-inner">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="rounded-[12px] bg-[#0D4A7A] px-8 py-[56px] text-center text-white w-full"
             >
-              Ready to talk to someone?
-            </h2>
-
-            <p className="mx-auto mt-5 max-w-[720px] text-white/85 text-[15px] leading-[190%]">
-              Our counselling team is here to listen, support, and guide you in a
-              safe and confidential environment.
-            </p>
-
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => openModal()}
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-white h-[46px] px-6 text-[14px] font-semibold text-[#0D4A7A] cursor-pointer"
-            >
-              Book an appointment
-
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
+              <h2
+                className="text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
+                style={styles.heading}
               >
-                <path
-                  d="M9 18L15 12L9 6"
-                  stroke="currentColor"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </motion.button>
-          </motion.div>
+                Ready to talk to someone?
+              </h2>
+
+              <p className="mx-auto mt-5 max-w-[720px] text-white/85 text-[15px] leading-[190%]">
+                Our counselling team is here to listen, support, and guide you in a
+                safe and confidential environment.
+              </p>
+
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => openModal()}
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-white h-[46px] px-6 text-[14px] font-semibold text-[#0D4A7A] cursor-pointer"
+              >
+                Book an appointment
+
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M9 18L15 12L9 6"
+                    stroke="currentColor"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </motion.button>
+            </motion.div>
+          </div>
         </div>
       </section>
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Copy, Mail, Download, Printer, Check } from "lucide-react";
-import { Footer } from "@/components/layout/Footer";
+import { Footer } from "@/components/Layout/Footer";
 import { useLocation } from "wouter";
 import { useAppointment } from "@/context/AppointmentContext";
 
@@ -419,54 +419,56 @@ export default function AnxietyArticlePage() {
 
         <div className="absolute inset-0 bg-black/60" />
 
-        <div className="relative z-10 w-full h-full flex items-center justify-center px-6 md:px-12 lg:px-[100px]">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-            className="flex flex-col items-center justify-center text-center w-full"
-            style={{ maxWidth: "840px" }}
-          >
-            <h1
-              className="text-[32px] sm:text-[44px] md:text-[54px] lg:text-[60px] font-semibold leading-[1.2] text-white mb-6"
-              style={styles.heading}
+        <div className="relative z-10 w-full h-full navbar-align-outer">
+          <div className="navbar-align-inner h-full flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+              className="flex flex-col items-center justify-center text-center w-full"
+              style={{ maxWidth: "840px" }}
             >
-              You don’t have to navigate anxiety alone
-            </h1>
+              <h1
+                className="text-[32px] sm:text-[44px] md:text-[54px] lg:text-[60px] font-semibold leading-[1.2] text-white mb-6"
+                style={styles.heading}
+              >
+                You don’t have to navigate anxiety alone
+              </h1>
 
-            <p
-              className="text-[16px] md:text-[20px] leading-[1.8] text-white max-w-[700px] mb-8"
-              style={styles.body}
-            >
-              Learn more about stress and anxiety, explore practical coping
-              strategies, and discover professional support tailored to your
-              needs.
-            </p>
+              <p
+                className="text-[16px] md:text-[20px] leading-[1.8] text-white max-w-[700px] mb-8"
+                style={styles.body}
+              >
+                Learn more about stress and anxiety, explore practical coping
+                strategies, and discover professional support tailored to your
+                needs.
+              </p>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                document
-                  .getElementById("anxiety-article")
-                  ?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="flex items-center justify-center gap-2.5 h-[60px] px-8 rounded-full bg-[#1B4585] cursor-pointer"
-            >
-              <span className="text-white font-['Plus_Jakarta_Sans'] font-semibold text-[16px] sm:text-[18px]">
-                Explore support resources
-              </span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M6 9L12 15L18 9"
-                  stroke="white"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </motion.button>
-          </motion.div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  document
+                    .getElementById("anxiety-article")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="flex items-center justify-center gap-2.5 h-[60px] px-8 rounded-full bg-[#1B4585] cursor-pointer"
+              >
+                <span className="text-white font-['Plus_Jakarta_Sans'] font-semibold text-[16px] sm:text-[18px]">
+                  Explore support resources
+                </span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M6 9L12 15L18 9"
+                    stroke="white"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </motion.button>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -474,23 +476,25 @@ export default function AnxietyArticlePage() {
       <div className="w-full navbar-align-outer">
         <div className="navbar-align-inner py-4 sm:py-[22px]">
           <p className="text-[14px] sm:text-[16px] leading-[160%]">
-          <span
-            onClick={() => navigate("/")}
-            className="cursor-pointer underline hover:opacity-70 transition"
-          >
-            Home
-          </span>
+            <span
+              onClick={() => navigate("/")}
+              className="cursor-pointer underline hover:opacity-70 transition"
+            >
+              Home
+            </span>
 
-          <span className="mx-1">/</span>
-<span
-  onClick={() => navigate("/articles")}
-  className="cursor-pointer underline hover:opacity-70 transition"
->
-  Back to articles
-</span>
-          <span className="mx-1">/</span>
+            <span className="mx-1">/</span>
 
-          <span id="anxiety-article">Grounding techniques</span>
+            <span
+              onClick={() => navigate("/articles")}
+              className="cursor-pointer underline hover:opacity-70 transition"
+            >
+              Back to articles
+            </span>
+
+            <span className="mx-1">/</span>
+
+            <span id="anxiety-article">Grounding techniques</span>
           </p>
         </div>
       </div>
@@ -499,7 +503,7 @@ export default function AnxietyArticlePage() {
       <section className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2">
           {/* LEFT */}
-          <div className="bg-[#0D4A7A] px-5 py-10 sm:px-8 sm:py-12 md:px-12 lg:px-20 xl:px-[154px] lg:py-[54px] text-white flex items-center">
+          <div className="bg-[#0D4A7A] py-10 sm:py-12 px-[24px] md:px-[34px] lg:px-[74px] lg:py-[54px] text-white flex items-center">
             <motion.div
               initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -511,7 +515,7 @@ export default function AnxietyArticlePage() {
                 Last updated on february 27, 2026
               </p>
 
-              <h2 className="text-[clamp(26px,6.5vw,38px)] leading-[1.15] tracking-[-0.03em] font-medium">
+              <h2 className="text-[25px] md:text-[28px] lg:text-[38px] leading-[1.15] tracking-[-0.03em] font-medium">
                 4 Grounding techniques for when anxiety spikes
               </h2>
 
@@ -525,487 +529,491 @@ export default function AnxietyArticlePage() {
 
           {/* RIGHT */}
           <div className="relative min-h-[260px] sm:min-h-[340px] lg:min-h-[410px] overflow-hidden">
-              <img
-                src={introImg}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            </div>
+            <img
+              src={introImg}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+            />
           </div>
+        </div>
       </section>
 
       {/* ARTICLE */}
-      <section className="bg-[#F5F3F0] lg:h-screen lg:overflow-hidden">
-        <div className="mx-auto max-w-[1630px] px-5 py-[72px] lg:h-full">
-          <div ref={articleRef} className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-[58px] items-start lg:h-full">
-            {/* LEFT SIDEBAR */}
-            <aside className="sidebar-scroll w-full lg:w-[220px] self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              <div>
-                {/* AUTHOR */}
-                <div className="text-[16px] leading-[190%] text-[#595550]">
-                  <p>
-                    By Melinda Smith, M.A., Lawrence Robinson, Jeanne Segal,
-                    Ph.D., and Sheldon Reid
-                  </p>
-                </div>
+      <section className="bg-[#F5F3F0] xl:h-screen xl:overflow-hidden">
+        <div className="w-full xl:h-full">
+  <div className="w-full px-[24px] md:px-[34px] lg:px-[74px] py-[72px] xl:h-full">
+            <div ref={articleRef} className="grid grid-cols-1 xl:grid-cols-[220px_1fr] gap-[58px] items-start xl:h-full">
+              {/* LEFT SIDEBAR */}
+              <aside className="sidebar-scroll hidden xl:block w-full xl:w-[220px] self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                <div>
+                  {/* AUTHOR */}
+                  <div className="text-[16px] leading-[190%] text-[#595550]">
+                    <p>
+                      By Melinda Smith, M.A., Lawrence Robinson, Jeanne Segal,
+                      Ph.D., and Sheldon Reid
+                    </p>
+                  </div>
 
-                {/* TOC */}
-                <div className="mt-8 space-y-0">
-                  {sections.map((item, index) => {
-                    const isActive = activeSection === item.id;
-                    return (
-                      <button
+                  {/* TOC */}
+                  <div className="mt-8 space-y-0">
+                    {sections.map((item, index) => {
+                      const isActive = activeSection === item.id;
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            document.getElementById(item.id)?.scrollIntoView({
+                              behavior: "smooth",
+                              block: "start",
+                            });
+                          }}
+                          className={`block w-full text-left text-[16px] leading-[160%] py-[10px] pl-5 border-l-2 transition-all duration-300 ${isActive
+                              ? "border-[#0D4A7A] text-[#0D4A7A] font-bold bg-[#EDF3F8]"
+                              : "border-[#D8D3CC] text-[#6D6862] hover:text-[#0D4A7A] hover:border-[#9DB4C9]"
+                            }`}
+                        >
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* RELATED ARTICLES */}
+                  <div className="mt-[58px]">
+                    {[1, 2, 3, 4].map((_, index) => (
+                      <div
                         key={index}
-                        onClick={() => {
-                          document.getElementById(item.id)?.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start",
-                          });
-                        }}
-                        className={`block w-full text-left text-[16px] leading-[160%] py-[10px] pl-5 border-l-2 transition-all duration-300 ${isActive
-                            ? "border-[#0D4A7A] text-[#0D4A7A] font-bold bg-[#EDF3F8]"
-                            : "border-[#D8D3CC] text-[#6D6862] hover:text-[#0D4A7A] hover:border-[#9DB4C9]"
-                          }`}
+                        className={`${index !== 0 ? "border-t border-[#D7D2CB]" : ""
+                          } pt-[22px] pb-[26px]`}
                       >
+                        <h4
+                          className="text-[18px] leading-[135%] tracking-[-0.02em] text-[#2C2C2A] font-normal"
+                          style={{
+                            fontFamily: "Outfit, sans-serif",
+                          }}
+                        >
+                          Difficult conversations with your partner without
+                          becoming an argument
+                        </h4>
+
+                        <p className="mt-[14px] text-[14px] leading-[165%] text-[#2C2C2A]">
+                          Communication breakdowns are at the heart of most
+                          relationship struggles.
+                        </p>
+
+                        <div className="mt-[10px] flex items-center gap-[10px]">
+                          <span className="text-[13px] text-[#0D4A7A]">
+                            6 min read
+                          </span>
+
+                          <span className="w-[3px] h-[3px] rounded-full bg-[#0D4A7A]" />
+
+                          <span className="text-[13px] text-[#0D4A7A]">
+                            Priya Anand
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </aside>
+
+              {/* RIGHT ARTICLE CONTENT */}
+              <main ref={mainContentRef} className="sidebar-scroll w-full xl:self-stretch xl:overflow-y-auto" style={{ scrollBehavior: "smooth", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                {/* INTRO */}
+                <motion.div
+                  id="what-is-anxiety"
+                  initial={{ opacity: 0, y: 26 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <h2
+                    className="text-[35px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
+                    style={styles.heading}
+                  >
+                    What is anxiety?
+                  </h2>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      Anxiety is a normal reaction to danger, the body’s automatic
+                      fight-or-flight response that is triggered when you feel
+                      threatened, under pressure, or are facing a challenging
+                      situation. However, when anxiety is constant or overwhelming,
+                      it can interfere with your daily life and relationships. It
+                      can make it difficult to concentrate, sleep, or complete
+                      everyday tasks, and can lead to physical symptoms like tension,
+                      fatigue, and headaches.
+                    </p>
+
+                    <p>
+                      Sometimes it creeps in slowly — tight shoulders, racing
+                      thoughts, shallow breathing. Other times it hits all at
+                      once, overwhelming you with a sudden wave of panic that makes
+                      it feel like you can't breathe.
+                    </p>
+
+                    <p>
+                      The problem is that when anxiety spikes, logic often stops
+                      working. Telling yourself to 'calm down' or 'relax' rarely
+                      works because your brain's emotional center has taken over.
+                    </p>
+
+                    <p>That’s where grounding techniques help.</p>
+
+                    <p>
+                      Grounding is not about “eliminating” anxiety instantly. It’s
+                      about reconnecting your brain to the present moment, helping
+                      your nervous system realize you are safe right now.
+                    </p>
+
+                    <p>
+                      The best part: you can use most of them quietly — during
+                      work meetings, while traveling, before presentations, or in
+                      crowded spaces.
+                    </p>
+
+                    <p>
+                      Here are four grounding techniques that actually work in
+                      everyday situations.
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* SECTION 1 */}
+                <section id="5-4-3-2-1-method" className="mt-[72px]">
+                  <h3
+                    className="text-[26px] leading-[120%] tracking-[-0.03em] font-medium"
+                    style={styles.heading}
+                  >
+                    1. The 5–4–3–2–1 method
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Best for: Racing thoughts and panic spirals
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      This is one of the fastest ways to pull your attention away
+                      from anxious thinking and back into your environment. Focus on:
+                    </p>
+
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li>5 things you can see</li>
+                      <li>4 things you can touch</li>
+                      <li>3 things you can hear</li>
+                      <li>2 things you can smell</li>
+                      <li>1 thing you can taste</li>
+                    </ul>
+                  </div>
+
+                  <div className="mt-8 rounded-[6px] bg-[#EAF1F7] px-[26px] py-[22px]">
+                    <h4 className="text-[#3E566D] text-[148x] font-bold mb-2">Example:</h4>
+                    <p className="text-[#3E566D] text-[18px] leading-[210%] mb-3">
+                      You’re sitting in a stressful meeting and feel panic rising. Instead of focusing on catastrophic thoughts, you intentionally notice:
+                    </p>
+                    <ul className="space-y-1.5 text-[#3E566D] text-[18px] leading-[210%] list-disc pl-5 mb-3">
+                      <li>The texture of your chair</li>
+                      <li>The hum of the AC</li>
+                      <li>The color of someone’s notebook</li>
+                      <li>The smell of coffee nearby</li>
+                    </ul>
+                    <p className="text-[#3E566D] text-[148] leading-[210%]">
+                      This forces your brain to shift from “imagined danger” to “present reality.”
+                    </p>
+                  </div>
+                </section>
+
+                {/* SECTION 2 */}
+                <section id="controlled-breathing" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
+                    style={styles.heading}
+                  >
+                    2. Controlled breathing
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Best for: Fast heartbeat and physical anxiety symptoms
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      When anxiety spikes, breathing becomes shallow and rapid. 
+                      Your body interprets this as danger, which increases stress even more.
+                    </p>
+
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li>Inhale for 4 seconds</li>
+                      <li>Hold for 4 seconds</li>
+                      <li>Exhale for 6 seconds</li>
+                    </ul>
+
+                    <p>Repeat for 1-2 minutes.</p>
+
+                    <p>
+                      The longer exhale is important because it activates the parasympathetic nervous system — the body’s calming response.
+                    </p>
+                  </div>
+
+                  <div className="mt-8 rounded-[6px] bg-[#FF543E33] px-[26px] py-[22px]">
+                    <h4 className="text-[#FF0000] text-[18px] font-bold mb-2">Common mistake:</h4>
+                    <p className="text-[#FF0000] text-[18px] leading-[210%]">
+                      People often breathe too aggressively when anxious. Don't force
+                      'deep' breaths; Focus on slower, softer breathing instead.
+                    </p>
+                  </div>
+                </section>
+
+                {/* SECTION 3 */}
+                <section id="physical-grounding" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
+                    style={styles.heading}
+                  >
+                    3. Physical grounding through touch
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Best for: Feeling disconnected or overwhelmed
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      Physical touch is one of the most effective ways to anchor yourself. Try:
+                    </p>
+
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li>Holding a cold water bottle</li>
+                      <li>Pressing your feet firmly into the floor</li>
+                      <li>Running your hands under cold water</li>
+                      <li>Touching textured fabric or jewelry</li>
+                      <li>Clenching and releasing your fists</li>
+                    </ul>
+
+                    <p>
+                      These actions create sensory feedback that reconnects your brain with your body.
+                    </p>
+                  </div>
+                </section>
+
+                {/* SECTION 4 */}
+                <section id="micro-movements" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
+                    style={styles.heading}
+                  >
+                    4. Micro-movements
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Best for: Anxiety during work or social situations
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      Anxiety creates physical tension. Your body prepares to react even when there’s no real threat.
+                      Small movements can release some of that stored stress without drawing attention.
+                    </p>
+
+                    <p>Try:</p>
+
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Rolling your shoulders</li>
+                      <li>Relaxing your jaw</li>
+                      <li>Stretching your fingers</li>
+                      <li>Slowly rotating your ankles</li>
+                      <li>Taking a short walk</li>
+                      <li>Standing up briefly between tasks</li>
+                    </ul>
+
+                    <p>
+                      Even tiny movements help regulate your nervous system.
+                    </p>
+                  </div>
+                </section>
+
+                {/* WHAT GROUNDING CAN DO */}
+                <section id="what-grounding" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
+                    style={styles.heading}
+                  >
+                    What grounding can — and cannot — do
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Grounding techniques are tools, not cures.
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>They help you:</p>
+
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>regain focus,</li>
+                      <li>reduce nervous system overload,</li>
+                      <li>slow spiraling thoughts,</li>
+                      <li>and feel more present.</li>
+                    </ul>
+
+                    <p>
+                      But if anxiety is constant, severely disruptive, or
+                      affecting daily functioning, grounding alone may not be
+                      enough.
+                    </p>
+
+                    <p>Chronic anxiety often requires broader support:</p>
+
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>therapy,</li>
+                      <li>lifestyle adjustments,</li>
+                      <li>stress management,</li>
+                      <li>sleep regulation,</li>
+                      <li>or medical care.</li>
+                    </ul>
+                  </div>
+                </section>
+
+                {/* FINAL THOUGHT */}
+                <section id="final-thought" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
+                    style={styles.heading}
+                  >
+                    Final thought
+                  </h3>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      You do not need perfect calm to regain control.
+                      <br />
+                      Sometimes the goal is simply:
+                    </p>
+
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>One slower breath,</li>
+                      <li>One grounded moment,</li>
+                      <li>One interruption to the spiral.</li>
+                    </ul>
+
+                    <p>
+                      That’s often enough to help your nervous system remember:
+                      <br />
+                      you are here, you are safe, and this moment will pass.
+                    </p>
+                  </div>
+                </section>
+
+                {/* ACTION BUTTONS */}
+                <div className="mt-16 flex flex-wrap gap-3 border-t border-[#D9D4CD] pt-8">
+                  {[
+                    {
+                      icon: copied ? Check : Copy,
+                      label: copied ? "Copied!" : "Copy Link",
+                      onClick: handleCopyLink,
+                    },
+                    {
+                      icon: Mail,
+                      label: "Share via Email",
+                      onClick: handleShareEmail,
+                    },
+                    {
+                      icon: Download,
+                      label: "Download PDF",
+                      onClick: handleDownloadPDF,
+                    },
+                    {
+                      icon: Printer,
+                      label: "Print Document",
+                      onClick: handlePrint,
+                    },
+                  ].map((item, index) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <motion.button
+                        key={index}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={item.onClick}
+                        className={`flex items-center gap-2 rounded-[6px] border px-4 h-[34px] text-[12px] cursor-pointer transition-colors ${
+                          copied && index === 0
+                            ? "border-green-400 bg-green-50 text-green-700"
+                            : "border-[#D8D2CB] bg-white text-[#49433E] hover:bg-[#F0EDEA]"
+                        }`}
+                      >
+                        <Icon size={13} />
                         {item.label}
-                      </button>
+                      </motion.button>
                     );
                   })}
                 </div>
-
-                {/* RELATED ARTICLES */}
-                <div className="mt-[58px]">
-                  {[1, 2, 3, 4].map((_, index) => (
-                    <div
-                      key={index}
-                      className={`${index !== 0 ? "border-t border-[#D7D2CB]" : ""
-                        } pt-[22px] pb-[26px]`}
-                    >
-                      <h4
-                        className="text-[18px] leading-[135%] tracking-[-0.02em] text-[#2C2C2A] font-normal"
-                        style={{
-                          fontFamily: "Outfit, sans-serif",
-                        }}
-                      >
-                        Difficult conversations with your partner without
-                        becoming an argument
-                      </h4>
-
-                      <p className="mt-[14px] text-[14px] leading-[165%] text-[#2C2C2A]">
-                        Communication breakdowns are at the heart of most
-                        relationship struggles.
-                      </p>
-
-                      <div className="mt-[10px] flex items-center gap-[10px]">
-                        <span className="text-[13px] text-[#0D4A7A]">
-                          6 min read
-                        </span>
-
-                        <span className="w-[3px] h-[3px] rounded-full bg-[#0D4A7A]" />
-
-                        <span className="text-[13px] text-[#0D4A7A]">
-                          Priya Anand
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </aside>
-
-            {/* RIGHT ARTICLE CONTENT */}
-            <main ref={mainContentRef} className="sidebar-scroll w-full lg:self-stretch lg:overflow-y-auto" style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              {/* INTRO */}
-              <motion.div
-                id="what-is-anxiety"
-                initial={{ opacity: 0, y: 26 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                <h2
-                  className="text-[35px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
-                  style={styles.heading}
-                >
-                  What is anxiety?
-                </h2>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    Anxiety is a normal reaction to danger, the body’s automatic
-                    fight-or-flight response that is triggered when you feel
-                    threatened, under pressure, or are facing a challenging
-                    situation. However, when anxiety is constant or overwhelming,
-                    it can interfere with your daily life and relationships. It
-                    can make it difficult to concentrate, sleep, or complete
-                    everyday tasks, and can lead to physical symptoms like tension,
-                    fatigue, and headaches.
-                  </p>
-
-                  <p>
-                    Sometimes it creeps in slowly — tight shoulders, racing
-                    thoughts, shallow breathing. Other times it hits all at
-                    once, overwhelming you with a sudden wave of panic that makes
-                    it feel like you can't breathe.
-                  </p>
-
-                  <p>
-                    The problem is that when anxiety spikes, logic often stops
-                    working. Telling yourself to 'calm down' or 'relax' rarely
-                    works because your brain's emotional center has taken over.
-                  </p>
-
-                  <p>That’s where grounding techniques help.</p>
-
-                  <p>
-                    Grounding is not about “eliminating” anxiety instantly. It’s
-                    about reconnecting your brain to the present moment, helping
-                    your nervous system realize you are safe right now.
-                  </p>
-
-                  <p>
-                    The best part: you can use most of them quietly — during
-                    work meetings, while traveling, before presentations, or in
-                    crowded spaces.
-                  </p>
-
-                  <p>
-                    Here are four grounding techniques that actually work in
-                    everyday situations.
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* SECTION 1 */}
-              <section id="5-4-3-2-1-method" className="mt-[72px]">
-                <h3
-                  className="text-[26px] leading-[120%] tracking-[-0.03em] font-medium"
-                  style={styles.heading}
-                >
-                  1. The 5–4–3–2–1 method
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Best for: Racing thoughts and panic spirals
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    This is one of the fastest ways to pull your attention away
-                    from anxious thinking and back into your environment. Focus on:
-                  </p>
-
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>5 things you can see</li>
-                    <li>4 things you can touch</li>
-                    <li>3 things you can hear</li>
-                    <li>2 things you can smell</li>
-                    <li>1 thing you can taste</li>
-                  </ul>
-                </div>
-
-                <div className="mt-8 rounded-[6px] bg-[#EAF1F7] px-[26px] py-[22px]">
-                  <h4 className="text-[#3E566D] text-[148x] font-bold mb-2">Example:</h4>
-                  <p className="text-[#3E566D] text-[18px] leading-[210%] mb-3">
-                    You’re sitting in a stressful meeting and feel panic rising. Instead of focusing on catastrophic thoughts, you intentionally notice:
-                  </p>
-                  <ul className="space-y-1.5 text-[#3E566D] text-[18px] leading-[210%] list-disc pl-5 mb-3">
-                    <li>The texture of your chair</li>
-                    <li>The hum of the AC</li>
-                    <li>The color of someone’s notebook</li>
-                    <li>The smell of coffee nearby</li>
-                  </ul>
-                  <p className="text-[#3E566D] text-[148] leading-[210%]">
-                    This forces your brain to shift from “imagined danger” to “present reality.”
-                  </p>
-                </div>
-              </section>
-
-              {/* SECTION 2 */}
-              <section id="controlled-breathing" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
-                  style={styles.heading}
-                >
-                  2. Controlled breathing
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Best for: Fast heartbeat and physical anxiety symptoms
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    When anxiety spikes, breathing becomes shallow and rapid. 
-                    Your body interprets this as danger, which increases stress even more.
-                  </p>
-
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>Inhale for 4 seconds</li>
-                    <li>Hold for 4 seconds</li>
-                    <li>Exhale for 6 seconds</li>
-                  </ul>
-
-                  <p>Repeat for 1-2 minutes.</p>
-
-                  <p>
-                    The longer exhale is important because it activates the parasympathetic nervous system — the body’s calming response.
-                  </p>
-                </div>
-
-                <div className="mt-8 rounded-[6px] bg-[#FF543E33] px-[26px] py-[22px]">
-                  <h4 className="text-[#FF0000] text-[18px] font-bold mb-2">Common mistake:</h4>
-                  <p className="text-[#FF0000] text-[18px] leading-[210%]">
-                    People often breathe too aggressively when anxious. Don't force
-                    'deep' breaths; Focus on slower, softer breathing instead.
-                  </p>
-                </div>
-              </section>
-
-              {/* SECTION 3 */}
-              <section id="physical-grounding" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
-                  style={styles.heading}
-                >
-                  3. Physical grounding through touch
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Best for: Feeling disconnected or overwhelmed
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    Physical touch is one of the most effective ways to anchor yourself. Try:
-                  </p>
-
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>Holding a cold water bottle</li>
-                    <li>Pressing your feet firmly into the floor</li>
-                    <li>Running your hands under cold water</li>
-                    <li>Touching textured fabric or jewelry</li>
-                    <li>Clenching and releasing your fists</li>
-                  </ul>
-
-                  <p>
-                    These actions create sensory feedback that reconnects your brain with your body.
-                  </p>
-                </div>
-              </section>
-
-              {/* SECTION 4 */}
-              <section id="micro-movements" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
-                  style={styles.heading}
-                >
-                  4. Micro-movements
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Best for: Anxiety during work or social situations
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    Anxiety creates physical tension. Your body prepares to react even when there’s no real threat.
-                    Small movements can release some of that stored stress without drawing attention.
-                  </p>
-
-                  <p>Try:</p>
-
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>Rolling your shoulders</li>
-                    <li>Relaxing your jaw</li>
-                    <li>Stretching your fingers</li>
-                    <li>Slowly rotating your ankles</li>
-                    <li>Taking a short walk</li>
-                    <li>Standing up briefly between tasks</li>
-                  </ul>
-
-                  <p>
-                    Even tiny movements help regulate your nervous system.
-                  </p>
-                </div>
-              </section>
-
-              {/* WHAT GROUNDING CAN DO */}
-              <section id="what-grounding" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
-                  style={styles.heading}
-                >
-                  What grounding can — and cannot — do
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Grounding techniques are tools, not cures.
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>They help you:</p>
-
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>regain focus,</li>
-                    <li>reduce nervous system overload,</li>
-                    <li>slow spiraling thoughts,</li>
-                    <li>and feel more present.</li>
-                  </ul>
-
-                  <p>
-                    But if anxiety is constant, severely disruptive, or
-                    affecting daily functioning, grounding alone may not be
-                    enough.
-                  </p>
-
-                  <p>Chronic anxiety often requires broader support:</p>
-
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>therapy,</li>
-                    <li>lifestyle adjustments,</li>
-                    <li>stress management,</li>
-                    <li>sleep regulation,</li>
-                    <li>or medical care.</li>
-                  </ul>
-                </div>
-              </section>
-
-              {/* FINAL THOUGHT */}
-              <section id="final-thought" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
-                  style={styles.heading}
-                >
-                  Final thought
-                </h3>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    You do not need perfect calm to regain control.
-                    <br />
-                    Sometimes the goal is simply:
-                  </p>
-
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>One slower breath,</li>
-                    <li>One grounded moment,</li>
-                    <li>One interruption to the spiral.</li>
-                  </ul>
-
-                  <p>
-                    That’s often enough to help your nervous system remember:
-                    <br />
-                    you are here, you are safe, and this moment will pass.
-                  </p>
-                </div>
-              </section>
-
-              {/* ACTION BUTTONS */}
-              <div className="mt-16 flex flex-wrap gap-3 border-t border-[#D9D4CD] pt-8">
-                {[
-                  {
-                    icon: copied ? Check : Copy,
-                    label: copied ? "Copied!" : "Copy Link",
-                    onClick: handleCopyLink,
-                  },
-                  {
-                    icon: Mail,
-                    label: "Share via Email",
-                    onClick: handleShareEmail,
-                  },
-                  {
-                    icon: Download,
-                    label: "Download PDF",
-                    onClick: handleDownloadPDF,
-                  },
-                  {
-                    icon: Printer,
-                    label: "Print Document",
-                    onClick: handlePrint,
-                  },
-                ].map((item, index) => {
-                  const Icon = item.icon;
-
-                  return (
-                    <motion.button
-                      key={index}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={item.onClick}
-                      className={`flex items-center gap-2 rounded-[6px] border px-4 h-[34px] text-[12px] cursor-pointer transition-colors ${
-                        copied && index === 0
-                          ? "border-green-400 bg-green-50 text-green-700"
-                          : "border-[#D8D2CB] bg-white text-[#49433E] hover:bg-[#F0EDEA]"
-                      }`}
-                    >
-                      <Icon size={13} />
-                      {item.label}
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </main>
+              </main>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA */}
       <section className="pb-24 bg-[#F5F3F0]">
-        <div className="max-w-[1630px] mx-auto px-5">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="rounded-[12px] bg-[#0D4A7A] px-8 py-[56px] text-center text-white w-full"
-          >
-            <h2
-              className="text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
-              style={styles.heading}
+        <div className="w-full navbar-align-outer">
+          <div className="navbar-align-inner">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="rounded-[12px] bg-[#0D4A7A] px-8 py-[56px] text-center text-white w-full"
             >
-              Ready to talk to someone?
-            </h2>
-
-            <p className="mx-auto mt-5 max-w-[720px] text-white/85 text-[15px] leading-[190%]">
-              Our counselling team is here to listen, support, and guide you in a
-              safe and confidential environment.
-            </p>
-
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => openModal()}
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-white h-[46px] px-6 text-[14px] font-semibold text-[#0D4A7A] cursor-pointer"
-            >
-              Book an appointment
-
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
+              <h2
+                className="text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
+                style={styles.heading}
               >
-                <path
-                  d="M9 18L15 12L9 6"
-                  stroke="currentColor"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </motion.button>
-          </motion.div>
+                Ready to talk to someone?
+              </h2>
+
+              <p className="mx-auto mt-5 max-w-[720px] text-white/85 text-[15px] leading-[190%]">
+                Our counselling team is here to listen, support, and guide you in a
+                safe and confidential environment.
+              </p>
+
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => openModal()}
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-white h-[46px] px-6 text-[14px] font-semibold text-[#0D4A7A] cursor-pointer"
+              >
+                Book an appointment
+
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M9 18L15 12L9 6"
+                    stroke="currentColor"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </motion.button>
+            </motion.div>
+          </div>
         </div>
       </section>
 

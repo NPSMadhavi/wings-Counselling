@@ -103,7 +103,7 @@ export default function AboutUs() {
           >
             <motion.h1
               variants={itemVariants}
-              className="text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px] font-semibold leading-tight mb-6 sm:mb-8 text-white"
+              className="text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px] font-semibold leading-tight  text-white"
               style={{ fontFamily: "'Outfit', sans-serif", maxWidth: "800px" }}
             >
               Healing hearts <br />

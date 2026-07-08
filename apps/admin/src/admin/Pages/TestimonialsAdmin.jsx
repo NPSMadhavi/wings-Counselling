@@ -4,6 +4,7 @@ import { useLocation } from "wouter";
 import { Plus, Pencil, Trash2, Eye, X, MessageSquareQuote } from "lucide-react";
 import { api } from "../lib/api";
 import { ConfirmDialog, AlertDialog } from "../components/ConfirmDialog";
+import { flushSync } from "react-dom";
 
 const EMPTY = {
   serviceName: "",
@@ -258,11 +259,32 @@ export default function TestimonialsAdmin() {
     await load();
   }
 
-  async function remove() {
-    await api.deleteTestimonial(deleteTarget);
-    setDeleteTarget(null);
-    await load();
+  function getTestimonialId(testimonial) {
+    return testimonial?.id ?? testimonial?.testimonialId ?? testimonial?.testimonial_id ?? testimonial?._id;
   }
+
+ async function remove() {
+  const testimonialId = getTestimonialId(deleteTarget);
+
+  if (!testimonialId) {
+    setDeleteTarget(null);
+    return;
+  }
+
+  setDeleteTarget(null);
+
+  setTestimonials((prev) =>
+    prev.filter(
+      (item) => String(getTestimonialId(item)) !== String(testimonialId)
+    )
+  );
+
+  try {
+    await api.deleteTestimonial(testimonialId);
+  } catch (err) {
+    console.error(err);
+  }
+}
 
   if (loading) {
     return (
@@ -329,7 +351,7 @@ export default function TestimonialsAdmin() {
                   {testimonials.length > 0 ? (
                     testimonials.map((item, index) => (
                       <motion.tr
-                        key={item.id}
+                        key={getTestimonialId(item) || index}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
@@ -367,7 +389,7 @@ export default function TestimonialsAdmin() {
                               <Pencil size={16} />
                             </button>
                             <button
-                              onClick={() => setDeleteTarget(item.id)}
+                              onClick={() => setDeleteTarget(item)}
                               className="p-2 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600"
                               title="Delete"
                             >

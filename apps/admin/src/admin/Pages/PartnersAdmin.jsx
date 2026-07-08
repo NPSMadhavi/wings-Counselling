@@ -386,21 +386,53 @@ export default function PartnersAdmin() {
     }
   }
 
-  async function save(partner) {
-    if (partner.id) {
-      await api.updatePartner(partner.id, partner);
-    } else {
-      await api.createPartner(partner);
-    }
-    setEditing(null);
-    await load();
+function getPartnerId(partner) {
+  return partner?.id ?? partner?.partner_id ?? partner?._id;
+}
+
+async function save(partner) {
+  const partnerId = getPartnerId(partner);
+
+  const payload = {
+    name: partner.name,
+    logo: partner.logo,
+    description: partner.description,
+    websiteLink: partner.websiteLink,
+  };
+
+  if (partnerId) {
+    await api.updatePartner(partnerId, payload);
+  } else {
+    await api.createPartner(payload);
   }
 
-  async function remove() {
-    await api.deletePartner(deleteTarget);
+  setEditing(null);
+  await load();
+}
+
+async function remove() {
+  const partnerId = getPartnerId(deleteTarget);
+
+  if (!partnerId) {
     setDeleteTarget(null);
-    await load();
+    return;
   }
+
+  const previousPartners = partners;
+
+  setDeleteTarget(null);
+
+  setPartners((prev) =>
+    prev.filter((partner) => getPartnerId(partner) !== partnerId)
+  );
+
+  try {
+    await api.deletePartner(partnerId);
+  } catch (err) {
+    console.error(err);
+   
+  }
+}
 
   if (loading) {
     return (
@@ -517,7 +549,7 @@ export default function PartnersAdmin() {
                               <Pencil size={16} />
                             </button>
                             <button
-                              onClick={() => setDeleteTarget(partner.id)}
+                              onClick={() => setDeleteTarget(partner)}
                               className="p-2 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600"
                               title="Delete"
                             >

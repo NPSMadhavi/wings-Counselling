@@ -1,4 +1,4 @@
-import { Footer } from "@/components/layout/Footer";
+import { Footer } from "@/components/Layout/Footer";
 import PractitionerCard from "@/components/ui/PractitionerCard";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -67,7 +67,7 @@ const TeamPage = () => {
                     <img
                         src="/assets/Teamphoto.jpeg"
                         alt="WINGS counselling team"
-                        className="w-full h-auto object-contain object-center"
+                        className="w-full h-auto object-center"
                     />
                 </div>
                 <motion.div
@@ -139,7 +139,7 @@ const TeamPage = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.6, delay: 0.6 }}
-                                className="text-white font-['Outfit'] font-semibold mb-3 md:mb-4 lg:mb-5 text-[32px] sm:text-[44px] md:text-[45px] lg:text-[50px] leading-[1.1]"
+                                className="text-white font-['Outfit'] font-semibold mb-3 md:mb-4 lg:mb-5 text-[32px] sm:text-[40px] md:text-[42px] lg:text-[55px] leading-[1.1]"
                             >
                                 The people behind your healing
                             </motion.h1>

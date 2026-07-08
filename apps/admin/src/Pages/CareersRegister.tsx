@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { Footer } from "@/components/Layout/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { useCandidateAuth, candidateLogin, candidateRegister } from "@/context/CandidateAuthContext";
 import { Link } from "wouter";

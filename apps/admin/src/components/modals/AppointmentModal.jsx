@@ -1441,7 +1441,7 @@ const handleSubmit = async (e) => {
   />
   <div className="flex-1">
     <p className="text-[#1F5500] text-[14px] font-medium leading-[19px]">
-      I understand that the information shared will be used to process my appointment request and support my counselling journey with confidentially.
+      I understand that the information shared will be used to process my appointment request and support my counselling journey with Confidentiality.
     </p>
   </div>
 </div>

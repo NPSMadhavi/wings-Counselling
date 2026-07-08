@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Copy, Mail, Download, Printer, Check } from "lucide-react";
-import { Footer } from "@/components/layout/Footer";
+import { Footer } from "@/components/Layout/Footer";
 import { useLocation } from "wouter";
 import { useAppointment } from "@/context/AppointmentContext";
 
@@ -410,505 +410,512 @@ export default function RelationshipArticlePage() {
 
         <div className="absolute inset-0 bg-black/60" />
 
-        <div className="relative z-10 flex items-center justify-center h-full px-5">
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="max-w-[760px] flex flex-col items-center text-center text-white"
-          >
-            <h1
-              className="text-[44px] md:text-[58px] leading-[108%] tracking-[-0.04em] font-medium"
-              style={{
-                ...styles.heading,
-                maxWidth: "620px",
-              }}
+        <div className="relative z-10 w-full h-full navbar-align-outer">
+          <div className="navbar-align-inner h-full flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="max-w-[760px] flex flex-col items-center text-center text-white"
             >
-              You don’t have to navigate relationship challenges alone
-            </h1>
-
-            <p className="max-w-[560px] mx-auto mt-6 text-[15px] md:text-[17px] leading-[190%] text-white/90">
-              Learn more about relationship and marital challenges, understand how differences can affect connection, and discover professional support tailored to your needs.
-            </p>
-
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                document
-                  .getElementById("anxiety-article")
-                  ?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="group flex items-center gap-2 cursor-pointer rounded-full bg-[#15467B] h-[46px] px-6 mt-9"
-            >
-              <span className="text-white text-[14px] font-medium">
-                Explore relationship support
-              </span>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="17"
-                height="17"
-                viewBox="0 0 24 24"
-                fill="none"
+              <h1
+                className="text-[44px] md:text-[58px] leading-[108%] tracking-[-0.04em] font-medium"
+                style={{
+                  ...styles.heading,
+                  maxWidth: "620px",
+                }}
               >
-                <path
-                  d="M6 9L12 15L18 9"
-                  stroke="white"
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </motion.button>
-          </motion.div>
+                You don’t have to navigate relationship challenges alone
+              </h1>
+
+              <p className="max-w-[560px] mx-auto mt-6 text-[15px] md:text-[17px] leading-[190%] text-white/90">
+                Learn more about relationship and marital challenges, understand how differences can affect connection, and discover professional support tailored to your needs.
+              </p>
+
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  document
+                    .getElementById("anxiety-article")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="group flex items-center gap-2 cursor-pointer rounded-full bg-[#15467B] h-[46px] px-6 mt-9"
+              >
+                <span className="text-white text-[14px] font-medium">
+                  Explore relationship support
+                </span>
+
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M6 9L12 15L18 9"
+                    stroke="white"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </motion.button>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* BREADCRUMB */}
-      <div className="max-w-[1630px] mx-auto px-5 py-[22px]">
-        <p className="text-[16px] leading-[160%]">
-          <span
-            onClick={() => navigate("/")}
-            className="cursor-pointer underline hover:opacity-70 transition"
-          >
-            Home
-          </span>
+      <div className="w-full navbar-align-outer">
+        <div className="navbar-align-inner py-[22px]">
+          <p className="text-[16px] leading-[160%]">
+            <span
+              onClick={() => navigate("/")}
+              className="cursor-pointer underline hover:opacity-70 transition"
+            >
+              Home
+            </span>
 
-          <span className="mx-1">/</span>
-<span
-  onClick={() => navigate("/articles")}
-  className="cursor-pointer underline hover:opacity-70 transition"
->
-  Back to articles
-</span>
+            <span className="mx-1">/</span>
 
-          <span className="mx-1">/</span>
+            <span
+              onClick={() => navigate("/articles")}
+              className="cursor-pointer underline hover:opacity-70 transition"
+            >
+              Back to articles
+            </span>
 
-          <span id="anxiety-article">Relationship and Marital</span>
-        </p>
+            <span className="mx-1">/</span>
+
+            <span id="anxiety-article">Relationship and Marital</span>
+          </p>
+        </div>
       </div>
 
       {/* INTRO SECTION */}
       <section className="w-full">
+        
         <div className="grid lg:grid-cols-2 min-h-[410px]">
-            {/* LEFT */}
-          <div className="bg-[#0D4A7A] px-[154px] py-[54px] text-white flex items-center">
-  <motion.div
-    initial={{ opacity: 0, y: 28 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.6 }}
-    // Remove max-w-[430px] or increase it significantly
-    className="max-w-[700px]"  // Changed from 430px to 700px
-  >
-    <p className="mb-7 text-white/80 text-[15px] tracking-wide">
-      Last updated on february 27, 2026
-    </p>
+          {/* LEFT */}
+          <div className="bg-[#0D4A7A] px-[24px] md:px-[34px] lg:px-[74px] py-[54px] text-white flex items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="max-w-[700px]"
+            >
+              <p className="mb-7 text-white/80 text-[15px] tracking-wide">
+                Last updated on february 27, 2026
+              </p>
 
-    <h2
-      className="text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
-      // Remove max-w completely from h2
-    >
-      Relationship and Marital support
-    </h2>
+              <h2
+                className="text-[25px] md:text-[28px] lg:text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
+              >
+                Relationship and Marital support
+              </h2>
 
-    <p className="mt-7 text-white/85 text-[16px] leading-[190%]">
-      Relationship and Marital refers to emotional, psychological, and social well-being. It affects how we think, feel, act, cope with stress, maintain relationships, and recover from life’s challenges.
-    </p>
-  </motion.div>
-</div>
-
-            {/* RIGHT */}
-            <div className="relative min-h-[410px] overflow-hidden">
-              <img
-                src={introImg}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            </div>
+              <p className="mt-7 text-white/85 text-[16px] leading-[190%]">
+                Relationship and Marital refers to emotional, psychological, and social well-being. It affects how we think, feel, act, cope with stress, maintain relationships, and recover from life’s challenges.
+              </p>
+            </motion.div>
           </div>
+
+          {/* RIGHT */}
+          <div className="relative min-h-[410px] overflow-hidden">
+            <img
+              src={introImg}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </div>
+        </div>
       </section>
 
       {/* ARTICLE */}
-      <section className="bg-[#F5F3F0] lg:h-screen lg:overflow-hidden">
-        <div className="mx-auto max-w-[1630px] px-5 py-[72px] lg:h-full">
-          <div ref={articleRef} className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-[58px] items-start lg:h-full">
-            {/* LEFT SIDEBAR */}
-            <aside className="sidebar-scroll w-full lg:w-[220px] self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              <div>
-                {/* AUTHOR */}
-                <div className="text-[16px] leading-[190%] text-[#595550]">
-                  <p>
-                    By Marcus Lee · Licensed counselor
-                  </p>
-                </div>
+      <section className="bg-[#F5F3F0] xl:h-screen xl:overflow-hidden">
+        <div className="w-full xl:h-full">
+  <div className="w-full px-[24px] md:px-[34px] lg:px-[74px] py-[72px] xl:h-full">
+            <div ref={articleRef} className="grid grid-cols-1 xl:grid-cols-[220px_1fr] gap-[58px] items-start xl:h-full">
+              {/* LEFT SIDEBAR */}
+              <aside className="sidebar-scroll hidden xl:block w-full xl:w-[220px] self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                <div>
+                  {/* AUTHOR */}
+                  <div className="text-[16px] leading-[190%] text-[#595550]">
+                    <p>
+                      By Marcus Lee · Licensed counselor
+                    </p>
+                  </div>
 
-                {/* TOC */}
-                <div className="mt-8 space-y-0">
-                  {sections.map((item, index) => {
-                    const isActive = activeSection === item.id;
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          document.getElementById(item.id)?.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start",
-                          });
-                        }}
-                        className={`block w-full text-left text-[16px] leading-[160%] py-[10px] pl-5 border-l-2 transition-all duration-300 ${isActive
+                  {/* TOC */}
+                  <div className="mt-8 space-y-0">
+                    {sections.map((item, index) => {
+                      const isActive = activeSection === item.id;
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            document.getElementById(item.id)?.scrollIntoView({
+                              behavior: "smooth",
+                              block: "start",
+                            });
+                          }}
+                          className={`block w-full text-left text-[16px] leading-[160%] py-[10px] pl-5 border-l-2 transition-all duration-300 ${isActive
                             ? "border-[#0D4A7A] text-[#0D4A7A] font-bold bg-[#EDF3F8]"
                             : "border-[#D8D3CC] text-[#6D6862] hover:text-[#0D4A7A] hover:border-[#9DB4C9]"
                           }`}
+                        >
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* RELATED ARTICLES */}
+                  <div className="mt-[58px]">
+                    {[1, 2, 3, 4].map((_, index) => (
+                      <div
+                        key={index}
+                        className={`${index !== 0 ? "border-t border-[#D7D2CB]" : ""
+                          } pt-[22px] pb-[26px]`}
                       >
+                        <h4
+                          className="text-[18px] leading-[135%] tracking-[-0.02em] text-[#2C2C2A] font-normal"
+                          style={{
+                            fontFamily: "Outfit, sans-serif",
+                          }}
+                        >
+                          Difficult conversations with your partner without
+                          becoming an argument
+                        </h4>
+
+                        <p className="mt-[14px] text-[14px] leading-[165%] text-[#2C2C2A]">
+                          Communication breakdowns are at the heart of most
+                          relationship struggles.
+                        </p>
+
+                        <div className="mt-[10px] flex items-center gap-[10px]">
+                          <span className="text-[13px] text-[#0D4A7A]">
+                            6 min read
+                          </span>
+
+                          <span className="w-[3px] h-[3px] rounded-full bg-[#0D4A7A]" />
+
+                          <span className="text-[13px] text-[#0D4A7A]">
+                            Priya Anand
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </aside>
+
+              {/* RIGHT ARTICLE CONTENT */}
+              <main ref={mainContentRef} className="sidebar-scroll w-full xl:self-stretch xl:overflow-y-auto" style={{ scrollBehavior: "smooth", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                {/* INTRO */}
+                <motion.div
+                  id="relationship-and-marital"
+                  initial={{ opacity: 0, y: 26 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <h2
+                    className="text-[35px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
+                    style={styles.heading}
+                  >
+                    Relationship and Marital
+                  </h2>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      One of the greatest challenges in a relationship is when individuals do not
+                      see things the way their partner sees them. These differences in a relationship
+                      can cause a lot of agony and relational challenges as the relationship progresses
+                      beyond the honeymoon phase.
+                    </p>
+
+                    <p>
+                      Many couples experience differences in a marital relationship. Such differences
+                      can be due to gender differences, personality traits, habits and preferences,
+                      family upbringing, cultural values, emotional needs, and expectations.
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* SECTION 1 */}
+                <section id="when-differences-create-distance" className="mt-[72px]">
+                  <h3
+                    className="text-[26px] leading-[120%] tracking-[-0.03em] font-medium"
+                    style={styles.heading}
+                  >
+                    1. When differences create distance
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Differences can become painful when they are misunderstood or magnified.
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      Sometimes, the very differences that are meant to complement the relationship
+                      can repel. These differences may become magnified, and partners may start the
+                      blame-game, souring the relationship.
+                    </p>
+
+                    <p>
+                      When partners struggle to understand each other’s perspective, emotional
+                      distance, repeated conflict, and resentment can build over time.
+                    </p>
+                  </div>
+                </section>
+
+                {/* SECTION 2 */}
+                <section id="building-trust-and-communication" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
+                    style={styles.heading}
+                  >
+                    2. Building trust and communication
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Trust and open communication are important foundations in marriage.
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      Building a bedrock of trust as the foundation of marriage, coupled with open
+                      communication, can help strengthen a couple relationship.
+                    </p>
+
+                    <p>
+                      Agreeing to disagree with your partner can be a sign of respect and appreciation
+                      towards individual differences.
+                    </p>
+
+                    <p>
+                      This can contribute to greater connection, intimacy, emotional satisfaction,
+                      and stability in a healthy couple relationship, and may also reduce the risk
+                      of divorce.
+                    </p>
+                  </div>
+                </section>
+
+                {/* SECTION 3 */}
+                <section id="when-divorce-becomes-a-concern" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
+                    style={styles.heading}
+                  >
+                    3. When divorce becomes a concern
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Marital counselling can help couples pause, communicate, and reflect.
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      Divorce rates are supposedly on the rise. When divorce happens, it results
+                      in difficulties for the couple and the children as well.
+                    </p>
+
+                    <p>
+                      While divorce may be necessary and a healthier choice for some couples, others
+                      may wish to salvage whatever is left of the union because the implications on
+                      the children are real.
+                    </p>
+
+                    <p>
+                      This may be an appropriate time to seek marital counselling to enhance open
+                      communication, where each partner feels appreciated and valued.
+                    </p>
+
+                    <p>
+                      Before rushing for a divorce due to an unhappy situation, every parent must
+                      consider the needs of their child or children, who need their parents’ tender
+                      loving care as the foundation for emotional stability.
+                    </p>
+                  </div>
+                </section>
+
+                {/* SECTION 4 */}
+                <section id="getting-support-after-betrayal" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
+                    style={styles.heading}
+                  >
+                    4. Getting support after betrayal
+                  </h3>
+
+                  <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
+                    <p className="text-[#59713F] text-[18px] font-medium">
+                      Recovering from an affair is not impossible, but it takes work and support.
+                    </p>
+                  </div>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      Another major contributing factor for a marriage breaking down may be when
+                      one or both parties are having an affair, or one partner has had an affair.
+                    </p>
+
+                    <p>
+                      In such circumstances, trust, betrayal, and anger are normal emotions for the
+                      partner who is feeling rejected.
+                    </p>
+
+                    <p>
+                      Recovering from an affair is not impossible, but it takes a lot of hard work
+                      from both parties to start reconnecting the missing pieces of the relationship.
+                      Seek help immediately.
+                    </p>
+                  </div>
+                </section>
+
+                {/* FINAL THOUGHT */}
+                <section id="final-thought" className="mt-[72px]">
+                  <h3
+                    className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
+                    style={styles.heading}
+                  >
+                    Final thought
+                  </h3>
+
+                  <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
+                    <p>
+                      With the support of a trained professional, marital counselling can provide
+                      a different perspective to the dynamics of a relationship when a couple has
+                      reached a stalemate.
+                    </p>
+
+                    <p>
+                      Unhelpful behaviour patterns that may have become ingrained can be modified
+                      when a couple is committed to making changes that will benefit them in the
+                      long run.
+                    </p>
+
+                    <p>
+                      Seeking professional counselling can enhance communication and effective
+                      conflict resolution, which are building blocks to a strong foundation in a
+                      marriage.
+                    </p>
+
+                    <p>
+                      A professional counsellor can also bring a refreshing element by reminding
+                      the couple of their strengths in the relationship.
+                    </p>
+                  </div>
+                </section>
+
+                {/* ACTION BUTTONS */}
+                <div className="mt-16 flex flex-wrap gap-3 border-t border-[#D9D4CD] pt-8">
+                  {[
+                    {
+                      icon: copied ? Check : Copy,
+                      label: copied ? "Copied!" : "Copy Link",
+                      onClick: handleCopyLink,
+                    },
+                    {
+                      icon: Mail,
+                      label: "Share via Email",
+                      onClick: handleShareEmail,
+                    },
+                    {
+                      icon: Download,
+                      label: "Download PDF",
+                      onClick: handleDownloadPDF,
+                    },
+                    {
+                      icon: Printer,
+                      label: "Print Document",
+                      onClick: handlePrint,
+                    },
+                  ].map((item, index) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <motion.button
+                        key={index}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={item.onClick}
+                        className={`flex items-center gap-2 rounded-[6px] border px-4 h-[34px] text-[12px] cursor-pointer transition-colors ${
+                          copied && index === 0
+                            ? "border-green-400 bg-green-50 text-green-700"
+                            : "border-[#D8D2CB] bg-white text-[#49433E] hover:bg-[#F0EDEA]"
+                        }`}
+                      >
+                        <Icon size={13} />
                         {item.label}
-                      </button>
+                      </motion.button>
                     );
                   })}
                 </div>
-
-                {/* RELATED ARTICLES */}
-                <div className="mt-[58px]">
-                  {[1, 2, 3, 4].map((_, index) => (
-                    <div
-                      key={index}
-                      className={`${index !== 0 ? "border-t border-[#D7D2CB]" : ""
-                        } pt-[22px] pb-[26px]`}
-                    >
-                      <h4
-                        className="text-[18px] leading-[135%] tracking-[-0.02em] text-[#2C2C2A] font-normal"
-                        style={{
-                          fontFamily: "Outfit, sans-serif",
-                        }}
-                      >
-                        Difficult conversations with your partner without
-                        becoming an argument
-                      </h4>
-
-                      <p className="mt-[14px] text-[14px] leading-[165%] text-[#2C2C2A]">
-                        Communication breakdowns are at the heart of most
-                        relationship struggles.
-                      </p>
-
-                      <div className="mt-[10px] flex items-center gap-[10px]">
-                        <span className="text-[13px] text-[#0D4A7A]">
-                          6 min read
-                        </span>
-
-                        <span className="w-[3px] h-[3px] rounded-full bg-[#0D4A7A]" />
-
-                        <span className="text-[13px] text-[#0D4A7A]">
-                          Priya Anand
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </aside>
-
-            {/* RIGHT ARTICLE CONTENT */}
-            <main ref={mainContentRef} className="sidebar-scroll w-full lg:self-stretch lg:overflow-y-auto" style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              {/* INTRO */}
-              <motion.div
-                id="relationship-and-marital"
-                initial={{ opacity: 0, y: 26 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                <h2
-                  className="text-[35px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
-                  style={styles.heading}
-                >
-                  Relationship and Marital
-                </h2>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    One of the greatest challenges in a relationship is when individuals do not
-                    see things the way their partner sees them. These differences in a relationship
-                    can cause a lot of agony and relational challenges as the relationship progresses
-                    beyond the honeymoon phase.
-                  </p>
-
-                  <p>
-                    Many couples experience differences in a marital relationship. Such differences
-                    can be due to gender differences, personality traits, habits and preferences,
-                    family upbringing, cultural values, emotional needs, and expectations.
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* SECTION 1 */}
-              <section id="when-differences-create-distance" className="mt-[72px]">
-                <h3
-                  className="text-[26px] leading-[120%] tracking-[-0.03em] font-medium"
-                  style={styles.heading}
-                >
-                  1. When differences create distance
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Differences can become painful when they are misunderstood or magnified.
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    Sometimes, the very differences that are meant to complement the relationship
-                    can repel. These differences may become magnified, and partners may start the
-                    blame-game, souring the relationship.
-                  </p>
-
-                  <p>
-                    When partners struggle to understand each other’s perspective, emotional
-                    distance, repeated conflict, and resentment can build over time.
-                  </p>
-                </div>
-              </section>
-
-              {/* SECTION 2 */}
-              <section id="building-trust-and-communication" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
-                  style={styles.heading}
-                >
-                  2. Building trust and communication
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Trust and open communication are important foundations in marriage.
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    Building a bedrock of trust as the foundation of marriage, coupled with open
-                    communication, can help strengthen a couple relationship.
-                  </p>
-
-                  <p>
-                    Agreeing to disagree with your partner can be a sign of respect and appreciation
-                    towards individual differences.
-                  </p>
-
-                  <p>
-                    This can contribute to greater connection, intimacy, emotional satisfaction,
-                    and stability in a healthy couple relationship, and may also reduce the risk
-                    of divorce.
-                  </p>
-                </div>
-              </section>
-
-              {/* SECTION 3 */}
-              <section id="when-divorce-becomes-a-concern" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
-                  style={styles.heading}
-                >
-                  3. When divorce becomes a concern
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Marital counselling can help couples pause, communicate, and reflect.
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    Divorce rates are supposedly on the rise. When divorce happens, it results
-                    in difficulties for the couple and the children as well.
-                  </p>
-
-                  <p>
-                    While divorce may be necessary and a healthier choice for some couples, others
-                    may wish to salvage whatever is left of the union because the implications on
-                    the children are real.
-                  </p>
-
-                  <p>
-                    This may be an appropriate time to seek marital counselling to enhance open
-                    communication, where each partner feels appreciated and valued.
-                  </p>
-
-                  <p>
-                    Before rushing for a divorce due to an unhappy situation, every parent must
-                    consider the needs of their child or children, who need their parents’ tender
-                    loving care as the foundation for emotional stability.
-                  </p>
-                </div>
-              </section>
-
-              {/* SECTION 4 */}
-              <section id="getting-support-after-betrayal" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium"
-                  style={styles.heading}
-                >
-                  4. Getting support after betrayal
-                </h3>
-
-                <div className="mt-7 rounded-[6px] bg-[#EAF4DF] px-5 py-[10px] inline-block w-full">
-                  <p className="text-[#59713F] text-[18px] font-medium">
-                    Recovering from an affair is not impossible, but it takes work and support.
-                  </p>
-                </div>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    Another major contributing factor for a marriage breaking down may be when
-                    one or both parties are having an affair, or one partner has had an affair.
-                  </p>
-
-                  <p>
-                    In such circumstances, trust, betrayal, and anger are normal emotions for the
-                    partner who is feeling rejected.
-                  </p>
-
-                  <p>
-                    Recovering from an affair is not impossible, but it takes a lot of hard work
-                    from both parties to start reconnecting the missing pieces of the relationship.
-                    Seek help immediately.
-                  </p>
-                </div>
-              </section>
-
-              {/* FINAL THOUGHT */}
-              <section id="final-thought" className="mt-[72px]">
-                <h3
-                  className="text-[30px] leading-[120%] tracking-[-0.03em] font-medium text-[#111111]"
-                  style={styles.heading}
-                >
-                  Final thought
-                </h3>
-
-                <div className="mt-7 space-y-6 text-[18px] leading-[210%] text-[#3D3935]">
-                  <p>
-                    With the support of a trained professional, marital counselling can provide
-                    a different perspective to the dynamics of a relationship when a couple has
-                    reached a stalemate.
-                  </p>
-
-                  <p>
-                    Unhelpful behaviour patterns that may have become ingrained can be modified
-                    when a couple is committed to making changes that will benefit them in the
-                    long run.
-                  </p>
-
-                  <p>
-                    Seeking professional counselling can enhance communication and effective
-                    conflict resolution, which are building blocks to a strong foundation in a
-                    marriage.
-                  </p>
-
-                  <p>
-                    A professional counsellor can also bring a refreshing element by reminding
-                    the couple of their strengths in the relationship.
-                  </p>
-                </div>
-              </section>
-
-
-              {/* ACTION BUTTONS */}
-              <div className="mt-16 flex flex-wrap gap-3 border-t border-[#D9D4CD] pt-8">
-                {[
-                  {
-                    icon: copied ? Check : Copy,
-                    label: copied ? "Copied!" : "Copy Link",
-                    onClick: handleCopyLink,
-                  },
-                  {
-                    icon: Mail,
-                    label: "Share via Email",
-                    onClick: handleShareEmail,
-                  },
-                  {
-                    icon: Download,
-                    label: "Download PDF",
-                    onClick: handleDownloadPDF,
-                  },
-                  {
-                    icon: Printer,
-                    label: "Print Document",
-                    onClick: handlePrint,
-                  },
-                ].map((item, index) => {
-                  const Icon = item.icon;
-
-                  return (
-                    <motion.button
-                      key={index}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={item.onClick}
-                      className={`flex items-center gap-2 rounded-[6px] border px-4 h-[34px] text-[12px] cursor-pointer transition-colors ${
-                        copied && index === 0
-                          ? "border-green-400 bg-green-50 text-green-700"
-                          : "border-[#D8D2CB] bg-white text-[#49433E] hover:bg-[#F0EDEA]"
-                      }`}
-                    >
-                      <Icon size={13} />
-                      {item.label}
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </main>
+              </main>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA */}
       <section className="pb-24 bg-[#F5F3F0]">
-        <div className="max-w-[1630px] mx-auto px-5">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="rounded-[12px] bg-[#0D4A7A] px-8 py-[56px] text-center text-white w-full"
-          >
-            <h2
-              className="text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
-              style={styles.heading}
+        <div className="w-full navbar-align-outer">
+          <div className="navbar-align-inner">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="rounded-[12px] bg-[#0D4A7A] px-8 py-[56px] text-center text-white w-full"
             >
-              Ready to talk to someone?
-            </h2>
-
-            <p className="mx-auto mt-5 max-w-[720px] text-white/85 text-[15px] leading-[190%]">
-              Our counselling team is here to listen, support, and guide you in a
-              safe and confidential environment.
-            </p>
-
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => openModal()}
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-white h-[46px] px-6 text-[14px] font-semibold text-[#0D4A7A] cursor-pointer"
-            >
-              Book an appointment
-
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
+              <h2
+                className="text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
+                style={styles.heading}
               >
-                <path
-                  d="M9 18L15 12L9 6"
-                  stroke="currentColor"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </motion.button>
-          </motion.div>
+                Ready to talk to someone?
+              </h2>
+
+              <p className="mx-auto mt-5 max-w-[720px] text-white/85 text-[15px] leading-[190%]">
+                Our counselling team is here to listen, support, and guide you in a
+                safe and confidential environment.
+              </p>
+
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => openModal()}
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-white h-[46px] px-6 text-[14px] font-semibold text-[#0D4A7A] cursor-pointer"
+              >
+                Book an appointment
+
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M9 18L15 12L9 6"
+                    stroke="currentColor"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </motion.button>
+            </motion.div>
+          </div>
         </div>
       </section>
 
