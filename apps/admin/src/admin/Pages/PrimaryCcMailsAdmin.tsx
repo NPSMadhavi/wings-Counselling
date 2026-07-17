@@ -41,37 +41,15 @@ export default function PrimaryCcMailsAdmin() {
   const loadRecipients = useCallback(async () => {
     setLoading(true);
     try {
-      const rows = await api.getFormSubmissionEmails();
-      // Transform the data to show unique recipients from primary and CC fields
-      const primaryRecipients: Recipient[] = rows
-        .filter(row => row.primaryMail?.trim())
-        .flatMap(row => 
-          row.primaryMail.split(",").map(email => ({
-            id: `primary-${row.id}-${email.trim()}` as any,
-            email: email.trim(),
-            type: "primary" as const,
-            createdAt: row.createdAt,
-          }))
-        );
-      
-      const ccRecipients: Recipient[] = rows
-        .filter(row => row.ccMail?.trim())
-        .flatMap(row =>
-          row.ccMail.split(",").map(email => ({
-            id: `cc-${row.id}-${email.trim()}` as any,
-            email: email.trim(),
-            type: "cc" as const,
-            createdAt: row.createdAt,
-          }))
-        );
-      
-      // Combine and remove duplicates by email
-      const allRecipients = [...primaryRecipients, ...ccRecipients];
-      const uniqueRecipients = Array.from(
-        new Map(allRecipients.map(r => [r.email, r])).values()
+      const rows = await api.getEmailRecipients();
+      setRecipients(
+        rows.map((row: { id: number; email: string; type: "primary" | "cc"; created_at: string }) => ({
+          id: row.id,
+          email: row.email,
+          type: row.type,
+          createdAt: row.created_at,
+        }))
       );
-      
-      setRecipients(uniqueRecipients);
     } catch {
       toast.error("Failed to load recipients.");
     } finally {
@@ -117,17 +95,14 @@ export default function PrimaryCcMailsAdmin() {
 
     setAdding(true);
     try {
-      // Store the recipient in localStorage or state for now
-      const newRecipient: Recipient = {
-        id: Date.now(),
+      await api.createEmailRecipient({
         email: newEmail.trim(),
         type: newType,
-        createdAt: new Date().toISOString(),
-      };
-      setRecipients(prev => [...prev, newRecipient]);
+      });
       toast.success(`${newType.toUpperCase()} recipient added successfully.`);
       setNewEmail("");
       setNewType("primary");
+      await loadRecipients();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to add recipient.");
     } finally {
@@ -135,14 +110,12 @@ export default function PrimaryCcMailsAdmin() {
     }
   };
 
-  const handleDeleteRecipient = async (id: number, email: string) => {
-    const confirmed = window.confirm(`Remove "${email}" from ${recipients.find(r => r.id === id)?.type.toUpperCase()} list?`);
-    if (!confirmed) return;
-
+  const handleDeleteRecipient = async (id: number) => {
     setDeleting(id);
     try {
-      setRecipients(prev => prev.filter(r => r.id !== id));
+      await api.deleteEmailRecipient(id);
       toast.success("Recipient removed successfully.");
+      await loadRecipients();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to remove recipient.");
     } finally {
@@ -333,7 +306,7 @@ export default function PrimaryCcMailsAdmin() {
                       </td>
                       <td className="px-6 py-4 text-center">
                         <button
-                          onClick={() => handleDeleteRecipient(recipient.id as number, recipient.email)}
+                          onClick={() => handleDeleteRecipient(recipient.id)}
                           disabled={deleting === recipient.id}
                           className="inline-flex text-center gap-1 px-3 py-1  rounded-lg transition disabled:opacity-50"
                         >

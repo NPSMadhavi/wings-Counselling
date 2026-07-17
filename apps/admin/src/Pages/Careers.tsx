@@ -18,10 +18,11 @@ import { Footer } from "@/components/Layout/Footer";
 import { careersApplyPath } from "@/lib/careers-routes";
 import type { JobPosting } from "@/lib/careers-types";
 import { useAuth } from "@/hooks/use-auth";
+import { scrollToPageContentSection } from "@/lib/scrollToSection";
 
 export default function Careers() {
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToPageContentSection("/career");
   }, []);
 
   const { isAuthenticated } = useAuth();

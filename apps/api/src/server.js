@@ -859,7 +859,17 @@ const server = app.listen(PORT, "0.0.0.0", () => {
 });
 
 server.on("error", (err) => {
+  if (err?.code === "EADDRINUSE") {
+    console.error(
+      `❌ Port ${PORT} is already in use. Stop the other process, then restart.`
+    );
+    console.error(
+      `   Windows: netstat -ano | findstr :${PORT}  →  taskkill /PID <PID> /F`
+    );
+    process.exit(1);
+  }
   console.error("❌ HTTP server error:", err);
+  process.exit(1);
 });
 
 process.on("uncaughtException", (err) => {

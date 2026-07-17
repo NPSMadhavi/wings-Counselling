@@ -134,6 +134,13 @@ const languages = [
   },
 ];
 
+function markIntroAsPlayed() {
+  try {
+    sessionStorage.setItem("skipLogoIntro", "1");
+    sessionStorage.setItem("hasPlayedIntro", "1");
+  } catch (err) {}
+}
+
 export function Navbar() {
   const { openModal } =
     useAppointment();
@@ -314,6 +321,9 @@ const [hoveredNav, setHoveredNav] =
     }
 
     if (link.route) {
+      if (link.href === "/") {
+        markIntroAsPlayed();
+      }
       navigate(link.href);
     } else {
       const [path, hashPart] =
@@ -328,11 +338,8 @@ const [hoveredNav, setHoveredNav] =
           : "";
 
       try {
-        if (targetHash) {
-          sessionStorage.setItem(
-            "skipLogoIntro",
-            "1"
-          );
+        if (targetHash || targetPath === "/") {
+          markIntroAsPlayed();
         }
       } catch (err) {}
 
@@ -518,7 +525,7 @@ const [hoveredNav, setHoveredNav] =
                   href="/"
                   onClick={(e) => {
                     e.preventDefault();
-
+                    markIntroAsPlayed();
                     navigate("/");
                   }}
 
@@ -701,6 +708,10 @@ onMouseLeave={() => {
                                 }}
 
                                 onClick={() => {
+                                  if (link.href === "/") {
+                                    markIntroAsPlayed();
+                                  }
+
                                   setMobileOpen(
                                     false
                                   );

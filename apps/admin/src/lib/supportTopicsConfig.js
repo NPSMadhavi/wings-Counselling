@@ -16,8 +16,9 @@ export const SUPPORT_TOPICS = [
   {
     id: 2,
     slug: "lifestyle-issues",
-    label: "Lifestyle issues",
-    breadcrumbLabel: "Lifestyle issues",
+    label: "Depression",
+    breadcrumbLabel: "Depression",
+    articlePath: "/article/understanding-depression",
     heroTitle: "You don't have to navigate lifestyle challenges alone",
     heroDescription:
       "Discover how everyday habits and life changes can affect your well-being and explore practical ways to create a healthier more balanced lifestyle.",
@@ -114,8 +115,9 @@ export const SUPPORT_TOPICS = [
   {
     id: 9,
     slug: "financial-disputes",
-    label: "Financial disputes",
-    breadcrumbLabel: "Financial disputes",
+    label: "Mental health",
+    breadcrumbLabel: "Mental health",
+    articlePath: "/article/mental-health",
     heroTitle: "You don't have to deal with financial stress alone",
     heroDescription:
       "Learn how financial concerns can affect emotional well-being and relationships and explore healthy ways to manage financial challenges.",

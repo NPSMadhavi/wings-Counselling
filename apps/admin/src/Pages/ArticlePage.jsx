@@ -4,6 +4,7 @@ import { ChevronDown } from "lucide-react";
 import { Footer } from "../components/Layout/Footer.jsx";
 import { useLocation } from "wouter";
 import { useAppointment } from "@/context/AppointmentContext";
+import { getArticleDetailPath } from "@/lib/articlePageContent";
 
 export default function ArticlePage() {
     const [, navigate] = useLocation();
@@ -40,29 +41,7 @@ export default function ArticlePage() {
             .replace(/\s+/g, " ")
             .trim();
 
-    const getRoute = (category) => {
-        if (!category) return "/GroundingTechniques";
-
-        const cat = category.toLowerCase();
-
-        if (cat.includes("relationship") || cat.includes("marital")) {
-            return "/RelationshipArticlePage";
-        }
-
-        if (cat.includes("parenting")) {
-            return "/ParentingArticlePage";
-        }
-
-        if (cat.includes("grief") || cat.includes("loss")) {
-            return "/GriefArticlePage";
-        }
-
-        if (cat.includes("mental health") || cat.includes("mental")) {
-            return "/MentalArticlePage";
-        }
-
-        return "/GroundingTechniques";
-    };
+    const getRoute = (article) => getArticleDetailPath(article);
 
     const handleSubscribe = async (e) => {
         e.preventDefault();
@@ -194,79 +173,9 @@ export default function ArticlePage() {
             </div>
 
             {/* FEATURED ARTICLES SECTION */}
-            <div className="w-full flex flex-col items-center py-10 sm:py-14 md:py-20 lg:py-24 bg-[#FAFAF5]">
-                <div className="w-full navbar-align-outer">
-                    <div className="navbar-align-inner flex flex-col">
-                        {/* Title */}
-                        <div id="featured-articles">
-                            <h2 className="font-['Outfit'] font-semibold text-[clamp(24px,5vw,35px)] leading-tight text-[#0D4A7A] mb-6 sm:mb-8 md:mb-10">
-                                Featured articles
-                            </h2>
-                        </div>
-
-                        {/* Featured Box */}
-                        <div className="w-full flex flex-col md:flex-row bg-white overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.05)] rounded-[10px] min-h-0 md:min-h-[380px] lg:min-h-[420px]">
-                            {/* IMAGE */}
-                            <div
-                                className="w-full md:w-[45%] lg:w-[420px] shrink-0 relative aspect-[16/10] sm:aspect-[4/3] md:aspect-auto md:min-h-[280px] lg:min-h-[420px] bg-cover bg-center"
-                                style={{
-                                    backgroundImage: `url('/assets/Articleimage.jpg')`,
-                                }}
-                            >
-                                <div className="w-full h-full relative min-h-[200px] md:min-h-full">
-                                    {/* Tag on Image */}
-                                    <div className="absolute top-4 left-4 sm:top-5 sm:left-5 bg-white flex items-center justify-center px-3 sm:px-4 h-[24px] sm:h-[26px] rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
-                                        <span className="font-['Plus_Jakarta_Sans'] font-bold text-[9px] sm:text-[10px] tracking-[1.2px] text-[#1E3A8A]">
-                                            Anxiety & Stress
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* CONTENT */}
-                            <div className="flex-1 flex flex-col justify-center p-5 sm:p-6 md:p-8 lg:px-12 min-w-0">
-                                <span className="font-['DM_Sans'] font-medium text-[14px] sm:text-[15px] md:text-[16px] text-[#1E3A8A] mb-2 sm:mb-3">
-                                    Sin Teck · TA Practitioner-May 2025
-                                </span>
-
-                                <h3 className="font-['Outfit'] font-semibold text-[clamp(20px,4vw,28px)] leading-[1.2] text-black mb-3 sm:mb-4 max-w-[900px]">
-                                    Understanding anxiety: what it is, why it happens and how counselling can help
-                                </h3>
-
-                                <p className="font-['DM_Sans'] font-normal text-[14px] sm:text-[15px] md:text-[16px] leading-[22px] sm:leading-[26px] text-[#333333] mb-5 sm:mb-6 max-w-[900px] line-clamp-4 md:line-clamp-none">
-                                    Anxiety is one of the most common reasons people seek counselling support But what exactly is it? In this guide, our senior counsellor explains the difference between everyday worry and clinical anxiety, the physical signs to look out for and the evidence-based approaches. WINGS uses to support clients through their anxiety journey.
-                                </p>
-
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => navigate("/GroundingTechniques")}
-                                    className="w-full sm:w-[190px] min-h-[46px] sm:h-[50px] bg-[#1E4B8A] rounded-full text-white border-none text-[15px] sm:text-[16px] font-semibold cursor-pointer flex items-center justify-center gap-2 sm:gap-[10px] font-['DM_Sans']"
-                                >
-                                    <span>Read full article</span>
-                                    <svg
-                                        width="20"
-                                        height="20"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                    >
-                                        <path
-                                            d="M9 18L15 12L9 6"
-                                            stroke="white"
-                                            strokeWidth="3.5"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
-                                </motion.button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            
             {/* FILTER SECTION */}
-            <div className="w-full flex flex-col items-center pt-4 sm:pt-5 pb-6 sm:pb-8 bg-[#FAFAF5]">
+            <div id="featured-articles" className="w-full flex flex-col items-center pt-4 sm:pt-5 pb-6 sm:pb-8 bg-[#FAFAF5]">
                 <div className="w-full navbar-align-outer">
                     <div className="navbar-align-inner flex flex-wrap justify-between items-center gap-4">
                         <h2
@@ -366,7 +275,7 @@ export default function ArticlePage() {
                                 {filteredArticles.map((article, idx) => (
                                     <div
                                         key={article.id}
-                                        onClick={() => navigate(getRoute(article.category))}
+                                        onClick={() => navigate(getRoute(article))}
                                         className="bg-white group cursor-pointer rounded-[10px] overflow-hidden shadow-md flex flex-col h-full"
                                     >
                                         {/* IMAGE */}
@@ -424,7 +333,7 @@ export default function ArticlePage() {
                                                 className="mt-auto ml-auto flex items-center justify-center text-black hover:translate-x-1 transition-all duration-300"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    navigate(getRoute(article.category));
+                                                    navigate(getRoute(article));
                                                 }}
                                             >
                                                 <svg

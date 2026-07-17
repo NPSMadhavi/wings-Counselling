@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS logos (
     name VARCHAR(150) NOT NULL,
     description TEXT,
     website_link VARCHAR(255),
+    duration VARCHAR(255),
+    quote TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

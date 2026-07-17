@@ -20,6 +20,11 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api, resolveAssetUrl, toStorageUrl } from "../lib/api";
+import {
+    convertWordToHtml,
+    getPageKeyFromCategory,
+    savePageContent,
+} from "../../lib/articlePageContent";
 
 interface ArticleEditorProps {
     onBack?: () => void;
@@ -56,9 +61,16 @@ export default function ArticleEditor({ onBack, initialData, article, isSidebarO
     const [author, setAuthor] = useState(editData?.author || "");
     const [excerpt, setExcerpt] = useState(editData?.excerpt || "");
 
+    // Word document upload (updates public article page content)
+    const [wordFile, setWordFile] = useState<File | null>(null);
+    const [wordFileName, setWordFileName] = useState("");
+    const [wordImportError, setWordImportError] = useState("");
+    const [isConvertingWord, setIsConvertingWord] = useState(false);
+
     const editorRef = useRef<HTMLDivElement>(null);
     const fileRef = useRef<HTMLInputElement>(null);
     const inlineFileRef = useRef<HTMLInputElement>(null);
+    const wordFileRef = useRef<HTMLInputElement>(null);
     const autoSaveTimerRef = useRef<NodeJS.Timeout>();
 
     // Load existing article data into the editor when editing
@@ -240,6 +252,107 @@ useEffect(() => {
         }
     };
 
+    const handleWordFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        setWordImportError("");
+        if (!file) {
+            setWordFile(null);
+            setWordFileName("");
+            return;
+        }
+
+        const name = file.name.toLowerCase();
+        if (!name.endsWith(".docx")) {
+            const msg = "Please upload a .docx Word document (older .doc is not supported)";
+            setWordImportError(msg);
+            alert(msg);
+            setWordFile(null);
+            setWordFileName("");
+            e.target.value = "";
+            return;
+        }
+
+        setWordFile(file);
+        setWordFileName(file.name);
+        await applyWordDocument(file);
+    };
+
+    /** Convert Word file to HTML and show in editor immediately */
+    const applyWordDocument = async (file: File): Promise<string | null> => {
+        setIsConvertingWord(true);
+        setWordImportError("");
+        try {
+            const { html } = await convertWordToHtml(file);
+            if (!html.trim()) {
+                const msg = "Could not extract content from this Word document.";
+                setWordImportError(msg);
+                alert(msg);
+                return null;
+            }
+
+            if (editorRef.current) {
+                editorRef.current.innerHTML = html;
+            }
+            setContent(html);
+
+            const pageKey = getPageKeyFromCategory(category);
+            const articleSlug =
+                slug ||
+                title
+                    .trim()
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/(^-|-$)/g, "");
+            if (articleSlug && articleSlug !== slug) setSlug(articleSlug);
+
+            savePageContent(pageKey, {
+                html,
+                title: title.trim(),
+                author: author.trim(),
+                excerpt: excerpt.trim(),
+                coverImage: coverImage || "",
+                slug: articleSlug || "",
+            });
+
+            return html;
+        } catch (err) {
+            console.error("Word convert failed", err);
+            const msg = err instanceof Error ? err.message : "Failed to read Word document";
+            setWordImportError(msg);
+            alert(msg);
+            return null;
+        } finally {
+            setIsConvertingWord(false);
+        }
+    };
+
+    /** Sync title/author/excerpt/cover (+ optional html) to the public article page */
+    const syncPublicPageMeta = (htmlOverride?: string) => {
+        const pageKey = getPageKeyFromCategory(category);
+        const currentHtml =
+            htmlOverride ??
+            editorRef.current?.innerHTML ??
+            content ??
+            "";
+        const articleSlug =
+            slug ||
+            title
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/(^-|-$)/g, "");
+        if (articleSlug && articleSlug !== slug) setSlug(articleSlug);
+
+        savePageContent(pageKey, {
+            html: currentHtml,
+            title: title.trim(),
+            author: author.trim(),
+            excerpt: excerpt.trim(),
+            coverImage: coverImage || "",
+            slug: articleSlug || "",
+        });
+    };
+
     // Publish Article
     const publishArticle = async () => {
         if (!title.trim()) {
@@ -252,12 +365,21 @@ useEffect(() => {
             return;
         }
 
-     if (excerpt.length > 500) {
-    alert("Excerpt should be less than 500 characters");
-    return;
-}
+        if (excerpt.length > 500) {
+            alert("Excerpt should be less than 500 characters");
+            return;
+        }
 
+        syncPublicPageMeta();
         await saveArticle(true);
+        setWordFile(null);
+        setWordFileName("");
+    };
+
+    const handlePublishModalSave = async () => {
+        syncPublicPageMeta();
+        await saveArticle(false);
+        setShowPublishModal(false);
     };
 
     // Auto-save on dependency changes when editing
@@ -414,12 +536,20 @@ useEffect(() => {
 
                     <button
                         onClick={() => setShowPublishModal(true)}
-                        className={`h-[40px] px-8 rounded-full font-bold transition-all shadow-md ${isPublished
-                            ? "bg-green-600 text-white "
-                            : "bg-[#0D4A7A] text-white "
-                            }`}
+                        className="h-[40px] px-8 rounded-full font-bold transition-all shadow-md bg-[#0D4A7A] text-white"
                     >
-                        {isPublished ? "Published" : "Next"}
+                        Next
+                    </button>
+
+                    <button
+                        onClick={publishArticle}
+                        disabled={isPublishing}
+                        className="h-[40px] px-8 rounded-full font-bold transition-all shadow-md flex items-center gap-2 bg-[#0D4A7A] text-white"
+                    >
+                        {isPublishing ? (
+                            <Loader2 size={18} className="animate-spin" />
+                        ) : null}
+                        Published
                     </button>
                 </div>
             </div>
@@ -527,6 +657,29 @@ useEffect(() => {
 
                 {/* WRITING AREA */}
                 <div className="bg-white border-x border-b border-[#E0DFDC] rounded-b-xl px-4 md:px-[64px] py-6 md:py-[48px] shadow-sm">
+                    <div className="flex justify-center mb-6 md:mb-8">
+                        <input
+                            ref={wordFileRef}
+                            type="file"
+                            accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            className="hidden"
+                            onChange={handleWordFileChange}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => wordFileRef.current?.click()}
+                            disabled={isConvertingWord}
+                            className="h-[40px] px-6 rounded-full border-2 border-[#666] text-[#666] font-bold hover:bg-[#F3F2EF] transition-all flex items-center gap-2"
+                        >
+                            {isConvertingWord ? (
+                                <Loader2 size={18} className="animate-spin" />
+                            ) : (
+                                <Upload size={18} />
+                            )}
+                            Upload document
+                        </button>
+                    </div>
+
                     {/* TITLE */}
                     <textarea
                         value={title}
@@ -644,11 +797,11 @@ useEffect(() => {
                             <div className="px-6 md:px-8 py-4 md:py-6 bg-gray-50 flex flex-col md:flex-row items-center justify-end gap-3">
                             
                                 <button
-                                    onClick={() => (isPublished ? saveArticle(false).then(() => setShowPublishModal(false)) : publishArticle())}
-                                    disabled={isPublishing}
+                                    onClick={handlePublishModalSave}
+                                    disabled={isPublishing || isConvertingWord}
                                     className="w-full md:w-auto h-[48px] px-10 rounded-full bg-[#0D4A7A] text-white font-bold  transition-all flex items-center justify-center gap-2 shadow-lg"
                                 >
-                                    {isPublishing ? (
+                                    {isPublishing || isConvertingWord ? (
                                         <Loader2 size={20} className="animate-spin" />
                                     ) : isPublished ? (
                                         "Save Changes"

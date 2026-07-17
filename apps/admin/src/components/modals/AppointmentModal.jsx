@@ -409,6 +409,7 @@ export function AppointmentModal({ isOpen, onClose, preSelectedService }) {
   const [completedSteps, setCompletedSteps] = useState([]);
   const [phoneCountry, setPhoneCountry] = useState("Singapore");
   const modalPanelRef = useRef(null);
+  const scrollLockRef = useRef(0);
 
   const getModalFocusableElements = () => {
     if (!modalPanelRef.current) return [];
@@ -673,33 +674,48 @@ const validatePhone = (phone, pCountry) => {
 
   useEffect(() => {
     if (isOpen) {
+      scrollLockRef.current = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollLockRef.current}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
       document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-      setSubmitted(false);
-      setStep(1);
-      setErrors({});
-      setFormData({
-        nric_fin_number: "",
-        name: "",
-        email: "",
-        phone: "",
-        age: "",
-        gender: "",
-        nationality: "",
-        counselling_type_id: "",
-        counselling_type_name: "",
-        description: "",
-      });
-      setSelectedServices([]);
-      setSelectedSubTypeIds([]);
-      setCompletedSteps([]);
-      setPhoneCountry("Singapore");
-      setNameTouched(false);
+      document.documentElement.style.overflow = "hidden";
+
+      return () => {
+        const scrollY = scrollLockRef.current;
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.width = "";
+        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
+        window.scrollTo(0, scrollY);
+      };
     }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
+
+    setSubmitted(false);
+    setStep(1);
+    setErrors({});
+    setFormData({
+      nric_fin_number: "",
+      name: "",
+      email: "",
+      phone: "",
+      age: "",
+      gender: "",
+      nationality: "",
+      counselling_type_id: "",
+      counselling_type_name: "",
+      description: "",
+    });
+    setSelectedServices([]);
+    setSelectedSubTypeIds([]);
+    setCompletedSteps([]);
+    setPhoneCountry("Singapore");
+    setNameTouched(false);
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -949,7 +965,7 @@ const handleSubmit = async (e) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100050] flex items-center justify-center p-3 sm:p-4 md:p-6">
+        <div className="fixed inset-0 z-[100050] flex items-center justify-center p-3 sm:p-4 md:p-6 overscroll-contain">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1196,14 +1212,13 @@ const handleSubmit = async (e) => {
                             Age <span className="text-red-500">*</span>
                           </label>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="numeric"
                             name="age"
                             value={formData.age}
                             onChange={handleChange}
                             onBlur={handleBlur}
                             placeholder="Enter Your Age"
-                            min={1}
-                            max={120}
                             className={`w-full px-5 py-4 border rounded-[10px] text-[16px] bg-[#FAF8F4] outline-none transition-all ${errors.age ? 'border-red-500' : 'border-[#E3E1E1]'
                               } focus:border-[#0D4A7A]`}
                           />

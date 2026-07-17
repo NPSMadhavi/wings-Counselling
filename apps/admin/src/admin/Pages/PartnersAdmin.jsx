@@ -15,9 +15,11 @@ import { api, resolveAssetUrl } from "../lib/api";
 import { ConfirmDialog, AlertDialog } from "../components/ConfirmDialog";
 
 const EMPTY = {
-  name: "",
   logo: "",
+  duration: "",
+  name: "",
   description: "",
+  quote: "",
   websiteLink: "",
 };
 
@@ -37,7 +39,7 @@ function resolveImageUrl(url) {
 }
 
 function PartnerFormModal({ partner, onSave, onClose }) {
-  const [form, setForm] = useState(partner || EMPTY);
+  const [form, setForm] = useState({ ...EMPTY, ...(partner || {}) });
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const [saveError, setSaveError] = useState(null);
@@ -97,9 +99,11 @@ function PartnerFormModal({ partner, onSave, onClose }) {
     try {
       await onSave({
         id: form.id,
-        name: form.name.trim(),
         logo: form.logo,
+        duration: form.duration,
+        name: form.name.trim(),
         description: form.description,
+        quote: form.quote,
         websiteLink: form.websiteLink,
       });
     } catch (err) {
@@ -129,7 +133,7 @@ function PartnerFormModal({ partner, onSave, onClose }) {
                 {partner?.id ? "Edit Partner" : "Add Partner"}
               </h3>
               <p className="text-blue-100 text-sm mt-1">
-                Logo, name, description and website link
+                Logo, duration, name, description, quote and website link
               </p>
             </div>
             <button
@@ -212,6 +216,16 @@ function PartnerFormModal({ partner, onSave, onClose }) {
             </div>
 
             <div>
+              <label className={labelClass}>Duration</label>
+              <input
+                className={inputClass}
+                value={form.duration}
+                onChange={(e) => set("duration", e.target.value)}
+                placeholder="Aug 2025 to Present"
+              />
+            </div>
+
+            <div>
               <label className={labelClass}>
                 Name <span className="text-red-500">*</span>
               </label>
@@ -230,6 +244,16 @@ function PartnerFormModal({ partner, onSave, onClose }) {
                 value={form.description}
                 onChange={(e) => set("description", e.target.value)}
                 placeholder="Short description about the partnership"
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Quote</label>
+              <textarea
+                className={`${inputClass} min-h-[90px] resize-y`}
+                value={form.quote}
+                onChange={(e) => set("quote", e.target.value)}
+                placeholder="Supporting Wellbeing. Strengthening Professional Identity"
               />
             </div>
 
@@ -327,6 +351,11 @@ function ViewPartnerModal({ partner, onClose }) {
             </div>
 
             <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">Duration</p>
+              <p className="text-base text-gray-800">{partner.duration || "—"}</p>
+            </div>
+
+            <div>
               <p className="text-xs font-semibold text-gray-500 mb-1">Name</p>
               <p className="text-lg font-bold text-gray-900">{partner.name}</p>
             </div>
@@ -335,6 +364,13 @@ function ViewPartnerModal({ partner, onClose }) {
               <p className="text-xs font-semibold text-gray-500 mb-1">Description</p>
               <p className="text-base text-gray-800 whitespace-pre-wrap">
                 {partner.description || "—"}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">Quote</p>
+              <p className="text-base text-[#0D4A7A] whitespace-pre-wrap">
+                {partner.quote || "—"}
               </p>
             </div>
 
@@ -394,9 +430,11 @@ async function save(partner) {
   const partnerId = getPartnerId(partner);
 
   const payload = {
-    name: partner.name,
     logo: partner.logo,
+    duration: partner.duration,
+    name: partner.name,
     description: partner.description,
+    quote: partner.quote,
     websiteLink: partner.websiteLink,
   };
 
@@ -490,6 +528,7 @@ async function remove() {
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">#</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Logo</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Duration</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Name</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Website</th>
                     <th className="px-6 py-4 text-center text-sm font-semibold text-blue-900">Actions</th>
@@ -520,6 +559,9 @@ async function remove() {
                               <ImageIcon size={20} className="text-blue-400" />
                             </div>
                           )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
+                          {partner.duration || "—"}
                         </td>
                         <td className="px-6 py-4">
                           <div className="font-medium text-gray-900">{partner.name}</div>
@@ -561,7 +603,7 @@ async function remove() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className="px-6 py-16 text-center">
+                      <td colSpan={6} className="px-6 py-16 text-center">
                         <div className="flex flex-col items-center gap-3">
                           <ImageIcon size={48} className="text-gray-300" />
                           <p className="text-gray-500 text-lg">No partners found</p>

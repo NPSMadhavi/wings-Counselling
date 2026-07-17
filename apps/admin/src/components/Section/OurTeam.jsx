@@ -43,6 +43,55 @@ export function OurTeam() {
         }
     };
 
+    // DRAG TO SCROLL
+    useEffect(() => {
+        const scrollContainer = scrollContainerRef.current;
+        if (!scrollContainer) return;
+
+        let isDragging = false;
+        let startX = 0;
+        let scrollStart = 0;
+
+        const onMouseDown = (e) => {
+            if (e.button !== 0) return;
+
+            isDragging = true;
+            startX = e.pageX;
+            scrollStart = scrollContainer.scrollLeft;
+            scrollContainer.style.cursor = "grabbing";
+            scrollContainer.style.userSelect = "none";
+        };
+
+        const onMouseMove = (e) => {
+            if (!isDragging) return;
+
+            e.preventDefault();
+            scrollContainer.scrollLeft = scrollStart - (e.pageX - startX);
+        };
+
+        const stopDragging = () => {
+            if (!isDragging) return;
+
+            isDragging = false;
+            scrollContainer.style.cursor = "grab";
+            scrollContainer.style.userSelect = "";
+        };
+
+        scrollContainer.addEventListener("mousedown", onMouseDown);
+        scrollContainer.addEventListener("mousemove", onMouseMove);
+        scrollContainer.addEventListener("mouseup", stopDragging);
+        scrollContainer.addEventListener("mouseleave", stopDragging);
+        document.addEventListener("mouseup", stopDragging);
+
+        return () => {
+            scrollContainer.removeEventListener("mousedown", onMouseDown);
+            scrollContainer.removeEventListener("mousemove", onMouseMove);
+            scrollContainer.removeEventListener("mouseup", stopDragging);
+            scrollContainer.removeEventListener("mouseleave", stopDragging);
+            document.removeEventListener("mouseup", stopDragging);
+        };
+    }, []);
+
     // AUTO SCROLL
     useEffect(() => {
         const scrollContainer = scrollContainerRef.current;

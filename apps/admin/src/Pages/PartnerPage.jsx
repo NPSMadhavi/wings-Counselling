@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Footer } from "@/components/Layout/Footer";
 import { motion } from "framer-motion";
 
@@ -22,9 +22,12 @@ const FALLBACK_PARTNERS = [
   },
 ];
 
+const PAGE_SIZE = 3;
+
 const PartnerPage = () => {
   const [partners, setPartners] = useState(FALLBACK_PARTNERS);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,6 +54,18 @@ const PartnerPage = () => {
       cancelled = true;
     };
   }, []);
+
+  const pageCount = Math.max(1, Math.ceil(partners.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount - 1);
+
+  const pagedPartners = useMemo(
+    () => partners.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE),
+    [partners, safePage]
+  );
+
+  useEffect(() => {
+    setPage(0);
+  }, [partners.length]);
 
   return (
     <div className="w-full bg-[#F5F9FF]">
@@ -120,46 +135,100 @@ const PartnerPage = () => {
                 <div className="w-8 h-8 rounded-full border-2 border-[#0D4A7A] border-t-transparent animate-spin" />
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
-                {partners.map((partner) => (
-                  <div
-                    key={partner.id}
-                    className="bg-white rounded-[20px] p-8 flex flex-col h-full shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <div className="h-[140px] flex items-center justify-center mb-6">
-                      <img
-                        src={partner.logo || "/assets/partnerlogo1.png"}
-                        alt={partner.name || "Partner"}
-                        className="max-h-[140px] object-contain"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+                  {pagedPartners.map((partner) => (
+                    <div
+                      key={partner.id}
+                      className="bg-white rounded-[20px] p-8 flex flex-col h-full shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      <div className="h-[140px] flex items-center justify-center mb-6">
+                        <img
+                          src={partner.logo || "/assets/partnerlogo1.png"}
+                          alt={partner.name || "Partner"}
+                          className="max-h-[140px] object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      </div>
+                      {partner.duration && (
+                        <p className="text-[#6B7280] text-[14px] md:text-[15px] lg:text-[16px] font-normal font-['DM_Sans'] mb-2">
+                          {partner.duration}
+                        </p>
+                      )}
+                      {partner.name && (
+                        <h3 className="text-[#0D4A7A]  text-[17px] md:text-[19px] lg:text-[21px] font-semibold font-['Outfit'] mt-1 mb-4">
+                          {partner.name}
+                        </h3>
+                      )}
+                      {partner.description && (
+                        <p className="text-[#4B5563] text-[16px] md:text-[17px] lg:text-[18px] font-normal font-['DM_Sans'] leading-[150%] mb-5 flex-grow">
+                          {partner.description}
+                        </p>
+                      )}
+                      {partner.quote && (
+                        <p className="text-[#0D4A7A] text-[15px] md:text-[16px] lg:text-[17px] font-normal font-['DM_Sans'] leading-[150%] mb-5">
+                          {partner.quote}
+                        </p>
+                      )}
+                      {partner.websiteLink && (
+                        <a
+                          href={partner.websiteLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-[#0D4A7A] text-[15px] md:text-[16px] lg:text-[17px] font-semibold font-['DM_Sans'] group mt-auto w-max"
+                        >
+                          Visit Website
+                          <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                        </a>
+                      )}
                     </div>
-                    {partner.name && (
-                      <h3 className="text-[#0D4A7A] text-[20px] font-semibold font-['Outfit'] mt-3 mb-4">
-                        {partner.name}
-                      </h3>
-                    )}
-                    {partner.description && (
-                      <p className="text-[#4B5563] text-[18px] font-normal font-['DM_Sans'] leading-[150%] mb-7 flex-grow">
-                        {partner.description}
-                      </p>
-                    )}
-                    {partner.websiteLink && (
-                      <a
-                        href={partner.websiteLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-[#0D4A7A] text-[15px] font-semibold font-['DM_Sans'] group mt-auto w-max"
-                      >
-                        Visit Website
-                        <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                      </a>
-                    )}
+                  ))}
+                </div>
+
+                {partners.length > PAGE_SIZE && (
+                  <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button
+                      type="button"
+                      disabled={safePage <= 0}
+                      onClick={() => setPage((p) => Math.max(0, p - 1))}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#0D4A7A] text-[#0D4A7A] font-['DM_Sans'] font-medium text-[15px] transition-colors hover:bg-[#0D4A7A] hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#0D4A7A]"
+                    >
+                      <ChevronLeft size={18} />
+                      Previous
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      {Array.from({ length: pageCount }, (_, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setPage(i)}
+                          aria-label={`Go to page ${i + 1}`}
+                          className={`min-w-[40px] h-[40px] rounded-full font-['DM_Sans'] font-medium text-[15px] transition-colors ${
+                            safePage === i
+                              ? "bg-[#0D4A7A] text-white"
+                              : "border border-[#0D4A7A] text-[#0D4A7A] hover:bg-[#0D4A7A] hover:text-white"
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={safePage >= pageCount - 1}
+                      onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#0D4A7A] text-[#0D4A7A] font-['DM_Sans'] font-medium text-[15px] transition-colors hover:bg-[#0D4A7A] hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#0D4A7A]"
+                    >
+                      Next
+                      <ChevronRight size={18} />
+                    </button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -244,35 +313,7 @@ const PartnerPage = () => {
         </div>
       </section>
 
-      {/* Call to Action Section */}
-      <section className="py-20 md:py-24 bg-[#F7F6F3]">
-        <div className="w-full navbar-align-outer">
-          <div className="navbar-align-inner">
-            <div className="bg-[#0D4A7A] rounded-[20px] p-10 md:p-16 flex flex-col items-center text-center w-full mx-auto">
-              <h2 className="text-white text-3xl md:text-[35px] font-medium font-['Outfit'] mb-6">
-                Interested in partnering with WINGS?
-              </h2>
-              <p className="text-white text-lg md:text-[20px] font-normal font-['DM_Sans'] max-w-4xl mb-12">
-                Whether you're a local community organization, a healthcare provider or a corporate entity looking to support mental wellness, we'd love to explore how we can work together.
-              </p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white hover:bg-gray-50 transition-colors text-[#0D4A7A] rounded-full px-8 py-4 inline-flex items-center gap-3 group"
-              >
-                <span className="font-['DM_Sans'] font-medium text-[16px]">
-                  Inquire about partnership
-                </span>
-
-                <ChevronRight
-                  size={18}
-                  className="group-hover:translate-x-1 transition-transform"
-                />
-              </motion.button>
-            </div>
-          </div>
-        </div>
-      </section>
+    
 
       <Footer />
     </div>

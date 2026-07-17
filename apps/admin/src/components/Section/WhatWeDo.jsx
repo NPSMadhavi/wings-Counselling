@@ -23,7 +23,9 @@ export function WhatWeDo() {
       viewport={{ once: true }}
       transition={{ duration: 0.35, delay: index * 0.02 }}
       whileHover={{ scale: 1.04 }}
-      onClick={() => setLocation(getSupportTopicPath(service.slug))}
+      onClick={() =>
+        setLocation(service.articlePath || getSupportTopicPath(service.slug))
+      }
       className="
         group
         flex items-center justify-center

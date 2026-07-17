@@ -15,6 +15,7 @@ import {
   filterArticlesForTopic,
   filterServicesForTopic,
 } from "@/lib/supportTopicsConfig";
+import { getArticleDetailPath } from "@/lib/articlePageContent";
 
 
 const img1 = "/assets/ihero1.jpeg";
@@ -191,11 +192,7 @@ export default function SupportTopicPage() {
   }
 
   const handleArticleClick = (article) => {
-    if (article.slug) {
-      navigate(`/articles?highlight=${encodeURIComponent(article.slug)}`);
-      return;
-    }
-    navigate("/articles");
+    navigate(getArticleDetailPath(article));
   };
 
   const handleServiceClick = (service) => {

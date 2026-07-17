@@ -57,6 +57,7 @@ import Skill from "./Pages/SubServices/SubSkill";
 import UnsubscribeConfirm from "./Pages/UnsubscribeConfirm";
 import UnsubscribeSuccess from "./Pages/UnsubscribeSuccess";
 import PrivacyPolicy from "@/Pages/PrivacyPolicy";
+import { scrollToPageContentSection } from "@/lib/scrollToSection";
 
 
 
@@ -65,7 +66,17 @@ function ScrollToTop() {
   const [location] = useLocation();
 
   useLayoutEffect(() => {
-    if (location !== "/") {
+    if (location === "/") return;
+
+    const hash = window.location.hash.replace("#", "");
+    if (
+      location === "/services" &&
+      ["counselling", "supervision", "training"].includes(hash)
+    ) {
+      return;
+    }
+
+    if (!scrollToPageContentSection(location)) {
       window.scrollTo(0, 0);
     }
   }, [location]);
@@ -115,6 +126,7 @@ function Router() {
       <Route path="/services" component={ServicePage} />
       <Route path="/events" component={EventsPage} />
       <Route path="/articles" component={ArticlePage} />
+      <Route path="/article/:slug" component={AnxietyArticlePage} />
       <Route path="/team" component={TeamPage} />
       <Route path="/partners" component={PartnerPage} />
       <Route path="/career/apply/:id" component={Apply} />

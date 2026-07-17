@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
+import { getArticleDetailPath } from "@/lib/articlePageContent";
 
 function ArrowIcon({ color = "currentColor" }) {
     return (
@@ -29,26 +30,18 @@ function ArticleCard({ article, index }) {
     // Remove HTML tags from content
     const plainContent = (article.content || "").replace(/<[^>]+>/g, "");
 
-    const getRoute = (category) => {
-        if (!category) return "/GroundingTechniques";
-        const cat = category.toLowerCase();
-        if (cat.includes("relationship") || cat.includes("marital")) return "/RelationshipArticlePage";
-        if (cat.includes("parenting")) return "/ParentingArticlePage";
-        if (cat.includes("grief") || cat.includes("loss")) return "/GriefArticlePage";
-        if (cat.includes("mental health") || cat.includes("mental")) return "/MentalArticlePage";
-        return "/GroundingTechniques";
-    };
+    const getRoute = (article) => getArticleDetailPath(article);
 
     return (
         <div
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            onClick={() => navigate(getRoute(article.category))}
+            onClick={() => navigate(getRoute(article))}
             className="flex flex-col bg-white rounded-[10px] overflow-hidden transition-all duration-300 cursor-pointer"
             style={{
                 width: "100%",
                 maxWidth: "400px",
-                height: "480px",
+                height: "400px",
                 boxShadow: isHovered
                     ? "0 10px 30px rgba(0,0,0,0.08)"
                     : "0 2px 15px rgba(0,0,0,0.04)",
@@ -167,7 +160,7 @@ function ArticleCard({ article, index }) {
                             className="mt-auto pt-4 flex justify-end"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(getRoute(article.category));
+                                navigate(getRoute(article));
                             }}
                         >
                             <svg
