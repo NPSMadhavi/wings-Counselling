@@ -19,7 +19,7 @@ import EventsPage from "@/Pages/EventsPage";
 import ArticlePage from "@/Pages/ArticlePage";
 import CandidatePortalPage from "@/Pages/CandidatePortal";
 import AdminApp from "@/admin/AdminApp";
-import NotFound from "@/Pages/Not-found";
+import NotFound from "@/Pages/Not-Found";
 import CareersRegister from "@/Pages/CareersRegister";
 import CareersVerify from "@/Pages/CareersVerify";
 import PartnerPage from "@/Pages/PartnerPage";
