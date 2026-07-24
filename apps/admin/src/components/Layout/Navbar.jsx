@@ -611,7 +611,7 @@ const [hoveredNav, setHoveredNav] =
                     xl:gap-0.5
                     2xl:gap-2
                     min-w-0
-                    overflow-hidden
+                    overflow-visible
                     relative
                     z-10
                   `}
@@ -932,7 +932,7 @@ onMouseLeave={() => {
                                     overflow-hidden
                                     border
                                     border-gray-100
-                                    z-[100]
+                                    z-[100050]
                                   "
                                 >
                                   <div className="py-2">
