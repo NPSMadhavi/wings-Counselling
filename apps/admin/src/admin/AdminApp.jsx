@@ -15,7 +15,7 @@ import CareersAdmin from "./Pages/CareersAdmin";
 import EventsAdmin from "./Pages/EventsAdmin";
 import AppointmentsPage from "./Pages/AppointmentAdmin";
 import VolunteerAdmin from "./Pages/VolunteerAdmin";
-import CounsellingTypeAdmin from "./Pages/CounsellingTypeAdmin";
+import CounsellingTypeAdmin from "./Pages/CounsellingtypeAdmin";
 import PartnersAdmin from "./Pages/PartnersAdmin";
 import TestimonialsAdmin from "./Pages/TestimonialsAdmin";
 import PrimaryCcMailsAdmin from "./Pages/PrimaryCcMailsAdmin";
