@@ -133,7 +133,7 @@ export function GetInTouch() {
 
                         {/* Address Card */}
                         <div
-                            className="w-full h-auto md:h-[180px] rounded-[20px] bg-white border border-[#EAEAEA] p-[24px] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
+                            className="w-full h-auto min-h-[180px] rounded-[20px] bg-white border border-[#EAEAEA] p-[24px] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
                         >
                             <div className="w-[45px] h-[45px] rounded-[10px] bg-[#E8F4FD] flex items-center justify-center mb-3">
                                 <SiteMapPinIcon size={SITE_ICON_SIZE_LG} color="#1E3A8A" />
@@ -150,7 +150,7 @@ export function GetInTouch() {
 
                         {/* Phone Card */}
                         <div
-                            className="w-full h-auto md:h-[180px] rounded-[20px] bg-white border border-[#EAEAEA] p-[24px] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
+                            className="w-full h-auto min-h-[180px] rounded-[20px] bg-white border border-[#EAEAEA] p-[24px] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
                         >
                             <div className="w-[45px] h-[45px] rounded-[10px] bg-[#E8F4FD] flex items-center justify-center mb-3">
                                 <OutlinePhoneIcon />
@@ -167,7 +167,7 @@ export function GetInTouch() {
 
                         {/* Operating Hours */}
                         <div
-                            className="w-full h-auto md:h-[300px] rounded-[20px] bg-white border border-[#EAEAEA] p-[24px] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
+                            className="w-full h-auto min-h-[300px] rounded-[20px] bg-white border border-[#EAEAEA] p-[24px] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
                         >
                             <div className="w-[45px] h-[45px] rounded-[10px] bg-[#E8F4FD] flex items-center justify-center mb-0">
                                 <SiteClockIcon size={SITE_ICON_SIZE_LG} color="#1E3A8A" />
@@ -232,7 +232,7 @@ export function GetInTouch() {
 
                         {/* Email Card */}
                         <div
-                            className="w-full h-auto md:h-[300px] rounded-[20px] bg-white border border-[#EAEAEA] p-[24px] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
+                            className="w-full h-auto min-h-[300px] rounded-[20px] bg-white border border-[#EAEAEA] p-[24px] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
                         >
                             <div className="w-[45px] h-[45px] rounded-[10px] bg-[#E8F4FD] flex items-center justify-center mb-3">
                                 <OutlineEmailIcon />
@@ -398,6 +398,8 @@ export function GetInTouch() {
                         text-white
                         px-8
                         py-3.5
+                        mt-6
+                        mb-2
                         rounded-full
                         font-['DM_Sans']
                         font-semibold

@@ -145,7 +145,7 @@ export function Navbar() {
   const { t, i18n } = useTranslation();
   const lng = (i18n.language || "en").split("-")[0];
   const isTamil = lng === "ta";
-  const compactNav = lng === "ms" || lng === "ta" || lng === "hi";
+  const compactNav = lng === "ms" || lng === "ta";
   const desktopNavClass = "hidden min-[1280px]:flex";
   const mobileBtnClass = "min-[1280px]:hidden flex";
   const mobileOnlyClass = "min-[1280px]:hidden";

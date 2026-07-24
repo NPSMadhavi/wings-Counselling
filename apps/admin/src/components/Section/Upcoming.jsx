@@ -192,30 +192,35 @@ function EventCard({ event }) {
                             )
                         }
                         style={{
-                            height: "40px",
-                            padding: "0 18px",
+                            minHeight: "40px",
+                            height: "auto",
+                            padding: "6px 14px",
                             borderRadius: "9999px",
                             border: "1px solid #1E3A8A",
                             backgroundColor: hoveredButton ? "#1E3A8A" : "transparent",
                             display: "flex",
                             alignItems: "center",
-                            gap: "8px",
+                            justifyContent: "center",
+                            gap: "6px",
                             cursor: "pointer",
                             transition: "all 0.3s ease",
+                            maxWidth: "100%",
                         }}
                     >
                         <span
                             style={{
                                 fontFamily: "'DM Sans', sans-serif",
                                 fontWeight: 500,
-                                fontSize: "14px",
+                                fontSize: "13px",
                                 color: hoveredButton ? "#FFFFFF" : "#1E3A8A",
                                 transition: "color 0.3s ease",
+                                textAlign: "center",
+                                lineHeight: "1.2",
                             }}
                         >
                             {t("upcoming.registerNow")}
                         </span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="shrink-0">
                             <path
                                 d="M9 18L15 12L9 6"
                                 stroke={hoveredButton ? "#FFFFFF" : "#1B4585"}

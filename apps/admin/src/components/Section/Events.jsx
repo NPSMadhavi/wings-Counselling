@@ -166,20 +166,21 @@ export function Events() {
                                             onMouseEnter={() => setHoveredButton(index)}
                                             onMouseLeave={() => setHoveredButton(null)}
                                             whileTap={{ scale: 0.95 }}
-                                            className={`w-full sm:w-auto min-w-[140px] sm:min-w-[165px] h-10 rounded-full border border-[#1E3A8A] flex items-center justify-center gap-2 cursor-pointer transition-colors duration-300 ${
+                                            className={`w-full sm:w-auto min-w-[130px] sm:min-w-[150px] min-h-[40px] h-auto py-1.5 px-3 sm:px-4 rounded-full border border-[#1E3A8A] flex items-center justify-center gap-1.5 cursor-pointer transition-colors duration-300 ${
                                                 hoveredButton === index ? "bg-[#1E3A8A]" : "bg-transparent"
                                             }`}
                                         >
                                             <span
-                                                className={`font-['DM_Sans'] font-medium text-[15px] transition-colors duration-300 ${
+                                                className={`font-['DM_Sans'] font-medium text-[13px] sm:text-[14px] text-center leading-tight transition-colors duration-300 ${
                                                     hoveredButton === index ? "text-white" : "text-[#1E3A8A]"
                                                 }`}
                                             >
-                                                Register Now
+                                                {t("events.listing.registerNow", { defaultValue: "Register Now" })}
                                             </span>
                                             <ArrowRight
                                                 size={16}
                                                 color={hoveredButton === index ? "#FFFFFF" : "#1E3A8A"}
+                                                className="shrink-0"
                                             />
                                         </motion.button>
                                     </div>
