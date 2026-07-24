@@ -208,8 +208,8 @@ const Volunteer = () => {
                       />
 
                       <div
-                        className={`absolute bottom-0 left-0 w-full bg-[#0D4A7A] p-[26px] overflow-hidden transition-all duration-700 ease-in-out ${
-                          hoveredCard === index ? "h-[180px]" : "h-[78px]"
+                        className={`absolute bottom-0 left-0 w-full bg-[#0D4A7A] p-4 sm:p-5 overflow-hidden transition-all duration-700 ease-in-out ${
+                          hoveredCard === index ? "min-h-[180px] h-auto" : "min-h-[78px] h-auto"
                         }`}
                       >
                         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>

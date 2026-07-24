@@ -187,10 +187,10 @@ const PartnerPage = () => {
                           href={partner.websiteLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-[#0D4A7A] text-[15px] md:text-[16px] lg:text-[17px] font-semibold font-['DM_Sans'] group mt-auto w-max"
+                          className="inline-flex items-center gap-2 text-[#0D4A7A] text-[15px] md:text-[16px] lg:text-[17px] font-semibold font-['DM_Sans'] group mt-auto max-w-full flex-wrap"
                         >
                           {t("partners.listing.visitWebsite")}
-                          <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                          <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform shrink-0" />
                         </a>
                       )}
                     </div>

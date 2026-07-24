@@ -144,7 +144,7 @@ export function GetInTouch() {
                             </h3>
 
                             <p className="font-['DM_Sans'] font-normal text-[15px] text-[#333] m-0 leading-relaxed max-w-[240px]">
-                                179 Bartley road, Singapore 539784
+                                {t("getInTouch.addressValue")}
                             </p>
                         </div>
 
@@ -327,7 +327,7 @@ export function GetInTouch() {
                         </h4>
 
                         <p className="font-['DM_Sans'] font-normal text-[11px] text-[#666] m-0 leading-tight">
-                            179 Bartley Rd, Singapore 539784
+                            {t("getInTouch.mapTitleShort")}
                         </p>
                     </div>
 

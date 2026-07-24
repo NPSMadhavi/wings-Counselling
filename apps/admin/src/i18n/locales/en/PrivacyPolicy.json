@@ -3,123 +3,82 @@
     "hero": {
       "title": "PDPA / Privacy Policy"
     },
-
     "whoWeAre": {
       "title": "Who we are",
-
       "content": {
         "website": "Our website address is:",
         "websiteUrl": "https://wingscounselling.org.sg",
-
         "paragraph1": "WINGS Counselling Centre respects your personal data and aims to comply with the requirements of the Singapore Data Protection Act ('the Act') (Cap.26).",
-
         "paragraph2": "We collect individual's personal data during the process of counselling services, providing you with information, other services through our communication and outreach activities as well as enabling you to interact with our donors and/or volunteers/partners.",
-
         "paragraph3": "We may disclose your personal data to public agencies (e.g. MSF) because some of the individuals we are serving may be receiving assistance from them."
       }
     },
-
     "pdpa": {
       "title": "Personal Data Protection Policy (PDPA)",
-
       "content": {
         "paragraph1": "WINGS Counselling Centre is committed to protecting your personal data in accordance with Singapore's Personal Data Protection Act 2012 (PDPA). We collect, use, disclose and retain personal information only for purposes that are reasonable, necessary and with your consent where required by law. Appropriate administrative, technical and physical safeguards are implemented to protect your personal data against unauthorized access, disclosure, alteration or misuse. By using our website or engaging with our services, you acknowledge that your personal data may be collected and processed in accordance with this Privacy Policy and applicable PDPA requirements."
       }
     },
-
     "personalData": {
       "title": "What personal data we collect and why we collect it",
-
       "comments": {
         "title": "Comments",
-
         "paragraph1": "When visitors leave comments on the site we collect the data shown in the comments form, and also the visitor's IP address and browser user agent string to help spam detection.",
-
         "paragraph2": "An anonymised string created from your email address (also called a hash) may be provided to the Gravatar service to see if you are using it.",
-
         "privacyPolicyText": "The Gravatar service privacy policy is available here:",
-
         "privacyPolicyUrl": "https://automattic.com/privacy/",
-
         "paragraph3": "After approval of your comment, your profile picture is visible to the public in the context of your comment."
       },
-
       "media": {
         "title": "Media",
-
         "paragraph1": "If you upload images to the website, you should avoid uploading images with embedded location data (EXIF GPS) included. Visitors to the website can download and extract any location data from images on the website."
       }
     },
-
     "contactForms": {
       "title": "Contact forms",
-
       "cookies": {
         "title": "Cookies",
-
         "paragraph1": "If you leave a comment on our site you may opt-in to saving your name, email address and website in cookies. These are for your convenience so that you do not have to fill in your details again when you leave another comment. These cookies will last for one year.",
-
         "paragraph2": "If you visit our login page, we will set a temporary cookie to determine if your browser accepts cookies. This cookie contains no personal data and is discarded when you close your browser.",
-
         "paragraph3": "When you log in, we will also set up several cookies to save your login information and your screen display choices. Login cookies last for two days, and screen options cookies last for a year. If you select \"Remember Me\", your login will persist for two weeks. If you log out of your account, the login cookies will be removed.",
-
         "paragraph4": "If you edit or publish an article, an additional cookie will be saved in your browser. This cookie includes no personal data and simply indicates the post ID of the article you just edited. It expires after 1 day."
       },
-
       "embeddedContent": {
         "title": "Embedded content from other websites",
-
         "paragraph1": "Articles on this site may include embedded content (e.g. videos, images, articles, etc.). Embedded content from other websites behaves in the exact same way as if the visitor has visited the other website.",
-
         "paragraph2": "These websites may collect data about you, use cookies, embed additional third-party tracking, and monitor your interaction with that embedded content, including tracking your interaction with the embedded content if you have an account and are logged in to that website."
       }
     },
-
     "analytics": {
       "title": "Analytics",
-
       "dataSharing": {
         "title": "Who we share your data with",
-
         "paragraph1": "If you request a password reset, your IP address will be included in the reset email."
       },
-
       "dataRetention": {
         "title": "How long we retain your data",
-
         "paragraph1": "If you leave a comment, the comment and its metadata are retained indefinitely. This is so we can recognise and approve any follow-up comments automatically instead of holding them in a moderation queue.",
-
         "paragraph2": "For users that register on our website (if any), we also store the personal information they provide in their user profile. All users can see, edit, or delete their personal information at any time (except they cannot change their username). Website administrators can also see and edit that information."
       },
-
       "userRights": {
         "title": "What rights you have over your data",
-
         "paragraph1": "If you have an account on this site, or have left comments, you can request to receive an exported file of the personal data we hold about you, including any data you have provided to us. You can also request that we erase any personal data we hold about you. This does not include any data we are obliged to keep for administrative, legal, or security purposes."
       },
-
       "dataTransfer": {
         "title": "Where we send your data",
-
         "paragraph1": "Visitor comments may be checked through an automated spam detection service."
       }
     },
-
     "contactInformation": {
       "title": "Contact Information",
-
       "description": "We have Data Protection Policies which provide more information about how we collect, use, and disclose your personal data. Should you have any questions or queries relating to your personal data, please contact:",
-
       "details": {
         "nameLabel": "Name",
         "name": "Ms Mala",
-
         "emailLabel": "Email Address",
         "email": "admin@wingscounselling.org.sg",
-
         "postalAddressLabel": "Postal Address",
         "postalAddress": "179, Bartley Road, Singapore 539784",
-
         "telephoneLabel": "Telephone No",
         "telephone": "6383 5745"
       }

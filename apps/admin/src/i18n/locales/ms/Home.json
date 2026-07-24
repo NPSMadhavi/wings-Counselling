@@ -14,29 +14,22 @@
     "volunteers": "Sukarelawan",
     "partners": "Rakan Kongsi",
     "careers": "Kerjaya",
-
     "donate": "Derma",
-
     "bookAppointment": "Tempah Janji Temu",
-
     "language": "Bahasa",
-
     "english": "Bahasa Inggeris",
     "malay": "Bahasa Melayu",
     "chinese": "Bahasa Cina",
     "hindi": "Hindi",
     "tamil": "Tamil",
-
     "eng": "Eng",
     "zh": "中文",
     "bm": "BM",
     "hi": "हिंदी",
     "ta": "தமிழ்"
   },
-
   "footer": {
     "description": "Kami komited untuk menyediakan perkhidmatan kaunseling yang berpatutan dan profesional kepada masyarakat tanpa mengira kepercayaan, bangsa atau agama. Menyokong kehidupan sejak tahun 1995.",
-
     "links": "Pautan",
     "home": "Laman Utama",
     "about": "Tentang Kami",
@@ -45,25 +38,19 @@
     "events": "Acara",
     "partners": "Rakan Kongsi",
     "contact": "Hubungi Kami",
-
     "stayConnected": "Kekal Berhubung",
     "stayConnectedDescription": "Kami komited menyediakan perkhidmatan kaunseling yang berpatutan dan profesional.",
-
     "fullName": "Nama Penuh",
     "email": "Alamat E-mel",
-
     "privacy": "Dengan meneruskan, anda menerima dasar privasi",
-
     "success": "Terima kasih! Anda akan menerima kemas kini mengenai artikel dan acara baharu.",
     "duplicate": "Alamat e-mel ini telah pun dilanggan. Sila masukkan alamat e-mel yang lain.",
     "error": "Sesuatu telah berlaku. Sila cuba lagi.",
     "privacyError": "Sila terima dasar privasi untuk meneruskan.",
-
     "copyright": "© 2026 WINGS Counselling Centre. Hak cipta terpelihara.",
     "poweredBy": "Dikuasakan oleh",
     "privacyPolicy": "Dasar Privasi"
   },
-
   "hero": {
     "slides": [
       {
@@ -80,39 +67,29 @@
     "exploreServices": "Terokai Perkhidmatan Kami",
     "learnApproach": "Ketahui pendekatan kami"
   },
-
   "partners": {
     "title": "Rakan Kongsi Kami yang Dipercayai"
   },
-
   "whatWeDo": {
-      "title": "Cari bantuan yang anda perlukan hari ini",
-      "description": "Pilih topik di bawah yang ingin anda ketahui dengan lebih lanjut"
-    },
-
+    "title": "Cari bantuan yang anda perlukan hari ini",
+    "description": "Pilih topik di bawah yang ingin anda ketahui dengan lebih lanjut"
+  },
   "about": {
     "title": "Tentang WINGS Counselling Centre",
-
     "description1": "WINGS Counselling Centre ditubuhkan dengan satu misi yang mudah tetapi bermakna iaitu menyediakan sokongan kesihatan mental yang mudah diakses dan penuh belas kasihan kepada komuniti di Singapura. Sejak tahun 2008, kami telah menjadi tempat perlindungan yang selamat untuk individu, pasangan dan keluarga yang menghadapi cabaran kehidupan.",
-
     "description2": "Di WINGS Counselling Centre, kami menyediakan sokongan kesihatan mental yang penuh prihatin dan diperibadikan untuk individu, pasangan serta keluarga. Kaunselor kami yang berpengalaman membantu membina daya tahan diri, mengukuhkan hubungan dan mencapai kesejahteraan emosi yang berkekalan dalam persekitaran yang selamat dan menyokong.",
-
     "features": {
       "compassion": "Mengutamakan belas kasihan",
       "evidence": "Kaedah berasaskan bukti",
       "confidential": "Sulit & Selamat",
       "holistic": "Sokongan menyeluruh"
     },
-
     "readMore": "Baca lanjut",
-
     "imageAlt": "Tentang WINGS Counselling Centre"
   },
-
   "howToUse": {
     "title": "Bagaimana WINGS Counselling Centre Berfungsi",
     "description": "Kami menjadikan proses ini semudah dan semesra yang mungkin.",
-
     "steps": [
       {
         "number": "01",
@@ -131,76 +108,56 @@
       }
     ]
   },
-
   "services": {
     "title": "Apa yang Ditawarkan oleh WINGS Counselling Centre",
     "description": "Sokongan kaunseling yang menyeluruh untuk setiap peringkat kehidupan",
     "readMore": "Baca lanjut"
   },
-
   "team": {
     "title": "Temui Kaunselor Kami",
     "description": "Pasukan profesional kami bukan sahaja terlatih dan bertauliah, malah benar-benar prihatin serta komited terhadap kesejahteraan anda."
   },
-
   "needHelp": {
     "title": "Perlukan bantuan sekarang? Kami sedia membantu anda",
     "description": "Hubungi kami dengan cara yang paling selesa untuk anda",
     "bookAppointment": "Tempah Janji Temu"
   },
-
   "upcoming": {
     "title": "Acara & Bengkel Akan Datang",
     "description": "Sertai acara komuniti kami yang direka untuk mendidik, menghubungkan dan memperkasakan masyarakat. Penyembuhan tidak semestinya berlaku bersendirian.",
-
     "online": "Dalam Talian",
     "inPerson": "Bersemuka",
-
     "tba": "Akan Diumumkan",
     "free": "Percuma",
-
     "registerNow": "Daftar Sekarang",
-
     "noEvents": "Tiada acara akan datang buat masa ini.",
-
     "viewAll": "Lihat Semua"
   },
-
   "recentArticles": {
     "title": "Artikel Terkini Kami",
     "description": "Ikuti perkembangan dengan pandangan dan maklumat terkini daripada kami",
-
     "general": "Umum",
     "wingsTeam": "Pasukan WINGS",
     "recent": "Terkini",
-
     "viewAll": "Lihat Semua",
-
     "noArticles": "Tiada artikel yang telah diterbitkan buat masa ini.",
-
     "loadingError": "Tidak dapat memuatkan artikel. Sila cuba lagi kemudian.",
     "tryAgain": "Cuba Lagi"
   },
-
   "testimonials": {
     "title": "Apa Kata Klien Kami",
     "description": "Dengarkan bagaimana sokongan yang penuh empati telah membantu individu dan keluarga menghadapi cabaran hidup dengan keyakinan dan harapan."
   },
-
   "getInTouch": {
     "title": "Hubungi Kami",
     "description": "Kami sedia membantu anda. Hubungi kami pada waktu operasi.",
-
     "address": "Alamat",
     "phone": "Telefon",
     "email": "E-mel",
     "operatingHours": "Waktu Operasi",
-
     "bookAppointment": "Tempah Janji Temu",
-
     "mapTitle": "Pusat Kaunseling WINGS Misi Ramakrishna",
     "openGoogleMaps": "Klik untuk buka di Google Maps",
-
     "days": {
       "monday": "Isnin",
       "tueFri": "Selasa - Jumaat (kecuali Khamis)",
@@ -208,9 +165,13 @@
       "saturday": "Sabtu (Minggu ke-2 & ke-4)",
       "sunHoliday": "Ahad & Cuti Umum"
     },
-
     "status": {
       "closed": "Tutup"
-    }
+    },
+    "addressValue": "179 Jalan Bartley, Singapura 539784",
+    "mapTitleShort": "179 Jalan Bartley, Singapura 539784",
+    "shortAddress": "Jalan Bartley, Singapura",
+    "addressLine1": "179 Jalan Bartley",
+    "addressLine2": "Singapura 539784"
   }
 }

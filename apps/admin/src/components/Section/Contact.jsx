@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import { Phone, Mail } from "lucide-react";
 import { SiteClockIcon, SiteMapPinIcon, SITE_ICON_SIZE_LG } from "@/components/ui/SiteIcons";
+import { useTranslation } from "react-i18next";
 
 export function Contact() {
+  const { t } = useTranslation();
   return (
     <section id="contact" className="py-24 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -84,8 +86,8 @@ export function Contact() {
                     rel="noopener noreferrer"
                     className="text-lg text-muted-foreground hover:text-primary font-medium transition-colors"
                   >
-                    179 Bartley Road<br />
-                    Singapore 539784
+                    {t("getInTouch.addressLine1")}<br />
+                    {t("getInTouch.addressLine2")}
                   </a>
                 </div>
               </div>
@@ -113,7 +115,7 @@ export function Contact() {
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="WINGS Counselling Centre — 179 Bartley Road, Singapore 539784"
+              title={`WINGS Counselling Centre — ${t("getInTouch.addressValue")}`}
             />
           </motion.div>
 

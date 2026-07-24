@@ -55,7 +55,6 @@ export function WhatWeDo() {
           text-center
           leading-tight
           whitespace-normal
-          md:whitespace-nowrap
         "
         style={{ fontFamily: "'DM Sans', sans-serif" }}
       >

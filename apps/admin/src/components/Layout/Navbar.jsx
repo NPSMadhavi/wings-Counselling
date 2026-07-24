@@ -144,26 +144,29 @@ function markIntroAsPlayed() {
 export function Navbar() {
   const { t, i18n } = useTranslation();
   const lng = (i18n.language || "en").split("-")[0];
+  const isTamil = lng === "ta";
   const compactNav = lng === "ms" || lng === "ta" || lng === "hi";
-  const desktopNavClass = compactNav
-    ? "hidden min-[1600px]:flex"
-    : "hidden min-[1280px]:flex";
-  const mobileBtnClass = compactNav
-    ? "min-[1600px]:hidden flex"
-    : "min-[1280px]:hidden flex";
-  const mobileOnlyClass = compactNav
-    ? "min-[1600px]:hidden"
-    : "min-[1280px]:hidden";
-  const navFontSize = compactNav
+  const desktopNavClass = "hidden min-[1280px]:flex";
+  const mobileBtnClass = "min-[1280px]:hidden flex";
+  const mobileOnlyClass = "min-[1280px]:hidden";
+  const navFontSize = isTamil
+    ? "clamp(10px,0.66vw,12.5px)"
+    : compactNav
     ? "clamp(11px,0.72vw,14px)"
     : "clamp(13px,0.95vw,18px)";
-  const navPad = compactNav
+  const navPad = isTamil
+    ? "clamp(2px,0.18vw,4px) clamp(2px,0.25vw,5px)"
+    : compactNav
     ? "clamp(4px,0.35vw,6px) clamp(4px,0.45vw,8px)"
     : "clamp(6px,0.5vw,8px) clamp(8px,0.8vw,14px)";
-  const ctaFontSize = compactNav
+  const ctaFontSize = isTamil
+    ? "clamp(9px,0.6vw,11.5px)"
+    : compactNav
     ? "clamp(10px,0.7vw,13px)"
     : "clamp(12px,0.9vw,15px)";
-  const ctaPad = compactNav
+  const ctaPad = isTamil
+    ? "0 clamp(4px, 0.4vw, 8px)"
+    : compactNav
     ? "0 clamp(8px, 0.8vw, 12px)"
     : "0 clamp(12px, 1.2vw, 18px)";
 
@@ -517,16 +520,16 @@ const [hoveredNav, setHoveredNav] =
                 id="wings-main-navbar"
                 className="
                   w-full
-                  max-w-[1500px]
-                  2xl:max-w-[1600px]
-                  min-[2560px]:max-w-[1800px]
+                  max-w-[1750px]
+                  2xl:max-w-[1920px]
+                  min-[2560px]:max-w-[2200px]
                   mx-auto
                   flex
                   items-center
                   justify-between
-                  gap-2
-                  sm:gap-3
-                  lg:gap-4
+                  gap-1
+                  sm:gap-1.5
+                  lg:gap-2
                   min-w-0
                   pointer-events-auto
                   transition-all
@@ -569,7 +572,17 @@ const [hoveredNav, setHoveredNav] =
                     src="/assets/wingsLogo.png"
                     alt="Wings Counselling Centre"
                     className={
-                      compactNav
+                      isTamil
+                        ? `
+                      w-[110px]
+                      min-[375px]:w-[115px]
+                      sm:w-[125px]
+                      md:w-[130px]
+                      lg:w-[140px]
+                      xl:w-[150px]
+                      2xl:w-[170px]
+                    `
+                        : compactNav
                         ? `
                       w-[120px]
                       min-[375px]:w-[130px]
