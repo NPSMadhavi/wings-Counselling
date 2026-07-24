@@ -1,0 +1,127 @@
+{
+  "volunteer": {
+    "hero": {
+      "title": "Jadilah Sukarelawan di WINGS",
+      "description": "Di WINGS Counselling Centre, para sukarelawan memainkan peranan penting dalam menyokong misi kami untuk kesejahteraan emosi dan penjagaan komuniti. Sama ada membantu dalam acara, aktiviti jangkauan komuniti atau mewujudkan persekitaran yang selamat dan mesra, setiap sumbangan anda amat bermakna.",
+      "button": "Jadi Sukarelawan"
+    },
+
+    "whyVolunteer": {
+      "title": "Mengapa menjadi sukarelawan bersama WINGS?",
+      "description": "Menjadi sukarelawan di WINGS memberi peluang untuk menyumbang kepada masyarakat sambil berkembang dari segi peribadi dan profesional. Dapatkan pengalaman berharga, bina hubungan yang bermakna dan tinggalkan impak positif kepada individu serta keluarga.",
+
+      "cards": [
+        {
+          "title": "Belajar & Berkembang",
+          "text": "Peroleh pengalaman berharga dalam persekitaran sokongan kaunseling, komunikasi, kerja berpasukan, penyelarasan acara dan penglibatan komuniti."
+        },
+        {
+          "title": "Memberi Impak Positif",
+          "text": "Sokong inisiatif yang bermakna dan menyumbang secara langsung kepada kesejahteraan emosi serta program penjagaan komuniti."
+        },
+        {
+          "title": "Sebahagian daripada Komuniti",
+          "text": "Berhubung dengan individu yang berkongsi semangat untuk membawa perubahan positif kepada masyarakat."
+        },
+        {
+          "title": "Penglibatan Fleksibel",
+          "text": "Pilih peluang sukarelawan yang sesuai dengan jadual dan masa lapang anda sambil memberi impak sebenar."
+        }
+      ]
+    },
+
+    "opportunities": {
+      "title": "Empat Cara Anda Boleh Menyumbang",
+      "description": "Pilih peluang yang sesuai dengan kemahiran, jadual dan cara anda ingin memberi sumbangan.",
+
+      "items": [
+        {
+          "title": "Ceramah & Bengkel",
+          "subtitle": "Sesuai untuk: penceramah yang yakin & pakar",
+          "description": "Bantu kami mengendalikan bengkel kesejahteraan mental, ceramah keibubapaan, sesi kesedaran minda dan program komuniti.",
+          "tags": [
+            "Hujung minggu sahaja",
+            "Sesi 2–3 jam"
+          ]
+        },
+        {
+          "title": "Jangkauan Komuniti",
+          "subtitle": "Sesuai untuk: mereka yang suka berinteraksi",
+          "description": "Mewakili WINGS di sekolah, acara komuniti dan program kesejahteraan korporat sambil meningkatkan kesedaran tentang sokongan kesihatan mental.",
+          "tags": [
+            "Mengikut acara",
+            "Sekolah & komuniti"
+          ]
+        },
+        {
+          "title": "Aktiviti & Lawatan",
+          "subtitle": "Sesuai untuk: individu penyayang dan penyabar",
+          "description": "Membantu dalam aktiviti permainan, lawatan dan sesi seni untuk kanak-kanak serta belia yang kami sokong.",
+          "tags": [
+            "Hujung minggu",
+            "Mesra kanak-kanak"
+          ]
+        },
+        {
+          "title": "Sokongan Pentadbiran",
+          "subtitle": "Sesuai untuk: individu teliti dan teratur",
+          "description": "Membantu dalam urusan pentadbiran, logistik dan penyelarasan di sebalik tabir bagi memastikan setiap program berjalan lancar.",
+          "tags": [
+            "Hari bekerja",
+            "Sesi 2–3 jam"
+          ]
+        }
+      ]
+    },
+
+    "process": {
+      "title": "Perjalanan Anda Menjadi Sukarelawan",
+      "description": "Beberapa langkah mudah untuk mula membuat perubahan.",
+
+      "steps": [
+        {
+          "title": "Isi Borang",
+          "description": "Berikan maklumat asas, minat sukarelawan dan masa yang anda boleh luangkan."
+        },
+        {
+          "title": "Semakan Pasukan",
+          "description": "Penyelaras kami akan menyemak permohonan anda dan menghubungi anda untuk sesi perbualan santai."
+        },
+        {
+          "title": "Orientasi",
+          "description": "Temui penyelaras dan kaunselor kanan kami untuk mengetahui segala yang diperlukan sebelum memulakan peranan anda."
+        },
+        {
+          "title": "Mula Menjadi Sukarelawan",
+          "description": "Anda akan dipadankan dengan sukarelawan berpengalaman untuk aktiviti pertama anda supaya anda tidak perlu bermula bersendirian."
+        }
+      ]
+    },
+
+    "whoVolunteers": {
+      "title": "Siapa yang Menjadi Sukarelawan Bersama Kami?",
+      "description": "Pesara, pelajar, profesional yang bekerja dan ibu bapa—sesiapa sahaja yang mempunyai sedikit masa dan hati yang prihatin dialu-alukan.",
+
+      "cards": [
+        {
+          "title": "Pelajar",
+          "description": "Pelajar universiti yang ingin menyumbang kepada masyarakat, memperoleh pengalaman dan melengkapkan jam khidmat komuniti."
+        },
+        {
+          "title": "Golongan Profesional",
+          "description": "Mereka yang ingin meluangkan sedikit masa untuk tujuan sosial yang bermakna dan sesuai dengan jadual harian."
+        },
+        {
+          "title": "Pesara & Warga Emas",
+          "description": "Dengan pengalaman hidup, kebijaksanaan dan sifat penyayang, kehadiran anda mampu memberi impak besar kepada komuniti yang memerlukan."
+        }
+      ]
+    },
+
+    "cta": {
+      "title": "Bersedia untuk Membawa Perubahan Sebenar?",
+      "description": "Ambil langkah pertama untuk menjadi sumber sokongan kepada komuniti anda. Proses permohonan kami mudah, mesra dan terbuka kepada semua.",
+      "button": "Mohon Sebagai Sukarelawan"
+    }
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "termsConditions": {
+    "hero": {
+      "title": "条款与条件"
+    },
+
+    "acceptance": {
+      "title": "接受条款",
+
+      "content": {
+        "paragraph1": "本《条款与条件》规范您访问及使用本网站和我们的服务。当您访问本网站或预约我们的服务时，即表示您已阅读、理解并同意遵守本《条款与条件》。如果您不同意其中任何条款，请停止使用本网站及我们的服务。"
+      }
+    },
+
+    "websiteUse": {
+      "title": "网站使用",
+
+      "content": {
+        "intro": "使用本网站即表示您同意：",
+
+        "items": {
+          "lawfulUse": "仅将本网站用于合法用途。",
+          "accurateInformation": "在提交任何资料或预约服务时提供准确的信息。",
+          "noInterference": "不得干扰本网站的功能或安全性。",
+          "noUnauthorizedAccess": "不得尝试未经授权访问我们的系统或数据。",
+          "noMaliciousContent": "不得上传恶意软件或有害内容。"
+        },
+
+        "paragraph1": "我们保留暂停或终止任何违反本条款用户访问权限的权利。"
+      }
+    },
+
+    "professionalServices": {
+      "title": "专业服务",
+
+      "content": {
+        "paragraph1": "我们的辅导服务由具备专业资格的辅导人员提供，并按照其专业实践标准开展服务。",
+
+        "intro": "虽然我们致力于提供最高质量的服务，但：",
+
+        "items": {
+          "outcomesVary": "辅导效果因人而异。",
+          "noGuarantee": "我们无法保证任何特定结果或改善。",
+          "voluntary": "参与辅导完全出于自愿。",
+          "clientResponsibility": "客户仍需对根据辅导讨论所作出的决定承担责任。"
+        },
+
+        "paragraph2": "辅导是一项合作性的过程，不应取代紧急医疗或精神科护理。"
+      }
+    },
+
+    "emergency": {
+      "title": "紧急情况",
+
+      "content": {
+        "paragraph1": "我们的服务并非用于危机干预或紧急情况处理。",
+
+        "intro": "如果您正处于危机中，或：",
+
+        "items": {
+          "immediateRisk": "面临即时的人身伤害风险。",
+          "suicidalThoughts": "出现自杀念头。",
+          "medicalEmergency": "遭遇医疗紧急情况。"
+        },
+
+        "paragraph2": "请立即联系当地紧急救援服务或前往最近的医院。"
+      }
+    },
+
+    "appointments": {
+      "title": "预约与取消",
+
+      "content": {
+        "paragraph1": "所有预约均须提前安排。",
+
+        "intro": "客户有责任：",
+
+        "items": {
+          "arriveOnTime": "按时出席已安排的预约。",
+          "accurateContact": "提供准确的联络资料。",
+          "reschedule": "如需改期或取消预约，应及时通知我们。",
+          "lateCancellation": "避免迟取消预约或无故缺席。"
+        },
+
+        "paragraph2": "如多次缺席预约或临时取消预约，我们可能会收取取消费用，或限制未来的预约服务（如适用）。"
+      }
+    },
+
+    "confidentiality": {
+      "title": "保密原则",
+
+      "content": {
+        "paragraph1": "保护您的隐私是我们的首要任务之一。",
+
+        "intro": "辅导过程中所分享的资料均会严格保密，但法律或专业守则要求的以下情况除外，包括：",
+
+        "items": {
+          "riskOfHarm": "您本人或他人面临即将发生的严重伤害风险。",
+          "abuse": "怀疑存在虐待或疏忽行为。",
+          "legalObligations": "法律规定的义务。",
+          "courtOrders": "法院命令。",
+          "professionalSupervision": "在需要时进行专业督导（以匿名方式）。"
+        },
+
+        "paragraph2": "更多详情请参阅我们的《隐私政策》。遵守专业保密标准及法律义务是新加坡辅导服务机构的普遍做法。"
+      }
+    },
+
+    "thirdPartyLinks": {
+      "title": "第三方链接",
+
+      "content": {
+        "paragraph1": "本网站可能包含指向第三方网站的链接，以便提供更多资源或便利。",
+
+        "paragraph2": "我们不认可、控制或对这些第三方网站的内容、隐私政策或运营方式承担任何责任。您访问这些链接所产生的风险由您自行承担。"
+      }
+    },
+
+    "liability": {
+      "title": "责任限制",
+
+      "content": {
+        "intro": "在法律允许的最大范围内，WINGS Counselling Centre 对以下情况概不承担责任：",
+
+        "items": {
+          "indirectDamages": "间接性或后果性损害。",
+          "lossOfData": "数据丢失。",
+          "serviceInterruption": "服务中断。",
+          "websiteReliance": "因依赖网站信息而造成的损失。",
+          "userDecisions": "您根据网站内容所作出的决定。"
+        },
+
+        "paragraph1": "本条款中的任何内容均不限制适用法律禁止限制的任何责任。"
+      }
+    },
+
+    "websiteAvailability": {
+      "title": "网站可用性",
+
+      "content": {
+        "paragraph1": "我们致力于确保本网站始终保持可靠运行。",
+
+        "paragraph2": "然而，我们无法保证网站持续不中断地提供服务，并可能因维护、更新或运营需要，在未事先通知的情况下暂停、修改或终止网站的部分功能。"
+      }
+    },
+
+    "userSubmissions": {
+      "title": "用户提交内容",
+
+      "content": {
+        "intro": "当您向本网站提交表单、咨询或其他内容时，您须保证：",
+
+        "items": {
+          "accurateInformation": "所提供的信息真实、准确。",
+          "rightToSubmit": "您拥有提交相关内容的合法权利。",
+          "noRightsViolation": "所提交内容不会侵犯他人的任何权利。"
+        },
+
+        "paragraph1": "我们保留删除任何不适当或未经授权内容的权利。"
+      }
+    },
+
+    "governingLaw": {
+      "title": "适用法律",
+
+      "content": {
+        "paragraph1": "本《条款与条件》受新加坡法律管辖，并应根据新加坡法律进行解释。",
+
+        "paragraph2": "因使用本网站或我们的服务而产生的任何争议，均应由新加坡法院享有专属管辖权。"
+      }
+    },
+
+    "contact": {
+      "title": "联系我们",
+
+      "content": {
+        "paragraph1": "如果您对本《条款与条件》有任何疑问，请联系我们。",
+
+        "organization": "WINGS Counselling Centre",
+
+        "details": {
+          "emailLabel": "电子邮箱",
+          "email": "admin@wingscounselling.org.sg",
+
+          "phoneLabel": "电话（总部）",
+          "phone": "6383 5745"
+        }
+      }
+    }
+  }
+}

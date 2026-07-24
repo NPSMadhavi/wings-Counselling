@@ -1,0 +1,36 @@
+{
+  "events": {
+    "hero": {
+      "title": "Learn, Grow & Connect",
+      "description": "Join our evidence based workshops and community programs designed to support your mental wellness journey",
+      "button": "Explore our events"
+    },
+
+    "listing": {
+      "title": "All events",
+      "filters": {
+        "all": "All events",
+        "inPerson": "In-person",
+        "online": "Online"
+      },
+      "online": "Online",
+      "inPerson": "In-person",
+      "tba": "TBA",
+      "free": "Free",
+      "registerNow": "Register now",
+      "noEvents": "No events found.",
+      "noFilteredEvents": "No {{filter}} events found."
+    },
+
+    "newsletter": {
+      "title": "Upcoming Events & Workshops",
+      "description": "Our team is busy crafting meaningful workshops and events for the community.",
+      "emailPlaceholder": "Enter your email address",
+      "notifyMe": "Notify me",
+      "loading": "...",
+      "success": "Thank you for subscribing! We'll keep you updated on future events.",
+      "duplicate": "You're already subscribed. Please enter another email.",
+      "error": "Something went wrong. Please try again."
+    }
+  }
+}

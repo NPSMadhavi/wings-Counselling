@@ -1,0 +1,111 @@
+{
+  "supportTopicsContent": {
+    "familyConflicts": {
+      "label": "Family conflicts",
+      "breadcrumbLabel": "Family conflicts",
+      "heroTitle": "You don't have to face family conflicts alone",
+      "heroDescription": "Learn how family relationships can be strengthened, understand common sources of conflict and explore professional support to improve communication and connection.",
+      "understandingTitle": "Understanding family conflicts",
+      "understandingDescription": "Family conflicts are a natural part of relationships and can arise from differences in communication, expectations, responsibilities or life transitions. When conflicts become ongoing or unresolved, they can affect emotional well-being, trust and family harmony. With the right support, families can develop healthier ways of understanding and supporting one another."
+    },
+
+    "depression": {
+      "label": "Depression",
+      "breadcrumbLabel": "Depression",
+      "heroTitle": "You don't have to navigate lifestyle challenges alone",
+      "heroDescription": "Discover how everyday habits and life changes can affect your well-being and explore practical ways to create a healthier more balanced lifestyle.",
+      "understandingTitle": "Understanding lifestyle issues",
+      "understandingDescription": "Lifestyle challenges may include difficulty maintaining healthy routines, balancing responsibilities, adapting to major life changes or managing personal well-being. Small, positive changes can improve both physical and emotional health while enhancing overall quality of life."
+    },
+
+    "traumaPTSD": {
+      "label": "Trauma & PTSD",
+      "breadcrumbLabel": "Trauma & PTSD",
+      "heroTitle": "You don't have to heal from trauma alone",
+      "heroDescription": "Learn about trauma and post-traumatic stress, recognise common symptoms and discover compassionate support for your recovery journey.",
+      "understandingTitle": "Understanding trauma & PTSD",
+      "understandingDescription": "Trauma can result from distressing or life-threatening experiences that continue to affect emotional, mental and physical well-being. Some individuals may develop Post-Traumatic Stress Disorder (PTSD), experiencing recurring memories, heightened anxiety or emotional distress. With appropriate care, healing and recovery are possible."
+    },
+
+    "addiction": {
+      "label": "Addiction",
+      "breadcrumbLabel": "Addiction",
+      "heroTitle": "You don't have to overcome addiction alone",
+      "heroDescription": "Understand the impact of addiction, recognise early warning signs and explore professional support for lasting recovery.",
+      "understandingTitle": "Understanding addiction",
+      "understandingDescription": "Addiction can involve substances or behaviours that become difficult to control despite negative consequences. It can affect physical health, emotional well-being, relationships and daily functioning. Early intervention and professional support can help individuals regain control and build healthier coping strategies."
+    },
+
+    "griefLoss": {
+      "label": "Grief & Loss",
+      "breadcrumbLabel": "Grief & Loss",
+      "heroTitle": "You don't have to grieve alone",
+      "heroDescription": "Understand the emotional impact of loss, learn healthy ways to cope with grief and discover compassionate support during difficult times.",
+      "understandingTitle": "Understanding grief & loss",
+      "understandingDescription": "Grief is a natural response to losing someone or something important. Everyone experiences grief differently and emotions may include sadness, anger, guilt or confusion. With time and appropriate support, individuals can learn to process their loss and adjust to life's changes."
+    },
+
+    "stressAnxiety": {
+      "label": "Stress / Anxiety",
+      "breadcrumbLabel": "Stress & Anxiety",
+      "heroTitle": "You don't have to navigate anxiety alone",
+      "heroDescription": "Learn more about stress and anxiety, explore practical coping strategies and discover professional support tailored to your needs.",
+      "understandingTitle": "Understanding anxiety: Signs, Causes & How to cope",
+      "understandingDescription": "Anxiety is a feeling of fear, worry or nervousness when one is about to do something challenging. Everybody experiences anxiety across different situations and it is a normal experience. However, anxiety becomes a medical condition when it is prolonged and starts to impact the way one would normally perform ordinary tasks."
+    },
+
+    "relationshipIssues": {
+      "label": "Relationship issues",
+      "breadcrumbLabel": "Relationship issues",
+      "heroTitle": "You don't have to manage relationship challenges alone",
+      "heroDescription": "Explore ways to improve communication, strengthen relationships and access professional support to navigate difficult situations together.",
+      "understandingTitle": "Understanding relationship issues",
+      "understandingDescription": "Relationship challenges may arise from communication difficulties, unresolved conflicts, trust concerns or life transitions. Healthy relationships require understanding, respect and effective communication. Counselling can help individuals and couples rebuild stronger, healthier connections."
+    },
+
+    "parentingChallenges": {
+      "label": "Parenting challenges",
+      "breadcrumbLabel": "Parenting challenges",
+      "heroTitle": "You don't have to navigate parenting alone",
+      "heroDescription": "Discover practical parenting strategies, understand your child's developmental needs and explore professional guidance for every stage of parenthood.",
+      "understandingTitle": "Understanding parenting challenges",
+      "understandingDescription": "Parenting can be both rewarding and demanding. Behavioural concerns, communication difficulties, developmental changes and balancing family responsibilities can create stress. Support and guidance can help parents build stronger relationships with their children while fostering healthy development."
+    },
+
+    "mentalHealth": {
+      "label": "Mental health",
+      "breadcrumbLabel": "Mental health",
+      "heroTitle": "You don't have to deal with financial stress alone",
+      "heroDescription": "Learn how financial concerns can affect emotional well-being and relationships and explore healthy ways to manage financial challenges.",
+      "understandingTitle": "Understanding financial disputes",
+      "understandingDescription": "Financial disagreements can create stress within families, relationships and workplaces. Concerns about budgeting, debt, expenses or financial responsibilities may affect emotional health and interpersonal relationships. Constructive communication and professional guidance can help resolve financial conflicts more effectively."
+    },
+
+    "burnoutWorkStress": {
+      "label": "Burnout & Work stress",
+      "breadcrumbLabel": "Burnout & Work Stress",
+      "heroTitle": "You don't have to manage burnout alone",
+      "heroDescription": "Recognise the signs of burnout, understand the effects of prolonged work stress and discover strategies to restore balance and well-being.",
+      "understandingTitle": "Understanding burnout & work stress",
+      "understandingDescription": "Work-related stress is common, but prolonged pressure without adequate recovery can lead to burnout. Symptoms may include emotional exhaustion, reduced motivation, difficulty concentrating and physical fatigue. Early support can help individuals regain balance and improve overall well-being."
+    },
+
+    "selfEsteemIdentity": {
+      "label": "Self-esteem & Identity",
+      "breadcrumbLabel": "Self-esteem & Identity",
+      "heroTitle": "You don't have to face self-doubt alone",
+      "heroDescription": "Learn how self-esteem and identity influence emotional well-being and explore ways to build confidence and a stronger sense of self.",
+      "understandingTitle": "Understanding self-esteem & identity",
+      "understandingDescription": "Self-esteem reflects how individuals value themselves, while identity shapes their sense of who they are. Challenges in these areas can affect confidence, relationships, decision-making and emotional well-being. Counselling can support individuals in developing self-acceptance, resilience and personal growth."
+    },
+
+    "feelingLonely": {
+      "label": "Feeling lonely",
+      "breadcrumbLabel": "Feeling lonely",
+      "heroTitle": "You don't have to face loneliness alone",
+      "heroDescription": "Understand the impact of loneliness, learn ways to strengthen meaningful connections and discover support to improve emotional well-being.",
+      "understandingTitle": "Understanding loneliness",
+      "understandingDescription": "Loneliness is the feeling of being disconnected or lacking meaningful social relationships. It can affect anyone regardless of age or circumstances and may impact both mental and physical health. Building supportive relationships and seeking professional guidance can help individuals reconnect and improve their overall well-being."
+    }
+  }
+}

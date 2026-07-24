@@ -1,0 +1,237 @@
+{
+  "volunteerRegistration": {
+    "common": {
+      "close": "关闭",
+      "back": "返回",
+      "continue": "继续",
+      "submit": "提交",
+      "submitApplication": "提交申请",
+      "submitting": "提交中...",
+      "step": "第 {{current}} 步，共 {{total}} 步"
+    },
+
+    "step1": {
+      "title": "个人资料",
+      "subtitle": "感谢您有兴趣成为我们的义工。请填写您的个人及联络资料，以便我们与您联系。",
+
+      "sections": {
+        "personalDetails": "个人资料",
+        "contactDetails": "联络资料"
+      },
+
+      "fields": {
+        "title": "称谓",
+        "titlePlaceholder": "请选择称谓",
+
+        "fullName": "姓名（与身份证/护照一致）",
+        "fullNamePlaceholder": "请输入与身份证或护照一致的姓名",
+
+        "nricPassport": "身份证/护照（后4位）",
+        "nricPassportPlaceholder": "例如：567A",
+
+        "citizenship": "国籍",
+        "citizenshipPlaceholder": "例如：新加坡公民",
+
+        "dateOfBirth": "出生日期",
+
+        "age": "年龄",
+        "agePlaceholder": "请输入您的年龄",
+
+        "gender": "性别",
+        "genderPlaceholder": "请选择性别",
+
+        "maritalStatus": "婚姻状况",
+        "maritalStatusPlaceholder": "请选择婚姻状况",
+
+        "ethnicity": "种族",
+        "ethnicityPlaceholder": "例如：华族、印度族",
+
+        "religion": "宗教",
+        "religionPlaceholder": "例如：佛教、基督教",
+
+        "occupation": "职业",
+        "occupationPlaceholder": "当前职业",
+
+        "address": "住址",
+        "addressPlaceholder": "请输入您的住址",
+
+        "phoneMobile": "手机号码",
+        "phoneResidence": "住宅电话",
+        "phonePlaceholder": "8位数号码",
+
+        "email": "电子邮箱",
+        "emailPlaceholder": "请输入您的电子邮箱"
+      },
+
+      "titleOptions": {
+        "mr": "先生",
+        "ms": "女士",
+        "mrs": "太太",
+        "dr": "博士",
+        "mdm": "女士"
+      },
+
+      "genderOptions": {
+        "male": "男",
+        "female": "女",
+        "other": "其他"
+      },
+
+      "maritalStatusOptions": {
+        "single": "单身",
+        "married": "已婚",
+        "divorced": "离婚",
+        "widowed": "丧偶"
+      }
+    },
+
+    "step2": {
+      "title": "分享您的兴趣与可服务时间",
+      "subtitle": "请告诉我们您希望参与的服务领域，以及您方便参与义工服务的时间。",
+
+      "sections": {
+        "interestAreas": "感兴趣的服务领域",
+        "availability": "可服务时间",
+        "commitment": "服务承诺"
+      },
+
+      "interestDescription": "请选择一个或多个您希望参与贡献的服务领域。",
+
+      "interestAreas": {
+        "outreach": {
+          "title": "社区推广",
+          "description": "协助在社区及数码平台推广心理健康意识。"
+        },
+        "talksWorkshops": {
+          "title": "讲座与工作坊",
+          "description": "协助举办或支持心理健康教育讲座及工作坊。"
+        },
+        "administrative": {
+          "title": "行政支援",
+          "description": "协助办公室行政工作及资料管理。"
+        },
+        "outings": {
+          "title": "户外活动",
+          "description": "协助组织自然步行及户外团体活动。"
+        }
+      },
+
+      "fields": {
+        "otherContribution": "您还可以如何贡献？/ 其他（请说明）",
+        "otherContributionPlaceholder": "如果您希望以其他方式提供协助，请告诉我们。",
+
+        "skillsHobbies": "技能与兴趣",
+        "skillsHobbiesPlaceholder": "请告诉我们您的技能、兴趣或其他可协助的方式……",
+
+        "preferredDays": "请选择可服务的日期",
+
+        "timeFrom": "时间（开始）",
+        "timeTo": "时间（结束）",
+
+        "expectedDuration": "预计服务期限",
+        "durationPlaceholder": "请输入期限",
+
+        "unit": "单位"
+      },
+
+      "days": {
+        "mon": "周一",
+        "tue": "周二",
+        "wed": "周三",
+        "thu": "周四",
+        "fri": "周五",
+        "sat": "周六",
+        "sun": "周日"
+      },
+
+      "units": {
+        "weeks": "周",
+        "months": "个月",
+        "years": "年"
+      },
+
+      "notes": {
+        "minimumCommitment": "* 最低服务承诺有助于我们维持服务项目的持续性。"
+      }
+    },
+
+    "validation": {
+      "step1": {
+        "titleRequired": "请选择称谓。",
+        "nameRequired": "请输入姓名。",
+        "nameMin": "姓名至少需包含 3 个字符。",
+        "nameInvalid": "姓名只能包含字母和空格。",
+        "nricRequired": "请输入身份证/护照后 4 位。",
+        "nricInvalid": "必须为 4 位英文字母或数字。",
+        "citizenshipRequired": "请输入国籍。",
+        "dobRequired": "请选择出生日期。",
+        "ageRequired": "请输入年龄。",
+        "ageInvalid": "请输入有效年龄（1–120 岁）。",
+        "genderRequired": "请选择性别。",
+        "maritalStatusRequired": "请选择婚姻状况。",
+        "addressRequired": "请输入住址。",
+        "phoneRequired": "请输入手机号码。",
+        "phoneInvalid": "请输入有效的新加坡 8 位电话号码。",
+        "emailRequired": "请输入电子邮箱地址。",
+        "emailInvalid": "请输入有效的电子邮箱地址。"
+      },
+
+      "step2": {
+        "interestRequired": "请至少选择一个感兴趣的服务领域或填写其他贡献方式。",
+        "daysRequired": "请至少选择一天可服务日期。",
+        "commitmentRequired": "请输入有效的服务承诺期限。"
+      },
+
+      "step3": {
+        "declarationRequired": "您必须同意声明后才能提交申请。",
+        "signatureRequired": "请输入电子签名。",
+        "signatureMismatch": "电子签名必须与第一步填写的姓名一致。"
+      }
+    },
+
+    "pdpa": {
+      "notice": "您提供的所有资料都将依据新加坡《个人资料保护法》（PDPA）进行安全且保密的处理。"
+    },
+
+    "step3": {
+      "title": "声明与电子签名",
+      "subtitle": "请仔细阅读并确认以下声明后，再提交您的义工申请。",
+
+      "sections": {
+        "declaration": "声明"
+      },
+
+      "fields": {
+        "signature": "电子签名",
+        "signaturePlaceholder": "请输入您的姓名作为电子签名",
+        "submissionDate": "提交日期"
+      },
+
+      "declaration": {
+        "text": "本人声明以上所提供的资料均属真实准确。本人明白，若提供任何虚假资料或遗漏重要事实，本申请可能被拒绝，或本人义工资格可能被终止。"
+      },
+
+      "signature": {
+        "helperText": "输入您的姓名即表示您提供了具有法律效力的电子签名。"
+      }
+    },
+
+    "success": {
+      "title": "申请提交成功",
+      "message": "感谢您，{{name}}。我们已成功收到您加入 WINGS 成为义工的申请。",
+      "description": "我们的团队将在 3–5 个工作日内审核您的申请，并通过电子邮箱（{{email}}）与您联系。",
+      "closeButton": "关闭",
+
+      "notification": {
+        "title": "义工申请已提交",
+        "message": "感谢您，{{name}}。您的申请已成功提交。"
+      }
+    },
+
+    "errors": {
+      "submissionFailed": "提交失败。",
+      "submitError": "义工申请提交失败，请稍后再试。",
+      "unexpectedError": "发生未知错误，请稍后再试。"
+    }
+  }
+}

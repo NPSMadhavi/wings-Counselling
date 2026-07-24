@@ -1,0 +1,30 @@
+{
+  "services": {
+    "hero": {
+      "title": "Penjagaan profesional yang disesuaikan untuk anda",
+      "description": "Kami menawarkan pelbagai perkhidmatan kaunseling & terapi, penyeliaan serta latihan & bengkel yang direka khas untuk menyokong individu, keluarga, profesional, sekolah, tempat kerja dan organisasi komuniti. Setiap perkhidmatan disesuaikan mengikut keperluan dan matlamat unik setiap individu yang kami bantu.",
+      "button": "Terokai perkhidmatan kami"
+    },
+    "tabs": {
+      "counselling": "Kaunseling & Terapi",
+      "supervision": "Penyeliaan",
+      "training": "Latihan & Bengkel"
+    },
+    "counselling": {
+      "title": "Kaunseling & Terapi",
+      "description": "Bantuan dan bimbingan profesional untuk menyelesaikan cabaran peribadi, perhubungan dan psikologi bagi individu, pasangan, keluarga serta kanak-kanak daripada semua peringkat umur."
+    },
+    "supervision": {
+      "title": "Penyeliaan",
+      "description": "Latihan praktikal klinikal dan penyeliaan untuk bakal kaunselor. Sila ambil perhatian bahawa semua perkhidmatan kami hanya tersedia untuk warganegara dan penduduk tetap Singapura."
+    },
+    "training": {
+      "title": "Latihan & Bengkel",
+      "description": "Penilaian, rawatan dan pengurusan keadaan klinikal yang menjejaskan fungsi emosi, kognitif, fizikal, tingkah laku dan sosial. Sila ambil perhatian bahawa semua perkhidmatan kami hanya tersedia untuk warganegara dan penduduk tetap Singapura."
+    },
+    "buttons": {
+      "readMore": "Ketahui Lebih Lanjut",
+      "bookAppointment": "Tempah Temu Janji"
+    }
+  }
+}

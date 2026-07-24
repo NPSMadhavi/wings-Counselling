@@ -11,6 +11,9 @@ const CandidateAuthContext = createContext({
   login: () => {},
   logout: () => {},
   isLoading: true,
+  isAuthModalOpen: false,
+  openAuthModal: (returnTo) => {},
+  closeAuthModal: () => {},
 });
 
 /* -------------------- Provider -------------------- */
@@ -19,6 +22,8 @@ export function CandidateAuthProvider({ children }) {
   const [candidate, setCandidate] = useState(null);
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalReturnTo, setAuthModalReturnTo] = useState(null);
 
   useEffect(() => {
     const stored = localStorage.getItem(TOKEN_KEY);
@@ -72,9 +77,30 @@ export function CandidateAuthProvider({ children }) {
     queryClient.setQueryData(["/api/candidate/me", ""], null);
   }
 
+  /* -------------------- Modal -------------------- */
+
+  function openAuthModal(returnTo = null) {
+    setAuthModalReturnTo(returnTo);
+    setIsAuthModalOpen(true);
+  }
+
+  function closeAuthModal() {
+    setIsAuthModalOpen(false);
+  }
+
   return (
     <CandidateAuthContext.Provider
-      value={{ candidate, token, login, logout, isLoading }}
+      value={{
+        candidate,
+        token,
+        login,
+        logout,
+        isLoading,
+        isAuthModalOpen,
+        openAuthModal,
+        closeAuthModal,
+        authModalReturnTo,
+      }}
     >
       {children}
     </CandidateAuthContext.Provider>

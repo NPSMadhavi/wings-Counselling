@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Copy, Mail, Download, Printer, Check } from "lucide-react";
 import { Footer } from "@/components/Layout/Footer";
 import { useLocation, useRoute } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useAppointment } from "@/context/AppointmentContext";
 import {
   loadPageContent,
@@ -43,6 +44,7 @@ const styles = {
 export default function AnxietyArticlePage() {
   const [, navigate] = useLocation();
   const [isArticleRoute, articleParams] = useRoute("/article/:slug");
+  const { t } = useTranslation();
   const { openModal } = useAppointment();
   const [activeSection, setActiveSection] = useState("what-is-anxiety");
   const articleRef = useRef(null);
@@ -578,16 +580,14 @@ export default function AnxietyArticlePage() {
                 className="text-[32px] sm:text-[44px] md:text-[54px] lg:text-[60px] font-semibold leading-[1.2] text-white mb-6"
                 style={styles.heading}
               >
-                You don’t have to navigate anxiety alone
+                {t("articleDetail.hero.title")}
               </h1>
 
               <p
                 className="text-[16px] md:text-[20px] leading-[1.8] text-white max-w-[700px] mb-8"
                 style={styles.body}
               >
-                Learn more about stress and anxiety, explore practical coping
-                strategies, and discover professional support tailored to your
-                needs.
+                {t("articleDetail.hero.description")}
               </p>
 
               <motion.button
@@ -598,10 +598,10 @@ export default function AnxietyArticlePage() {
                     .getElementById("anxiety-article")
                     ?.scrollIntoView({ behavior: "smooth" });
                 }}
-                className="flex items-center justify-center gap-2.5 h-[60px] px-8 rounded-full bg-[#1B4585] cursor-pointer"
+                className="flex items-center justify-center gap-2.5 min-h-[3.75rem] h-auto py-3 px-6 sm:px-8 rounded-full bg-[#1B4585] cursor-pointer"
               >
-                <span className="text-white font-['Plus_Jakarta_Sans'] font-semibold text-[16px] sm:text-[18px]">
-                  Explore support resources
+                <span className="text-white font-['Plus_Jakarta_Sans'] font-semibold text-[clamp(0.9rem,1.1rem,1.125rem)] whitespace-normal text-center">
+                  {t("articleDetail.hero.button")}
                 </span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path
@@ -626,7 +626,7 @@ export default function AnxietyArticlePage() {
               onClick={() => navigate("/")}
               className="cursor-pointer underline hover:opacity-70 transition"
             >
-              Home
+              {t("articleDetail.breadcrumb.home")}
             </span>
 
             <span className="mx-1">/</span>
@@ -635,7 +635,7 @@ export default function AnxietyArticlePage() {
               onClick={() => navigate("/articles")}
               className="cursor-pointer underline hover:opacity-70 transition"
             >
-              Back to articles
+              {t("articleDetail.breadcrumb.backToArticles")}
             </span>
 
             <span className="mx-1">/</span>
@@ -658,7 +658,7 @@ export default function AnxietyArticlePage() {
               className="w-full max-w-[700px] support-topic-text-pl"
             >
               <p className="mb-4 sm:mb-7 text-white/80 text-[13px] sm:text-[15px] tracking-wide">
-                Last updated on {lastUpdated}
+                {t("articleDetail.breadcrumb.lastUpdated")} {lastUpdated}
               </p>
 
               <h2 className="text-[25px] md:text-[28px] lg:text-[38px] leading-[1.15] tracking-[-0.03em] font-medium">
@@ -685,17 +685,17 @@ export default function AnxietyArticlePage() {
       </section>
 
       {/* ARTICLE */}
-      <section className="bg-[#F5F3F0] xl:h-screen xl:overflow-hidden">
-        <div className="w-full xl:h-full navbar-align-outer">
-          <div className="navbar-align-inner py-[72px] xl:h-full">
-            <div ref={articleRef} className="grid grid-cols-1 xl:grid-cols-[220px_1fr] gap-[58px] items-start xl:h-full">
+      <section className="bg-[#F5F3F0]">
+        <div className="w-full navbar-align-outer">
+          <div className="navbar-align-inner py-[72px]">
+            <div ref={articleRef} className="grid grid-cols-1 xl:grid-cols-[220px_1fr] gap-[58px] items-start xl:min-h-0">
               {/* LEFT SIDEBAR */}
               <aside className="sidebar-scroll hidden xl:block w-full xl:w-[220px] self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 <div>
                   {/* AUTHOR */}
                   <div className="text-[16px] leading-[190%] text-[#595550]">
                     <p>
-                      By {displayAuthor}
+                      {t("articleDetail.sidebar.by")} {displayAuthor}
                     </p>
                   </div>
 
@@ -712,7 +712,7 @@ export default function AnxietyArticlePage() {
                               block: "start",
                             });
                           }}
-                          className={`block w-full text-left text-[16px] leading-[160%] py-[10px] pl-5 border-l-2 transition-all duration-300 ${isActive
+                          className={`block w-full text-left text-[16px] leading-snug whitespace-normal break-words py-[10px] pl-5 border-l-2 transition-all duration-300 ${isActive
                               ? "border-[#0D4A7A] text-[#0D4A7A] font-bold bg-[#EDF3F8]"
                               : "border-[#D8D3CC] text-[#6D6862] hover:text-[#0D4A7A] hover:border-[#9DB4C9]"
                             }`}
@@ -1042,26 +1042,26 @@ export default function AnxietyArticlePage() {
                 )}
 
                 {/* ACTION BUTTONS */}
-                <div className="mt-16 flex flex-wrap gap-3 border-t border-[#D9D4CD] pt-8">
+                <div className="mt-16 flex flex-wrap gap-2 border-t border-[#D9D4CD] pt-8">
                   {[
                     {
                       icon: copied ? Check : Copy,
-                      label: copied ? "Copied!" : "Copy Link",
+                      label: copied ? t("articleDetail.actions.copied") : t("articleDetail.actions.copyLink"),
                       onClick: handleCopyLink,
                     },
                     {
                       icon: Mail,
-                      label: "Share via Email",
+                      label: t("articleDetail.actions.shareEmail"),
                       onClick: handleShareEmail,
                     },
                     {
                       icon: Download,
-                      label: "Download PDF",
+                      label: t("articleDetail.actions.downloadPdf"),
                       onClick: handleDownloadPDF,
                     },
                     {
                       icon: Printer,
-                      label: "Print Document",
+                      label: t("articleDetail.actions.printDocument"),
                       onClick: handlePrint,
                     },
                   ].map((item, index) => {
@@ -1073,7 +1073,7 @@ export default function AnxietyArticlePage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={item.onClick}
-                        className={`flex items-center gap-2 rounded-[6px] border px-4 h-[34px] text-[12px] cursor-pointer transition-colors ${
+                        className={`flex items-center gap-2 flex-wrap whitespace-normal rounded-[6px] border min-h-[2.125rem] h-auto py-2 px-3 sm:px-4 text-[clamp(0.7rem,0.85rem,0.85rem)] cursor-pointer transition-colors ${
                           copied && index === 0
                             ? "border-green-400 bg-green-50 text-green-700"
                             : "border-[#D8D2CB] bg-white text-[#49433E] hover:bg-[#F0EDEA]"
@@ -1106,21 +1106,20 @@ export default function AnxietyArticlePage() {
                 className="text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
                 style={styles.heading}
               >
-                Ready to talk to someone?
+                {t("articleDetail.cta.title")}
               </h2>
 
               <p className="mx-auto mt-5 max-w-[720px] text-white/85 text-[15px] leading-[190%]">
-                Our counselling team is here to listen, support, and guide you in a
-                safe and confidential environment.
+                {t("articleDetail.cta.description")}
               </p>
 
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => openModal()}
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-white h-[46px] px-6 text-[14px] font-semibold text-[#0D4A7A] cursor-pointer"
+                className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-white min-h-[3.75rem] h-auto py-3 px-6 sm:px-8 text-[clamp(0.9rem,1.1rem,1.125rem)] font-semibold text-[#0D4A7A] cursor-pointer whitespace-normal text-center"
               >
-                Book an appointment
+                {t("articleDetail.cta.button")}
 
                 <svg
                   width="20"

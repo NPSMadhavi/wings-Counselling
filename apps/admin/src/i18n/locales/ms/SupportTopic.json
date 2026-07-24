@@ -1,0 +1,64 @@
+{
+  "supportTopic": {
+    "hero": {
+      "button": "Terokai Sumber Sokongan"
+    },
+
+    "navigation": {
+      "backToHome": "Kembali ke Laman Utama",
+      "topicNotFound": "Topik sokongan tidak dijumpai"
+    },
+
+    "articles": {
+      "title": "Artikel yang Mungkin Membantu Anda",
+      "description": "Ditulis oleh kaunselor yang akan bersama anda sepanjang perjalanan ini.",
+      "loading": "Memuatkan artikel...",
+      "noArticles": "Tiada artikel berkaitan buat masa ini.",
+      "all": "Semua",
+      "readMore": "Baca Lagi",
+      "readTime": "5 minit bacaan",
+      "fallbackAuthor": "WINGS",
+      "fallbackDescription": "Ketahui lebih lanjut daripada pasukan kaunseling WINGS."
+    },
+
+    "counselling": {
+      "badge": "Bagaimana Kaunseling Membantu",
+      "title": "Apa yang Berlaku Semasa Sesi Kaunseling",
+      "description": "Kaunseling bukan sekadar seseorang menganalisis anda. Ia adalah perbualan bersama kaunselor terlatih yang membantu anda memahami situasi dan mencari jalan ke hadapan.",
+
+      "items": [
+        {
+          "title": "Didengari tanpa dihakimi",
+          "description": "Tiada nasihat yang tidak diminta. Tiada tekanan untuk mencari penyelesaian segera. Hanya ruang yang selamat untuk berkongsi."
+        },
+        {
+          "title": "Segala-galanya adalah sulit",
+          "description": "Apa yang anda kongsikan kekal sulit. Malah keluarga atau majikan anda tidak akan dimaklumkan tanpa kebenaran anda."
+        },
+        {
+          "title": "Membawa pulang kemahiran sebenar",
+          "description": "Pelajari teknik yang boleh digunakan dalam kehidupan harian untuk membantu mengurus tekanan dan kebimbangan."
+        },
+        {
+          "title": "Anda menentukan rentaknya",
+          "description": "Datang setiap minggu, setiap bulan atau hanya sekali. Anda bebas menentukan perjalanan anda sendiri."
+        }
+      ]
+    },
+
+    "services": {
+      "title": "Perkhidmatan Sokongan yang Mungkin Membantu Anda",
+      "description": "Bantuan dan bimbingan profesional untuk menangani cabaran peribadi, hubungan dan psikologi bagi individu, pasangan, keluarga dan kanak-kanak.",
+      "loading": "Memuatkan perkhidmatan...",
+      "noServices": "Tiada perkhidmatan berkaitan buat masa ini.",
+      "readMore": "Baca Lagi",
+      "bookAppointment": "Tempah Janji Temu"
+    },
+
+    "cta": {
+      "title": "Bersedia untuk Berbual dengan Seseorang?",
+      "description": "Pasukan kaunseling kami sedia mendengar, menyokong dan membimbing anda dalam persekitaran yang selamat dan sulit.",
+      "button": "Tempah Janji Temu"
+    }
+  }
+}

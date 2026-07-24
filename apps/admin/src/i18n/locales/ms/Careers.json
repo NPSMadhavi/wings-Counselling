@@ -1,0 +1,46 @@
+{
+  "careers": {
+    "hero": {
+      "title": "Bina Kerjaya Bermakna yang Memberi Impak Sebenar",
+      "description": "Sertai WINGS dan jadilah sebahagian daripada pasukan penyayang yang berdedikasi terhadap kesejahteraan emosi, sokongan kaunseling dan kesejahteraan komuniti.",
+      "button": "Terokai Jawatan Kosong"
+    },
+
+    "jobs": {
+      "title": "Jawatan Kosong",
+      "description": "Cari peluang kerjaya anda bersama kami",
+      "loading": "Memuatkan jawatan...",
+      "viewDetails": "Lihat Butiran",
+      "applyNow": "Mohon Sekarang",
+      "alreadyApplied": "Telah Dipohon",
+      "noOpenPositions": {
+        "title": "Tiada Jawatan Kosong",
+        "description": "Tiada jawatan kosong yang tersedia buat masa ini."
+      }
+    },
+
+    "whyWork": {
+      "title": "Mengapa Bekerja di WINGS?",
+      "description": "Kami mengutamakan perkembangan anda sama seperti perkembangan komuniti kami.",
+
+      "cards": [
+        {
+          "title": "Kerja yang Bermakna",
+          "description": "Sertai inisiatif yang memberi impak positif kepada individu, keluarga dan komuniti melalui kesejahteraan emosi dan sokongan kaunseling."
+        },
+        {
+          "title": "Budaya yang Menyokong",
+          "description": "Bekerja dalam persekitaran yang mengutamakan kerjasama, empati, hormat dan sokongan antara satu sama lain."
+        },
+        {
+          "title": "Perkembangan Profesional",
+          "description": "Peroleh peluang untuk belajar, menyumbang dan berkembang melalui pengalaman sebenar, bimbingan dan projek yang bermakna."
+        },
+        {
+          "title": "Budaya Inklusif",
+          "description": "Kami menghargai empati, kerja berpasukan, saling menghormati dan penambahbaikan berterusan dalam setiap peranan dan jabatan."
+        }
+      ]
+    }
+  }
+}

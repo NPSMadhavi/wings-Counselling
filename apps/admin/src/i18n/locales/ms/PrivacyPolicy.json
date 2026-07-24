@@ -1,0 +1,128 @@
+{
+  "privacyPolicy": {
+    "hero": {
+      "title": "PDPA / Dasar Privasi"
+    },
+
+    "whoWeAre": {
+      "title": "Siapa Kami",
+
+      "content": {
+        "website": "Alamat laman web kami:",
+        "websiteUrl": "https://wingscounselling.org.sg",
+
+        "paragraph1": "WINGS Counselling Centre menghormati data peribadi anda dan berusaha mematuhi keperluan Akta Perlindungan Data Peribadi Singapura (Personal Data Protection Act - PDPA) (Bab 26).",
+
+        "paragraph2": "Kami mengumpul data peribadi individu semasa menyediakan perkhidmatan kaunseling, memberikan maklumat dan perkhidmatan lain melalui aktiviti komunikasi serta program jangkauan kami, di samping membolehkan anda berinteraksi dengan para penderma, sukarelawan dan rakan kerjasama kami.",
+
+        "paragraph3": "Kami mungkin mendedahkan data peribadi anda kepada agensi kerajaan (contohnya MSF) kerana sebahagian individu yang kami bantu mungkin sedang menerima bantuan daripada agensi tersebut."
+      }
+    },
+
+    "pdpa": {
+      "title": "Dasar Perlindungan Data Peribadi (PDPA)",
+
+      "content": {
+        "paragraph1": "WINGS Counselling Centre komited untuk melindungi data peribadi anda selaras dengan Akta Perlindungan Data Peribadi Singapura 2012 (PDPA). Kami mengumpul, menggunakan, mendedahkan dan menyimpan maklumat peribadi hanya bagi tujuan yang munasabah, perlu serta dengan persetujuan anda apabila dikehendaki oleh undang-undang. Langkah-langkah keselamatan pentadbiran, teknikal dan fizikal yang bersesuaian telah dilaksanakan bagi melindungi data peribadi anda daripada akses tanpa kebenaran, pendedahan, pengubahsuaian atau penyalahgunaan. Dengan menggunakan laman web kami atau mendapatkan perkhidmatan kami, anda mengakui bahawa data peribadi anda mungkin dikumpul dan diproses mengikut Dasar Privasi ini serta keperluan PDPA yang berkenaan."
+      }
+    },
+
+    "personalData": {
+      "title": "Apakah Data Peribadi yang Kami Kumpulkan dan Mengapa Kami Mengumpulkannya",
+
+      "comments": {
+        "title": "Komen",
+
+        "paragraph1": "Apabila pelawat meninggalkan komen di laman web ini, kami mengumpul maklumat yang dipaparkan dalam borang komen, bersama alamat IP pelawat dan rentetan ejen pengguna (user agent) pelayar bagi membantu mengesan spam.",
+
+        "paragraph2": "Rentetan tanpa nama yang dijana daripada alamat e-mel anda (juga dikenali sebagai hash) mungkin dihantar kepada perkhidmatan Gravatar untuk menyemak sama ada anda menggunakannya.",
+
+        "privacyPolicyText": "Dasar Privasi Gravatar boleh didapati di:",
+
+        "privacyPolicyUrl": "https://automattic.com/privacy/",
+
+        "paragraph3": "Selepas komen anda diluluskan, gambar profil anda akan dipaparkan kepada umum bersama komen tersebut."
+      },
+
+      "media": {
+        "title": "Media",
+
+        "paragraph1": "Jika anda memuat naik imej ke laman web ini, anda dinasihatkan supaya tidak memuat naik imej yang mengandungi data lokasi terbenam (EXIF GPS). Pelawat laman web boleh memuat turun imej tersebut dan mengekstrak maklumat lokasi yang terkandung di dalamnya."
+      }
+    },
+
+    "contactForms": {
+      "title": "Borang Hubungan",
+
+      "cookies": {
+        "title": "Kuki (Cookies)",
+
+        "paragraph1": "Jika anda meninggalkan komen di laman web kami, anda boleh memilih untuk menyimpan nama, alamat e-mel dan laman web anda dalam kuki. Ini adalah untuk kemudahan anda supaya anda tidak perlu mengisi semula maklumat tersebut apabila meninggalkan komen lain. Kuki ini akan disimpan selama satu tahun.",
+
+        "paragraph2": "Jika anda melawat halaman log masuk kami, kami akan menetapkan kuki sementara untuk menentukan sama ada pelayar anda menerima kuki. Kuki ini tidak mengandungi data peribadi dan akan dipadamkan apabila anda menutup pelayar.",
+
+        "paragraph3": "Apabila anda log masuk, kami juga akan menetapkan beberapa kuki untuk menyimpan maklumat log masuk dan pilihan paparan skrin anda. Kuki log masuk akan disimpan selama dua hari, manakala kuki pilihan paparan akan disimpan selama satu tahun. Jika anda memilih \"Ingat Saya\", sesi log masuk anda akan kekal selama dua minggu. Jika anda log keluar daripada akaun anda, kuki log masuk akan dipadamkan.",
+
+        "paragraph4": "Jika anda mengedit atau menerbitkan sesuatu artikel, satu kuki tambahan akan disimpan dalam pelayar anda. Kuki ini tidak mengandungi sebarang data peribadi dan hanya menunjukkan ID artikel yang baru anda edit. Ia akan tamat tempoh selepas satu hari."
+      },
+
+      "embeddedContent": {
+        "title": "Kandungan Terbenam daripada Laman Web Lain",
+
+        "paragraph1": "Artikel di laman web ini mungkin mengandungi kandungan terbenam seperti video, imej atau artikel daripada laman web lain. Kandungan terbenam tersebut berfungsi sama seperti anda melawat laman web asal secara terus.",
+
+        "paragraph2": "Laman web tersebut mungkin mengumpul data mengenai anda, menggunakan kuki, memasukkan penjejakan pihak ketiga tambahan dan memantau interaksi anda dengan kandungan terbenam tersebut, termasuk jika anda mempunyai akaun dan telah log masuk ke laman web berkenaan."
+      }
+    },
+
+    "analytics": {
+      "title": "Analitik",
+
+      "dataSharing": {
+        "title": "Dengan Siapa Kami Berkongsi Data Anda",
+
+        "paragraph1": "Jika anda meminta penetapan semula kata laluan, alamat IP anda akan disertakan dalam e-mel penetapan semula kata laluan."
+      },
+
+      "dataRetention": {
+        "title": "Berapa Lama Kami Menyimpan Data Anda",
+
+        "paragraph1": "Jika anda meninggalkan komen, komen tersebut bersama metadata berkaitan akan disimpan tanpa had tempoh. Ini membolehkan kami mengenal pasti dan meluluskan komen susulan secara automatik tanpa perlu meletakkannya dalam barisan moderasi.",
+
+        "paragraph2": "Bagi pengguna yang mendaftar di laman web kami (jika berkenaan), kami turut menyimpan maklumat peribadi yang diberikan dalam profil pengguna mereka. Semua pengguna boleh melihat, mengemas kini atau memadam maklumat peribadi mereka pada bila-bila masa (kecuali nama pengguna tidak boleh diubah). Pentadbir laman web juga boleh melihat dan mengemas kini maklumat tersebut."
+      },
+
+      "userRights": {
+        "title": "Hak Anda terhadap Data Peribadi",
+
+        "paragraph1": "Jika anda mempunyai akaun di laman web ini atau pernah meninggalkan komen, anda boleh meminta salinan fail data peribadi yang kami simpan mengenai anda, termasuk semua data yang telah anda berikan kepada kami. Anda juga boleh meminta kami memadam data peribadi anda. Walau bagaimanapun, ini tidak termasuk data yang kami diwajibkan untuk simpan bagi tujuan pentadbiran, undang-undang atau keselamatan."
+      },
+
+      "dataTransfer": {
+        "title": "Ke Mana Data Anda Dihantar",
+
+        "paragraph1": "Komen pelawat mungkin diperiksa melalui perkhidmatan pengesanan spam automatik."
+      }
+    },
+
+    "contactInformation": {
+      "title": "Maklumat Perhubungan",
+
+      "description": "Kami mempunyai Dasar Perlindungan Data yang memberikan maklumat lanjut tentang bagaimana kami mengumpul, menggunakan dan mendedahkan data peribadi anda. Sekiranya anda mempunyai sebarang pertanyaan berkaitan data peribadi anda, sila hubungi:",
+
+      "details": {
+        "nameLabel": "Nama",
+        "name": "Ms Mala",
+
+        "emailLabel": "Alamat E-mel",
+        "email": "admin@wingscounselling.org.sg",
+
+        "postalAddressLabel": "Alamat Surat-Menyurat",
+        "postalAddress": "179, Bartley Road, Singapore 539784",
+
+        "telephoneLabel": "No. Telefon",
+        "telephone": "6383 5745"
+      }
+    }
+  }
+}

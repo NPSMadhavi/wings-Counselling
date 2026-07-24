@@ -57,7 +57,9 @@ import Skill from "./Pages/SubServices/SubSkill";
 import UnsubscribeConfirm from "./Pages/UnsubscribeConfirm";
 import UnsubscribeSuccess from "./Pages/UnsubscribeSuccess";
 import PrivacyPolicy from "@/Pages/PrivacyPolicy";
+import TermsAndConditions from "@/Pages/TermsAndConditions";
 import { scrollToPageContentSection } from "@/lib/scrollToSection";
+import { CandidateAuthModal } from "@/components/modals/CandidateAuthModal";
 
 
 
@@ -118,6 +120,7 @@ function Router() {
       <Route path={/^\/admin(?:\/.*)?$/} component={AdminApp} />
 
       <Route path="/about-us" component={AboutUs} />
+      <Route path="/terms-of-service" component={TermsAndConditions} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/privacypolicy">
         <Redirect to="/privacy-policy" />
@@ -219,6 +222,7 @@ export default function App() {
               </div>
 
               <ModalContainer />
+              <CandidateAuthModal />
 
             </AppointmentProvider>
           </WouterRouter>

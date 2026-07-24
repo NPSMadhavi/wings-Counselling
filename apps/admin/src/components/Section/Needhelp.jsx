@@ -1,11 +1,11 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useAppointment } from "@/context/AppointmentContext";
 
 const buttons = [
   {
     id: "book",
-    label: "Book an appointment",
     href: "#contact",
     style: {
       background: "#FFF",
@@ -16,6 +16,7 @@ const buttons = [
 ];
 
 export function Needhelp() {
+  const { t } = useTranslation();
   const { openModal } = useAppointment();
 
   const sectionRef = useRef(null);
@@ -61,14 +62,14 @@ export function Needhelp() {
         <h2
           className="text-[18px]  md:text-[40px] text-center mb-4 text-white font-['Outfit'] font-medium leading-[1.1] max-w-[850px]"
         >
-          Need help now? We're here for you
+          {t("needHelp.title")}
         </h2>
 
         {/* Subheading */}
         <p
           className="text-[14px] md:text-[18px] lg:text-[20px] text-center mb-10 text-white/90 font-['DM_Sans'] font-medium leading-[1.4] max-w-[600px]"
         >
-          Reach out in the way that feels most comfortable
+          {t("needHelp.description")}
         </p>
 
         {/* Buttons Row */}
@@ -101,7 +102,7 @@ export function Needhelp() {
             >
               {btn.icon}
 
-              <span className="whitespace-nowrap">{btn.label}</span>
+              <span className="whitespace-nowrap">{t("needHelp.bookAppointment")}</span>
 
               <svg
                 width="20"

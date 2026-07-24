@@ -1,0 +1,111 @@
+{
+  "candidateAuth": {
+    "common": {
+      "title": "登录或创建账户以申请职位",
+      "close": "关闭",
+      "back": "返回",
+      "continue": "继续",
+      "loading": "加载中...",
+      "submitting": "提交中..."
+    },
+
+    "tabs": {
+      "signIn": "登录",
+      "createAccount": "创建账户"
+    },
+
+    "signin": {
+      "title": "登录",
+
+      "fields": {
+        "email": "电子邮箱",
+        "emailPlaceholder": "请输入您的电子邮箱",
+
+        "password": "密码",
+        "passwordPlaceholder": "请输入您的密码"
+      },
+
+      "buttons": {
+        "submit": "登录",
+        "forgotPassword": "忘记密码？"
+      }
+    },
+
+    "createAccount": {
+      "title": "创建账户",
+
+      "fields": {
+        "firstName": "名字",
+        "firstNamePlaceholder": "请输入名字",
+
+        "lastName": "姓氏",
+        "lastNamePlaceholder": "请输入姓氏",
+
+        "email": "电子邮箱",
+        "emailPlaceholder": "请输入您的电子邮箱",
+
+        "mobile": "手机号码",
+        "mobilePlaceholder": "请输入您的手机号码",
+
+        "password": "密码",
+        "passwordPlaceholder": "请输入您的密码",
+
+        "confirmPassword": "确认密码",
+        "confirmPasswordPlaceholder": "请再次输入您的密码"
+      },
+
+      "terms": {
+        "agree": "我同意{{terms}}",
+        "termsAndConditions": "条款与条件"
+      },
+
+      "buttons": {
+        "submit": "创建账户"
+      }
+    },
+
+    "validation": {
+      "signIn": {
+        "emailRequired": "请输入电子邮箱。",
+        "emailInvalid": "请输入有效的电子邮箱地址。",
+        "passwordRequired": "请输入密码。"
+      },
+
+      "createAccount": {
+        "firstNameRequired": "请输入名字。",
+        "lastNameRequired": "请输入姓氏。",
+
+        "emailRequired": "请输入电子邮箱。",
+        "emailInvalid": "请输入有效的电子邮箱地址。",
+
+        "mobileRequired": "请输入手机号码。",
+        "mobileInvalid": "请输入有效的手机号码。",
+
+        "passwordRequired": "请输入密码。",
+        "passwordMin": "密码至少需包含 6 个字符。",
+
+        "confirmPasswordMismatch": "两次输入的密码不一致。",
+
+        "termsRequired": "您必须同意《条款与条件》。"
+      }
+    },
+
+    "toast": {
+      "loginFailed": {
+        "title": "登录失败"
+      },
+
+      "registrationFailed": {
+        "title": "注册失败"
+      },
+
+      "accountCreated": {
+        "title": "账户创建成功！"
+      },
+
+      "accountCreatedSignIn": {
+        "title": "账户创建成功！请登录以继续。"
+      }
+    }
+  }
+}

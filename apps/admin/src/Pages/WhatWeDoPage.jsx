@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useRoute } from "wouter";
+import { useTranslation } from "react-i18next";
 
 import { Footer } from "@/components/Layout/Footer";
 import { useAppointment } from "@/context/AppointmentContext";
@@ -60,22 +61,26 @@ function formatArticleDate(value) {
   });
 }
 
-function mapApiArticle(article) {
+function mapApiArticle(article, t) {
   const plain = cleanArticleText(article.content);
   return {
     id: article.id,
     slug: article.slug,
     category: article.category || "General",
     title: article.title,
-    desc: article.excerpt || plain.slice(0, 140) || "Read more from our counselling team.",
+    desc:
+      article.excerpt ||
+      plain.slice(0, 140) ||
+      t("supportTopic.articles.fallbackDescription"),
     image: article.coverImage || FALLBACK_ARTICLE_IMAGE,
-    author: article.author || "WINGS",
-    time: "5 min read",
+    author: article.author || t("supportTopic.articles.fallbackAuthor"),
+    time: t("supportTopic.articles.readTime"),
     date: formatArticleDate(article.publishedAt || article.createdAt),
   };
 }
 
 export default function SupportTopicPage() {
+  const { t, i18n } = useTranslation();
   const [, params] = useRoute("/support/:slug");
   const [location, navigate] = useLocation();
   const topic = getSupportTopicBySlug(params?.slug || "");
@@ -99,7 +104,9 @@ export default function SupportTopicPage() {
         if (!response.ok) throw new Error("Failed to fetch articles");
         const data = await response.json();
         if (!cancelled) {
-          setApiArticles(Array.isArray(data) ? data.map(mapApiArticle) : []);
+          setApiArticles(
+            Array.isArray(data) ? data.map((article) => mapApiArticle(article, t)) : []
+          );
         }
       } catch {
         if (!cancelled) setApiArticles([]);
@@ -147,7 +154,7 @@ export default function SupportTopicPage() {
     return () => {
       cancelled = true;
     };
-  }, [topic?.slug]);
+  }, [topic?.slug, i18n.language, t]);
 
   const topicArticles = useMemo(
     () => filterArticlesForTopic(apiArticles, topic),
@@ -176,16 +183,31 @@ export default function SupportTopicPage() {
             article.category?.toLowerCase() === selectedCategory.toLowerCase()
         );
 
+  const counsellingItemsRaw = t("supportTopic.counselling.items", {
+    returnObjects: true,
+  });
+  const counsellingItems = Array.isArray(counsellingItemsRaw)
+    ? counsellingItemsRaw
+    : [];
+  const counsellingIcons = [
+    <Ear key="ear" size={30} color="#DE5753" strokeWidth={2.2} />,
+    <ShieldCheck key="shield" size={30} color="#DE5753" strokeWidth={2.2} />,
+    <Wrench key="wrench" size={30} color="#DE5753" strokeWidth={2.2} />,
+    <PersonStanding key="person" size={30} color="#DE5753" strokeWidth={2.2} />,
+  ];
+
   if (!topic) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#F5F5F5] px-4 text-center">
-        <p className="text-[#0D4A7A] text-lg font-medium mb-4">Support topic not found</p>
+        <p className="text-[#0D4A7A] text-lg font-medium mb-4">
+          {t("supportTopic.navigation.topicNotFound")}
+        </p>
         <button
           type="button"
           onClick={() => navigate("/")}
           className="text-[#1B4585] underline"
         >
-          Back to Home
+          {t("supportTopic.navigation.backToHome")}
         </button>
       </div>
     );
@@ -244,14 +266,18 @@ export default function SupportTopicPage() {
               className="text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px] md:pt-[80px] font-semibold leading-[1.2] text-white mb-6"
               style={{ fontFamily: "Outfit, sans-serif" }}
             >
-              {topic.heroTitle}
+              {t(`supportTopicsContent.${topic.contentKey}.heroTitle`, {
+                defaultValue: topic.heroTitle,
+              })}
             </h1>
 
             <p
               className="text-[16px] md:text-[20px] leading-[1.8] text-white max-w-[700px] mb-8"
               style={styles.body}
             >
-              {topic.heroDescription}
+              {t(`supportTopicsContent.${topic.contentKey}.heroDescription`, {
+                defaultValue: topic.heroDescription,
+              })}
             </p>
 
             <motion.button
@@ -265,7 +291,7 @@ export default function SupportTopicPage() {
               className="flex items-center justify-center gap-2.5 h-[60px] px-8 rounded-full bg-[#1B4585] cursor-pointer"
             >
               <span className="text-white font-['Plus_Jakarta_Sans'] font-semibold text-[16px] sm:text-[18px]">
-                Explore support resources
+                {t("supportTopic.hero.button")}
               </span>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path
@@ -289,10 +315,13 @@ export default function SupportTopicPage() {
               onClick={() => navigate("/")}
               className="underline cursor-pointer hover:opacity-70 transition"
             >
-              Back to Home
+              {t("supportTopic.navigation.backToHome")}
             </span>{" "}
             <span id="support-section" className="inline-flex items-center gap-2">
-              / {topic.breadcrumbLabel}
+              /{" "}
+              {t(`supportTopicsContent.${topic.contentKey}.breadcrumbLabel`, {
+                defaultValue: topic.breadcrumbLabel,
+              })}
             </span>
           </p>
         </div>
@@ -308,14 +337,19 @@ export default function SupportTopicPage() {
                   className="mb-4 sm:mb-8 text-white text-[clamp(24px,6vw,35px)] leading-[1.15] font-medium"
                   style={{ fontFamily: "Outfit, sans-serif" }}
                 >
-                  {topic.understandingTitle}
+                  {t(`supportTopicsContent.${topic.contentKey}.understandingTitle`, {
+                    defaultValue: topic.understandingTitle,
+                  })}
                 </h2>
 
                 <p
                   className="text-[15px] sm:text-[16px] leading-[1.7] sm:leading-[180%] text-white/90"
                   style={styles.body}
                 >
-                  {topic.understandingDescription}
+                  {t(
+                    `supportTopicsContent.${topic.contentKey}.understandingDescription`,
+                    { defaultValue: topic.understandingDescription }
+                  )}
                 </p>
             </div>
           </div>
@@ -337,11 +371,11 @@ export default function SupportTopicPage() {
         <div className="navbar-align-inner">
         <div className="mb-16">
           <h2 className="mb-5" style={styles.heading}>
-            Articles that might help
+            {t("supportTopic.articles.title")}
           </h2>
 
           <p className="mb-8" style={styles.body}>
-            Written by the people who'd be in the room with you.
+            {t("supportTopic.articles.description")}
           </p>
 
           {/* Category Buttons */}
@@ -357,7 +391,7 @@ export default function SupportTopicPage() {
                 }`}
                 style={styles.body}
               >
-                {item}
+                {item === "All" ? t("supportTopic.articles.all") : item}
               </button>
             ))}
           </div>
@@ -367,11 +401,11 @@ export default function SupportTopicPage() {
         <div className="grid md:grid-cols-2 2xl:grid-cols-3 gap-8">
           {articlesLoading ? (
             <p className="col-span-full text-center text-[#666]" style={styles.body}>
-              Loading articles...
+              {t("supportTopic.articles.loading")}
             </p>
           ) : filteredArticles.length === 0 ? (
             <p className="col-span-full text-center text-[#666]" style={styles.body}>
-              No related articles available right now.
+              {t("supportTopic.articles.noArticles")}
             </p>
           ) : (
           filteredArticles.map((article, index) => (
@@ -478,7 +512,7 @@ export default function SupportTopicPage() {
                   className="text-[12px] sm:text-[13px]"
                   style={styles.body}
                 >
-                  How counselling helps
+                  {t("supportTopic.counselling.badge")}
                 </span>
               </div>
 
@@ -490,7 +524,7 @@ export default function SupportTopicPage() {
                   fontWeight: 500,
                 }}
               >
-                What happens in the room
+                {t("supportTopic.counselling.title")}
               </h2>
 
               {/* Description */}
@@ -498,10 +532,7 @@ export default function SupportTopicPage() {
                 className="max-w-[500px] text-[15px] sm:text-[16px] leading-[180%] text-white/90"
                 style={styles.body}
               >
-                Counselling isn't lying on a couch while someone analyzes you.
-                It's a conversation with a trained person who is fully on your
-                side, helping you understand what's going on and what to do about
-                it.
+                {t("supportTopic.counselling.description")}
               </p>
             </div>
           </div>
@@ -510,46 +541,7 @@ export default function SupportTopicPage() {
           <div className="bg-white">
             <div className="h-full flex flex-col justify-between px-6 sm:px-8 md:px-10 lg:px-14 py-12 sm:py-14 lg:py-8">
 
-              {[
-                {
-                  icon: <Ear size={30} color="#DE5753" strokeWidth={2.2} />,
-                  title: "You're heard without being fixed",
-                  desc: "No advice you didn’t ask for. No rushing to solutions. Just space for what you’re carrying.",
-                },
-                {
-                  icon: (
-                    <ShieldCheck
-                      size={30}
-                      color="#DE5753"
-                      strokeWidth={2.2}
-                    />
-                  ),
-                  title: "Everything is confidential",
-                  desc: "What you share stays in the room. Even your family or employer won't know unless you tell them.",
-                },
-                {
-                  icon: (
-                    <Wrench
-                      size={30}
-                      color="#DE5753"
-                      strokeWidth={2.2}
-                    />
-                  ),
-                  title: "You leave with real tools",
-                  desc: "Techniques you can use between sessions. Ways of thinking that genuinely help when anxiety rises.",
-                },
-                {
-                  icon: (
-                    <PersonStanding
-                      size={30}
-                      color="#DE5753"
-                      strokeWidth={2.2}
-                    />
-                  ),
-                  title: "You set the pace, always",
-                  desc: "Come weekly, monthly, or just once. Stop whenever you want. There’s no 'right' way to do this.",
-                },
-              ].map((item, i) => (
+              {counsellingItems.map((item, i) => (
                 <div
                   key={i}
                   className="flex items-start gap-4 sm:gap-5"
@@ -557,7 +549,7 @@ export default function SupportTopicPage() {
 
                   {/* Icon */}
                   <div className="flex-shrink-0 mt-1">
-                    {item.icon}
+                    {counsellingIcons[i]}
                   </div>
 
                   {/* Content */}
@@ -576,7 +568,7 @@ export default function SupportTopicPage() {
                       className="text-[15px] sm:text-[16px] leading-[170%] text-[#333]"
                       style={styles.body}
                     >
-                      {item.desc}
+                      {item.description}
                     </p>
                   </div>
                 </div>
@@ -599,16 +591,14 @@ export default function SupportTopicPage() {
             className="mb-5 sm:mb-6"
             style={styles.heading}
           >
-            Support services you may find helpful
+            {t("supportTopic.services.title")}
           </h2>
 
           <p
             className="text-[15px] sm:text-[16px] leading-[170%]"
             style={styles.body}
           >
-            Professional assistance and guidance in resolving personal,
-            relational, and psychological challenges — for individuals,
-            couples, families, and children of all ages.
+            {t("supportTopic.services.description")}
           </p>
         </div>
 
@@ -617,11 +607,11 @@ export default function SupportTopicPage() {
 
           {servicesLoading ? (
             <p className="col-span-full text-center text-[#666]" style={styles.body}>
-              Loading services...
+              {t("supportTopic.services.loading")}
             </p>
           ) : topicServices.length === 0 ? (
             <p className="col-span-full text-center text-[#666]" style={styles.body}>
-              No related services available right now.
+              {t("supportTopic.services.noServices")}
             </p>
           ) : (
           topicServices.map((service, index) => (
@@ -653,7 +643,7 @@ export default function SupportTopicPage() {
                     onClick={() => handleServiceClick(service)}
                     className="text-[#1B4585] underline cursor-pointer font-medium ml-1 inline-block mt-1"
                   >
-                    Read more
+                    {t("supportTopic.services.readMore")}
                   </span>
                 </p>
 
@@ -670,7 +660,7 @@ export default function SupportTopicPage() {
                   onMouseEnter={() => setHoveredButton(`support-${index}`)}
                   onMouseLeave={() => setHoveredButton(null)}
                 >
-                  Book an appointment
+                  {t("supportTopic.services.bookAppointment")}
 
                   <svg
                     width="20"
@@ -710,12 +700,11 @@ export default function SupportTopicPage() {
               className="text-[38px] leading-[115%] tracking-[-0.03em] font-semibold font-family: 'Outfit', sans-serif;"
               
             >
-              Ready to talk to someone?
+              {t("supportTopic.cta.title")}
             </h2>
 
             <p className="mx-auto mt-5 max-w-[900px] text-white/85 text-[18px] leading-[190%]">
-              Our counselling team is here to listen, support, and guide you in a
-              safe and confidential environment.
+              {t("supportTopic.cta.description")}
             </p>
 
             <motion.button
@@ -724,7 +713,7 @@ export default function SupportTopicPage() {
               onClick={() => openModal()}
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-white h-[46px] px-6 text-[14px] font-semibold text-[#0D4A7A] cursor-pointer"
             >
-              Book an appointment
+              {t("supportTopic.cta.button")}
 
               <svg
                 width="20"

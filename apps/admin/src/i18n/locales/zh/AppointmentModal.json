@@ -1,0 +1,90 @@
+{
+  "appointmentModal": {
+    "common": {
+      "close": "关闭",
+      "back": "返回",
+      "continue": "继续",
+      "submit": "提交",
+      "retry": "重试"
+    },
+    "step1": {
+      "title": "开启您的疗愈之旅",
+      "subtitle": "我们随时为您提供支持。请填写您的基本联系资料，以便我们与您联系。",
+      "fields": {
+        "nric": "NRIC/FIN号码",
+        "nricPlaceholder": "例如：S1234567D",
+        "name": "姓名（与NRIC/FIN一致）",
+        "namePlaceholder": "请输入您的姓名",
+        "email": "电子邮箱",
+        "emailPlaceholder": "请输入您的电子邮箱",
+        "phone": "电话号码",
+        "phonePlaceholder": "8位数字",
+        "age": "年龄",
+        "agePlaceholder": "请输入您的年龄",
+        "gender": "性别",
+        "genderPlaceholder": "请选择性别",
+        "nationality": "国籍",
+        "nationalityPlaceholder": "请选择国籍",
+        "searchCountry": "搜索国家...",
+        "noCountries": "未找到国家"
+      },
+      "genderOptions": {
+        "male": "男",
+        "female": "女",
+        "other": "其他"
+      },
+      "privacyNotice": "您提供的所有信息都会依据新加坡《个人资料保护法》（PDPA）进行安全且保密的处理。"
+    },
+    "step2": {
+      "title": "选择您需要的支持",
+      "subtitle": "请选择最符合您当前需求的辅导服务。",
+      "loading": "正在加载辅导类型...",
+      "counsellingType": "选择辅导类型",
+      "supportWith": "您希望获得哪方面的支持？",
+      "helpNote": "不确定该选择哪项？提交后我们的团队会为您提供建议。"
+    },
+    "step3": {
+      "title": "简要描述您的情况",
+      "subtitle": "请分享您愿意告诉我们的内容。",
+      "descriptionLabel": "请告诉我们今天是什么原因让您来到这里",
+      "descriptionPlaceholder": "请描述您的情况",
+      "descriptionHelp": "这些信息将帮助辅导员提前做好准备，为您提供更合适的支持。",
+      "consent": "我理解，所提供的信息将用于处理我的预约申请，并以保密方式支持我的辅导过程。"
+    },
+    "success": {
+      "title": "预约提交成功",
+      "message": "谢谢您，{{name}}。我们已收到您的预约申请，并将在3个工作日内与您联系。",
+      "emailMessage": "确认邮件已发送至 {{email}}。您现在可以关闭此窗口并继续浏览我们的服务。",
+      "button": "关闭",
+      "notification": {
+        "title": "预约已提交",
+        "body": "{{name}} 提交了新的预约申请"
+      }
+    },
+    "validation": {
+      "required": "此字段为必填项",
+      "nricRequired": "请输入NRIC/FIN号码",
+      "nricInvalid": "必须为9个字符：首尾为字母，中间7位为数字",
+      "nameRequired": "请输入姓名。",
+      "nameInvalid": "姓名只能包含字母。",
+      "emailRequired": "请输入电子邮箱",
+      "emailInvalid": "请输入有效的电子邮箱地址",
+      "phoneRequired": "请输入电话号码",
+      "phoneLeadingZero": "电话号码不能以0开头",
+      "phoneInvalid": "电话号码必须为8位数字",
+      "ageRequired": "请输入年龄",
+      "ageInteger": "年龄必须为整数",
+      "ageMinimum": "年龄必须至少为1岁",
+      "ageMaximum": "年龄不能超过120岁",
+      "genderRequired": "请选择性别",
+      "nationalityRequired": "请选择国籍",
+      "counsellingRequired": "请选择辅导类型",
+      "descriptionRequired": "请描述您的情况"
+    },
+    "errors": {
+      "loadingCounsellingTypes": "目前无法加载辅导类型，请稍后再试。",
+      "bookingFailed": "预约提交失败",
+      "serverError": "服务器错误"
+    }
+  }
+}

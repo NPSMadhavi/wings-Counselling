@@ -1,0 +1,111 @@
+{
+  "candidateAuth": {
+    "common": {
+      "title": "Log masuk atau cipta akaun untuk memohon pekerjaan",
+      "close": "Tutup",
+      "back": "Kembali",
+      "continue": "Teruskan",
+      "loading": "Sedang memuatkan...",
+      "submitting": "Sedang menghantar..."
+    },
+
+    "tabs": {
+      "signIn": "Log masuk",
+      "createAccount": "Cipta akaun"
+    },
+
+    "signin": {
+      "title": "Log masuk",
+
+      "fields": {
+        "email": "Alamat E-mel",
+        "emailPlaceholder": "Masukkan alamat e-mel anda",
+
+        "password": "Kata Laluan",
+        "passwordPlaceholder": "Masukkan kata laluan anda"
+      },
+
+      "buttons": {
+        "submit": "Log masuk",
+        "forgotPassword": "Lupa kata laluan?"
+      }
+    },
+
+    "createAccount": {
+      "title": "Cipta akaun",
+
+      "fields": {
+        "firstName": "Nama Pertama",
+        "firstNamePlaceholder": "Masukkan nama pertama",
+
+        "lastName": "Nama Akhir",
+        "lastNamePlaceholder": "Masukkan nama akhir",
+
+        "email": "Alamat E-mel",
+        "emailPlaceholder": "Masukkan alamat e-mel anda",
+
+        "mobile": "Nombor Telefon Bimbit",
+        "mobilePlaceholder": "Masukkan nombor telefon bimbit anda",
+
+        "password": "Kata Laluan",
+        "passwordPlaceholder": "Masukkan kata laluan anda",
+
+        "confirmPassword": "Sahkan Kata Laluan",
+        "confirmPasswordPlaceholder": "Masukkan semula kata laluan anda"
+      },
+
+      "terms": {
+        "agree": "Saya bersetuju dengan {{terms}}",
+        "termsAndConditions": "Terma dan Syarat"
+      },
+
+      "buttons": {
+        "submit": "Cipta akaun"
+      }
+    },
+
+    "validation": {
+      "signIn": {
+        "emailRequired": "Alamat e-mel diperlukan.",
+        "emailInvalid": "Sila masukkan alamat e-mel yang sah.",
+        "passwordRequired": "Kata laluan diperlukan."
+      },
+
+      "createAccount": {
+        "firstNameRequired": "Nama pertama diperlukan.",
+        "lastNameRequired": "Nama akhir diperlukan.",
+
+        "emailRequired": "Alamat e-mel diperlukan.",
+        "emailInvalid": "Sila masukkan alamat e-mel yang sah.",
+
+        "mobileRequired": "Nombor telefon bimbit diperlukan.",
+        "mobileInvalid": "Sila masukkan nombor telefon bimbit yang sah.",
+
+        "passwordRequired": "Kata laluan diperlukan.",
+        "passwordMin": "Kata laluan mestilah sekurang-kurangnya 6 aksara.",
+
+        "confirmPasswordMismatch": "Kata laluan tidak sepadan.",
+
+        "termsRequired": "Anda mesti bersetuju dengan Terma dan Syarat."
+      }
+    },
+
+    "toast": {
+      "loginFailed": {
+        "title": "Log masuk gagal"
+      },
+
+      "registrationFailed": {
+        "title": "Pendaftaran gagal"
+      },
+
+      "accountCreated": {
+        "title": "Akaun berjaya dicipta!"
+      },
+
+      "accountCreatedSignIn": {
+        "title": "Akaun berjaya dicipta! Sila log masuk untuk meneruskan."
+      }
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "supportTopicsContent": {
+    "familyConflicts": {
+      "label": "Konflik Keluarga",
+      "breadcrumbLabel": "Konflik Keluarga",
+      "heroTitle": "Anda tidak perlu menghadapi konflik keluarga bersendirian",
+      "heroDescription": "Ketahui cara memperbaiki hubungan kekeluargaan, memahami punca-punca konflik yang biasa berlaku dan meneroka sokongan profesional untuk mengukuhkan komunikasi serta hubungan dalam keluarga.",
+      "understandingTitle": "Memahami konflik keluarga",
+      "understandingDescription": "Konflik keluarga merupakan perkara yang biasa berlaku dalam sesebuah keluarga. Ia boleh berpunca daripada perbezaan cara berkomunikasi, jangkaan, tanggungjawab atau perubahan dalam kehidupan. Jika konflik berlarutan tanpa penyelesaian, ia boleh menjejaskan kesejahteraan emosi, kepercayaan dan keharmonian keluarga. Dengan sokongan yang sesuai, ahli keluarga dapat mempelajari cara berkomunikasi dengan lebih berkesan serta membina hubungan yang lebih sihat."
+    },
+
+    "depression": {
+      "label": "Kemurungan",
+      "breadcrumbLabel": "Kemurungan",
+      "heroTitle": "Anda tidak perlu menghadapi cabaran gaya hidup bersendirian",
+      "heroDescription": "Ketahui bagaimana tabiat harian dan perubahan kehidupan boleh mempengaruhi kesejahteraan anda, serta terokai langkah-langkah praktikal untuk membina gaya hidup yang lebih sihat dan seimbang.",
+      "understandingTitle": "Memahami cabaran gaya hidup",
+      "understandingDescription": "Cabaran gaya hidup boleh merangkumi kesukaran mengekalkan tabiat sihat, mengimbangi tanggungjawab harian, menyesuaikan diri dengan perubahan hidup atau mengurus kesejahteraan diri. Perubahan kecil yang positif boleh membantu meningkatkan kesihatan fizikal, emosi dan kualiti hidup secara keseluruhan."
+    },
+
+    "traumaPTSD": {
+      "label": "Trauma & PTSD",
+      "breadcrumbLabel": "Trauma & PTSD",
+      "heroTitle": "Anda tidak perlu melalui proses pemulihan trauma bersendirian",
+      "heroDescription": "Fahami trauma dan Gangguan Tekanan Pascatrauma (PTSD), kenali simptom-simptomnya dan dapatkan sokongan profesional yang prihatin dalam perjalanan pemulihan anda.",
+      "understandingTitle": "Memahami Trauma & PTSD",
+      "understandingDescription": "Trauma boleh berlaku akibat pengalaman yang amat menyedihkan atau mengancam nyawa, dan boleh memberi kesan berpanjangan terhadap kesejahteraan emosi, mental serta fizikal seseorang. Sesetengah individu mungkin mengalami Gangguan Tekanan Pascatrauma (PTSD), yang boleh menyebabkan kenangan yang mengganggu, keresahan melampau dan tekanan emosi. Dengan rawatan serta sokongan yang sesuai, proses pemulihan adalah sesuatu yang boleh dicapai."
+    },
+
+    "addiction": {
+      "label": "Ketagihan",
+      "breadcrumbLabel": "Ketagihan",
+      "heroTitle": "Anda tidak perlu menghadapi ketagihan bersendirian",
+      "heroDescription": "Fahami bagaimana ketagihan boleh mempengaruhi kehidupan anda, kenali tanda-tanda awal dan terokai sokongan profesional untuk membantu anda menuju pemulihan yang berkekalan.",
+      "understandingTitle": "Memahami ketagihan",
+      "understandingDescription": "Ketagihan boleh melibatkan penyalahgunaan bahan atau tingkah laku yang sukar dikawal walaupun membawa kesan negatif. Ia boleh menjejaskan kesihatan fizikal, kesejahteraan emosi, hubungan serta kehidupan seharian. Dengan intervensi awal dan sokongan profesional, individu boleh mendapatkan semula kawalan terhadap kehidupan mereka serta membina cara mengatasi cabaran dengan lebih sihat."
+    },
+
+    "griefLoss": {
+      "label": "Kesedihan & Kehilangan",
+      "breadcrumbLabel": "Kesedihan & Kehilangan",
+      "heroTitle": "Anda tidak perlu melalui kehilangan bersendirian",
+      "heroDescription": "Fahami kesan emosi akibat kehilangan, pelajari cara menghadapi kesedihan secara sihat dan dapatkan sokongan penuh empati sepanjang proses pemulihan.",
+      "understandingTitle": "Memahami kesedihan & kehilangan",
+      "understandingDescription": "Kesedihan ialah tindak balas semula jadi terhadap kehilangan seseorang atau sesuatu yang penting dalam hidup. Setiap individu mengalami kesedihan dengan cara yang berbeza, termasuk perasaan sedih, marah, bersalah atau keliru. Dengan masa dan sokongan yang sesuai, seseorang dapat menyesuaikan diri dengan kehilangan serta meneruskan kehidupan dengan lebih baik."
+    },
+
+    "stressAnxiety": {
+      "label": "Tekanan / Kebimbangan",
+      "breadcrumbLabel": "Tekanan & Kebimbangan",
+      "heroTitle": "Anda tidak perlu menghadapi kebimbangan bersendirian",
+      "heroDescription": "Ketahui lebih lanjut tentang tekanan dan kebimbangan, pelajari strategi mengatasinya serta dapatkan sokongan profesional yang sesuai dengan keperluan anda.",
+      "understandingTitle": "Memahami kebimbangan: simptom, punca & cara mengatasinya",
+      "understandingDescription": "Kebimbangan ialah perasaan takut, risau atau gelisah yang boleh berlaku apabila seseorang berhadapan dengan situasi yang mencabar. Ia merupakan tindak balas yang normal, namun apabila kebimbangan berterusan dan mula mengganggu kehidupan harian, ia mungkin memerlukan perhatian serta sokongan profesional."
+    },
+
+    "relationshipIssues": {
+      "label": "Masalah Perhubungan",
+      "breadcrumbLabel": "Masalah Perhubungan",
+      "heroTitle": "Anda tidak perlu menghadapi cabaran perhubungan bersendirian",
+      "heroDescription": "Terokai cara untuk meningkatkan komunikasi, mengukuhkan hubungan dan mendapatkan sokongan profesional bagi menghadapi cabaran bersama.",
+      "understandingTitle": "Memahami masalah perhubungan",
+      "understandingDescription": "Masalah perhubungan boleh berpunca daripada kesukaran berkomunikasi, konflik yang tidak diselesaikan, isu kepercayaan atau perubahan dalam kehidupan. Hubungan yang sihat memerlukan persefahaman, saling menghormati dan komunikasi yang berkesan. Kaunseling boleh membantu individu dan pasangan membina semula hubungan yang lebih kukuh dan sihat."
+    },
+
+    "parentingChallenges": {
+      "label": "Cabaran Keibubapaan",
+      "breadcrumbLabel": "Cabaran Keibubapaan",
+      "heroTitle": "Anda tidak perlu melalui cabaran keibubapaan bersendirian",
+      "heroDescription": "Pelajari strategi keibubapaan yang praktikal, fahami keperluan perkembangan anak dan terokai bimbingan profesional pada setiap peringkat keibubapaan.",
+      "understandingTitle": "Memahami cabaran keibubapaan",
+      "understandingDescription": "Keibubapaan merupakan satu perjalanan yang penuh ganjaran tetapi juga mencabar. Isu tingkah laku, kesukaran berkomunikasi, perubahan perkembangan anak serta tanggungjawab keluarga boleh menyebabkan tekanan. Sokongan dan bimbingan yang sesuai dapat membantu ibu bapa membina hubungan yang lebih erat dengan anak-anak serta menyokong perkembangan mereka secara sihat."
+    },
+
+    "mentalHealth": {
+      "label": "Kesihatan Mental",
+      "breadcrumbLabel": "Kesihatan Mental",
+      "heroTitle": "Anda tidak perlu menghadapi tekanan kewangan bersendirian",
+      "heroDescription": "Fahami bagaimana masalah kewangan boleh memberi kesan kepada kesejahteraan emosi dan hubungan, serta pelajari cara yang lebih sihat untuk mengurus cabaran kewangan.",
+      "understandingTitle": "Memahami pertikaian kewangan",
+      "understandingDescription": "Pertikaian kewangan boleh menyebabkan tekanan dalam keluarga, hubungan dan tempat kerja. Kebimbangan berkaitan bajet, hutang, perbelanjaan atau tanggungjawab kewangan boleh menjejaskan kesejahteraan emosi serta hubungan dengan orang lain. Komunikasi yang membina dan bimbingan profesional dapat membantu menyelesaikan konflik kewangan dengan lebih berkesan."
+    },
+
+    "burnoutWorkStress": {
+      "label": "Keletihan Kerja & Tekanan Pekerjaan",
+      "breadcrumbLabel": "Keletihan Kerja & Tekanan Pekerjaan",
+      "heroTitle": "Anda tidak perlu menghadapi keletihan kerja bersendirian",
+      "heroDescription": "Kenali tanda-tanda keletihan kerja, fahami kesan tekanan pekerjaan yang berpanjangan dan terokai cara untuk memulihkan keseimbangan serta kesejahteraan diri.",
+      "understandingTitle": "Memahami keletihan kerja & tekanan pekerjaan",
+      "understandingDescription": "Tekanan di tempat kerja adalah perkara biasa, namun tekanan yang berpanjangan tanpa rehat yang mencukupi boleh menyebabkan keletihan kerja (burnout). Gejala mungkin termasuk keletihan emosi, kehilangan motivasi, kesukaran menumpukan perhatian dan keletihan fizikal. Mendapatkan sokongan awal dapat membantu seseorang memulihkan keseimbangan serta meningkatkan kesejahteraan secara keseluruhan."
+    },
+
+    "selfEsteemIdentity": {
+      "label": "Harga Diri & Identiti",
+      "breadcrumbLabel": "Harga Diri & Identiti",
+      "heroTitle": "Anda tidak perlu menghadapi keraguan terhadap diri sendiri bersendirian",
+      "heroDescription": "Fahami bagaimana harga diri dan identiti mempengaruhi kesejahteraan emosi, serta pelajari cara membina keyakinan diri dan identiti yang lebih positif.",
+      "understandingTitle": "Memahami harga diri & identiti",
+      "understandingDescription": "Harga diri merujuk kepada cara seseorang menilai dirinya sendiri, manakala identiti membentuk pemahaman tentang siapa diri mereka. Cabaran dalam aspek ini boleh mempengaruhi keyakinan, hubungan, pembuatan keputusan dan kesejahteraan emosi. Kaunseling dapat membantu individu membina penerimaan diri, daya tahan serta perkembangan peribadi."
+    },
+
+    "feelingLonely": {
+      "label": "Berasa Sunyi",
+      "breadcrumbLabel": "Berasa Sunyi",
+      "heroTitle": "Anda tidak perlu menghadapi kesunyian bersendirian",
+      "heroDescription": "Fahami kesan kesunyian terhadap kesejahteraan diri, pelajari cara membina hubungan yang bermakna dan dapatkan sokongan untuk meningkatkan kesihatan emosi.",
+      "understandingTitle": "Memahami kesunyian",
+      "understandingDescription": "Kesunyian ialah perasaan terputus hubungan atau kekurangan hubungan sosial yang bermakna. Sesiapa sahaja boleh mengalaminya tanpa mengira usia atau keadaan hidup, dan ia boleh memberi kesan kepada kesihatan mental serta fizikal. Membina hubungan yang menyokong dan mendapatkan bantuan profesional apabila diperlukan dapat membantu seseorang kembali berhubung dengan orang lain serta meningkatkan kesejahteraan hidup."
+    }
+  }
+}

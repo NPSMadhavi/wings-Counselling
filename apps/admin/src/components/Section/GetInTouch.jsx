@@ -1,4 +1,5 @@
 import { useAppointment } from "@/context/AppointmentContext";
+import { useTranslation } from "react-i18next";
 import { SiteClockIcon, SiteMapPinIcon, SITE_ICON_SIZE_LG } from "@/components/ui/SiteIcons";
 
 /* ─── SVG Icons (phone, email — not part of site icon set) ─── */
@@ -69,6 +70,7 @@ function ArrowIcon({ color = "currentColor" }) {
 }
 
 export function GetInTouch() {
+    const { t } = useTranslation();
     const { openModal } = useAppointment();
 
     // Function to open Google Maps with the exact location
@@ -99,7 +101,7 @@ export function GetInTouch() {
         text-[#0D4A7A]
     "
 >
-    Get in touch
+    {t("getInTouch.title")}
 </h2>
 
             <p
@@ -119,7 +121,7 @@ export function GetInTouch() {
                     md:mb-10
                 "
             >
-                We are here to help you. Reach us during working hours.
+                {t("getInTouch.description")}
             </p>
 
             <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 w-full items-stretch">
@@ -138,7 +140,7 @@ export function GetInTouch() {
                             </div>
 
                             <h3 className="font-['DM_Sans'] font-semibold text-[20px] m-0 mb-1">
-                                Address
+                                {t("getInTouch.address")}
                             </h3>
 
                             <p className="font-['DM_Sans'] font-normal text-[15px] text-[#333] m-0 leading-relaxed max-w-[240px]">
@@ -155,7 +157,7 @@ export function GetInTouch() {
                             </div>
 
                             <h3 className="font-['DM_Sans'] font-semibold text-[20px] m-0 mb-1">
-                                Phone
+                                {t("getInTouch.phone")}
                             </h3>
 
                             <p className="font-['DM_Sans'] font-normal text-[15px] text-[#333] m-0 leading-relaxed">
@@ -172,13 +174,13 @@ export function GetInTouch() {
                             </div>
 
                             <h3 className="font-['DM_Sans'] font-semibold text-[20px] m-0 mb-4">
-                                Operating hours
+                                {t("getInTouch.operatingHours")}
                             </h3>
 
                             <div className="flex flex-col gap-3">
                                      <div className="flex justify-between items-center gap-2">
                                     <span className="font-['DM_Sans'] font-medium text-[14px] sm:text-[15px] text-[#000] min-w-0 flex-1 leading-tight">
-                                        Monday
+                                        {t("getInTouch.days.monday")}
                                     </span>
 
                                     <span className="font-['DM_Sans'] font-medium text-[13px] sm:text-[14px] text-[#1B4585] text-right whitespace-nowrap shrink-0">
@@ -188,7 +190,7 @@ export function GetInTouch() {
 
                                 <div className="flex justify-between items-center gap-2">
                                     <span className="font-['DM_Sans'] font-medium text-[14px] sm:text-[15px] text-[#000] min-w-0 flex-1 leading-tight">
-                                        Tue - Fri (exc. Thu)
+                                        {t("getInTouch.days.tueFri")}
                                     </span>
 
                                     <span className="font-['DM_Sans'] font-medium text-[13px] sm:text-[14px] text-[#1B4585] text-right whitespace-nowrap shrink-0">
@@ -198,7 +200,7 @@ export function GetInTouch() {
 
                                 <div className="flex justify-between items-center gap-2">
                                     <span className="font-['DM_Sans'] font-medium text-[14px] sm:text-[15px] text-[#000] min-w-0 flex-1 leading-tight">
-                                        Thursdays
+                                        {t("getInTouch.days.thursday")}
                                     </span>
 
                                     <span className="font-['DM_Sans'] font-medium text-[13px] sm:text-[14px] text-[#1B4585] text-right whitespace-nowrap shrink-0">
@@ -208,7 +210,7 @@ export function GetInTouch() {
 
                                 <div className="flex justify-between items-center gap-2">
                                     <span className="font-['DM_Sans'] font-medium text-[14px] sm:text-[15px] text-[#000] min-w-0 flex-1 leading-tight">
-                                        Saturdays (2nd & 4th)
+                                        {t("getInTouch.days.saturday")}
                                     </span>
 
                                     <span className="font-['DM_Sans'] font-medium text-[13px] sm:text-[14px] text-[#1B4585] text-right whitespace-nowrap shrink-0">
@@ -218,11 +220,11 @@ export function GetInTouch() {
 
                                 <div className="flex justify-between items-center gap-2">
                                     <span className="font-['DM_Sans'] font-medium text-[14px] sm:text-[15px] text-[#000] min-w-0 flex-1 leading-tight">
-                                        Sun & Public holidays
+                                        {t("getInTouch.days.sunHoliday")}
                                     </span>
 
                                     <span className="font-['DM_Sans'] font-medium text-[13px] sm:text-[14px] text-[#1B4585] text-right whitespace-nowrap shrink-0">
-                                        Closed
+                                        {t("getInTouch.status.closed")}
                                     </span>
                                 </div>
                             </div>
@@ -237,7 +239,7 @@ export function GetInTouch() {
                             </div>
 
                             <h3 className="font-['DM_Sans'] font-semibold text-[20px] m-0 mb-2">
-                                Email
+                                {t("getInTouch.email")}
                             </h3>
 
                             <a
@@ -274,7 +276,7 @@ export function GetInTouch() {
                             active:scale-[0.98]
                         "
                     >
-                        Book an appointment
+                        {t("getInTouch.bookAppointment")}
 
                         <svg
                             width="20"
@@ -321,7 +323,7 @@ export function GetInTouch() {
                     {/* Map Info Box */}
                     <div className="absolute top-[25px] left-[15px] w-[190px] h-[100px] bg-white rounded-[10px] p-[15px] shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex flex-col justify-center z-10">
                         <h4 className="font-['DM_Sans'] font-medium text-[13px] text-[#000] m-0 mb-1 leading-tight">
-                            Ramakrishna Mission WINGS Counselling Centre
+                            {t("getInTouch.mapTitle")}
                         </h4>
 
                         <p className="font-['DM_Sans'] font-normal text-[11px] text-[#666] m-0 leading-tight">
@@ -346,7 +348,7 @@ export function GetInTouch() {
                                 <circle cx="12" cy="9" r="3" fill="#FFF" />
                             </svg>
                             <span className="text-[#1B4585] font-['DM_Sans'] font-semibold text-[14px]">
-                                Click to open in Google Maps
+                                {t("getInTouch.openGoogleMaps")}
                             </span>
                             <svg 
                                 width="16" 
@@ -408,7 +410,7 @@ export function GetInTouch() {
                         active:scale-[0.98]
                     "
                 >
-                    Book an appointment
+                    {t("getInTouch.bookAppointment")}
 
                     <svg
                         width="20"

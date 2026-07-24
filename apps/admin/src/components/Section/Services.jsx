@@ -1,6 +1,7 @@
   import { useRef, useState, useEffect } from "react";
   import { motion, useScroll, useTransform } from "framer-motion";
   import { navigate } from "wouter/use-browser-location";
+  import { useTranslation } from "react-i18next";
   const FALLBACK_SERVICE_IMAGE = "/assets/card2.jpg.jpeg";
 
   /* ─── Fallback service data (used if API is unavailable) ─── */
@@ -94,6 +95,7 @@
 
   /* ─── Main Component ───────────────────────────────────────── */
   export function Services() {
+    const { t } = useTranslation();
     const scrollRef = useRef(null);
     const sectionRef = useRef(null);
 
@@ -311,7 +313,7 @@
                 "
               style={{ color: "#0D4A7A" }}
             >
-              What WINGS Counselling Centre offers
+              {t("services.title")}
             </motion.h2>
 
             {/* Subheading */}
@@ -333,7 +335,7 @@
                 md:line-clamp-none
               "
             >
-              Comprehensive counselling support for every stage of life
+              {t("services.description")}
             </motion.p>
           </div>
 
@@ -428,6 +430,7 @@
 
   /* ─── Service Card ─────────────────────────────────────────── */
   function ServiceCard({ service }) {
+    const { t } = useTranslation();
     const [hovered, setHovered] = useState(false);
 
     return (
@@ -521,7 +524,7 @@
                 flex items-center gap-1
               "
             >
-              Read more
+              {t("services.readMore")}
 
               <svg
                 width="20"

@@ -1,0 +1,141 @@
+{
+  "aboutUs": {
+    "hero": {
+      "title": "Healing hearts",
+      "highlight": "since 1995",
+      "description": "Born from a deep belief that everyone deserves compassionate support. WINGS has grown from a single counselling room into Singapore's most trusted community mental wellness centre—serving children, families and adults across every stage of life.",
+      "button": "Explore our story"
+    },
+
+    "quote": {
+      "text": "Guidance and support provided at an early stage greatly enhances the ability of children and youth to cope and to grow into well-adjusted and thriving adults.",
+      "author": "— Swami Jayadevananda, Founder's vision 1995"
+    },
+
+    "journey": {
+      "title": "Our journey through the years",
+      "description": "From a one-room pilot project in 1995, we have grown into a multi-service counselling centre, providing compassionate support to thousands of families across Singapore.",
+
+      "timeline": [
+        {
+          "year": "1995",
+          "category": "The beginning",
+          "title": "Ramakrishna Mission counselling centre opened",
+          "description": "With funding from the National Council of Social Service (NCSS) 25th Anniversary Endowment Fund, the Ramakrishna Mission launched a pilot project with three counsellors and one administrative assistant, operating from a single room in the mission library. The counsellors immediately began networking with neighbourhood schools to identify students who could benefit from professional support."
+        },
+        {
+          "year": "1996",
+          "category": "Recognition",
+          "title": "NCSS officially recognises the centre",
+          "description": "The National Council of Social Service (NCSS) recognised the centre's positive community impact and made it a fully funded agency for School Social Work (SSW), cementing its role in Singapore's social welfare ecosystem."
+        },
+        {
+          "year": "1997",
+          "category": "Growth",
+          "title": "First major relocation – Sarada Hall",
+          "description": "Growing client demand required a larger space. The centre moved to Sarada Hall, gaining three counselling rooms, an administrative office and a conference room for case discussions, marking the beginning of a true centre-based approach."
+        },
+        {
+          "year": "2002",
+          "category": "Transformation",
+          "title": "Rebranded to WINGS and a new home",
+          "description": "The management committee repositioned the centre as a secular community service provider and renamed it WINGS Counselling Centre, symbolising the capacity to rise and grow. The centre also moved into a modern facility featuring one-way mirror counselling rooms, play therapy suites and art therapy observation spaces."
+        },
+        {
+          "year": "2004",
+          "category": "Expansion",
+          "title": "Family Life Education programme launched",
+          "description": "Recognising the importance of supporting entire family units, WINGS became a service provider for the School Family Life Education (SFE) programme under MCYS (now MSF). Parenting workshops were delivered to schools through a collaborative approach involving schools, homes and the community."
+        },
+        {
+          "year": "2009",
+          "category": "Pioneering",
+          "title": "Singapore's first pre-school support programme",
+          "description": "In collaboration with the National Council of Social Service (NCSS), WINGS launched the groundbreaking Pre-School Support Programme (PSSP), Singapore's first preventive intervention programme for children aged 2.5 to below 7 years. The programme helped children transition confidently from home-based learning to structured school environments."
+        },
+        {
+          "year": "2012",
+          "category": "Milestone",
+          "title": "Family Support & Counselling Programme (FSCP)",
+          "description": "WINGS became a fully centre-based counselling organisation and developed the Family Support and Counselling Programme (FSCP), serving clients aged 7 to 65 with evidence-based therapeutic interventions for individuals, couples and families."
+        },
+        {
+          "year": "Today",
+          "category": "Present",
+          "title": "WINGS in schools and communities across Singapore",
+          "description": "Today, WINGS provides counselling services in primary and secondary schools across Singapore while continuing to support clients aged 2.5 to 65 through expressive therapies including sand-tray therapy, play therapy and symbol work, tailored to each individual's journey."
+        }
+      ]
+    },
+
+    "vision": {
+    "title": "Our founding vision",
+    "paragraphs": [
+      "The late president of the Ramakrishna Mission, Swami Jayadevananda, believed deeply in providing meaningful support to children, youth and their families in Singapore. He was convinced that timely guidance and compassionate intervention could positively transform the course of a young person's life.",
+      "His vision was simple yet profound: to create a safe, accessible and non-judgmental space where anyone facing emotional, psychological or social challenges could receive professional support and realise their full potential.",
+      "Thirty years later, that founding vision continues to inspire everything WINGS does—from our counsellors and school-based programmes to our family services and community workshops."
+    ]
+  },
+
+  "whoWeServe": {
+    "title": "Supporting & Counselling for every stage of life",
+    "description": "WINGS supports individuals across every stage of life—from toddlers taking their first steps into school to adults navigating relationships, grief, career transitions and other life challenges.",
+
+    "cards": [
+      {
+        "age": "2.5 – 7 yrs",
+        "label": "Pre-schoolers",
+        "description": "Singapore's first preventive intervention programme for early childhood, helping young children transition confidently into structured learning while strengthening emotional resilience.",
+        "tags": [
+          "Play therapy",
+          "Sand-tray",
+          "Expressive arts",
+          "PSSP"
+        ]
+      },
+      {
+        "age": "7 – 20 yrs",
+        "label": "Children, Teens & Youth",
+        "description": "Professional counselling and emotional support for students facing academic, behavioural, family, social and emotional challenges both in schools and at our counselling centre.",
+        "tags": [
+          "School counselling",
+          "CBT",
+          "Family sessions",
+          "FSCP"
+        ]
+      },
+      {
+        "age": "21 – 65 yrs",
+        "label": "Adults, Couples & Families",
+        "description": "Helping individuals, couples and families overcome emotional, relationship and life challenges through evidence-based counselling and therapeutic support.",
+        "tags": [
+          "Individual therapy",
+          "Couples counselling",
+          "Grief support",
+          "Family therapy"
+        ]
+      }
+    ]
+  },
+
+  "impact": {
+    "title": "Our impact on individuals, families and communities",
+    "description": "Over three decades, WINGS has become one of Singapore's most trusted counselling organisations, creating meaningful change in homes, schools and communities across the nation.",
+
+    "points": [
+      "Served 15 primary and secondary schools across Singapore from 1995 to 2011 through the School Social Work initiative.",
+      "Pioneered Singapore's first preventive intervention programme for pre-school children aged 2.5 to 7 years.",
+      "Fully funded by the National Council of Social Service (NCSS) in recognition of its sustained positive community impact.",
+      "Provided counselling and family support to clients aged 2.5 to 65 years through evidence-based therapeutic services.",
+      "Collaborates closely with the Ministry of Education (MOE), Ministry of Social and Family Development (MSF), National Council of Social Service (NCSS) and community organisations throughout Singapore."
+    ]
+  },
+
+   "cta": {
+    "title": "You don't have to navigate this alone",
+    "description": "Support begins with a conversation. Whether you're seeking help for yourself, your child or your family, our compassionate and accredited counsellors are here to support you every step of the way. Reach out today—your first conversation is always confidential.",
+    "bookAppointment": "Book an appointment",
+    "meetTeam": "Meet our team"
+  }
+  }
+}

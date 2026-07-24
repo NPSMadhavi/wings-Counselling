@@ -1,0 +1,33 @@
+{
+  "articleDetail": {
+    "hero": {
+      "title": "You don't have to navigate anxiety alone",
+      "description": "Learn more about stress and anxiety, explore practical coping strategies, and discover professional support tailored to your needs.",
+      "button": "Explore support resources"
+    },
+
+    "breadcrumb": {
+      "home": "Home",
+      "backToArticles": "Back to articles",
+      "lastUpdated": "Last updated on"
+    },
+
+    "sidebar": {
+      "by": "By"
+    },
+
+    "actions": {
+      "copyLink": "Copy Link",
+      "copied": "Copied!",
+      "shareEmail": "Share via Email",
+      "downloadPdf": "Download PDF",
+      "printDocument": "Print Document"
+    },
+
+    "cta": {
+      "title": "Ready to talk to someone?",
+      "description": "Our counselling team is here to listen, support, and guide you in a safe and confidential environment.",
+      "button": "Book an appointment"
+    }
+  }
+}

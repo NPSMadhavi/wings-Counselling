@@ -1,0 +1,111 @@
+{
+  "candidateAuth": {
+    "common": {
+      "title": "नौकरियों के लिए आवेदन करने हेतु साइन इन करें या नया खाता बनाएँ",
+      "close": "बंद करें",
+      "back": "वापस",
+      "continue": "जारी रखें",
+      "loading": "लोड हो रहा है...",
+      "submitting": "सबमिट किया जा रहा है..."
+    },
+
+    "tabs": {
+      "signIn": "साइन इन करें",
+      "createAccount": "खाता बनाएँ"
+    },
+
+    "signin": {
+      "title": "साइन इन करें",
+
+      "fields": {
+        "email": "ईमेल पता",
+        "emailPlaceholder": "अपना ईमेल पता दर्ज करें",
+
+        "password": "पासवर्ड",
+        "passwordPlaceholder": "अपना पासवर्ड दर्ज करें"
+      },
+
+      "buttons": {
+        "submit": "साइन इन करें",
+        "forgotPassword": "पासवर्ड भूल गए?"
+      }
+    },
+
+    "createAccount": {
+      "title": "खाता बनाएँ",
+
+      "fields": {
+        "firstName": "पहला नाम",
+        "firstNamePlaceholder": "अपना पहला नाम दर्ज करें",
+
+        "lastName": "अंतिम नाम",
+        "lastNamePlaceholder": "अपना अंतिम नाम दर्ज करें",
+
+        "email": "ईमेल पता",
+        "emailPlaceholder": "अपना ईमेल पता दर्ज करें",
+
+        "mobile": "मोबाइल नंबर",
+        "mobilePlaceholder": "अपना मोबाइल नंबर दर्ज करें",
+
+        "password": "पासवर्ड",
+        "passwordPlaceholder": "अपना पासवर्ड दर्ज करें",
+
+        "confirmPassword": "पासवर्ड की पुष्टि करें",
+        "confirmPasswordPlaceholder": "अपना पासवर्ड पुनः दर्ज करें"
+      },
+
+      "terms": {
+        "agree": "मैं {{terms}} से सहमत हूँ",
+        "termsAndConditions": "नियम एवं शर्तें"
+      },
+
+      "buttons": {
+        "submit": "खाता बनाएँ"
+      }
+    },
+
+    "validation": {
+      "signIn": {
+        "emailRequired": "ईमेल आवश्यक है",
+        "emailInvalid": "कृपया एक वैध ईमेल पता दर्ज करें",
+        "passwordRequired": "पासवर्ड आवश्यक है"
+      },
+
+      "createAccount": {
+        "firstNameRequired": "पहला नाम आवश्यक है",
+        "lastNameRequired": "अंतिम नाम आवश्यक है",
+
+        "emailRequired": "ईमेल आवश्यक है",
+        "emailInvalid": "कृपया एक वैध ईमेल पता दर्ज करें",
+
+        "mobileRequired": "मोबाइल नंबर आवश्यक है",
+        "mobileInvalid": "कृपया एक वैध मोबाइल नंबर दर्ज करें",
+
+        "passwordRequired": "पासवर्ड आवश्यक है",
+        "passwordMin": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए",
+
+        "confirmPasswordMismatch": "पासवर्ड मेल नहीं खाते",
+
+        "termsRequired": "आपको नियम एवं शर्तों से सहमत होना आवश्यक है"
+      }
+    },
+
+    "toast": {
+      "loginFailed": {
+        "title": "लॉगिन विफल"
+      },
+
+      "registrationFailed": {
+        "title": "पंजीकरण विफल"
+      },
+
+      "accountCreated": {
+        "title": "खाता सफलतापूर्वक बनाया गया!"
+      },
+
+      "accountCreatedSignIn": {
+        "title": "खाता सफलतापूर्वक बनाया गया! कृपया आगे बढ़ने के लिए साइन इन करें।"
+      }
+    }
+  }
+}

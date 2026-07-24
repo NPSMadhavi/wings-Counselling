@@ -2,30 +2,44 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import {
-  Briefcase,
-  ArrowRight,
-  Building2,
-  ChevronRight,
-  Users,
-  Eye,
-} from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { SiteCheckIcon } from "@/components/ui/SiteIcons";
 
-import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/Layout/Footer";
 import { careersApplyPath } from "@/lib/careers-routes";
 import type { JobPosting } from "@/lib/careers-types";
 import { useAuth } from "@/hooks/use-auth";
+import { useCandidateAuth } from "@/context/CandidateAuthContext";
 import { scrollToPageContentSection } from "@/lib/scrollToSection";
 
+const whyWorkIcons = [
+  <svg key="purpose" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M16 3.23C16.71 2.41 17.61 2 18.7 2C19.61 2 20.37 2.33 21 3C21.63 3.67 21.96 4.43 22 5.3C22 6 21.67 6.81 21 7.76C20.33 8.71 19.68 9.5 19.03 10.15C18.38 10.79 17.37 11.74 16 13C14.61 11.74 13.59 10.79 12.94 10.15C11.965 9.19 11.63 8.71 10.97 7.76C10.31 6.81 10 6 10 5.3C10 4.39 10.32 3.63 10.97 3C11.62 2.37 12.4 2.04 13.31 2C14.38 2 15.27 2.41 16 3.23ZM22 19V20L14 22.5L7 20.56V22H1V11H8.97L15.13 13.3C15.6789 13.5071 16.1518 13.8763 16.4858 14.3585C16.8198 14.8408 16.9992 15.4133 17 16H19C20.66 16 22 17.34 22 19ZM5 20V13H3V20H5ZM19.9 18.57C19.74 18.24 19.39 18 19 18H13.65C13.11 18 12.58 17.92 12.07 17.75L9.69 16.96L10.32 15.06L12.7 15.85C13 15.95 15 16 15 16C15 15.63 14.77 15.3 14.43 15.17L8.61 13H7V18.5L13.97 20.41L19.9 18.57Z" fill="#0D4A7A" />
+  </svg>,
+  <svg key="supportive" xmlns="http://www.w3.org/2000/svg" width="24" height="15" viewBox="0 0 24 15" fill="none">
+    <path d="M12 0C12.9283 0 13.8185 0.368749 14.4749 1.02513C15.1313 1.6815 15.5 2.57174 15.5 3.5C15.5 4.42826 15.1313 5.3185 14.4749 5.97487C13.8185 6.63125 12.9283 7 12 7C11.0717 7 10.1815 6.63125 9.52513 5.97487C8.86875 5.3185 8.5 4.42826 8.5 3.5C8.5 2.57174 8.86875 1.6815 9.52513 1.02513C10.1815 0.368749 11.0717 0 12 0ZM5 2.5C5.56 2.5 6.08 2.65 6.53 2.92C6.38 4.35 6.8 5.77 7.66 6.88C7.16 7.84 6.16 8.5 5 8.5C4.20435 8.5 3.44129 8.18393 2.87868 7.62132C2.31607 7.05871 2 6.29565 2 5.5C2 4.70435 2.31607 3.94129 2.87868 3.37868C3.44129 2.81607 4.20435 2.5 5 2.5ZM19 2.5C19.7956 2.5 20.5587 2.81607 21.1213 3.37868C21.6839 3.94129 22 4.70435 22 5.5C22 6.29565 21.6839 7.05871 21.1213 7.62132C20.5587 8.18393 19.7956 8.5 19 8.5C17.84 8.5 16.84 7.84 16.34 6.88C17.2115 5.75423 17.6161 4.33616 17.47 2.92C17.92 2.65 18.44 2.5 19 2.5ZM5.5 12.75C5.5 10.68 8.41 9 12 9C15.59 9 18.5 10.68 18.5 12.75V14.5H5.5V12.75ZM0 14.5V13C0 11.61 1.89 10.44 4.45 10.1C3.86 10.78 3.5 11.72 3.5 12.75V14.5H0ZM24 14.5H20.5V12.75C20.5 11.72 20.14 10.78 19.55 10.1C22.11 10.44 24 11.61 24 13V14.5Z" fill="#0D4A7A" />
+  </svg>,
+  <svg key="growth" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M17 4C16.7348 4 16.4804 3.89464 16.2929 3.70711C16.1054 3.51957 16 3.26522 16 3C16 2.73478 16.1054 2.48043 16.2929 2.29289C16.4804 2.10536 16.7348 2 17 2H21C21.2652 2 21.5196 2.10536 21.7071 2.29289C21.8946 2.48043 22 2.73478 22 3V7C22 7.26522 21.8946 7.51957 21.7071 7.70711C21.5196 7.89464 21.2652 8 21 8C20.7348 8 20.4804 7.89464 20.2929 7.70711C20.1054 7.51957 20 7.26522 20 7V5.414L14.207 11.207C14.0195 11.3945 13.7652 11.4998 13.5 11.4998C13.2348 11.4998 12.9805 11.3945 12.793 11.207L10 8.414L4.707 13.707C4.5184 13.8892 4.2658 13.99 4.0036 13.9877C3.7414 13.9854 3.49059 13.8802 3.30518 13.6948C3.11977 13.5094 3.0146 13.2586 3.01233 12.9964C3.01005 12.7342 3.11084 12.4816 3.293 12.293L9.293 6.293C9.48053 6.10553 9.73484 6.00021 10 6.00021C10.2652 6.00021 10.5195 6.10553 10.707 6.293L13.5 9.086L18.586 4H17ZM5 18V21C5 21.2652 4.89464 21.5196 4.70711 21.7071C4.51957 21.8946 4.26522 22 4 22C3.73478 22 3.48043 21.8946 3.29289 21.7071C3.10536 21.5196 3 21.2652 3 21V18C3 17.7348 3.10536 17.4804 3.29289 17.2929C3.48043 17.1054 3.73478 17 4 17C4.26522 17 4.51957 17.1054 4.70711 17.2929C4.89464 17.4804 5 17.7348 5 18ZM10 14C10 13.7348 9.89464 13.4804 9.70711 13.2929C9.51957 13.1054 9.26522 13 9 13C8.73478 13 8.48043 13.1054 8.29289 13.2929C8.10536 13.4804 8 13.7348 8 14V21C8 21.2652 8.10536 21.5196 8.29289 21.7071C8.48043 21.8946 8.73478 22 9 22C9.26522 22 9.51957 21.8946 9.70711 21.7071C9.89464 21.5196 10 21.2652 10 21V14ZM14 15C14.2652 15 14.5196 15.1054 14.7071 15.2929C14.8946 15.4804 15 15.7348 15 16V21C15 21.2652 14.8946 21.5196 14.7071 21.7071C14.5196 21.8946 14.2652 22 14 22C13.7348 22 13.4804 21.8946 13.2929 21.7071C13.1054 21.5196 13 21.2652 13 21V16C13 15.7348 13.1054 15.4804 13.2929 15.2929C13.4804 15.1054 13.7348 15 14 15ZM20 11C20 10.7348 19.8946 10.4804 19.7071 10.2929C19.5196 10.1054 19.2652 10 19 10C18.7348 10 18.4804 10.1054 18.2929 10.2929C18.1054 10.4804 18 10.7348 18 11V21C18 21.2652 18.1054 21.5196 18.2929 21.7071C18.4804 21.8946 18.7348 22 19 22C19.2652 22 19.5196 21.8946 19.7071 21.7071C19.8946 21.5196 20 21.2652 20 21V11Z" fill="#0D4A7A" />
+  </svg>,
+  <svg key="inclusive" xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6" fill="none" className="scale-[3]">
+    <path d="M5.5075 2.9125C6.1575 2.2425 6.1575 1.1725 5.5075 0.5025C4.8475 -0.1675 3.8175 -0.1675 3.1675 0.5025L2.9975 0.6725L2.8275 0.5025C2.1775 -0.1675 1.1375 -0.1675 0.4875 0.5025C-0.1625 1.1825 -0.1625 2.2425 0.4875 2.9125L2.9975 5.4925L5.5075 2.9125Z" fill="#0D4A7A" />
+  </svg>,
+];
+
 export default function Careers() {
+  const { t } = useTranslation();
+
   useEffect(() => {
     scrollToPageContentSection("/career");
   }, []);
 
   const { isAuthenticated } = useAuth();
+  const { openAuthModal } = useCandidateAuth();
+
+  const whyWorkCardsRaw = t("careers.whyWork.cards", { returnObjects: true });
+  const whyWorkCards = Array.isArray(whyWorkCardsRaw) ? whyWorkCardsRaw : [];
 
   const { data: jobs, isLoading: jobsLoading } = useQuery<JobPosting[]>({
     queryKey: ["/api/jobs?active=true"],
@@ -114,9 +128,7 @@ export default function Careers() {
                 maxWidth: "850px",
               }}
             >
-              Build meaningful careers
-              <br />
-              that create real impact
+              {t("careers.hero.title")}
             </motion.h1>
 
             {/* Description */}
@@ -139,9 +151,7 @@ export default function Careers() {
                 maxWidth: "760px",
               }}
             >
-              Join WINGS and become part of a compassionate team
-              dedicated to emotional wellness, counselling support
-              and community well-being.
+              {t("careers.hero.description")}
             </motion.p>
 
             {/* Button */}
@@ -185,7 +195,7 @@ export default function Careers() {
                   text-[#F5F9FF]
                 "
               >
-                Explore open positions
+                {t("careers.hero.button")}
               </span>
 
               <svg
@@ -231,7 +241,7 @@ export default function Careers() {
                     mb-3
                   "
                 >
-                  Open positions
+                  {t("careers.jobs.title")}
                 </h2>
 
                 <p
@@ -244,7 +254,7 @@ export default function Careers() {
                     leading-normal
                   "
                 >
-                  Find your next opportunity with us
+                  {t("careers.jobs.description")}
                 </p>
               </div>
 
@@ -480,7 +490,7 @@ export default function Careers() {
                                 transition-all
                               "
                             >
-                              View details
+                              {t("careers.jobs.viewDetails")}
                             </span>
                           </motion.button>
                         </Link>
@@ -504,14 +514,19 @@ export default function Careers() {
                             "
                           >
                             <SiteCheckIcon size={16} color="#15803d" />
-                            Already Applied
+                            {t("careers.jobs.alreadyApplied")}
                           </div>
                         ) : (
                           <Link
-                            href={careersApplyPath(job.jobId)}
-                            onClick={() => {
-                              sessionStorage.setItem("careerApplyStage", "gate");
-                              sessionStorage.setItem("returnTo", careersApplyPath(job.jobId));
+                            href={isAuthenticated ? careersApplyPath(job.jobId) : "#"}
+                            onClick={(e) => {
+                              if (!isAuthenticated) {
+                                e.preventDefault();
+                                openAuthModal(careersApplyPath(job.jobId));
+                              } else {
+                                sessionStorage.setItem("careerApplyStage", "form");
+                                sessionStorage.setItem("returnTo", careersApplyPath(job.jobId));
+                              }
                             }}
                           >
                             <motion.button
@@ -543,7 +558,7 @@ export default function Careers() {
                                   leading-[28px]
                                 "
                               >
-                                Apply now
+                                {t("careers.jobs.applyNow")}
                               </span>
                               <svg
                                 width="20"
@@ -570,11 +585,11 @@ export default function Careers() {
             ) : (
               <div className="text-center py-20">
                 <h3 className="text-2xl font-semibold text-[#0D4A7A] mb-3">
-                  No Open Positions
+                  {t("careers.jobs.noOpenPositions.title")}
                 </h3>
 
                 <p className="text-gray-600 font-['DM_Sans']">
-                  Currently there are no open positions available.
+                  {t("careers.jobs.noOpenPositions.description")}
                 </p>
               </div>
             )}
@@ -589,8 +604,6 @@ export default function Careers() {
       >
         <div className="w-full navbar-align-outer">
           <div className="navbar-align-inner">
-
-            {/* Heading */}
             <div className="flex flex-col items-center text-center mb-[58px]">
               <h2
                 className="
@@ -604,7 +617,7 @@ export default function Careers() {
                   mb-5
                 "
               >
-                Why work with WINGS?
+                {t("careers.whyWork.title")}
               </h2>
 
               <p
@@ -618,11 +631,10 @@ export default function Careers() {
                   max-w-[760px]
                 "
               >
-                We prioritize your growth as much as the growth of our community.
+                {t("careers.whyWork.description")}
               </p>
             </div>
 
-            {/* Cards */}
             <div
               className="
                 grid
@@ -632,287 +644,63 @@ export default function Careers() {
                 gap-[18px]
               "
             >
-
-              {/* Card 1 */}
-              <div
-                className="
-                  bg-white
-                  rounded-[12px]
-                  px-[18px]
-                  py-[20px]
-                  min-h-[205px]
-                  transition-all
-                  duration-300
-                  hover:-translate-y-1
-                "
-              >
-                {/* Icon */}
+              {whyWorkCards.map((card, index) => (
                 <div
+                  key={index}
                   className="
-                    w-[42px]
-                    h-[42px]
-                    rounded-[10px]
-                    flex
-                    items-center
-                    justify-center
-                    mb-5
+                    bg-white
+                    rounded-[12px]
+                    px-[18px]
+                    py-[20px]
+                    min-h-[205px]
+                    transition-all
+                    duration-300
+                    hover:-translate-y-1
                   "
-                  style={{
-                    background: "#EAF2FB",
-                  }}
                 >
-                  {/* ICON 1 */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
+                  <div
+                    className="
+                      w-[42px]
+                      h-[42px]
+                      rounded-[10px]
+                      flex
+                      items-center
+                      justify-center
+                      mb-5
+                    "
+                    style={{
+                      background: "#EAF2FB",
+                    }}
                   >
-                    <path
-                      d="M16 3.23C16.71 2.41 17.61 2 18.7 2C19.61 2 20.37 2.33 21 3C21.63 3.67 21.96 4.43 22 5.3C22 6 21.67 6.81 21 7.76C20.33 8.71 19.68 9.5 19.03 10.15C18.38 10.79 17.37 11.74 16 13C14.61 11.74 13.59 10.79 12.94 10.15C11.965 9.19 11.63 8.71 10.97 7.76C10.31 6.81 10 6 10 5.3C10 4.39 10.32 3.63 10.97 3C11.62 2.37 12.4 2.04 13.31 2C14.38 2 15.27 2.41 16 3.23ZM22 19V20L14 22.5L7 20.56V22H1V11H8.97L15.13 13.3C15.6789 13.5071 16.1518 13.8763 16.4858 14.3585C16.8198 14.8408 16.9992 15.4133 17 16H19C20.66 16 22 17.34 22 19ZM5 20V13H3V20H5ZM19.9 18.57C19.74 18.24 19.39 18 19 18H13.65C13.11 18 12.58 17.92 12.07 17.75L9.69 16.96L10.32 15.06L12.7 15.85C13 15.95 15 16 15 16C15 15.63 14.77 15.3 14.43 15.17L8.61 13H7V18.5L13.97 20.41L19.9 18.57Z"
-                      fill="#0D4A7A"
-                    />
-                  </svg>
-                </div>
+                    {whyWorkIcons[index]}
+                  </div>
 
-                <h3
-                  className="
-                    text-black
-                    font-['DM_Sans']
-                    text-[20px]
-                    font-[700]
-                    leading-normal
-                    mb-4
-                  "
-                >
-                  Purpose-driven work
-                </h3>
-
-                <p
-                  className="
-                    text-black/70
-                    font-['DM_Sans']
-                    text-[16px]
-                    font-[400]
-                    leading-[1.55]
-                  "
-                >
-                  Be part of initiatives that positively impact individuals,
-                  families and communities through emotional wellness and
-                  counselling support.
-                </p>
-              </div>
-
-              {/* Card 2 */}
-              <div
-                className="
-                  bg-white
-                  rounded-[12px]
-                  px-[18px]
-                  py-[20px]
-                  min-h-[205px]
-                  transition-all
-                  duration-300
-                  hover:-translate-y-1
-                "
-              >
-                <div
-                  className="
-                    w-[42px]
-                    h-[42px]
-                    rounded-[10px]
-                    flex
-                    items-center
-                    justify-center
-                    mb-5
-                  "
-                  style={{
-                    background: "#EAF2FB",
-                  }}
-                >
-                  {/* ICON 2 */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="15"
-                    viewBox="0 0 24 15"
-                    fill="none"
+                  <h3
+                    className="
+                      text-black
+                      font-['DM_Sans']
+                      text-[20px]
+                      font-[700]
+                      leading-normal
+                      mb-4
+                    "
                   >
-                    <path
-                      d="M12 0C12.9283 0 13.8185 0.368749 14.4749 1.02513C15.1313 1.6815 15.5 2.57174 15.5 3.5C15.5 4.42826 15.1313 5.3185 14.4749 5.97487C13.8185 6.63125 12.9283 7 12 7C11.0717 7 10.1815 6.63125 9.52513 5.97487C8.86875 5.3185 8.5 4.42826 8.5 3.5C8.5 2.57174 8.86875 1.6815 9.52513 1.02513C10.1815 0.368749 11.0717 0 12 0ZM5 2.5C5.56 2.5 6.08 2.65 6.53 2.92C6.38 4.35 6.8 5.77 7.66 6.88C7.16 7.84 6.16 8.5 5 8.5C4.20435 8.5 3.44129 8.18393 2.87868 7.62132C2.31607 7.05871 2 6.29565 2 5.5C2 4.70435 2.31607 3.94129 2.87868 3.37868C3.44129 2.81607 4.20435 2.5 5 2.5ZM19 2.5C19.7956 2.5 20.5587 2.81607 21.1213 3.37868C21.6839 3.94129 22 4.70435 22 5.5C22 6.29565 21.6839 7.05871 21.1213 7.62132C20.5587 8.18393 19.7956 8.5 19 8.5C17.84 8.5 16.84 7.84 16.34 6.88C17.2115 5.75423 17.6161 4.33616 17.47 2.92C17.92 2.65 18.44 2.5 19 2.5ZM5.5 12.75C5.5 10.68 8.41 9 12 9C15.59 9 18.5 10.68 18.5 12.75V14.5H5.5V12.75ZM0 14.5V13C0 11.61 1.89 10.44 4.45 10.1C3.86 10.78 3.5 11.72 3.5 12.75V14.5H0ZM24 14.5H20.5V12.75C20.5 11.72 20.14 10.78 19.55 10.1C22.11 10.44 24 11.61 24 13V14.5Z"
-                      fill="#0D4A7A"
-                    />
-                  </svg>
-                </div>
+                    {card.title}
+                  </h3>
 
-                <h3
-                  className="
-                    text-black
-                    font-['DM_Sans']
-                    text-[20px]
-                    font-[700]
-                    leading-normal
-                    mb-4
-                  "
-                >
-                  Supportive culture
-                </h3>
-
-                <p
-                  className="
-                    text-black/70
-                    font-['DM_Sans']
-                    text-[16px]
-                    font-[400]
-                    leading-[1.55]
-                  "
-                >
-                  Be part of initiatives that positively impact individuals,
-                  families and communities through emotional wellness and
-                  counselling support.
-                </p>
-              </div>
-
-              {/* Card 3 */}
-              <div
-                className="
-                  bg-white
-                  rounded-[12px]
-                  px-[18px]
-                  py-[20px]
-                  min-h-[205px]
-                  transition-all
-                  duration-300
-                  hover:-translate-y-1
-                "
-              >
-                <div
-                  className="
-                    w-[42px]
-                    h-[42px]
-                    rounded-[10px]
-                    flex
-                    items-center
-                    justify-center
-                    mb-5
-                  "
-                  style={{
-                    background: "#EAF2FB",
-                  }}
-                >
-                  {/* ICON 3 */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
+                  <p
+                    className="
+                      text-black/70
+                      font-['DM_Sans']
+                      text-[16px]
+                      font-[400]
+                      leading-[1.55]
+                    "
                   >
-                    <path
-                      d="M17 4C16.7348 4 16.4804 3.89464 16.2929 3.70711C16.1054 3.51957 16 3.26522 16 3C16 2.73478 16.1054 2.48043 16.2929 2.29289C16.4804 2.10536 16.7348 2 17 2H21C21.2652 2 21.5196 2.10536 21.7071 2.29289C21.8946 2.48043 22 2.73478 22 3V7C22 7.26522 21.8946 7.51957 21.7071 7.70711C21.5196 7.89464 21.2652 8 21 8C20.7348 8 20.4804 7.89464 20.2929 7.70711C20.1054 7.51957 20 7.26522 20 7V5.414L14.207 11.207C14.0195 11.3945 13.7652 11.4998 13.5 11.4998C13.2348 11.4998 12.9805 11.3945 12.793 11.207L10 8.414L4.707 13.707C4.5184 13.8892 4.2658 13.99 4.0036 13.9877C3.7414 13.9854 3.49059 13.8802 3.30518 13.6948C3.11977 13.5094 3.0146 13.2586 3.01233 12.9964C3.01005 12.7342 3.11084 12.4816 3.293 12.293L9.293 6.293C9.48053 6.10553 9.73484 6.00021 10 6.00021C10.2652 6.00021 10.5195 6.10553 10.707 6.293L13.5 9.086L18.586 4H17ZM5 18V21C5 21.2652 4.89464 21.5196 4.70711 21.7071C4.51957 21.8946 4.26522 22 4 22C3.73478 22 3.48043 21.8946 3.29289 21.7071C3.10536 21.5196 3 21.2652 3 21V18C3 17.7348 3.10536 17.4804 3.29289 17.2929C3.48043 17.1054 3.73478 17 4 17C4.26522 17 4.51957 17.1054 4.70711 17.2929C4.89464 17.4804 5 17.7348 5 18ZM10 14C10 13.7348 9.89464 13.4804 9.70711 13.2929C9.51957 13.1054 9.26522 13 9 13C8.73478 13 8.48043 13.1054 8.29289 13.2929C8.10536 13.4804 8 13.7348 8 14V21C8 21.2652 8.10536 21.5196 8.29289 21.7071C8.48043 21.8946 8.73478 22 9 22C9.26522 22 9.51957 21.8946 9.70711 21.7071C9.89464 21.5196 10 21.2652 10 21V14ZM14 15C14.2652 15 14.5196 15.1054 14.7071 15.2929C14.8946 15.4804 15 15.7348 15 16V21C15 21.2652 14.8946 21.5196 14.7071 21.7071C14.5196 21.8946 14.2652 22 14 22C13.7348 22 13.4804 21.8946 13.2929 21.7071C13.1054 21.5196 13 21.2652 13 21V16C13 15.7348 13.1054 15.4804 13.2929 15.2929C13.4804 15.1054 13.7348 15 14 15ZM20 11C20 10.7348 19.8946 10.4804 19.7071 10.2929C19.5196 10.1054 19.2652 10 19 10C18.7348 10 18.4804 10.1054 18.2929 10.2929C18.1054 10.4804 18 10.7348 18 11V21C18 21.2652 18.1054 21.5196 18.2929 21.7071C18.4804 21.8946 18.7348 22 19 22C19.2652 22 19.5196 21.8946 19.7071 21.7071C19.8946 21.5196 20 21.2652 20 21V11Z"
-                      fill="#0D4A7A"
-                    />
-                  </svg>
+                    {card.description}
+                  </p>
                 </div>
-
-                <h3
-                  className="
-                    text-black
-                    font-['DM_Sans']
-                    text-[20px]
-                    font-[700]
-                    leading-normal
-                    mb-4
-                  "
-                >
-                  Professional growth
-                </h3>
-
-                <p
-                  className="
-                    text-black/70
-                    font-['DM_Sans']
-                    text-[16px]
-                    font-[400]
-                    leading-[1.55]
-                  "
-                >
-                  Gain opportunities to learn, contribute and grow through
-                  real-world experience, mentorship and meaningful projects.
-                </p>
-              </div>
-
-              {/* Card 4 */}
-              <div
-                className="
-                  bg-white
-                  rounded-[12px]
-                  px-[18px]
-                  py-[20px]
-                  min-h-[205px]
-                  transition-all
-                  duration-300
-                  hover:-translate-y-1
-                "
-              >
-                <div
-                  className="
-                    w-[42px]
-                    h-[42px]
-                    rounded-[10px]
-                    flex
-                    items-center
-                    justify-center
-                    mb-5
-                  "
-                  style={{
-                    background: "#EAF2FB",
-                  }}
-                >
-                  {/* ICON 4 */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="6"
-                    height="6"
-                    viewBox="0 0 6 6"
-                    fill="none"
-                    className="scale-[3]"
-                  >
-                    <path
-                      d="M5.5075 2.9125C6.1575 2.2425 6.1575 1.1725 5.5075 0.5025C4.8475 -0.1675 3.8175 -0.1675 3.1675 0.5025L2.9975 0.6725L2.8275 0.5025C2.1775 -0.1675 1.1375 -0.1675 0.4875 0.5025C-0.1625 1.1825 -0.1625 2.2425 0.4875 2.9125L2.9975 5.4925L5.5075 2.9125Z"
-                      fill="#0D4A7A"
-                    />
-                  </svg>
-                </div>
-
-                <h3
-                  className="
-                    text-black
-                    font-['DM_Sans']
-                    text-[20px]
-                    font-[700]
-                    leading-normal
-                    mb-4
-                  "
-                >
-                  Inclusive culture
-                </h3>
-
-                <p
-                  className="
-                    text-black/70
-                    font-['DM_Sans']
-                    text-[16px]
-                    font-[400]
-                    leading-[1.55]
-                  "
-                >
-                  We value empathy, teamwork, respect and continuous improvement
-                  across all roles and departments.
-                </p>
-              </div>
-
+              ))}
             </div>
           </div>
         </div>

@@ -1,0 +1,29 @@
+{
+  "articleDetail": {
+    "hero": {
+      "title": "您无需独自面对焦虑",
+      "description": "了解压力与焦虑，探索实用的应对策略，并寻找适合您的专业支持。",
+      "button": "探索支持资源"
+    },
+    "breadcrumb": {
+      "home": "首页",
+      "backToArticles": "返回文章",
+      "lastUpdated": "最后更新于"
+    },
+    "sidebar": {
+      "by": "作者"
+    },
+    "actions": {
+      "copyLink": "复制链接",
+      "copied": "已复制！",
+      "shareEmail": "通过电子邮件分享",
+      "downloadPdf": "下载 PDF",
+      "printDocument": "打印文档"
+    },
+    "cta": {
+      "title": "准备好和专业人士聊聊了吗？",
+      "description": "我们的辅导团队将在安全、保密的环境中倾听、支持并陪伴您。",
+      "button": "预约咨询"
+    }
+  }
+}

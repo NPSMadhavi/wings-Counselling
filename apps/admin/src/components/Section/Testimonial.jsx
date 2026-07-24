@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { useTranslation } from "react-i18next";
 
 const FALLBACK_TESTIMONIALS = [
   {
@@ -22,6 +23,7 @@ const FALLBACK_TESTIMONIALS = [
 ];
 
 export const Testimonial = () => {
+  const { t } = useTranslation();
   const testimonialsRef = useRef(null);
   const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
 
@@ -80,10 +82,10 @@ export const Testimonial = () => {
           {/* Header Section */}
           <div className="text-center mb-12 md:mb-16">
             <h2 className="text-white text-[clamp(22px,4.8vw,28px)] md:text-[35px] font-medium font-['Outfit'] leading-tight mb-4">
-              What our clients say
+              {t("testimonials.title")}
             </h2>
             <p className="text-white text-[16px] md:text-[18px] lg:text-[20px] font-medium font-['DM_Sans'] max-w-3xl mx-auto leading-relaxed">
-              Hear how compassionate support has helped individuals and families navigate life's challenges with confidence and hope.
+              {t("testimonials.description")}
             </p>
           </div>
 

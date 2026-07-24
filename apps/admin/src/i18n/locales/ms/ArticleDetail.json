@@ -1,0 +1,29 @@
+{
+  "articleDetail": {
+    "hero": {
+      "title": "Anda Tidak Perlu Menghadapi Kebimbangan Bersendirian",
+      "description": "Ketahui lebih lanjut tentang tekanan dan kebimbangan, terokai strategi mengatasi yang praktikal, serta dapatkan sokongan profesional yang sesuai dengan keperluan anda.",
+      "button": "Terokai Sumber Sokongan"
+    },
+    "breadcrumb": {
+      "home": "Laman Utama",
+      "backToArticles": "Kembali ke Artikel",
+      "lastUpdated": "Kemas kini terakhir pada"
+    },
+    "sidebar": {
+      "by": "Oleh"
+    },
+    "actions": {
+      "copyLink": "Salin Pautan",
+      "copied": "Disalin!",
+      "shareEmail": "Kongsi melalui E-mel",
+      "downloadPdf": "Muat Turun PDF",
+      "printDocument": "Cetak Dokumen"
+    },
+    "cta": {
+      "title": "Bersedia untuk Berbual dengan Seseorang?",
+      "description": "Pasukan kaunseling kami sedia mendengar, menyokong dan membimbing anda dalam persekitaran yang selamat dan sulit.",
+      "button": "Tempah Janji Temu"
+    }
+  }
+}

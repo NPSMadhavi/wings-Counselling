@@ -1,0 +1,64 @@
+{
+  "supportTopic": {
+    "hero": {
+      "button": "探索支持资源"
+    },
+
+    "navigation": {
+      "backToHome": "返回首页",
+      "topicNotFound": "未找到相关支持主题"
+    },
+
+    "articles": {
+      "title": "可能对您有帮助的文章",
+      "description": "由陪伴您的专业辅导团队撰写。",
+      "loading": "正在加载文章...",
+      "noArticles": "目前暂无相关文章。",
+      "all": "全部",
+      "readMore": "阅读更多",
+      "readTime": "5 分钟阅读",
+      "fallbackAuthor": "WINGS",
+      "fallbackDescription": "了解更多来自 WINGS 辅导团队的内容。"
+    },
+
+    "counselling": {
+      "badge": "心理辅导如何帮助您",
+      "title": "咨询过程中会发生什么？",
+      "description": "心理辅导并不是躺在沙发上接受分析，而是与受过专业训练的辅导员进行真诚交流，帮助您理解自己的处境，并共同寻找适合您的方向。",
+
+      "items": [
+        {
+          "title": "倾听，而非急于解决",
+          "description": "不会给予您不需要的建议，也不会催促您立即找到答案，而是给予您表达自己的空间。"
+        },
+        {
+          "title": "完全保密",
+          "description": "您分享的内容都会受到严格保密，除非您同意，否则不会向家人或雇主透露。"
+        },
+        {
+          "title": "获得实用的方法",
+          "description": "学习可以在日常生活中运用的技巧，帮助您更好地面对焦虑与挑战。"
+        },
+        {
+          "title": "由您决定节奏",
+          "description": "您可以每周、每月或仅预约一次，整个过程都由您自主决定。"
+        }
+      ]
+    },
+
+    "services": {
+      "title": "您可能需要的支持服务",
+      "description": "为个人、伴侣、家庭及儿童提供专业指导与支持，帮助解决个人、人际及心理方面的挑战。",
+      "loading": "正在加载服务...",
+      "noServices": "目前暂无相关服务。",
+      "readMore": "阅读更多",
+      "bookAppointment": "预约咨询"
+    },
+
+    "cta": {
+      "title": "准备好和专业人士聊聊了吗？",
+      "description": "我们的辅导团队将在安全、保密的环境中倾听、支持并陪伴您。",
+      "button": "预约咨询"
+    }
+  }
+}

@@ -6,31 +6,9 @@ import {
   useInView,
 } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useAppointment } from "@/context/AppointmentContext";
 import { useLocation } from "wouter";
-
-// Hero content items
-const heroItems = [
-  {
-    id: 1,
-   
-    headline: "Feeling overwhelmed?",
-    description:
-      "At WINGS, we believe in providing a sanctuary for the mind. Our supportive and empathetic approach helps you navigate life's complexities with professional guidance.",
-    highlightText: "You're not alone.",
-    highlightColor: "#8EC9F0",
-    buttonText: "Book an appointment",
-    secondaryButtonText: "Learn our approach",
-  },
-  {
-    id: 2,
-    headline: "Professional counselling & Mental wellness support for individuals, couples and families.",
-    description:
-      "Whether you're facing stress, relationship challenges, grief or life transitions. WINGS provides compassionate & confidential counselling to help you move forward with confidence.",
-    buttonText: "Book an appointment",
-    secondaryButtonText: "Learn our approach",
-  },
-];
 
 // Animations
 const containerVariants = {
@@ -77,8 +55,24 @@ const ArrowIcon = () => (
 );
 
 export function Hero() {
+  const { t, i18n } = useTranslation();
   const { openModal } = useAppointment();
   const [, setLocation] = useLocation();
+
+  const slidesRaw = t("hero.slides", { returnObjects: true });
+  const heroItems = Array.isArray(slidesRaw)
+    ? slidesRaw.map((slide, index) => ({
+        id: index + 1,
+        headline: slide.headline,
+        description: slide.description,
+        highlightText: slide.highlightText,
+        highlightColor: "#8EC9F0",
+      }))
+    : [];
+
+  const secondaryButtonText = i18n.exists("hero.learnApproach")
+    ? t("hero.learnApproach")
+    : t("hero.exploreServices");
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -111,14 +105,18 @@ export function Hero() {
 
   // Auto rotate content
   useEffect(() => {
+    if (heroItems.length === 0) return;
+
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % heroItems.length);
     }, 10000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [heroItems.length]);
 
-  const currentItem = heroItems[currentIndex];
+  const currentItem = heroItems[currentIndex] || heroItems[0];
+
+  if (!currentItem) return null;
 
   return (
     <section
@@ -252,7 +250,7 @@ export function Hero() {
                 fontSize: "clamp(14px, 1.2vw, 18px)",
               }}
             >
-              <span>Book an appointment</span>
+              <span>{t("hero.bookAppointment")}</span>
 
               <span className="flex items-center">
                 <ArrowIcon />
@@ -279,7 +277,7 @@ export function Hero() {
                 fontSize: "clamp(14px, 1.2vw, 18px)",
               }}
             >
-              <span>Explore our services</span>
+              <span>{secondaryButtonText}</span>
               <span className="flex items-center ml-2">
                 <ArrowIcon />
               </span>

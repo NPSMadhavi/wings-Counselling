@@ -1,0 +1,29 @@
+{
+  "articles": {
+    "hero": {
+      "title": "Articles & Mental health resources",
+      "description": "Practical guides, expert insights and compassionate advice.",
+      "button": "Explore our articles"
+    },
+
+    "listing": {
+      "title": "All articles",
+      "loading": "Loading articles...",
+      "noArticles": "No articles found",
+      "filters": {
+        "all": "All articles"
+      }
+    },
+
+    "newsletter": {
+      "title": "Articles in your inbox",
+      "description": "Monthly insights from our counsellors. No spam-ever.",
+      "emailPlaceholder": "Enter your email address",
+      "notifyMe": "Notify me",
+      "loading": "...",
+      "success": "Thank you for subscribing! We'll keep you updated on future articles.",
+      "duplicate": "You're already subscribed. Please enter another email.",
+      "error": "Something went wrong. Please try again."
+    }
+  }
+}

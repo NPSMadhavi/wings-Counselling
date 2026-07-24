@@ -1,0 +1,36 @@
+{
+  "events": {
+    "hero": {
+      "title": "学习 · 成长 · 连接",
+      "description": "参与我们以实证为基础的工作坊及社区活动，为您的心理健康之旅提供支持。",
+      "button": "探索我们的活动"
+    },
+
+    "listing": {
+      "title": "所有活动",
+      "filters": {
+        "all": "所有活动",
+        "inPerson": "线下活动",
+        "online": "线上活动"
+      },
+      "online": "线上",
+      "inPerson": "线下",
+      "tba": "待公布",
+      "free": "免费",
+      "registerNow": "立即报名",
+      "noEvents": "暂无活动。",
+      "noFilteredEvents": "暂无{{filter}}活动。"
+    },
+
+    "newsletter": {
+      "title": "即将举行的活动与工作坊",
+      "description": "我们的团队正在精心筹备更多有意义的社区活动与工作坊。",
+      "emailPlaceholder": "请输入您的电子邮箱",
+      "notifyMe": "通知我",
+      "loading": "...",
+      "success": "感谢您的订阅！我们将及时通知您最新活动。",
+      "duplicate": "您已订阅，请使用其他电子邮箱。",
+      "error": "发生错误，请稍后再试。"
+    }
+  }
+}

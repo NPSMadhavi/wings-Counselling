@@ -1,0 +1,36 @@
+{
+  "events": {
+    "hero": {
+      "title": "Belajar, Berkembang & Berhubung",
+      "description": "Sertai bengkel berasaskan bukti dan program komuniti kami yang direka untuk menyokong perjalanan kesejahteraan mental anda.",
+      "button": "Terokai acara kami"
+    },
+
+    "listing": {
+      "title": "Semua Acara",
+      "filters": {
+        "all": "Semua Acara",
+        "inPerson": "Bersemuka",
+        "online": "Dalam Talian"
+      },
+      "online": "Dalam Talian",
+      "inPerson": "Bersemuka",
+      "tba": "Akan Diumumkan",
+      "free": "Percuma",
+      "registerNow": "Daftar Sekarang",
+      "noEvents": "Tiada acara ditemui.",
+      "noFilteredEvents": "Tiada acara {{filter}} ditemui."
+    },
+
+    "newsletter": {
+      "title": "Acara & Bengkel Akan Datang",
+      "description": "Pasukan kami sedang menyediakan pelbagai bengkel dan acara yang bermakna untuk komuniti.",
+      "emailPlaceholder": "Masukkan alamat e-mel anda",
+      "notifyMe": "Maklumkan Saya",
+      "loading": "...",
+      "success": "Terima kasih kerana melanggan! Kami akan memaklumkan anda tentang acara akan datang.",
+      "duplicate": "Anda telah pun melanggan. Sila masukkan alamat e-mel lain.",
+      "error": "Sesuatu telah berlaku. Sila cuba lagi."
+    }
+  }
+}

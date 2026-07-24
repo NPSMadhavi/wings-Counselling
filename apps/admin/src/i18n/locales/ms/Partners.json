@@ -1,0 +1,39 @@
+{
+  "partners": {
+    "hero": {
+      "title": "Rakan Kongsi Kami",
+      "description": "Kami bekerjasama dengan organisasi komuniti, pakar kesihatan dan pemimpin tempatan untuk membina sistem sokongan menyeluruh bagi kesejahteraan mental di Singapura.",
+      "button": "Terokai Rakan Kongsi Kami"
+    },
+
+    "listing": {
+      "title": "Rakan Kongsi Kami",
+      "loading": "Memuatkan rakan kongsi...",
+      "noPartners": "Tiada rakan kongsi tersedia buat masa ini.",
+      "visitWebsite": "Lawati Laman Web",
+      "previous": "Sebelumnya",
+      "next": "Seterusnya",
+      "goToPage": "Pergi ke halaman {{page}}"
+    },
+
+    "strength": {
+      "title": "Kekuatan Kerjasama",
+      "description": "Tiada siapa dapat pulih secara bersendirian. Kerjasama kami membolehkan kami menyediakan penjagaan yang melangkaui sesi kaunseling.",
+
+      "cards": [
+        {
+          "title": "Rangkaian Menyeluruh",
+          "description": "Dengan kerjasama perkhidmatan perubatan dan sosial, kami memastikan setiap klien menerima sokongan yang menyeluruh."
+        },
+        {
+          "title": "Jangkauan Komuniti",
+          "description": "Kerjasama membantu kami meningkatkan kesedaran tentang kesihatan mental dalam komuniti dan mendekati mereka yang memerlukan bantuan."
+        },
+        {
+          "title": "Rujukan Lancar",
+          "description": "Rangkaian kerjasama kami memastikan proses rujukan kepada perkhidmatan perubatan pakar berjalan dengan cepat, selamat dan lancar."
+        }
+      ]
+    }
+  }
+}

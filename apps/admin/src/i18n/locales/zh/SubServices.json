@@ -1,0 +1,25 @@
+{
+  "subService": {
+    "hero": {
+      "title": "为您量身打造的专业关怀",
+      "description": "我们为个人、家庭、专业人士、学校、职场及社区组织提供多元化的个性化支持服务。每项服务都会根据不同需求、目标及实际情况进行精心规划。",
+      "button": "探索我们的服务"
+    },
+
+    "navigation": {
+      "backToService": "返回服务"
+    },
+
+    "team": {
+      "title": "陪伴您的专业团队",
+      "description": "每位辅导员都拥有不同的专业技能、语言能力及治疗方式，帮助您找到最适合自己的支持。",
+      "loading": "正在加载团队成员...",
+      "updating": "团队资料正在更新中。",
+      "meetFullTeam": "查看完整团队"
+    },
+
+    "buttons": {
+      "bookAppointment": "预约咨询"
+    }
+  }
+}

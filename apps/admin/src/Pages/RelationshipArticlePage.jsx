@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Copy, Mail, Download, Printer, Check } from "lucide-react";
 import { Footer } from "@/components/Layout/Footer";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useAppointment } from "@/context/AppointmentContext";
 
 
@@ -30,6 +31,7 @@ const styles = {
 
 export default function RelationshipArticlePage() {
   const [, navigate] = useLocation();
+  const { t } = useTranslation();
   const { openModal } = useAppointment();
   const [activeSection, setActiveSection] = useState("relationship-and-marital");
   const articleRef = useRef(null);
@@ -425,11 +427,11 @@ export default function RelationshipArticlePage() {
                   maxWidth: "620px",
                 }}
               >
-                You don’t have to navigate relationship challenges alone
+                {t("articleDetail.hero.title")}
               </h1>
 
               <p className="max-w-[560px] mx-auto mt-6 text-[15px] md:text-[17px] leading-[190%] text-white/90">
-                Learn more about relationship and marital challenges, understand how differences can affect connection, and discover professional support tailored to your needs.
+                {t("articleDetail.hero.description")}
               </p>
 
               <motion.button
@@ -440,10 +442,10 @@ export default function RelationshipArticlePage() {
                     .getElementById("anxiety-article")
                     ?.scrollIntoView({ behavior: "smooth" });
                 }}
-                className="group flex items-center gap-2 cursor-pointer rounded-full bg-[#15467B] h-[46px] px-6 mt-9"
+                className="group flex items-center justify-center gap-2 cursor-pointer rounded-full bg-[#15467B] min-h-[3.75rem] h-auto py-3 px-6 sm:px-8 mt-9"
               >
-                <span className="text-white text-[14px] font-medium">
-                  Explore relationship support
+                <span className="text-white text-[clamp(0.9rem,1.1rem,1.125rem)] font-medium whitespace-normal text-center">
+                  {t("articleDetail.hero.button")}
                 </span>
 
                 <svg
@@ -475,7 +477,7 @@ export default function RelationshipArticlePage() {
               onClick={() => navigate("/")}
               className="cursor-pointer underline hover:opacity-70 transition"
             >
-              Home
+              {t("articleDetail.breadcrumb.home")}
             </span>
 
             <span className="mx-1">/</span>
@@ -484,7 +486,7 @@ export default function RelationshipArticlePage() {
               onClick={() => navigate("/articles")}
               className="cursor-pointer underline hover:opacity-70 transition"
             >
-              Back to articles
+              {t("articleDetail.breadcrumb.backToArticles")}
             </span>
 
             <span className="mx-1">/</span>
@@ -508,7 +510,7 @@ export default function RelationshipArticlePage() {
               className="max-w-[700px]"
             >
               <p className="mb-7 text-white/80 text-[15px] tracking-wide">
-                Last updated on february 27, 2026
+                {t("articleDetail.breadcrumb.lastUpdated")} february 27, 2026
               </p>
 
               <h2
@@ -535,17 +537,17 @@ export default function RelationshipArticlePage() {
       </section>
 
       {/* ARTICLE */}
-      <section className="bg-[#F5F3F0] xl:h-screen xl:overflow-hidden">
-        <div className="w-full xl:h-full">
-  <div className="w-full px-[24px] md:px-[34px] lg:px-[74px] py-[72px] xl:h-full">
-            <div ref={articleRef} className="grid grid-cols-1 xl:grid-cols-[220px_1fr] gap-[58px] items-start xl:h-full">
+      <section className="bg-[#F5F3F0]">
+        <div className="w-full">
+  <div className="w-full px-[24px] md:px-[34px] lg:px-[74px] py-[72px]">
+            <div ref={articleRef} className="grid grid-cols-1 xl:grid-cols-[220px_1fr] gap-[58px] items-start xl:min-h-0">
               {/* LEFT SIDEBAR */}
               <aside className="sidebar-scroll hidden xl:block w-full xl:w-[220px] self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 <div>
                   {/* AUTHOR */}
                   <div className="text-[16px] leading-[190%] text-[#595550]">
                     <p>
-                      By Marcus Lee · Licensed counselor
+                      {t("articleDetail.sidebar.by")} Marcus Lee · Licensed counselor
                     </p>
                   </div>
 
@@ -562,7 +564,7 @@ export default function RelationshipArticlePage() {
                               block: "start",
                             });
                           }}
-                          className={`block w-full text-left text-[16px] leading-[160%] py-[10px] pl-5 border-l-2 transition-all duration-300 ${isActive
+                          className={`block w-full text-left text-[16px] leading-snug whitespace-normal break-words py-[10px] pl-5 border-l-2 transition-all duration-300 ${isActive
                             ? "border-[#0D4A7A] text-[#0D4A7A] font-bold bg-[#EDF3F8]"
                             : "border-[#D8D3CC] text-[#6D6862] hover:text-[#0D4A7A] hover:border-[#9DB4C9]"
                           }`}
@@ -819,26 +821,26 @@ export default function RelationshipArticlePage() {
                 </section>
 
                 {/* ACTION BUTTONS */}
-                <div className="mt-16 flex flex-wrap gap-3 border-t border-[#D9D4CD] pt-8">
+                <div className="mt-16 flex flex-wrap gap-2 border-t border-[#D9D4CD] pt-8">
                   {[
                     {
                       icon: copied ? Check : Copy,
-                      label: copied ? "Copied!" : "Copy Link",
+                      label: copied ? t("articleDetail.actions.copied") : t("articleDetail.actions.copyLink"),
                       onClick: handleCopyLink,
                     },
                     {
                       icon: Mail,
-                      label: "Share via Email",
+                      label: t("articleDetail.actions.shareEmail"),
                       onClick: handleShareEmail,
                     },
                     {
                       icon: Download,
-                      label: "Download PDF",
+                      label: t("articleDetail.actions.downloadPdf"),
                       onClick: handleDownloadPDF,
                     },
                     {
                       icon: Printer,
-                      label: "Print Document",
+                      label: t("articleDetail.actions.printDocument"),
                       onClick: handlePrint,
                     },
                   ].map((item, index) => {
@@ -850,7 +852,7 @@ export default function RelationshipArticlePage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={item.onClick}
-                        className={`flex items-center gap-2 rounded-[6px] border px-4 h-[34px] text-[12px] cursor-pointer transition-colors ${
+                        className={`flex items-center gap-2 flex-wrap whitespace-normal rounded-[6px] border min-h-[2.125rem] h-auto py-2 px-3 sm:px-4 text-[clamp(0.7rem,0.85rem,0.85rem)] cursor-pointer transition-colors ${
                           copied && index === 0
                             ? "border-green-400 bg-green-50 text-green-700"
                             : "border-[#D8D2CB] bg-white text-[#49433E] hover:bg-[#F0EDEA]"
@@ -883,21 +885,20 @@ export default function RelationshipArticlePage() {
                 className="text-[38px] leading-[115%] tracking-[-0.03em] font-medium"
                 style={styles.heading}
               >
-                Ready to talk to someone?
+                {t("articleDetail.cta.title")}
               </h2>
 
               <p className="mx-auto mt-5 max-w-[720px] text-white/85 text-[15px] leading-[190%]">
-                Our counselling team is here to listen, support, and guide you in a
-                safe and confidential environment.
+                {t("articleDetail.cta.description")}
               </p>
 
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => openModal()}
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-white h-[46px] px-6 text-[14px] font-semibold text-[#0D4A7A] cursor-pointer"
+                className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-white min-h-[3.75rem] h-auto py-3 px-6 sm:px-8 text-[clamp(0.9rem,1.1rem,1.125rem)] font-semibold text-[#0D4A7A] cursor-pointer whitespace-normal text-center"
               >
-                Book an appointment
+                {t("articleDetail.cta.button")}
 
                 <svg
                   width="20"

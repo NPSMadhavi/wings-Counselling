@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { FaInstagram, FaFacebookF, FaYoutube } from "react-icons/fa";
 import { Link, useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { scrollToContactWithRetry } from "@/lib/scrollToSection";
 
 export function Footer() {
+  const { t } = useTranslation();
   const [location, navigate] = useLocation();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -147,9 +149,7 @@ export function Footer() {
 
               {/* Description */}
               <p className="text-white/90 text-[clamp(0.9375rem,2.5vw,1.125rem)] leading-relaxed sm:leading-[28px] max-w-full break-words">
-                We are committed to providing affordable & professional
-                counselling services to the community regardless of creed,
-                race or religion. Supporting lives since 1995.
+                {t("footer.description")}
               </p>
 
               {/* Social Icons */}
@@ -203,7 +203,7 @@ export function Footer() {
 
                 {/* Heading */}
                 <h3 className="text-white text-[clamp(1.25rem,4vw,1.875rem)] font-semibold mb-2">
-                  Links
+                  {t("footer.links")}
                 </h3>
 
                 <a
@@ -211,7 +211,7 @@ export function Footer() {
                   onClick={goToHomeHero}
                   className="text-white/90 text-[15px] hover:text-white transition whitespace-nowrap"
                 >
-                  Home
+                  {t("footer.home")}
                 </a>
 
                 <Link
@@ -219,7 +219,7 @@ export function Footer() {
                   onClick={goToPage("/about-us")}
                   className="text-white/90 text-[15px] hover:text-white transition whitespace-nowrap"
                 >
-                  About us
+                  {t("footer.about")}
                 </Link>
 
                 <Link
@@ -227,7 +227,7 @@ export function Footer() {
                   onClick={goToPage("/services")}
                   className="text-white/90 text-[15px] hover:text-white transition whitespace-nowrap"
                 >
-                  Services
+                  {t("footer.services")}
                 </Link>
 
                 <Link
@@ -235,7 +235,7 @@ export function Footer() {
                   onClick={goToPage("/team")}
                   className="text-white/90 text-[15px] hover:text-white transition whitespace-nowrap"
                 >
-                  Team
+                  {t("footer.team")}
                 </Link>
 
                 <Link
@@ -243,21 +243,21 @@ export function Footer() {
                   onClick={goToPage("/events")}
                   className="text-white/90 text-[15px] hover:text-white transition whitespace-nowrap"
                 >
-                  Events
+                  {t("footer.events")}
                 </Link>
              <Link
                   href="/partners"
                   onClick={goToPage("/partners")}
                   className="text-white/90 text-[15px] hover:text-white transition whitespace-nowrap"
                 >
-                  Partners
+                  {t("footer.partners")}
                 </Link>
                 <a
                   href="/#contact"
                   onClick={goToContact}
                   className="text-white/90 text-[15px] hover:text-white transition whitespace-nowrap"
                 >
-                  Contact us
+                  {t("footer.contact")}
                 </a>
                
 
@@ -269,12 +269,11 @@ export function Footer() {
             <div className="flex flex-col gap-6 min-w-0 w-full">
 
               <h3 className="text-white text-[clamp(1.25rem,4vw,1.875rem)] font-semibold">
-                Stay connected
+                {t("footer.stayConnected")}
               </h3>
 
               <p className="text-white/90 text-[clamp(0.9375rem,2.5vw,1.0625rem)] leading-relaxed sm:leading-[28px] max-w-full break-words">
-                We are committed to providing affordable &
-                professional counselling services.
+                {t("footer.stayConnectedDescription")}
               </p>
 
               <form
@@ -285,7 +284,7 @@ export function Footer() {
                 {/* Full Name */}
                 <input
                   type="text"
-                  placeholder="Full name"
+                  placeholder={t("footer.fullName")}
                   value={fullName}
                   onChange={(e) => {
                     setFullName(e.target.value);
@@ -308,7 +307,7 @@ export function Footer() {
 
                   <input
                     type="email"
-                    placeholder="Email address"
+                    placeholder={t("footer.email")}
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -393,7 +392,7 @@ export function Footer() {
                     )}
                   </span>
                   <span className="text-white/90 text-[14px] leading-[1.45]">
-                    <span className="block">By continuing, you accept the privacy policy</span>
+                    <span className="block">{t("footer.privacy")}</span>
                     {/* <Link
                       href="/privacy-policy"
                       className="block underline hover:text-white/90 transition"
@@ -406,22 +405,22 @@ export function Footer() {
 
                 {status === "success" && (
                   <p className="text-[#86EFAC] text-[14px] leading-relaxed">
-                    Thank you! You will receive updates on new articles and events.
+                    {t("footer.success")}
                   </p>
                 )}
                 {status === "duplicate" && (
                   <p className="text-[#FDE047] text-[14px] leading-relaxed">
-                    This email is already subscribed. Please enter another email.
+                    {t("footer.duplicate")}
                   </p>
                 )}
                 {status === "error" && (
                   <p className="text-[#FCA5A5] text-[14px] leading-relaxed">
-                    Something went wrong. Please try again.
+                    {t("footer.error")}
                   </p>
                 )}
                 {status === "privacy" && (
                   <p className="text-[#FCA5A5] text-[14px] leading-relaxed">
-                    Please accept the privacy policy to continue.
+                    {t("footer.privacyError")}
                   </p>
                 )}
 
@@ -437,8 +436,8 @@ export function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full min-w-0">
 
             <p className="text-white text-[clamp(0.8125rem,2.5vw,0.9375rem)] md:text-[14px] text-center md:text-left max-w-full break-words leading-relaxed">
-              © 2026 WINGS Counselling Centre. All rights reserved.
-              Powered by{" "}
+              {t("footer.copyright")}{" "}
+              {t("footer.poweredBy")}{" "}
               <span className="text-[#FF543E]">
                 <a
                   href="https://netopsys.in/"
@@ -457,9 +456,15 @@ export function Footer() {
                 href="/privacy-policy"
                 className="text-white hover:underline transition text-[clamp(0.8125rem,2.5vw,0.9375rem)] whitespace-nowrap"
               >
-                Privacy policy
+              {t("footer.privacyPolicy")}
               </Link>
-
+              <span className="text-white">|</span>
+           <Link
+                href="/terms-of-service"
+                className="text-white hover:underline transition text-[clamp(0.8125rem,2.5vw,0.9375rem)] whitespace-nowrap"
+              >
+              {t("termsConditions.hero.title")}
+              </Link>
               {/* <span className="text-white/40" aria-hidden="true">|</span> */}
 
               {/* <Link

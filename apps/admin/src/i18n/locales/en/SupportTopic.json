@@ -1,0 +1,64 @@
+{
+  "supportTopic": {
+    "hero": {
+      "button": "Explore support resources"
+    },
+
+    "navigation": {
+      "backToHome": "Back to Home",
+      "topicNotFound": "Support topic not found"
+    },
+
+    "articles": {
+      "title": "Articles that might help",
+      "description": "Written by the people who'd be in the room with you.",
+      "loading": "Loading articles...",
+      "noArticles": "No related articles available right now.",
+      "all": "All",
+      "readMore": "Read more",
+      "readTime": "5 min read",
+      "fallbackAuthor": "WINGS",
+      "fallbackDescription": "Read more from our counselling team."
+    },
+
+    "counselling": {
+      "badge": "How counselling helps",
+      "title": "What happens in the room",
+      "description": "Counselling isn't lying on a couch while someone analyzes you. It's a conversation with a trained person who is fully on your side, helping you understand what's going on and what to do about it.",
+
+      "items": [
+        {
+          "title": "You're heard without being fixed",
+          "description": "No advice you didn't ask for. No rushing to solutions. Just space for what you're carrying."
+        },
+        {
+          "title": "Everything is confidential",
+          "description": "What you share stays in the room. Even your family or employer won't know unless you tell them."
+        },
+        {
+          "title": "You leave with real tools",
+          "description": "Techniques you can use between sessions. Ways of thinking that genuinely help when anxiety rises."
+        },
+        {
+          "title": "You set the pace, always",
+          "description": "Come weekly, monthly, or just once. Stop whenever you want. There's no 'right' way to do this."
+        }
+      ]
+    },
+
+    "services": {
+      "title": "Support services you may find helpful",
+      "description": "Professional assistance and guidance in resolving personal, relational, and psychological challenges — for individuals, couples, families, and children of all ages.",
+      "loading": "Loading services...",
+      "noServices": "No related services available right now.",
+      "readMore": "Read more",
+      "bookAppointment": "Book an appointment"
+    },
+
+    "cta": {
+      "title": "Ready to talk to someone?",
+      "description": "Our counselling team is here to listen, support, and guide you in a safe and confidential environment.",
+      "button": "Book an appointment"
+    }
+  }
+}

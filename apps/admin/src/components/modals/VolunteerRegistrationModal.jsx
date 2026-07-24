@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -29,46 +30,57 @@ const countries = [
 const INTEREST_AREAS = [
   {
     id: "outreach",
-    title: "Outreach",
-    description: "Spreading awareness in local communities and digital platforms.",
+    titleKey: "volunteerRegistration.step2.interestAreas.outreach.title",
+    descriptionKey: "volunteerRegistration.step2.interestAreas.outreach.description",
     icon: Megaphone,
     color: "text-emerald-600 bg-emerald-50",
   },
   {
     id: "talks_workshops",
-    title: "Talks & Workshops",
-    description: "Facilitating or supporting wellness education sessions.",
+    titleKey: "volunteerRegistration.step2.interestAreas.talksWorkshops.title",
+    descriptionKey: "volunteerRegistration.step2.interestAreas.talksWorkshops.description",
     icon: Users,
     color: "text-teal-600 bg-teal-50",
   },
   {
     id: "administrative",
-    title: "Administrative",
-    description: "Supporting back-office operations and data management.",
+    titleKey: "volunteerRegistration.step2.interestAreas.administrative.title",
+    descriptionKey: "volunteerRegistration.step2.interestAreas.administrative.description",
     icon: FileText,
     color: "text-sky-600 bg-sky-50",
   },
   {
     id: "outings",
-    title: "Outings",
-    description: "Organizing nature walks and outdoor group activities.",
+    titleKey: "volunteerRegistration.step2.interestAreas.outings.title",
+    descriptionKey: "volunteerRegistration.step2.interestAreas.outings.description",
     icon: Trees,
     color: "text-green-600 bg-green-50",
   },
 ];
 
+const DAY_OPTIONS = [
+  { value: "Mon", labelKey: "volunteerRegistration.step2.days.mon" },
+  { value: "Tue", labelKey: "volunteerRegistration.step2.days.tue" },
+  { value: "Wed", labelKey: "volunteerRegistration.step2.days.wed" },
+  { value: "Thu", labelKey: "volunteerRegistration.step2.days.thu" },
+  { value: "Fri", labelKey: "volunteerRegistration.step2.days.fri" },
+  { value: "Sat", labelKey: "volunteerRegistration.step2.days.sat" },
+  { value: "Sun", labelKey: "volunteerRegistration.step2.days.sun" },
+];
+
 const SINGAPORE_PHONE_REGEX = /^[0-9]{8}$/;
 
-const getSingaporePhoneError = (value, { required = false } = {}) => {
+const getSingaporePhoneError = (value, { required = false, t } = {}) => {
   const digits = value.replace(/\D/g, "");
-  if (!digits) return required ? "Mobile number is required" : "";
+  if (!digits) return required ? (t ? t("volunteerRegistration.validation.step1.phoneRequired") : "Mobile number is required") : "";
   if (!SINGAPORE_PHONE_REGEX.test(digits)) {
-    return "Enter a valid 8-digit Singapore number";
+    return t ? t("volunteerRegistration.validation.step1.phoneInvalid") : "Enter a valid 8-digit Singapore number";
   }
   return "";
 };
 
 export function VolunteerRegistrationModal({ isOpen, onClose }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
@@ -157,53 +169,53 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
   // Validation functions
   const validateStep1 = () => {
     const newErrors = {};
-    if (!formData.title) newErrors.title = "Title is required";
+    if (!formData.title) newErrors.title = t("volunteerRegistration.validation.step1.titleRequired");
     
     // Name validation
     if (!formData.name || formData.name.trim().length === 0) {
-      newErrors.name = "Full Name is required";
+      newErrors.name = t("volunteerRegistration.validation.step1.nameRequired");
     } else if (formData.name.trim().length < 3) {
-      newErrors.name = "Full Name must be at least 3 characters";
+      newErrors.name = t("volunteerRegistration.validation.step1.nameMin");
     } else if (!/^[A-Za-z\s'-]+$/.test(formData.name.trim())) {
-      newErrors.name = "Full Name should contain only letters and spaces";
+      newErrors.name = t("volunteerRegistration.validation.step1.nameInvalid");
     }
 
     // NRIC/Passport (Last 4)
     if (!formData.nric_passport_last4) {
-      newErrors.nric_passport_last4 = "Last 4 digits/chars required";
+      newErrors.nric_passport_last4 = t("volunteerRegistration.validation.step1.nricRequired");
     } else if (!/^[A-Za-z0-9]{4}$/.test(formData.nric_passport_last4)) {
-      newErrors.nric_passport_last4 = "Must be exactly 4 alphanumeric characters";
+      newErrors.nric_passport_last4 = t("volunteerRegistration.validation.step1.nricInvalid");
     }
 
-    if (!formData.citizenship) newErrors.citizenship = "Citizenship is required";
-    if (!formData.dob) newErrors.dob = "Date of Birth is required";
+    if (!formData.citizenship) newErrors.citizenship = t("volunteerRegistration.validation.step1.citizenshipRequired");
+    if (!formData.dob) newErrors.dob = t("volunteerRegistration.validation.step1.dobRequired");
     
     // Age validation
     if (!formData.age) {
-      newErrors.age = "Age is required";
+      newErrors.age = t("volunteerRegistration.validation.step1.ageRequired");
     } else {
       const ageNum = parseInt(formData.age, 10);
       if (isNaN(ageNum) || ageNum < 1 || ageNum > 120) {
-        newErrors.age = "Enter a valid age (1-120)";
+        newErrors.age = t("volunteerRegistration.validation.step1.ageInvalid");
       }
     }
 
-    if (!formData.gender) newErrors.gender = "Gender is required";
-    if (!formData.marital_status) newErrors.marital_status = "Marital Status is required";
-    if (!formData.address) newErrors.address = "Address is required";
+    if (!formData.gender) newErrors.gender = t("volunteerRegistration.validation.step1.genderRequired");
+    if (!formData.marital_status) newErrors.marital_status = t("volunteerRegistration.validation.step1.maritalStatusRequired");
+    if (!formData.address) newErrors.address = t("volunteerRegistration.validation.step1.addressRequired");
     
     // Telephone H/P (Singapore +65 — 8 digits only)
-    const phoneHpError = getSingaporePhoneError(formData.phone_hp, { required: true });
+    const phoneHpError = getSingaporePhoneError(formData.phone_hp, { required: true, t });
     if (phoneHpError) newErrors.phone_hp = phoneHpError;
 
-    const phoneResError = getSingaporePhoneError(formData.phone_res);
+    const phoneResError = getSingaporePhoneError(formData.phone_res, { t });
     if (phoneResError) newErrors.phone_res = phoneResError;
 
     // Email Address
     if (!formData.email) {
-      newErrors.email = "Email address is required";
+      newErrors.email = t("volunteerRegistration.validation.step1.emailRequired");
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Enter a valid email address";
+      newErrors.email = t("volunteerRegistration.validation.step1.emailInvalid");
     }
 
     setErrors(newErrors);
@@ -213,13 +225,13 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
   const validateStep2 = () => {
     const newErrors = {};
     if (selectedInterests.length === 0 && !formData.other_contribution.trim()) {
-      newErrors.interests = "Please select at least one area of interest or fill in other contributions";
+      newErrors.interests = t("volunteerRegistration.validation.step2.interestRequired");
     }
     if (selectedDays.length === 0) {
-      newErrors.days = "Please select at least one preferred day";
+      newErrors.days = t("volunteerRegistration.validation.step2.daysRequired");
     }
     if (!formData.commitment_duration || parseInt(formData.commitment_duration, 10) <= 0) {
-      newErrors.commitment_duration = "Please enter a valid commitment duration";
+      newErrors.commitment_duration = t("volunteerRegistration.validation.step2.commitmentRequired");
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -228,14 +240,14 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
   const validateStep3 = () => {
     const newErrors = {};
     if (!formData.declaration_checked) {
-      newErrors.declaration_checked = "You must accept the declaration to submit";
+      newErrors.declaration_checked = t("volunteerRegistration.validation.step3.declarationRequired");
     }
     
     // Digital Signature Match check
     if (!formData.signature || formData.signature.trim().length === 0) {
-      newErrors.signature = "Signature is required";
+      newErrors.signature = t("volunteerRegistration.validation.step3.signatureRequired");
     } else if (formData.signature.trim().toLowerCase() !== formData.name.trim().toLowerCase()) {
-      newErrors.signature = `Signature must match the Full Name entered in Step 1: "${formData.name}"`;
+      newErrors.signature = t("volunteerRegistration.validation.step3.signatureMismatch");
     }
 
     setErrors(newErrors);
@@ -287,7 +299,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
     if (name === "phone_hp" || name === "phone_res") {
       const phoneError =
         processedValue.length > 0 && processedValue.length < 8
-          ? "Enter a valid 8-digit Singapore number"
+          ? t("volunteerRegistration.validation.step1.phoneInvalid")
           : "";
       setErrors(prev => ({ ...prev, [name]: phoneError }));
     } else if (errors[name]) {
@@ -377,15 +389,15 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Submission failed");
+        throw new Error(data.message || t("volunteerRegistration.errors.submissionFailed"));
       }
 
       setSubmitted(true);
       setCompletedSteps((prev) => (prev.includes(3) ? prev : [...prev, 3]));
 
       showSystemNotification(
-        "Volunteer Application Submitted",
-        `Thank you ${formData.name}, your application has been received successfully.`
+        t("volunteerRegistration.success.notification.title"),
+        t("volunteerRegistration.success.notification.message", { name: formData.name })
       );
 
       window.setTimeout(() => {
@@ -393,7 +405,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
       }, 2500);
     } catch (error) {
       console.error(error);
-      alert(error.message || "Failed to submit volunteer application. Please try again.");
+      alert(error.message || t("volunteerRegistration.errors.submitError"));
     } finally {
       setLoading(false);
     }
@@ -409,19 +421,19 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
   };
 
   const getStepTitle = () => {
-    if (step === 1) return "Personal Information";
-    if (step === 2) return "Share Your Interests & Availability";
-    return "Declaration & Signature";
+    if (step === 1) return t("volunteerRegistration.step1.title");
+    if (step === 2) return t("volunteerRegistration.step2.title");
+    return t("volunteerRegistration.step3.title");
   };
 
   const getStepSubtitle = () => {
     if (step === 1) {
-      return "We're grateful for your interest. Please share your personal and contact details so we can reach out personally.";
+      return t("volunteerRegistration.step1.subtitle");
     }
     if (step === 2) {
-      return "Tell us where you'd like to contribute and when you're available to serve with WINGS.";
+      return t("volunteerRegistration.step2.subtitle");
     }
-    return "Please review and confirm your declaration before submitting your volunteer application.";
+    return t("volunteerRegistration.step3.subtitle");
   };
 
   const ErrorMessage = ({ message }) => (
@@ -453,7 +465,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
         </svg>
       </div>
       <p className="text-[#1F5500] text-[13px] font-medium leading-[19px]">
-        Everything you share is handled securely and confidentially in accordance with Singapore&apos;s PDPA guidelines.
+        {t("volunteerRegistration.pdpa.notice")}
       </p>
     </div>
   );
@@ -499,7 +511,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-[#0D4A7A] text-[14px] font-medium hidden sm:block">
-                  Step {step} of 3
+                  {t("volunteerRegistration.common.step", { current: step, total: 3 })}
                 </span>
                 <button
                   type="button"
@@ -520,20 +532,20 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                     </svg>
                   </div>
                   <h2 className="text-[#0D4A7A] text-[24px] md:text-[28px] font-medium mb-3 font-['Outfit']">
-                    Application Submitted Successfully
+                    {t("volunteerRegistration.success.title")}
                   </h2>
                   <p className="text-[#3A3A3A] text-[16px] leading-relaxed max-w-[620px] mb-2">
-                    Thank you, <strong>{formData.name}</strong>. We have received your request to join WINGS as a volunteer.
+                    {t("volunteerRegistration.success.message", { name: formData.name })}
                   </p>
                   <p className="text-[#5f6368] text-[14px] max-w-[500px] mb-8">
-                    Our team will review your application and contact you via email (<strong>{formData.email}</strong>) within 3–5 working days.
+                    {t("volunteerRegistration.success.description", { email: formData.email })}
                   </p>
                   <button
                     type="button"
                     onClick={onClose}
                     className="px-8 py-3 rounded-full bg-[#1B4585] text-white font-medium hover:bg-[#0D4A7A] transition-all"
                   >
-                    Close
+                    {t("volunteerRegistration.success.closeButton")}
                   </button>
                 </div>
             </div>
@@ -569,7 +581,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                         {getStepSubtitle()}
                       </p>
                       <p className="text-[#0D4A7A] text-[14px] font-medium mt-2 sm:hidden">
-                        Step {step} of 3
+                        {t("volunteerRegistration.common.step", { current: step, total: 3 })}
                       </p>
                     </div>
                   </div>
@@ -578,13 +590,13 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                   {/* Step 1: Personal & Contact Information */}
                   {step === 1 && (
                     <div className="space-y-6">
-                      <h2 className="text-[#0D4A7A] text-[18px] font-medium">Personal Details</h2>
+                      <h2 className="text-[#0D4A7A] text-[18px] font-medium">{t("volunteerRegistration.step1.sections.personalDetails")}</h2>
 
                       {/* Title, Full Name, NRIC/Passport Last 4 */}
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
                         <div className="relative">
                           <label className={labelClass}>
-                            Title <span className="text-red-500">*</span>
+                            {t("volunteerRegistration.step1.fields.title")} <span className="text-red-500">*</span>
                           </label>
                           <div className="relative">
                             <select
@@ -593,12 +605,12 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                               onChange={handleChange}
                               className={selectClass(errors.title)}
                             >
-                              <option value="">Select Title</option>
-                              <option value="Mr.">Mr.</option>
-                              <option value="Ms.">Ms.</option>
-                              <option value="Mrs.">Mrs.</option>
-                              <option value="Dr.">Dr.</option>
-                              <option value="Mdm.">Mdm.</option>
+                              <option value="">{t("volunteerRegistration.step1.fields.titlePlaceholder")}</option>
+                              <option value="Mr.">{t("volunteerRegistration.step1.titleOptions.mr")}</option>
+                              <option value="Ms.">{t("volunteerRegistration.step1.titleOptions.ms")}</option>
+                              <option value="Mrs.">{t("volunteerRegistration.step1.titleOptions.mrs")}</option>
+                              <option value="Dr.">{t("volunteerRegistration.step1.titleOptions.dr")}</option>
+                              <option value="Mdm.">{t("volunteerRegistration.step1.titleOptions.mdm")}</option>
                             </select>
                             <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
                           </div>
@@ -607,14 +619,14 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
 
                         <div className="md:col-span-2">
                           <label className={labelClass}>
-                            Full Name (As per NRIC/Passport) <span className="text-red-500">*</span>
+                            {t("volunteerRegistration.step1.fields.fullName")} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            placeholder="Full name as shown on NRIC/Passport"
+                            placeholder={t("volunteerRegistration.step1.fields.fullNamePlaceholder")}
                             className={inputClass(errors.name)}
                           />
                           <ErrorMessage message={errors.name} />
@@ -622,14 +634,14 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
 
                         <div>
                           <label className={labelClass}>
-                            NRIC/Passport (Last 4) <span className="text-red-500">*</span>
+                            {t("volunteerRegistration.step1.fields.nricPassport")} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
                             name="nric_passport_last4"
                             value={formData.nric_passport_last4}
                             onChange={handleChange}
-                            placeholder="e.g. 567A"
+                            placeholder={t("volunteerRegistration.step1.fields.nricPassportPlaceholder")}
                             maxLength={4}
                             className={inputClass(errors.nric_passport_last4)}
                           />
@@ -641,14 +653,14 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                         <div>
                           <label className={labelClass}>
-                            Citizenship <span className="text-red-500">*</span>
+                            {t("volunteerRegistration.step1.fields.citizenship")} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
                             name="citizenship"
                             value={formData.citizenship}
                             onChange={handleChange}
-                            placeholder="e.g. Singaporean"
+                            placeholder={t("volunteerRegistration.step1.fields.citizenshipPlaceholder")}
                             className={inputClass(errors.citizenship)}
                           />
                           <ErrorMessage message={errors.citizenship} />
@@ -656,7 +668,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
 
                         <div>
                           <label className={labelClass}>
-                            Date of Birth <span className="text-red-500">*</span>
+                            {t("volunteerRegistration.step1.fields.dateOfBirth")} <span className="text-red-500">*</span>
                           </label>
                           <DateOfBirthPicker
                             value={formData.dob}
@@ -669,14 +681,14 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
 
                         <div>
                           <label className={labelClass}>
-                            Age <span className="text-red-500">*</span>
+                            {t("volunteerRegistration.step1.fields.age")} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="number"
                             name="age"
                             value={formData.age}
                             onChange={handleChange}
-                            placeholder="Enter Your Age"
+                            placeholder={t("volunteerRegistration.step1.fields.agePlaceholder")}
                             min={1}
                             max={120}
                             className={inputClass(errors.age)}
@@ -689,7 +701,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                         <div>
                           <label className={labelClass}>
-                            Gender <span className="text-red-500">*</span>
+                            {t("volunteerRegistration.step1.fields.gender")} <span className="text-red-500">*</span>
                           </label>
                           <div className="relative">
                             <select
@@ -698,10 +710,10 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                               onChange={handleChange}
                               className={selectClass(errors.gender)}
                             >
-                              <option value="">Select Gender</option>
-                              <option value="Male">Male</option>
-                              <option value="Female">Female</option>
-                              <option value="Other">Other</option>
+                              <option value="">{t("volunteerRegistration.step1.fields.genderPlaceholder")}</option>
+                              <option value="Male">{t("volunteerRegistration.step1.genderOptions.male")}</option>
+                              <option value="Female">{t("volunteerRegistration.step1.genderOptions.female")}</option>
+                              <option value="Other">{t("volunteerRegistration.step1.genderOptions.other")}</option>
                             </select>
                             <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
                           </div>
@@ -710,7 +722,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
 
                         <div>
                           <label className={labelClass}>
-                            Marital Status <span className="text-red-500">*</span>
+                            {t("volunteerRegistration.step1.fields.maritalStatus")} <span className="text-red-500">*</span>
                           </label>
                           <div className="relative">
                             <select
@@ -719,11 +731,11 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                               onChange={handleChange}
                               className={selectClass(errors.marital_status)}
                             >
-                              <option value="">Select Status</option>
-                              <option value="Single">Single</option>
-                              <option value="Married">Married</option>
-                              <option value="Divorced">Divorced</option>
-                              <option value="Widowed">Widowed</option>
+                              <option value="">{t("volunteerRegistration.step1.fields.maritalStatusPlaceholder")}</option>
+                              <option value="Single">{t("volunteerRegistration.step1.maritalStatusOptions.single")}</option>
+                              <option value="Married">{t("volunteerRegistration.step1.maritalStatusOptions.married")}</option>
+                              <option value="Divorced">{t("volunteerRegistration.step1.maritalStatusOptions.divorced")}</option>
+                              <option value="Widowed">{t("volunteerRegistration.step1.maritalStatusOptions.widowed")}</option>
                             </select>
                             <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
                           </div>
@@ -731,13 +743,13 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                         </div>
 
                         <div>
-                          <label className={labelClass}>Ethnicity</label>
+                          <label className={labelClass}>{t("volunteerRegistration.step1.fields.ethnicity")}</label>
                           <input
                             type="text"
                             name="ethnicity"
                             value={formData.ethnicity}
                             onChange={handleChange}
-                            placeholder="e.g. Chinese, Indian"
+                            placeholder={t("volunteerRegistration.step1.fields.ethnicityPlaceholder")}
                             className={inputClass(false)}
                           />
                         </div>
@@ -746,42 +758,42 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                       {/* Religion, Occupation */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div>
-                          <label className={labelClass}>Religion</label>
+                          <label className={labelClass}>{t("volunteerRegistration.step1.fields.religion")}</label>
                           <input
                             type="text"
                             name="religion"
                             value={formData.religion}
                             onChange={handleChange}
-                            placeholder="e.g. Buddhist, Christian"
+                            placeholder={t("volunteerRegistration.step1.fields.religionPlaceholder")}
                             className={inputClass(false)}
                           />
                         </div>
 
                         <div>
-                          <label className={labelClass}>Occupation</label>
+                          <label className={labelClass}>{t("volunteerRegistration.step1.fields.occupation")}</label>
                           <input
                             type="text"
                             name="occupation"
                             value={formData.occupation}
                             onChange={handleChange}
-                            placeholder="Current Occupation"
+                            placeholder={t("volunteerRegistration.step1.fields.occupationPlaceholder")}
                             className={inputClass(false)}
                           />
                         </div>
                       </div>
 
                       {/* Contact Details */}
-                      <h2 className="text-[#0D4A7A] text-[18px] font-medium pt-2">Contact Details</h2>
+                      <h2 className="text-[#0D4A7A] text-[18px] font-medium pt-2">{t("volunteerRegistration.step1.sections.contactDetails")}</h2>
 
                       <div>
                         <label className={labelClass}>
-                          Address <span className="text-red-500">*</span>
+                          {t("volunteerRegistration.step1.fields.address")} <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           name="address"
                           value={formData.address}
                           onChange={handleChange}
-                          placeholder="Your residential address"
+                          placeholder={t("volunteerRegistration.step1.fields.addressPlaceholder")}
                           rows={2}
                           className={`${inputClass(errors.address)} resize-none`}
                         />
@@ -791,7 +803,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                         <div>
                           <label className={labelClass}>
-                            Telephone (H/P) <span className="text-red-500">*</span>
+                            {t("volunteerRegistration.step1.fields.phoneMobile")} <span className="text-red-500">*</span>
                           </label>
                           <div className="flex">
                             <div className="flex items-center px-4 py-4 bg-[#EDEAE4] border border-[#E3E1E1] border-r-0 rounded-l-[10px] text-[16px] text-[#0D4A7A] font-medium shrink-0">
@@ -802,7 +814,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                               name="phone_hp"
                               value={formData.phone_hp}
                               onChange={handleChange}
-                              placeholder="8 digit number"
+                              placeholder={t("volunteerRegistration.step1.fields.phonePlaceholder")}
                               inputMode="numeric"
                               maxLength={8}
                               className={`${inputClass(errors.phone_hp)} rounded-l-none`}
@@ -812,7 +824,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                         </div>
 
                         <div>
-                          <label className={labelClass}>Telephone (Res)</label>
+                          <label className={labelClass}>{t("volunteerRegistration.step1.fields.phoneResidence")}</label>
                           <div className="flex">
                             <div className="flex items-center px-4 py-4 bg-[#EDEAE4] border border-[#E3E1E1] border-r-0 rounded-l-[10px] text-[16px] text-[#0D4A7A] font-medium shrink-0">
                               +65
@@ -822,7 +834,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                               name="phone_res"
                               value={formData.phone_res}
                               onChange={handleChange}
-                              placeholder="8 digit number"
+                              placeholder={t("volunteerRegistration.step1.fields.phonePlaceholder")}
                               inputMode="numeric"
                               maxLength={8}
                               className={`${inputClass(errors.phone_res)} rounded-l-none`}
@@ -833,14 +845,14 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
 
                         <div>
                           <label className={labelClass}>
-                            Email Address <span className="text-red-500">*</span>
+                            {t("volunteerRegistration.step1.fields.email")} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            placeholder="Enter your email address"
+                            placeholder={t("volunteerRegistration.step1.fields.emailPlaceholder")}
                             className={inputClass(errors.email)}
                           />
                           <ErrorMessage message={errors.email} />
@@ -855,9 +867,9 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                   {step === 2 && (
                     <div>
                       <div>
-                        <h2 className="text-[#0D4A7A] text-[18px] font-medium">Areas of Interest</h2>
+                        <h2 className="text-[#0D4A7A] text-[18px] font-medium">{t("volunteerRegistration.step2.sections.interestAreas")}</h2>
                         <p className="text-[#0D4A7A]/70 text-[14px] mt-1 mb-4">
-                          Select one or more areas where you&apos;d like to make an impact.
+                          {t("volunteerRegistration.step2.interestDescription")}
                         </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -879,10 +891,10 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                                 </div>
                                 <div className="flex flex-col">
                                   <span className="text-neutral-800 text-[15px] font-bold">
-                                    {area.title}
+                                    {t(area.titleKey)}
                                   </span>
                                   <span className="text-neutral-500 text-[12px] leading-relaxed mt-0.5">
-                                    {area.description}
+                                    {t(area.descriptionKey)}
                                   </span>
                                 </div>
                               </div>
@@ -894,25 +906,25 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
 
                       <div className="mt-8">
                         <label className={labelClass}>
-                          How can you contribute? / Others (please state)
+                          {t("volunteerRegistration.step2.fields.otherContribution")}
                         </label>
                         <input
                           type="text"
                           name="other_contribution"
                           value={formData.other_contribution}
                           onChange={handleChange}
-                          placeholder="Let us know if you want to help in other ways"
+                          placeholder={t("volunteerRegistration.step2.fields.otherContributionPlaceholder")}
                           className={inputClass(false)}
                         />
                       </div>
 
                       <div className="mt-8">
-                        <label className={labelClass}>Skills & Hobbies</label>
+                        <label className={labelClass}>{t("volunteerRegistration.step2.fields.skillsHobbies")}</label>
                         <textarea
                           name="skills_hobbies"
                           value={formData.skills_hobbies}
                           onChange={handleChange}
-                          placeholder="Tell us about specific skills, hobbies or other ways you'd like to help..."
+                          placeholder={t("volunteerRegistration.step2.fields.skillsHobbiesPlaceholder")}
                           rows={3}
                           className={`${inputClass(false)} resize-none`}
                         />
@@ -921,15 +933,15 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                       <div className="mt-8">
                         <div className="flex items-center gap-2 text-[#0D4A7A] font-medium text-[18px] mb-2">
                           <Calendar size={18} />
-                          <span>Availability</span>
+                          <span>{t("volunteerRegistration.step2.sections.availability")}</span>
                         </div>
 
                         <div>
                           <label className={labelClass}>
-                            Select Preferred Days <span className="text-red-500">*</span>
+                            {t("volunteerRegistration.step2.fields.preferredDays")} <span className="text-red-500">*</span>
                           </label>
                           <div className="flex flex-wrap gap-2">
-                            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(day => {
+                            {DAY_OPTIONS.map(({ value: day, labelKey }) => {
                               const isSelected = selectedDays.includes(day);
                               return (
                                 <button
@@ -942,7 +954,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                                       : "bg-[#FAF8F4] text-[#3A3A3A] border-[#E3E1E1] hover:border-[#0D4A7A]"
                                   }`}
                                 >
-                                  {day}
+                                  {t(labelKey)}
                                 </button>
                               );
                             })}
@@ -954,7 +966,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                           <div>
                             <label className={`${labelClass} flex items-center gap-1.5`}>
                               <Clock size={14} className="text-neutral-400" />
-                              Time Range (From)
+                              {t("volunteerRegistration.step2.fields.timeFrom")}
                             </label>
                             <input
                               type="time"
@@ -967,7 +979,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                           <div>
                             <label className={`${labelClass} flex items-center gap-1.5`}>
                               <Clock size={14} className="text-neutral-400" />
-                              Time Range (To)
+                              {t("volunteerRegistration.step2.fields.timeTo")}
                             </label>
                             <input
                               type="time"
@@ -983,21 +995,21 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                       <div className="mt-8">
                         <div className="flex items-center gap-2 text-[#0D4A7A] font-medium text-[18px] mb-2">
                           <ShieldCheck size={18} />
-                          <span>Commitment</span>
+                          <span>{t("volunteerRegistration.step2.sections.commitment")}</span>
                         </div>
 
                         <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-8">
                           <div className="flex flex-col sm:flex-row sm:items-start gap-4 md:gap-6 shrink-0">
                             <div className="w-full sm:w-[180px]">
                               <label className={labelClass}>
-                                Expected Duration <span className="text-red-500">*</span>
+                                {t("volunteerRegistration.step2.fields.expectedDuration")} <span className="text-red-500">*</span>
                               </label>
                               <input
                                 type="number"
                                 name="commitment_duration"
                                 value={formData.commitment_duration}
                                 onChange={handleChange}
-                                placeholder="Duration"
+                                placeholder={t("volunteerRegistration.step2.fields.durationPlaceholder")}
                                 min={1}
                                 className={inputClass(errors.commitment_duration)}
                               />
@@ -1006,7 +1018,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
 
                             <div className="w-full sm:w-[180px]">
                               <label className={labelClass}>
-                                Unit <span className="text-red-500">*</span>
+                                {t("volunteerRegistration.step2.fields.unit")} <span className="text-red-500">*</span>
                               </label>
                               <div className="relative">
                                 <select
@@ -1015,9 +1027,9 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                                   onChange={handleChange}
                                   className={selectClass(false)}
                                 >
-                                  <option value="Weeks">Weeks</option>
-                                  <option value="Months">Months</option>
-                                  <option value="Years">Years</option>
+                                  <option value="Weeks">{t("volunteerRegistration.step2.units.weeks")}</option>
+                                  <option value="Months">{t("volunteerRegistration.step2.units.months")}</option>
+                                  <option value="Years">{t("volunteerRegistration.step2.units.years")}</option>
                                 </select>
                                 <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
                               </div>
@@ -1025,7 +1037,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                           </div>
 
                           <p className="text-[13px] text-[#0D4A7A]/70 font-medium italic leading-snug lg:flex-1 lg:max-w-[340px] lg:mt-8 lg:min-h-[52px] lg:flex lg:items-center">
-                            * Minimum commitment helps us maintain continuity for our programs.
+                            {t("volunteerRegistration.step2.notes.minimumCommitment")}
                           </p>
                         </div>
                       </div>
@@ -1035,7 +1047,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                   {/* Step 3: Declaration & Digital Signature */}
                   {step === 3 && (
                     <div className="space-y-6">
-                      <h2 className="text-[#0D4A7A] text-[18px] font-medium">Declaration</h2>
+                      <h2 className="text-[#0D4A7A] text-[18px] font-medium">{t("volunteerRegistration.step3.sections.declaration")}</h2>
 
                       <div className="bg-[#E8F3DC] border-l-4 border-[#0D4A7A] rounded-[10px] p-5 flex items-start gap-4">
                         <div className="mt-1 flex items-center justify-center shrink-0">
@@ -1052,7 +1064,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                           htmlFor="declaration_checked"
                           className="text-[#1F5500] text-[14px] leading-relaxed cursor-pointer font-medium select-none"
                         >
-                          I declare that the information given above by me is accurate. I understand that any false statement or omission of material facts may result in the rejection of my application or termination of my volunteer status.
+                          {t("volunteerRegistration.step3.declaration.text")}
                         </label>
                       </div>
                       {errors.declaration_checked && (
@@ -1061,7 +1073,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
 
                       <div className="space-y-2">
                         <label className={labelClass}>
-                          Digital Signature <span className="text-red-500">*</span>
+                          {t("volunteerRegistration.step3.sections.signature")} <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                           <input
@@ -1069,19 +1081,19 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                             name="signature"
                             value={formData.signature}
                             onChange={handleChange}
-                            placeholder="Enter your full name as signature"
+                            placeholder={t("volunteerRegistration.step3.fields.signaturePlaceholder")}
                             className={`${inputClass(errors.signature)} pl-12`}
                           />
                           <PenTool size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" />
                         </div>
                         <p className="text-[#0D4A7A]/70 text-[12px] font-medium italic">
-                          By typing your name, you are providing a legal digital signature.
+                          {t("volunteerRegistration.step3.signature.helperText")}
                         </p>
                         <ErrorMessage message={errors.signature} />
                       </div>
 
                       <div className="space-y-2">
-                        <label className={labelClass}>Date of Submission</label>
+                        <label className={labelClass}>{t("volunteerRegistration.step3.sections.submissionDate")}</label>
                         <div className="relative">
                           <div className="w-full pl-12 pr-5 py-4 border border-[#E3E1E1] rounded-[10px] text-[16px] bg-[#FAF8F4] text-neutral-700 font-medium select-none flex items-center">
                             {getSubmissionDateString()}
@@ -1108,7 +1120,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="24" viewBox="0 0 12 24" fill="none" className="rotate-180">
                           <path fillRule="evenodd" clipRule="evenodd" d="M10.157 12.711L4.5 18.368L3.086 16.954L8.036 12.004L3.086 7.05401L4.5 5.64001L10.157 11.297C10.3445 11.4845 10.4498 11.7389 10.4498 12.004C10.4498 12.2692 10.3445 12.5235 10.157 12.711Z" fill="#0D4A7A" />
                         </svg>
-                        Back
+                        {t("volunteerRegistration.common.back")}
                       </button>
                     )}
 
@@ -1118,7 +1130,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                         onClick={handleNext}
                         className="px-8 py-3 rounded-full bg-[#1B4585] text-white font-medium flex items-center gap-2 hover:bg-[#0D4A7A] transition-all"
                       >
-                        Continue
+                        {t("volunteerRegistration.common.continue")}
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="24" viewBox="0 0 12 24" fill="none">
                           <path fillRule="evenodd" clipRule="evenodd" d="M10.157 12.711L4.5 18.368L3.086 16.954L8.036 12.004L3.086 7.05401L4.5 5.64001L10.157 11.297C10.3445 11.4845 10.4498 11.7389 10.4498 12.004C10.4498 12.2692 10.3445 12.5235 10.157 12.711Z" fill="white" />
                         </svg>
@@ -1132,11 +1144,11 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                         {loading ? (
                           <div className="flex items-center gap-2">
                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            Submitting...
+                            {t("volunteerRegistration.common.submitting")}
                           </div>
                         ) : (
                           <>
-                            Submit Application
+                            {t("volunteerRegistration.common.submitApplication")}
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="24" viewBox="0 0 12 24" fill="none">
                               <path fillRule="evenodd" clipRule="evenodd" d="M10.157 12.711L4.5 18.368L3.086 16.954L8.036 12.004L3.086 7.05401L4.5 5.64001L10.157 11.297C10.3445 11.4845 10.4498 11.7389 10.4498 12.004C10.4498 12.2692 10.3445 12.5235 10.157 12.711Z" fill="white" />
                             </svg>

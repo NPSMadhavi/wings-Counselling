@@ -1,0 +1,30 @@
+{
+  "services": {
+    "hero": {
+      "title": "Professional care, tailored to you",
+      "description": "We offer a comprehensive range of counselling & therapy, supervision and training & workshops designed to support individuals, families, professionals, schools, workplaces and community organisations. Every service is tailored to meet the unique needs and goals of those we serve.",
+      "button": "Explore our services"
+    },
+    "tabs": {
+      "counselling": "Counselling & Therapy",
+      "supervision": "Supervision",
+      "training": "Training & Workshops"
+    },
+    "counselling": {
+      "title": "Counselling & Therapy",
+      "description": "Professional assistance and guidance in resolving personal, relational and psychological challenges for individuals, couples, families and children of all ages."
+    },
+    "supervision": {
+      "title": "Supervision",
+      "description": "Clinical internships & supervision for budding counsellors. Kindly note that all our services are only available to Singapore citizens and permanent residents."
+    },
+    "training": {
+      "title": "Training & Workshops",
+      "description": "Assessment, treatment and management of clinical conditions that impair emotional, cognitive, physical, behavioural and social functioning. Kindly note that all our services are only available to Singapore Citizens and Permanent Residents."
+    },
+    "buttons": {
+      "readMore": "Read More",
+      "bookAppointment": "Book an Appointment"
+    }
+  }
+}

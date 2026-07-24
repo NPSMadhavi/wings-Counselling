@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Footer } from "../components/Layout/Footer.jsx";
 import { useLocation } from "wouter";
 import { useAppointment } from "@/context/AppointmentContext";
 import { getArticleDetailPath } from "@/lib/articlePageContent";
 
 export default function ArticlePage() {
+    const { t } = useTranslation();
     const [, navigate] = useLocation();
     const { openModal } = useAppointment();
 
@@ -15,21 +17,26 @@ export default function ArticlePage() {
     const [subEmail, setSubEmail] = useState("");
     const [subStatus, setSubStatus] = useState("idle"); // idle | loading | success | duplicate | error
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [selectedFilter, setSelectedFilter] = useState("All articles");
+    const [selectedFilter, setSelectedFilter] = useState("__all__");
 
+    const allArticlesLabel = t("articles.listing.filters.all");
     const articleFilterOptions = [
-        "All articles",
+        { key: "__all__", label: allArticlesLabel },
         ...Array.from(
             new Set(
                 articles
                     .map((article) => article.category)
                     .filter(Boolean)
             )
-        ),
+        ).map((category) => ({ key: category, label: category })),
     ];
 
+    const selectedFilterLabel =
+        articleFilterOptions.find((o) => o.key === selectedFilter)?.label ||
+        allArticlesLabel;
+
     const filteredArticles = articles.filter((article) => {
-        if (selectedFilter === "All articles") return true;
+        if (selectedFilter === "__all__") return true;
         return article.category === selectedFilter;
     });
 
@@ -124,7 +131,7 @@ export default function ArticlePage() {
                             transition={{ duration: 0.8 }}
                             className="text-white font-semibold mb-4 md:mb-6 text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px] leading-[1.1] max-w-[900px]"
                         >
-                            Articles & Mental health resources
+                            {t("articles.hero.title")}
                         </motion.h1>
 
                         <motion.p
@@ -133,7 +140,7 @@ export default function ArticlePage() {
                             transition={{ duration: 0.8, delay: 0.2 }}
                             className="text-white text-[clamp(15px,2.5vw,20px)] leading-[1.5] max-w-[750px] px-2"
                         >
-                            Practical guides, expert insights and compassionate advice.
+                            {t("articles.hero.description")}
                         </motion.p>
 
                         <motion.button
@@ -152,7 +159,7 @@ export default function ArticlePage() {
                             }}
                             className="mt-6 md:mt-10 bg-[#1B4585] rounded-full px-6 min-[375px]:px-8 py-3.5 min-[375px]:py-4 flex items-center gap-2 sm:gap-3 text-white text-[15px] md:text-[16px] lg:text-[18px] font-medium"
                         >
-                            Explore our articles
+                            {t("articles.hero.button")}
                             <svg
                                 width="20"
                                 height="20"
@@ -175,7 +182,7 @@ export default function ArticlePage() {
             {/* FEATURED ARTICLES SECTION */}
             
             {/* FILTER SECTION */}
-            <div id="featured-articles" className="w-full flex flex-col items-center pt-4 sm:pt-5 pb-6 sm:pb-8 bg-[#FAFAF5]">
+            <div id="featured-articles" className="w-full flex flex-col items-center pt-4 sm:pt-5 lg:py-[60px] pb-6 sm:pb-8 bg-[#FAFAF5]">
                 <div className="w-full navbar-align-outer">
                     <div className="navbar-align-inner flex flex-wrap justify-between items-center gap-4">
                         <h2
@@ -187,7 +194,7 @@ export default function ArticlePage() {
                                 lineHeight: "100%",
                             }}
                         >
-                            All articles
+                            {t("articles.listing.title")}
                         </h2>
 
                         <div className="relative dropdown-container">
@@ -208,7 +215,7 @@ export default function ArticlePage() {
                                     cursor: "pointer",
                                 }}
                             >
-                                {selectedFilter}
+                                {selectedFilterLabel}
                                 <ChevronDown
                                     size={20}
                                     color="#6B7280"
@@ -232,9 +239,9 @@ export default function ArticlePage() {
                                 >
                                     {articleFilterOptions.map((option) => (
                                         <button
-                                            key={option}
+                                            key={option.key}
                                             onClick={() => {
-                                                setSelectedFilter(option);
+                                                setSelectedFilter(option.key);
                                                 setIsDropdownOpen(false);
                                             }}
                                             className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
@@ -242,11 +249,11 @@ export default function ArticlePage() {
                                                 fontFamily: "'DM Sans', sans-serif",
                                                 fontWeight: 500,
                                                 fontSize: "14px",
-                                                color: selectedFilter === option ? "#0D4A7A" : "#333333",
-                                                backgroundColor: selectedFilter === option ? "#F0F7FF" : "transparent",
+                                                color: selectedFilter === option.key ? "#0D4A7A" : "#333333",
+                                                backgroundColor: selectedFilter === option.key ? "#F0F7FF" : "transparent",
                                             }}
                                         >
-                                            {option}
+                                            {option.label}
                                         </button>
                                     ))}
                                 </motion.div>
@@ -263,11 +270,11 @@ export default function ArticlePage() {
 
                         {loading ? (
                             <div className="text-center text-[16px] sm:text-[18px] md:text-[20px]">
-                                Loading articles...
+                                {t("articles.listing.loading")}
                             </div>
                         ) : filteredArticles.length === 0 ? (
                             <div className="text-center text-[16px] sm:text-[18px] md:text-[20px]">
-                                No articles found
+                                {t("articles.listing.noArticles")}
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
@@ -369,19 +376,19 @@ export default function ArticlePage() {
 
                             {/* Title */}
                             <h2 className="font-['Outfit'] font-medium text-[clamp(24px,5vw,35px)] leading-tight text-white mb-3 sm:mb-4 text-center px-2">
-                                Articles in your inbox
+                                {t("articles.newsletter.title")}
                             </h2>
 
                             {/* Subtitle */}
                             <p className="font-['DM_Sans'] font-medium text-[clamp(15px,2.5vw,20px)] leading-snug text-white mb-6 sm:mb-8 md:mb-10 text-center max-w-[600px] px-2">
-                                Monthly insights from our counsellors. No spam-ever.
+                                {t("articles.newsletter.description")}
                             </p>
 
                             {/* Form */}
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full justify-center max-w-[720px]">
                                 {subStatus === "success" ? (
                                     <p className="text-white font-['DM_Sans'] font-semibold text-[15px] sm:text-[17px] text-center">
-                                        Thank you for subscribing! We'll keep you updated on future events.
+                                        {t("articles.newsletter.success")}
                                     </p>
                                 ) : (
                                     <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full justify-center">
@@ -408,7 +415,7 @@ export default function ArticlePage() {
                                                     setSubEmail(e.target.value);
                                                     setSubStatus("idle");
                                                 }}
-                                                placeholder="Enter your email address"
+                                                placeholder={t("articles.newsletter.emailPlaceholder")}
                                                 required
                                                 className="w-full h-full rounded-[24px] sm:rounded-[30px] border-none pl-12 sm:pl-[60px] pr-4 sm:pr-5 font-['DM_Sans'] font-normal text-[15px] sm:text-[16px] md:text-[18px] outline-none bg-white"
                                             />
@@ -421,7 +428,7 @@ export default function ArticlePage() {
                                             whileTap={{ scale: 0.95 }}
                                             className="w-full sm:w-[160px] h-[52px] sm:h-[56px] md:h-[60px] shrink-0 bg-transparent rounded-full border border-white text-[#F5F9FF] font-['Plus_Jakarta_Sans'] font-semibold text-[16px] sm:text-[17px] md:text-[18px] cursor-pointer transition-all duration-300 hover:bg-white hover:text-[#0D4A7A] disabled:opacity-70"
                                         >
-                                            {subStatus === "loading" ? "..." : "Notify me"}
+                                            {subStatus === "loading" ? t("articles.newsletter.loading") : t("articles.newsletter.notifyMe")}
                                         </motion.button>
                                     </form>
                                 )}
@@ -429,13 +436,13 @@ export default function ArticlePage() {
 
                             {subStatus === "duplicate" && (
                                 <p className="text-[#FFD700] font-['DM_Sans'] text-[13px] sm:text-[14px] mt-3 sm:mt-[10px] text-center">
-                                    You're already subscribed. Please enter another email.
+                                    {t("articles.newsletter.duplicate")}
                                 </p>
                             )}
 
                             {subStatus === "error" && (
                                 <p className="text-[#FCA5A5] font-['DM_Sans'] text-[13px] sm:text-[14px] mt-3 sm:mt-[10px] text-center">
-                                    Something went wrong. Please try again.
+                                    {t("articles.newsletter.error")}
                                 </p>
                             )}
                         </div>

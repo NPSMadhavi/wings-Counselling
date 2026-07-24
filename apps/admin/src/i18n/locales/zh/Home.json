@@ -1,0 +1,216 @@
+  {
+    "navbar": {
+      "home": "首页",
+      "about": "关于我们",
+      "team": "团队",
+      "contact": "联系我们",
+      "services": "服务",
+      "counselling": "心理辅导与治疗",
+      "supervision": "专业督导",
+      "training": "培训与工作坊",
+      "resources": "资源",
+      "events": "活动",
+      "articles": "文章",
+      "volunteers": "志愿者",
+      "partners": "合作伙伴",
+      "careers": "职业机会",
+
+      "donate": "捐赠",
+
+      "bookAppointment": "预约咨询",
+
+      "language": "语言",
+
+      "english": "英语",
+      "malay": "马来语",
+      "chinese": "中文",
+      "hindi": "印地语",
+      "tamil": "泰米尔语",
+
+      "eng": "Eng",
+      "zh": "中文",
+      "bm": "BM",
+      "hi": "हिंदी",
+      "ta": "தமிழ்"
+    },
+
+    "footer": {
+      "description": "我们致力于为社区提供价格合理且专业的心理辅导服务，不分信仰、种族或宗教。自1995年以来一直支持社区。",
+
+      "links": "链接",
+      "home": "首页",
+      "about": "关于我们",
+      "services": "服务",
+      "team": "团队",
+      "events": "活动",
+      "partners": "合作伙伴",
+      "contact": "联系我们",
+
+      "stayConnected": "保持联系",
+      "stayConnectedDescription": "我们致力于提供价格合理且专业的心理辅导服务。",
+
+      "fullName": "姓名",
+      "email": "电子邮箱",
+
+      "privacy": "继续即表示您接受隐私政策",
+
+      "success": "谢谢！您将收到最新文章和活动的更新。",
+      "duplicate": "该电子邮箱已订阅，请输入其他电子邮箱。",
+      "error": "发生错误，请稍后重试。",
+      "privacyError": "请先接受隐私政策后再继续。",
+
+      "copyright": "© 2026 WINGS 心理辅导中心。保留所有权利。",
+      "poweredBy": "技术支持",
+      "privacyPolicy": "隐私政策"
+    },
+
+    "hero": {
+      "slides": [
+        {
+          "headline": "感到不知所措吗？",
+          "description": "在 WINGS，我们致力于为心灵提供一个安全的港湾。我们以关怀和同理心陪伴您，在专业辅导下帮助您面对生活中的各种挑战。",
+          "highlightText": "您并不孤单。"
+        },
+        {
+          "headline": "为个人、伴侣及家庭提供专业心理辅导与心理健康支持。",
+          "description": "无论您正面对压力、关系问题、失落或人生转变，WINGS 都会以关怀和保密的方式，为您提供专业辅导，帮助您重新找回信心。"
+        }
+      ],
+      "bookAppointment": "预约咨询",
+      "exploreServices": "探索我们的服务",
+    "learnApproach": "了解我们的方法"
+    },
+
+    "partners": {
+      "title": "我们值得信赖的合作伙伴"
+    },
+
+    "whatWeDo": {
+      "title": "找到您今天需要的帮助",
+      "description": "请选择您想进一步了解的主题"
+    },
+
+    "about": {
+      "title": "关于 WINGS 心理辅导中心",
+
+      "description1": "WINGS 心理辅导中心成立的宗旨简单而坚定：为新加坡社区提供专业、关怀且人人都能获得的心理健康支持。自2008年以来，我们一直为个人、伴侣及家庭提供安全、值得信赖的心理辅导服务，陪伴他们度过人生中的各种挑战。",
+
+      "description2": "在 WINGS 心理辅导中心，我们为个人、伴侣及家庭提供富有同理心且量身定制的心理健康支持。我们的专业辅导员帮助人们提升心理韧性、改善人际关系，并在安全、支持性的环境中实现长久的情绪健康。",
+
+      "features": {
+        "compassion": "以关怀为先",
+        "evidence": "循证辅导方法",
+        "confidential": "安全且保密",
+        "holistic": "全面支持"
+      },
+
+      "readMore": "了解更多",
+
+      "imageAlt": "关于 WINGS 心理辅导中心"
+    },
+
+    "howToUse": {
+      "title": "WINGS 心理辅导中心如何运作",
+      "description": "我们让整个流程尽可能简单、轻松且充满关怀。",
+
+      "steps": [
+        {
+          "number": "01",
+          "title": "分享您的困扰",
+          "description": "通过电话或预约表格联系我们，在安全且保密的环境中告诉我们您的情况。"
+        },
+        {
+          "number": "02",
+          "title": "为您匹配合适的辅导员",
+          "description": "我们将根据您的需求、偏好和实际情况，为您安排最合适的专业辅导员。"
+        },
+        {
+          "number": "03",
+          "title": "开始辅导",
+          "description": "按照您的节奏开始个性化心理辅导，可选择面对面或线上咨询。"
+        }
+      ]
+    },
+
+    "services": {
+      "title": "WINGS 心理辅导中心提供的服务",
+      "description": "为人生每个阶段提供全面的心理辅导支持",
+      "readMore": "了解更多"
+    },
+
+    "team": {
+      "title": "认识我们的辅导员",
+      "description": "我们的专业辅导团队不仅拥有丰富的专业经验，更以真诚的关怀和同理心，致力于守护您的心理健康。"
+    },
+
+    "needHelp": {
+      "title": "现在需要帮助吗？我们就在您身边",
+      "description": "请选择您觉得最舒适的方式与我们联系",
+      "bookAppointment": "预约咨询"
+    },
+
+    "upcoming": {
+    "title": "即将举行的活动与工作坊",
+    "description": "欢迎参加我们的社区活动，与他人学习、交流并共同成长。疗愈不一定要独自面对。",
+
+    "online": "线上",
+    "inPerson": "线下",
+
+    "tba": "待定",
+    "free": "免费",
+
+    "registerNow": "立即报名",
+
+    "noEvents": "目前暂无即将举行的活动。",
+
+    "viewAll": "查看全部"
+  },
+
+  "recentArticles": {
+    "title": "我们的最新文章",
+    "description": "了解我们的最新见解与资讯",
+
+    "general": "综合",
+    "wingsTeam": "WINGS 团队",
+    "recent": "最新",
+
+    "viewAll": "查看全部",
+
+    "noArticles": "目前暂无已发布的文章。",
+
+    "loadingError": "无法加载文章，请稍后再试。",
+    "tryAgain": "重试"
+  },
+
+  "testimonials": {
+    "title": "客户心声",
+    "description": "了解充满关怀的支持如何帮助个人和家庭充满信心与希望地面对人生的各种挑战。"
+  },
+
+  "getInTouch": {
+    "title": "联系我们",
+    "description": "我们随时为您提供帮助，欢迎在办公时间与我们联系。",
+
+    "address": "地址",
+    "phone": "电话",
+    "email": "电子邮箱",
+    "operatingHours": "营业时间",
+
+    "bookAppointment": "预约咨询",
+
+    "mapTitle": "罗摩克里希那使命 WINGS 心理辅导中心",
+    "openGoogleMaps": "点击在 Google 地图中打开",
+
+    "days": {
+      "monday": "星期一",
+      "tueFri": "星期二至星期五（星期四除外）",
+      "thursday": "星期四",
+      "saturday": "星期六（第二及第四周）",
+      "sunHoliday": "星期日及公共假期"
+    },
+
+    "status": {
+      "closed": "休息"
+    }
+  }
+  }

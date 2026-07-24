@@ -1,0 +1,29 @@
+{
+  "articles": {
+    "hero": {
+      "title": "Artikel & Sumber Kesihatan Mental",
+      "description": "Panduan praktikal, pandangan pakar dan nasihat yang penuh empati.",
+      "button": "Terokai artikel kami"
+    },
+
+    "listing": {
+      "title": "Semua Artikel",
+      "loading": "Memuatkan artikel...",
+      "noArticles": "Tiada artikel ditemui",
+      "filters": {
+        "all": "Semua Artikel"
+      }
+    },
+
+    "newsletter": {
+      "title": "Artikel terus ke peti masuk anda",
+      "description": "Perkongsian bulanan daripada kaunselor kami. Tiada spam.",
+      "emailPlaceholder": "Masukkan alamat e-mel anda",
+      "notifyMe": "Maklumkan Saya",
+      "loading": "...",
+      "success": "Terima kasih kerana melanggan! Kami akan menghantar artikel terkini kepada anda.",
+      "duplicate": "Anda telah pun melanggan. Sila masukkan alamat e-mel lain.",
+      "error": "Sesuatu telah berlaku. Sila cuba lagi."
+    }
+  }
+}

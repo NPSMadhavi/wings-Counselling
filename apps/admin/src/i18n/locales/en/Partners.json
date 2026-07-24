@@ -1,0 +1,39 @@
+{
+  "partners": {
+    "hero": {
+      "title": "Our trusted partners",
+      "description": "We collaborate with community organizations, health experts, and local leaders to build a holistic support system for mental wellness in Singapore.",
+      "button": "Explore our partners"
+    },
+
+    "listing": {
+      "title": "Our partners",
+      "loading": "Loading partners...",
+      "noPartners": "No partners are available right now.",
+      "visitWebsite": "Visit Website",
+      "previous": "Previous",
+      "next": "Next",
+      "goToPage": "Go to page {{page}}"
+    },
+
+    "strength": {
+      "title": "The strength of partnership",
+      "description": "No one can heal in isolation. Our partnerships allow us to provide a level of care that goes beyond the counselling room.",
+
+      "cards": [
+        {
+          "title": "Holistic network",
+          "description": "By connecting with medical and social services, we ensure our clients receive complete care for every aspect of their life."
+        },
+        {
+          "title": "Community reach",
+          "description": "Partnerships help us bring mental health awareness into the heartlands, reaching those who might not otherwise seek help."
+        },
+        {
+          "title": "Seamless referrals",
+          "description": "Our established pathways ensure that if you need specialized medical care, the transition is fast, safe and supported."
+        }
+      ]
+    }
+  }
+}

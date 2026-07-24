@@ -1,0 +1,247 @@
+{
+  "volunteerRegistration": {
+    "common": {
+      "close": "Close",
+      "back": "Back",
+      "continue": "Continue",
+      "submit": "Submit",
+      "submitApplication": "Submit Application",
+      "submitting": "Submitting...",
+      "step": "Step {{current}} of {{total}}"
+    },
+
+    "step1": {
+      "title": "Personal Information",
+      "subtitle": "We're grateful for your interest. Please share your personal and contact details so we can reach out personally.",
+
+      "sections": {
+        "personalDetails": "Personal Details",
+        "contactDetails": "Contact Details"
+      },
+
+      "fields": {
+        "title": "Title",
+        "titlePlaceholder": "Select Title",
+
+        "fullName": "Full Name (As per NRIC/Passport)",
+        "fullNamePlaceholder": "Full name as shown on NRIC/Passport",
+
+        "nricPassport": "NRIC/Passport (Last 4)",
+        "nricPassportPlaceholder": "e.g. 567A",
+
+        "citizenship": "Citizenship",
+        "citizenshipPlaceholder": "e.g. Singaporean",
+
+        "dateOfBirth": "Date of Birth",
+
+        "age": "Age",
+        "agePlaceholder": "Enter Your Age",
+
+        "gender": "Gender",
+        "genderPlaceholder": "Select Gender",
+
+        "maritalStatus": "Marital Status",
+        "maritalStatusPlaceholder": "Select Status",
+
+        "ethnicity": "Ethnicity",
+        "ethnicityPlaceholder": "e.g. Chinese, Indian",
+
+        "religion": "Religion",
+        "religionPlaceholder": "e.g. Buddhist, Christian",
+
+        "occupation": "Occupation",
+        "occupationPlaceholder": "Current Occupation",
+
+        "address": "Address",
+        "addressPlaceholder": "Your residential address",
+
+        "phoneMobile": "Telephone (H/P)",
+        "phoneResidence": "Telephone (Res)",
+        "phonePlaceholder": "8 digit number",
+
+        "email": "Email Address",
+        "emailPlaceholder": "Enter your email address"
+      },
+
+      "titleOptions": {
+        "mr": "Mr.",
+        "ms": "Ms.",
+        "mrs": "Mrs.",
+        "dr": "Dr.",
+        "mdm": "Mdm."
+      },
+
+      "genderOptions": {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other"
+      },
+
+      "maritalStatusOptions": {
+        "single": "Single",
+        "married": "Married",
+        "divorced": "Divorced",
+        "widowed": "Widowed"
+      }
+    },
+
+    "step2": {
+      "title": "Share Your Interests & Availability",
+      "subtitle": "Tell us where you'd like to contribute and when you're available to serve with WINGS.",
+
+      "sections": {
+        "interestAreas": "Areas of Interest",
+        "availability": "Availability",
+        "commitment": "Commitment"
+      },
+
+      "interestDescription": "Select one or more areas where you'd like to make an impact.",
+
+      "interestAreas": {
+        "outreach": {
+          "title": "Outreach",
+          "description": "Spreading awareness in local communities and digital platforms."
+        },
+        "talksWorkshops": {
+          "title": "Talks & Workshops",
+          "description": "Facilitating or supporting wellness education sessions."
+        },
+        "administrative": {
+          "title": "Administrative",
+          "description": "Supporting back-office operations and data management."
+        },
+        "outings": {
+          "title": "Outings",
+          "description": "Organizing nature walks and outdoor group activities."
+        }
+      },
+
+      "fields": {
+        "otherContribution": "How can you contribute? / Others (please state)",
+        "otherContributionPlaceholder": "Let us know if you want to help in other ways",
+
+        "skillsHobbies": "Skills & Hobbies",
+        "skillsHobbiesPlaceholder": "Tell us about specific skills, hobbies or other ways you'd like to help...",
+
+        "preferredDays": "Select Preferred Days",
+
+        "timeFrom": "Time Range (From)",
+        "timeTo": "Time Range (To)",
+
+        "expectedDuration": "Expected Duration",
+        "durationPlaceholder": "Duration",
+
+        "unit": "Unit"
+      },
+
+      "days": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      },
+
+      "units": {
+        "weeks": "Weeks",
+        "months": "Months",
+        "years": "Years"
+      },
+
+      "notes": {
+        "minimumCommitment": "* Minimum commitment helps us maintain continuity for our programs."
+      }
+    },
+
+    "validation": {
+      "step1": {
+        "titleRequired": "Title is required",
+
+        "nameRequired": "Full Name is required",
+        "nameMin": "Full Name must be at least 3 characters",
+        "nameInvalid": "Full Name should contain only letters and spaces",
+
+        "nricRequired": "Last 4 digits/chars required",
+        "nricInvalid": "Must be exactly 4 alphanumeric characters",
+
+        "citizenshipRequired": "Citizenship is required",
+
+        "dobRequired": "Date of Birth is required",
+
+        "ageRequired": "Age is required",
+        "ageInvalid": "Enter a valid age (1-120)",
+
+        "genderRequired": "Gender is required",
+
+        "maritalStatusRequired": "Marital Status is required",
+
+        "addressRequired": "Address is required",
+
+        "phoneRequired": "Mobile number is required",
+        "phoneInvalid": "Enter a valid 8-digit Singapore number",
+
+        "emailRequired": "Email address is required",
+        "emailInvalid": "Enter a valid email address"
+      },
+
+      "step2": {
+        "interestRequired": "Please select at least one area of interest or fill in other contributions.",
+        "daysRequired": "Please select at least one preferred day.",
+        "commitmentRequired": "Please enter a valid commitment duration."
+      },
+
+      "step3": {
+        "declarationRequired": "You must accept the declaration to submit.",
+        "signatureRequired": "Signature is required.",
+        "signatureMismatch": "Signature must match the Full Name entered in Step 1."
+      }
+    },
+
+    "pdpa": {
+      "notice": "Everything you share is handled securely and confidentially in accordance with Singapore's PDPA guidelines."
+    },
+
+    "step3": {
+  "title": "Declaration & Signature",
+  "subtitle": "Please review and confirm your declaration before submitting your volunteer application.",
+
+  "sections": {
+    "declaration": "Declaration",
+    "signature": "Digital Signature",
+    "submissionDate": "Date of Submission"
+  },
+
+  "fields": {
+    "signaturePlaceholder": "Enter your full name as signature"
+  },
+
+  "declaration": {
+    "text": "I declare that the information given above by me is accurate. I understand that any false statement or omission of material facts may result in the rejection of my application or termination of my volunteer status."
+  },
+
+  "signature": {
+    "helperText": "By typing your name, you are providing a legal digital signature."
+  }
+},
+
+"success": {
+  "title": "Application Submitted Successfully",
+  "message": "Thank you, {{name}}. We have received your request to join WINGS as a volunteer.",
+  "description": "Our team will review your application and contact you via email ({{email}}) within 3–5 working days.",
+  "closeButton": "Close",
+
+  "notification": {
+    "title": "Volunteer Application Submitted",
+    "message": "Thank you {{name}}, your application has been received successfully."
+  }
+},
+
+"errors": {
+  "submissionFailed": "Submission failed",
+  "submitError": "Failed to submit volunteer application. Please try again.",
+  "unexpectedError": "Something went wrong. Please try again later."
+}
+  }
+}

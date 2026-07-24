@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 const FALLBACK_PARTNERS = [
     {
@@ -46,7 +47,7 @@ function PartnerCard({ partner }) {
                 />
             </div>
             {partner.name && (
-                <p className="text-[#0D4A7A] text-center font-['Outfit'] font-medium text-[14px] md:text-[15px] lg:text-[16px] leading-snug line-clamp-3 w-full px-1">
+                <p className="text-[#0D4A7A] text-center font-['Outfit'] font-medium text-[11px] md:text-[15px] lg:text-[16px] leading-snug line-clamp-3 w-full px-1">
                     {partner.name}
                 </p>
             )}
@@ -72,6 +73,7 @@ function PartnerCard({ partner }) {
 }
 
 export function Partners() {
+    const { t } = useTranslation();
     const sectionRef = useRef(null);
     const scrollContainerRef = useRef(null);
     const [partners, setPartners] = useState(FALLBACK_PARTNERS);
@@ -124,7 +126,7 @@ export function Partners() {
             const cardWidth = isMobile ? CARD_WIDTH_MOBILE : CARD_WIDTH_DESKTOP;
             const gap = isMobile ? CARD_GAP_MOBILE : CARD_GAP_DESKTOP;
             const cardsPerView = isMobile
-                ? 2
+                ? 1
                 : Math.max(1, Math.floor((container.clientWidth + gap) / (cardWidth + gap)));
 
             setShouldAutoScroll(partners.length > cardsPerView);
@@ -281,7 +283,7 @@ export function Partners() {
                             text-[#0D4A7A]
                         "
                     >
-                        Our trusted partners
+                        {t("partners.title")}
                     </motion.h2>
 
                     <div

@@ -1,30 +1,14 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useRef } from "react";
-
-const steps = [
-    {
-        number: "01",
-        title: "Share your concern",
-        description:
-            "Reach out via phone or our booking form. Tell us what you're going through in a safe & confidential space.",
-    },
-    {
-        number: "02",
-        title: "Get matched with a counsellor",
-        description:
-            "We'll connect you with the right professional based on your needs, preferences and situation.",
-    },
-    {
-        number: "03",
-        title: "Start sessions",
-        description:
-            "Begin your personalized counselling journey at your own pace, in-person or online.",
-    }
-];
+import { useTranslation } from "react-i18next";
 
 export function Howtouse() {
+    const { t } = useTranslation();
     const [hoveredIndex, setHoveredIndex] = useState(null);
     const sectionRef = useRef(null);
+
+    const stepsRaw = t("howToUse.steps", { returnObjects: true });
+    const steps = Array.isArray(stepsRaw) ? stepsRaw : [];
 
     const { scrollYProgress } = useScroll({
         target: sectionRef,
@@ -80,7 +64,7 @@ export function Howtouse() {
                     "
                     style={{ color: "#0D4A7A" }}
                 >
-                    How WINGS Counselling Centre works
+                    {t("howToUse.title")}
                 </motion.h2>
 
                 {/* Subheading */}
@@ -102,7 +86,7 @@ export function Howtouse() {
                         mb-12
                     "
                 >
-                    We've made the process as simple and welcoming as possible
+                    {t("howToUse.description")}
                 </motion.p>
 
                 {/* Banner Image */}

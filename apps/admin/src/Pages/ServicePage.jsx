@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Footer } from "../components/Layout/Footer.jsx";
 import { useAppointment } from "@/context/AppointmentContext";
 import { useLocation } from "wouter";
@@ -90,6 +91,7 @@ const trainingData = {
 };
 
 export default function ServicePage() {
+    const { t } = useTranslation();
     const { openModal } = useAppointment();
     const [activeTab, setActiveTab] = useState("counselling");
     const [hoveredButton, setHoveredButton] = useState(null);
@@ -157,23 +159,23 @@ export default function ServicePage() {
 
     const getTitle = () => {
         switch (activeTab) {
-            case "counselling": return "Counselling & Therapy";
-            case "supervision": return supervisionData.title;
-            case "training": return trainingData.title;
-            default: return "Counselling & Therapy";
+            case "counselling": return t("services.counselling.title");
+            case "supervision": return t("services.supervision.title");
+            case "training": return t("services.training.title");
+            default: return t("services.counselling.title");
         }
     };
 
     const getDescription = () => {
         switch (activeTab) {
             case "counselling":
-                return "Professional assistance and guidance in resolving personal, relational and psychological challenges for individuals, couples, families and children of all ages.";
+                return t("services.counselling.description");
             case "supervision":
-                return supervisionData.description;
+                return t("services.supervision.description");
             case "training":
-                return trainingData.description;
+                return t("services.training.description");
             default:
-                return "Professional assistance and guidance in resolving personal, relational, and psychological challenges-for individuals, couples, families, and children of all ages.";
+                return t("services.counselling.description");
         }
     };
 
@@ -241,11 +243,11 @@ export default function ServicePage() {
   <div className="navbar-align-inner h-full">
     <div className="flex flex-col items-center justify-center text-center h-full max-w-[900px] mx-auto">
                         <h1 className="text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px] font-semibold leading-[1.1] sm:leading-tight mb-4 sm:mb-6 font-['Outfit'] text-white md:pt-[70px]">
-                            Professional care, tailored to you
+                            {t("services.hero.title")}
                         </h1>
 
                         <p className="text-[clamp(15px,2.5vw,20px)] leading-relaxed mb-6 sm:mb-8 font-['DM_Sans'] font-normal text-white max-w-[750px] px-1">
-                         We offer a comprehensive range of counselling & therapy, supervision and training & workshops designed to support individuals, families, professionals, schools, workplaces and community organisations. Every service is tailored to meet the unique needs and goals of those we serve.
+                         {t("services.hero.description")}
                         </p>
 
                         <motion.button
@@ -262,7 +264,7 @@ export default function ServicePage() {
     className="flex items-center justify-center border-none cursor-pointer h-[clamp(46px,6vw,60px)] rounded-full bg-[#1B4585] px-5 min-[375px]:px-6 sm:px-8 gap-2 sm:gap-[10px]"
 >
     <span className="text-[14px] sm:text-[16px] md:text-[18px] font-['Plus_Jakarta_Sans'] font-semibold text-white whitespace-nowrap">
-        Explore our services
+        {t("services.hero.button")}
     </span>
     <svg
         width="20"
@@ -304,10 +306,10 @@ export default function ServicePage() {
                             }`}
                         >
                             {tab === "counselling"
-                                ? "Counselling & Therapy"
+                                ? t("services.tabs.counselling")
                                 : tab === "supervision"
-                                ? "Supervision"
-                                : "Training & Workshops"}
+                                ? t("services.tabs.supervision")
+                                : t("services.tabs.training")}
                         </div>
                     ))}
                 </div>
@@ -364,7 +366,7 @@ export default function ServicePage() {
                                       onClick={() => navigateToCard(card, index)}
                                         className="text-[#1B4585] underline cursor-pointer font-medium ml-1 inline-block mt-1"
                                     >
-                                        Read more
+                                        {t("services.buttons.readMore")}
                                     </span>
                                 </p>
 
@@ -393,7 +395,7 @@ export default function ServicePage() {
                                         onMouseEnter={() => setHoveredButton(`${activeTab}-${index}`)}
                                         onMouseLeave={() => setHoveredButton(null)}
                                     >
-                                        Book an appointment
+                                        {t("services.buttons.bookAppointment")}
                                         
                                         <svg
                                             width="20"

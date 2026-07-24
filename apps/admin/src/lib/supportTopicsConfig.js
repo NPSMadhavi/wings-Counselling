@@ -2,6 +2,7 @@ export const SUPPORT_TOPICS = [
   {
     id: 1,
     slug: "family-conflicts",
+    contentKey: "familyConflicts",
     label: "Family conflicts",
     breadcrumbLabel: "Family conflicts",
     heroTitle: "You don't have to face family conflicts alone",
@@ -15,22 +16,23 @@ export const SUPPORT_TOPICS = [
   },
   {
     id: 2,
-    slug: "lifestyle-issues",
+    slug: "Depression",
+    contentKey: "depression",
     label: "Depression",
     breadcrumbLabel: "Depression",
-    articlePath: "/article/understanding-depression",
-    heroTitle: "You don't have to navigate lifestyle challenges alone",
+    heroTitle: "You don't have to navigate depression alone",
     heroDescription:
       "Discover how everyday habits and life changes can affect your well-being and explore practical ways to create a healthier more balanced lifestyle.",
-    understandingTitle: "Understanding lifestyle issues",
+    understandingTitle: "Understanding depression",
     understandingDescription:
-      "Lifestyle challenges may include difficulty maintaining healthy routines, balancing responsibilities, adapting to major life changes or managing personal well-being. Small, positive changes can improve both physical and emotional health while enhancing overall quality of life.",
-    articleKeywords: ["lifestyle", "habit", "wellness", "balance", "daily life"],
+      "Depression is a common but serious mental health condition that affects how you feel, think and handle daily activities. It can cause persistent sadness, loss of interest in activities, and a range of physical and emotional symptoms. With proper support and treatment, individuals can manage their symptoms and improve their quality of life.",
+    articleKeywords: ["depression", "mental health", "wellness", "emotional health", "coping"],
     serviceKeywords: ["individual", "therapy", "adult", "counselling"],
   },
   {
     id: 3,
     slug: "trauma-ptsd",
+    contentKey: "traumaPTSD",
     label: "Trauma & PTSD",
     breadcrumbLabel: "Trauma & PTSD",
     heroTitle: "You don't have to heal from trauma alone",
@@ -45,6 +47,7 @@ export const SUPPORT_TOPICS = [
   {
     id: 4,
     slug: "addiction",
+    contentKey: "addiction",
     label: "Addiction",
     breadcrumbLabel: "Addiction",
     heroTitle: "You don't have to overcome addiction alone",
@@ -59,6 +62,7 @@ export const SUPPORT_TOPICS = [
   {
     id: 5,
     slug: "grief-loss",
+    contentKey: "griefLoss",
     label: "Grief & Loss",
     breadcrumbLabel: "Grief & Loss",
     heroTitle: "You don't have to grieve alone",
@@ -73,6 +77,7 @@ export const SUPPORT_TOPICS = [
   {
     id: 6,
     slug: "stress-anxiety",
+    contentKey: "stressAnxiety",
     label: "Stress / Anxiety",
     breadcrumbLabel: "Stress & Anxiety",
     heroTitle: "You don't have to navigate anxiety alone",
@@ -87,6 +92,7 @@ export const SUPPORT_TOPICS = [
   {
     id: 7,
     slug: "relationship-issues",
+    contentKey: "relationshipIssues",
     label: "Relationship issues",
     breadcrumbLabel: "Relationship issues",
     heroTitle: "You don't have to manage relationship challenges alone",
@@ -101,6 +107,7 @@ export const SUPPORT_TOPICS = [
   {
     id: 8,
     slug: "parenting-challenges",
+    contentKey: "parentingChallenges",
     label: "Parenting challenges",
     breadcrumbLabel: "Parenting challenges",
     heroTitle: "You don't have to navigate parenting alone",
@@ -114,14 +121,14 @@ export const SUPPORT_TOPICS = [
   },
   {
     id: 9,
-    slug: "financial-disputes",
+    slug: "Mental-health",
+    contentKey: "mentalHealth",
     label: "Mental health",
     breadcrumbLabel: "Mental health",
-    articlePath: "/article/mental-health",
-    heroTitle: "You don't have to deal with financial stress alone",
+    heroTitle: "You don't have to deal with mental health challenges alone",
     heroDescription:
-      "Learn how financial concerns can affect emotional well-being and relationships and explore healthy ways to manage financial challenges.",
-    understandingTitle: "Understanding financial disputes",
+      "Mental health is an essential aspect of overall well-being. Learn how financial stress can impact emotional health and explore strategies to manage stress and improve mental wellness.",
+    understandingTitle: "Understanding mental health",
     understandingDescription:
       "Financial disagreements can create stress within families, relationships and workplaces. Concerns about budgeting, debt, expenses or financial responsibilities may affect emotional health and interpersonal relationships. Constructive communication and professional guidance can help resolve financial conflicts more effectively.",
     articleKeywords: ["financial", "money", "stress", "family", "relationship"],
@@ -130,6 +137,7 @@ export const SUPPORT_TOPICS = [
   {
     id: 10,
     slug: "burnout-work-stress",
+    contentKey: "burnoutWorkStress",
     label: "Burnout & Work stress",
     breadcrumbLabel: "Burnout & Work Stress",
     heroTitle: "You don't have to manage burnout alone",
@@ -144,6 +152,7 @@ export const SUPPORT_TOPICS = [
   {
     id: 11,
     slug: "self-esteem-identity",
+    contentKey: "selfEsteemIdentity",
     label: "Self-esteem & Identity",
     breadcrumbLabel: "Self-esteem & Identity",
     heroTitle: "You don't have to face self-doubt alone",
@@ -158,6 +167,7 @@ export const SUPPORT_TOPICS = [
   {
     id: 12,
     slug: "feeling-lonely",
+    contentKey: "feelingLonely",
     label: "Feeling lonely",
     breadcrumbLabel: "Feeling lonely",
     heroTitle: "You don't have to face loneliness alone",

@@ -1,0 +1,29 @@
+{
+  "articles": {
+    "hero": {
+      "title": "文章与心理健康资源",
+      "description": "实用指南、专业见解与贴心建议。",
+      "button": "探索我们的文章"
+    },
+
+    "listing": {
+      "title": "所有文章",
+      "loading": "正在加载文章...",
+      "noArticles": "暂无文章",
+      "filters": {
+        "all": "所有文章"
+      }
+    },
+
+    "newsletter": {
+      "title": "文章直达您的邮箱",
+      "description": "每月来自我们辅导员的专业分享，绝无垃圾邮件。",
+      "emailPlaceholder": "请输入您的电子邮箱",
+      "notifyMe": "通知我",
+      "loading": "...",
+      "success": "感谢您的订阅！我们将及时向您发送最新文章。",
+      "duplicate": "您已订阅，请使用其他电子邮箱。",
+      "error": "发生错误，请稍后再试。"
+    }
+  }
+}

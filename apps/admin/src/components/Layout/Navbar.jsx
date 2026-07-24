@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown, Heart, Globe, Home as HomeIcon, Users, HandHeart, FileText, Briefcase, Handshake } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useLocation, Link } from "wouter";
 import { scrollToContactWithRetry, scrollToPartnersWithRetry } from "@/lib/scrollToSection";
@@ -8,28 +9,32 @@ import { scrollToContactWithRetry, scrollToPartnersWithRetry } from "@/lib/scrol
 import { useAppointment } from "@/context/AppointmentContext";
 
 const navLinks = [
-  { name: "Home", href: "/", route: true },
+  { id: "home", labelKey: "navbar.home", href: "/", route: true },
 
   {
-    name: "About us",
+    id: "about",
+    labelKey: "navbar.about",
     href: "/about-us",
     route: true,
 
     dropdown: [
       {
-        name: "About us",
+        id: "about",
+        labelKey: "navbar.about",
         href: "/about-us",
         route: true,
       },
 
       {
-        name: "Team",
+        id: "team",
+        labelKey: "navbar.team",
         href: "/team",
         route: true,
       },
 
       {
-        name: "Contact",
+        id: "contact",
+        labelKey: "navbar.contact",
         href: "/#contact",
         route: false,
       },
@@ -37,25 +42,29 @@ const navLinks = [
   },
 
   {
-    name: "Services",
+    id: "services",
+    labelKey: "navbar.services",
     href: "/services",
     route: true,
 
     dropdown: [
       {
-        name: "Counselling & Therapy",
+        id: "counselling",
+        labelKey: "navbar.counselling",
         href: "/services#counselling",
         route: false,
       },
 
       {
-        name: "Supervision",
+        id: "supervision",
+        labelKey: "navbar.supervision",
         href: "/services#supervision",
         route: false,
       },
 
       {
-        name: "Training & Workshop",
+        id: "training",
+        labelKey: "navbar.training",
         href: "/services#training",
         route: false,
       },
@@ -63,25 +72,29 @@ const navLinks = [
   },
 
   {
-    name: "Resources",
+    id: "resources",
+    labelKey: "navbar.resources",
     href: "/events",
     route: false,
 
     dropdown: [
       {
-        name: "Events",
+        id: "events",
+        labelKey: "navbar.events",
         href: "/events",
         route: true,
       },
 
       {
-        name: "Articles",
+        id: "articles",
+        labelKey: "navbar.articles",
         href: "/articles",
         route: true,
       },
 
       {
-        name: "Volunteers",
+        id: "volunteers",
+        labelKey: "navbar.volunteers",
         href: "/volunteer",
         route: true,
       },
@@ -89,13 +102,15 @@ const navLinks = [
   },
 
   {
-    name: "Partners",
+    id: "partners",
+    labelKey: "navbar.partners",
     href: "/partners",
     route: true,
   },
 
   {
-    name: "Careers",
+    id: "careers",
+    labelKey: "navbar.careers",
     href: "/career",
     route: true,
     newTab: true,
@@ -103,35 +118,20 @@ const navLinks = [
 ];
 
 const navIcons = {
-  Home: HomeIcon,
-  "About us": Users,
-  Services: HandHeart,
-  Resources: FileText,
-  Partners: Handshake,
-  Careers: Briefcase,
+  home: HomeIcon,
+  about: Users,
+  services: HandHeart,
+  resources: FileText,
+  partners: Handshake,
+  careers: Briefcase,
 };
 
 const languages = [
-  {
-    code: "EN",
-    name: "English",
-    flag: "🇺🇸",
-    displayName: "Eng",
-  },
-
-  {
-    code: "ZH",
-    name: "Chinese",
-    flag: "🇨🇳",
-    displayName: "中文",
-  },
-
-  {
-    code: "MS",
-    name: "Malay",
-    flag: "🇲🇾",
-    displayName: "BM",
-  },
+  { code: "en", name: "English", displayName: "Eng" },
+  { code: "zh", name: "中文", displayName: "中文" },
+  { code: "ms", name: "Bahasa Melayu", displayName: "BM" },
+  { code: "hi", name: "हिंदी", displayName: "हिंदी" },
+  { code: "ta", name: "தமிழ்", displayName: "தமிழ்" },
 ];
 
 function markIntroAsPlayed() {
@@ -142,6 +142,31 @@ function markIntroAsPlayed() {
 }
 
 export function Navbar() {
+  const { t, i18n } = useTranslation();
+  const lng = (i18n.language || "en").split("-")[0];
+  const compactNav = lng === "ms" || lng === "ta" || lng === "hi";
+  const desktopNavClass = compactNav
+    ? "hidden min-[1600px]:flex"
+    : "hidden min-[1280px]:flex";
+  const mobileBtnClass = compactNav
+    ? "min-[1600px]:hidden flex"
+    : "min-[1280px]:hidden flex";
+  const mobileOnlyClass = compactNav
+    ? "min-[1600px]:hidden"
+    : "min-[1280px]:hidden";
+  const navFontSize = compactNav
+    ? "clamp(11px,0.72vw,14px)"
+    : "clamp(13px,0.95vw,18px)";
+  const navPad = compactNav
+    ? "clamp(4px,0.35vw,6px) clamp(4px,0.45vw,8px)"
+    : "clamp(6px,0.5vw,8px) clamp(8px,0.8vw,14px)";
+  const ctaFontSize = compactNav
+    ? "clamp(10px,0.7vw,13px)"
+    : "clamp(12px,0.9vw,15px)";
+  const ctaPad = compactNav
+    ? "0 clamp(8px, 0.8vw, 12px)"
+    : "0 clamp(12px, 1.2vw, 18px)";
+
   const { openModal } =
     useAppointment();
 
@@ -162,7 +187,10 @@ const [hoveredNav, setHoveredNav] =
     setActiveLangDropdown,
   ] = useState(false);
 
-  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
+  const [selectedLanguage, setSelectedLanguage] = useState(() => {
+    const lng = (i18n.language || "en").split("-")[0];
+    return languages.find((l) => l.code === lng) || languages[0];
+  });
 
   const [showNavbar, setShowNavbar] =
     useState(false);
@@ -406,21 +434,23 @@ const [hoveredNav, setHoveredNav] =
      LANGUAGE
   ===================================================== */
 
+  useEffect(() => {
+    const lng = (i18n.language || "en").split("-")[0];
+    const match = languages.find((l) => l.code === lng) || languages[0];
+    setSelectedLanguage(match);
+  }, [i18n.language]);
+
   const handleLanguageSelect = (
     lang
   ) => {
+    i18n.changeLanguage(lang.code);
     setSelectedLanguage(lang);
-
     setActiveLangDropdown(false);
   };
 
   const getLanguageDisplayText = () => {
-      if (selectedLanguage) {
-        return selectedLanguage.displayName;
-      }
-
-      return selectedLanguage.displayName;
-    };
+    return selectedLanguage.displayName;
+  };
 
   return (
     <>
@@ -531,12 +561,25 @@ const [hoveredNav, setHoveredNav] =
 
                   className="
                     flex-shrink-0
+                    relative
+                    z-20
                   "
                 >
                   <img
                     src="/assets/wingsLogo.png"
                     alt="Wings Counselling Centre"
-                    className="
+                    className={
+                      compactNav
+                        ? `
+                      w-[120px]
+                      min-[375px]:w-[130px]
+                      sm:w-[140px]
+                      md:w-[150px]
+                      lg:w-[160px]
+                      xl:w-[170px]
+                      2xl:w-[190px]
+                    `
+                        : `
                       w-[140px]
                       min-[375px]:w-[155px]
                       sm:w-[170px]
@@ -544,7 +587,8 @@ const [hoveredNav, setHoveredNav] =
                       lg:w-[180px]
                       xl:w-[210px]
                       2xl:w-[230px]
-                    "
+                    `
+                    }
                     style={{
                       height: "auto",
                       objectFit:
@@ -558,19 +602,19 @@ const [hoveredNav, setHoveredNav] =
                 ===================================================== */}
 
                 <div
-                  className="
-                    hidden
-                    min-[1132px]:flex
+                  className={`
+                    ${desktopNavClass}
                     flex-1
                     items-center
                     justify-center
                     gap-0
-                    lg:gap-0
-                    xl:gap-1
-                    2xl:gap-3
+                    xl:gap-0.5
+                    2xl:gap-2
                     min-w-0
-                    overflow-visible
-                  "
+                    overflow-hidden
+                    relative
+                    z-10
+                  `}
                 >
                   {navLinks.map(
                     (link) => {
@@ -587,12 +631,12 @@ const [hoveredNav, setHoveredNav] =
                               d.href
                           ));
                           const isHovered =
-  hoveredNav === link.name;
+  hoveredNav === link.id;
 
                       return (
                         <div
                           key={
-                            link.name
+                            link.id
                           }
 
                           className="
@@ -601,10 +645,10 @@ const [hoveredNav, setHoveredNav] =
                           "
 
                           onMouseEnter={() => {
-  setHoveredNav(link.name);
+  setHoveredNav(link.id);
 
   if (hasDropdown) {
-    setActiveDropdown(link.name);
+    setActiveDropdown(link.id);
   }
 }}
 
@@ -640,26 +684,24 @@ onMouseLeave={() => {
   color:
   isActive ||
   isHovered ||
-  activeDropdown === link.name
+  activeDropdown === link.id
     ? "#1B4585"
     : "#000",
                                     fontFamily:
                                       "'DM Sans', sans-serif",
-                                    fontSize:
-                                      "clamp(13px,0.95vw,18px)",
+                                    fontSize: navFontSize,
                                     fontWeight:
                                       "500",
                                     textDecoration:
                                       "none",
-                                    padding:
-                                      "clamp(6px,0.5vw,8px) clamp(8px,0.8vw,14px)",
+                                    padding: navPad,
                                     borderRadius:
                                       "8px",
                                     cursor:
                                       "pointer",
                                   }}
                                 >
-                                  {link.name}
+                                  {t(link.labelKey)}
                                 </a>
                               ) : (
                               <Link
@@ -681,7 +723,7 @@ onMouseLeave={() => {
                                  color:
   isActive ||
   isHovered ||
-  activeDropdown === link.name
+  activeDropdown === link.id
     ? "#1B4585"
     : "#000",
 
@@ -689,7 +731,7 @@ onMouseLeave={() => {
                                     "'DM Sans', sans-serif",
 
                                   fontSize:
-                                    "clamp(13px,0.95vw,18px)",
+                                    navFontSize,
 
                                   fontWeight:
                                     "500",
@@ -698,7 +740,7 @@ onMouseLeave={() => {
                                     "none",
 
                                   padding:
-                                    "clamp(6px,0.5vw,8px) clamp(8px,0.8vw,14px)",
+                                    navPad,
 
                                   borderRadius:
                                     "8px",
@@ -722,7 +764,7 @@ onMouseLeave={() => {
                                 }}
                               >
                                 {
-                                  link.name
+                                  t(link.labelKey)
                                 }
 
                                 {hasDropdown && (
@@ -737,7 +779,7 @@ onMouseLeave={() => {
 
                                       ${
                                         activeDropdown ===
-                                        link.name
+                                        link.id
                                           ? "rotate-180"
                                           : ""
                                       }
@@ -762,7 +804,7 @@ onMouseLeave={() => {
                                  color:
                                 isActive ||
                                 isHovered ||
-                                activeDropdown === link.name
+                                activeDropdown === link.id
                                   ? "#1B4585"
                                   : "#000",
 
@@ -770,20 +812,20 @@ onMouseLeave={() => {
                                     "'DM Sans', sans-serif",
 
                                   fontSize:
-                                    "clamp(13px,0.95vw,18px)",
+                                    navFontSize,
 
                                   fontWeight:
                                     "500",
 
                                   padding:
-                                    "clamp(6px,0.5vw,8px) clamp(8px,0.8vw,14px)",
+                                    navPad,
 
                                   borderRadius:
                                     "8px",
                                 }}
                               >
                                 {
-                                  link.name
+                                  t(link.labelKey)
                                 }
 
                                 {hasDropdown && (
@@ -798,7 +840,7 @@ onMouseLeave={() => {
 
                                       ${
                                         activeDropdown ===
-                                        link.name
+                                        link.id
                                           ? "rotate-180"
                                           : ""
                                       }
@@ -811,7 +853,7 @@ onMouseLeave={() => {
                             <AnimatePresence>
                               {(isActive ||
   isHovered ||
-  activeDropdown === link.name) && (
+  activeDropdown === link.id) && (
                                 <motion.div
                                   layoutId="navUnderline"
 
@@ -855,7 +897,7 @@ onMouseLeave={() => {
                           {hasDropdown && (
                             <AnimatePresence>
                               {activeDropdown ===
-                                link.name && (
+                                link.id && (
                                 <motion.div
                                   initial={{
                                     opacity: 0,
@@ -901,7 +943,7 @@ onMouseLeave={() => {
                                         subItem.route ? (
                                           <Link
                                             key={
-                                              subItem.name
+                                              subItem.id
                                             }
 
                                             href={
@@ -958,13 +1000,13 @@ onMouseLeave={() => {
                                             }}
                                           >
                                             {
-                                              subItem.name
+                                              t(subItem.labelKey)
                                             }
                                           </Link>
                                         ) : (
                                           <a
                                             key={
-                                              subItem.name
+                                              subItem.id
                                             }
 
                                             href={
@@ -1011,7 +1053,7 @@ onMouseLeave={() => {
                                             }}
                                           >
                                             {
-                                              subItem.name
+                                              t(subItem.labelKey)
                                             }
                                           </a>
                                         )
@@ -1032,16 +1074,16 @@ onMouseLeave={() => {
                 ===================================================== */}
 
                 <div
-                  className="
-                    hidden
-                    min-[1132px]:flex
+                  className={`
+                    ${desktopNavClass}
                     items-center
                     gap-1
-                    min-[1132px]:gap-1
                     xl:gap-2
                     2xl:gap-3
                     flex-shrink-0
-                  "
+                    relative
+                    z-20
+                  `}
                 >
 
                   {/* =====================================================
@@ -1085,13 +1127,13 @@ onMouseLeave={() => {
                           "'DM Sans', sans-serif",
 
                         fontSize:
-                          "clamp(13px,0.95vw,18px)",
+                          navFontSize,
 
                         fontWeight:
                           "500",
 
                         padding:
-                          "clamp(6px,0.5vw,8px) clamp(8px,0.8vw,14px)",
+                          navPad,
 
                         borderRadius:
                           "8px",
@@ -1214,15 +1256,9 @@ onMouseLeave={() => {
                                         : "transparent",
                                   }}
                                 >
-                                  <span className="text-[18px]">
-                                    {
-                                      lang.flag
-                                    }
-                                  </span>
-
                                   <span>
                                     {
-                                      lang.displayName
+                                      lang.name
                                     }
                                   </span>
 
@@ -1260,21 +1296,27 @@ onMouseLeave={() => {
                       justify-center
                       gap-1.5
                       xl:gap-2
-                      whitespace-nowrap
+                      text-center
                     "
                     style={{
-                      height: "clamp(40px, 3vw, 46px)",
-                      padding: "0 clamp(12px, 1.2vw, 18px)",
+                      minHeight: "clamp(2.5rem, 3vw, 2.875rem)",
+                      height: "auto",
+                      padding: compactNav
+                        ? "0.4rem 0.7rem"
+                        : "0.5rem 1rem",
                       borderRadius: "9999px",
                       border: "2px solid #1B4585",
                       color: "#1B4585",
                       textDecoration: "none",
                       fontFamily: "'Plus Jakarta Sans', sans-serif",
-                      fontSize: "clamp(12px,0.9vw,15px)",
+                      fontSize: ctaFontSize,
                       fontWeight: "600",
+                      maxWidth: compactNav ? "9.5rem" : "none",
+                      whiteSpace: compactNav ? "normal" : "nowrap",
+                      lineHeight: 1.2,
                     }}
                   >
-                    Donate
+                    {t("navbar.donate")}
 
                     <Heart size={17} fill="currentColor" />
                   </a>
@@ -1297,23 +1339,29 @@ onMouseLeave={() => {
                       justify-center
                       gap-1.5
                       xl:gap-2
-                      whitespace-nowrap
+                      text-center
                     "
                     style={{
-                      height: "clamp(40px, 3vw, 46px)",
-                      padding: "0 clamp(12px, 1.2vw, 18px)",
+                      minHeight: "clamp(2.5rem, 3vw, 2.875rem)",
+                      height: "auto",
+                      padding: compactNav
+                        ? "0.45rem 0.75rem"
+                        : "0.55rem 1rem",
                       borderRadius: "9999px",
                       background: "#1B4585",
                       color: "#F5F9FF",
                       textDecoration: "none",
                       fontFamily: "'Plus Jakarta Sans', sans-serif",
-                      fontSize: "clamp(12px,0.9vw,15px)",
+                      fontSize: ctaFontSize,
                       fontWeight: "700",
                       boxShadow: "0 4px 12px rgba(27,69,133,0.3)",
                       border: "none",
+                      maxWidth: compactNav ? "12rem" : "none",
+                      whiteSpace: compactNav ? "normal" : "nowrap",
+                      lineHeight: 1.2,
                     }}
                   >
-                    Book an appointment
+                    {t("navbar.bookAppointment")}
 
                     <svg
                       width="20"
@@ -1337,14 +1385,13 @@ onMouseLeave={() => {
                 ===================================================== */}
 
                 <button
-                  className="
-                    min-[1132px]:hidden
-                    flex
+                  className={`
+                    ${mobileBtnClass}
                     items-center
                     justify-center
                     p-2
                     flex-shrink-0
-                  "
+                  `}
 
                   onClick={() =>
                     setMobileOpen(
@@ -1391,12 +1438,12 @@ onMouseLeave={() => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="
+              className={`
                 fixed
                 inset-0
                 z-[100000]
-                min-[1132px]:hidden
-              "
+                ${mobileOnlyClass}
+              `}
               style={{
                 backgroundColor: "rgba(0, 0, 0, 0.4)",
                 backdropFilter: "blur(4px)",
@@ -1420,18 +1467,18 @@ onMouseLeave={() => {
                 stiffness: 300,
                 mass: 0.8,
               }}
-              className="
+              className={`
                 fixed
                 right-2
                 min-[375px]:right-3
                 sm:right-4
                 h-fit
                 z-[100001]
-                min-[1132px]:hidden
+                ${mobileOnlyClass}
                 overflow-hidden
                 flex
                 flex-col
-              "
+              `}
               style={{
                 top: navbarHeight > 0
                   ? `${navbarHeight + 8}px`
@@ -1468,18 +1515,18 @@ onMouseLeave={() => {
                       location === link.href ||
                       (hasDropdown &&
                         link.dropdown.some((d) => location === d.href));
-                    const NavIcon = navIcons[link.name];
+                    const NavIcon = navIcons[link.id];
 
                     return (
-                      <div key={link.name} className="w-full">
+                      <div key={link.id} className="w-full">
                         {/* MAIN BUTTON */}
                         <button
                           onClick={(e) => {
                             if (hasDropdown) {
                               setActiveDropdown(
-                                activeDropdown === link.name
+                                activeDropdown === link.id
                                   ? null
-                                  : link.name
+                                  : link.id
                               );
                             } else {
                               handleNavClick(e, link);
@@ -1512,7 +1559,7 @@ onMouseLeave={() => {
                                 strokeWidth={isActive ? 2.5 : 2}
                               />
                             )}
-                            {link.name}
+                            {t(link.labelKey)}
                           </span>
 
                           {hasDropdown && (
@@ -1521,7 +1568,7 @@ onMouseLeave={() => {
                               className={`
                                 transition-transform
                                 duration-300
-                                ${activeDropdown === link.name ? "rotate-180" : ""}
+                                ${activeDropdown === link.id ? "rotate-180" : ""}
                               `}
                             />
                           )}
@@ -1530,7 +1577,7 @@ onMouseLeave={() => {
                         {/* DROPDOWN */}
                         <AnimatePresence>
                           {hasDropdown &&
-                            activeDropdown === link.name && (
+                            activeDropdown === link.id && (
                               <motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: "auto" }}
@@ -1553,7 +1600,7 @@ onMouseLeave={() => {
 
                                     return (
                                       <button
-                                        key={subItem.name}
+                                        key={subItem.id}
                                         onClick={(e) => handleNavClick(e, subItem)}
                                         className="
                                           text-left
@@ -1572,7 +1619,7 @@ onMouseLeave={() => {
                                           width: "100%",
                                         }}
                                       >
-                                        {subItem.name}
+                                        {t(subItem.labelKey)}
                                       </button>
                                     );
                                   })}
@@ -1676,8 +1723,7 @@ onMouseLeave={() => {
                                 border: "none",
                               }}
                             >
-                              <span style={{ fontSize: "18px" }}>{lang.flag}</span>
-                              <span>{lang.displayName}</span>
+                              <span>{lang.name}</span>
                               {selectedLanguage.code === lang.code && (
                                 <span className="ml-auto text-[#1B4585] font-bold">✓</span>
                               )}
@@ -1727,7 +1773,7 @@ onMouseLeave={() => {
                         background: "transparent",
                       }}
                     >
-                      Donate
+                      {t("navbar.donate")}
                       <Heart size={16} fill="#1B4585" color="#1B4585" />
                     </button>
 
@@ -1758,7 +1804,7 @@ onMouseLeave={() => {
                         border: "none",
                       }}
                     >
-                      Book an appointment
+                      {t("navbar.bookAppointment")}
                     </button>
                   </div>
                 </div>
@@ -1778,7 +1824,7 @@ onMouseLeave={() => {
           color: #1b4585 !important;
         }
 
-        @media (max-width: 1131px) {
+        @media (max-width: 1599px) {
           .mobile-nav-panel::-webkit-scrollbar {
             width: 0px;
             background: transparent;
@@ -1791,7 +1837,7 @@ onMouseLeave={() => {
         }
 
         @supports (max-width: 400px) {
-          @media (min-width: 600px) and (max-width: 1131px) {
+          @media (min-width: 600px) and (max-width: 1599px) {
             .mobile-slide-panel {
               max-width: 480px !important;
             }

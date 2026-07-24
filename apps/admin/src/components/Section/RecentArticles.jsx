@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { getArticleDetailPath } from "@/lib/articlePageContent";
 
 function ArrowIcon({ color = "currentColor" }) {
@@ -24,6 +25,7 @@ function ArrowIcon({ color = "currentColor" }) {
 }
 
 function ArticleCard({ article, index }) {
+    const { t } = useTranslation();
     const [isHovered, setIsHovered] = useState(false);
     const [, navigate] = useLocation();
 
@@ -55,7 +57,7 @@ function ArticleCard({ article, index }) {
                 <img
                     src={article.coverImage || "/assets/article.jpg"}
                     alt={article.title}
-                    className="w-full h-full object-cover transition-transform duration-500"
+                  className="w-full h-full object-center object-cover transition-transform duration-500"
                     style={{
                         transform: isHovered ? "scale(1.05)" : "scale(1)",
                         borderTopLeftRadius: "10px",
@@ -78,16 +80,17 @@ function ArticleCard({ article, index }) {
     }}
 >
     <span
-        className="font-['Plus_Jakarta_Sans'] font-semibold text-[9px] tracking-[1.2px] text-center"
-        style={{
-            color: "#1E3A8A",
-            lineHeight: "16px",
-            whiteSpace: "normal",
-            wordBreak: "break-word"
-        }}
-    >
-        {article.category || "General"}
-    </span>
+    className="font-['Plus_Jakarta_Sans'] font-semibold text-[9px] tracking-[1.2px] text-center truncate"
+    style={{
+        color: "#1E3A8A",
+        lineHeight: "16px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis"
+    }}
+>
+    {article.category || t("recentArticles.general")}
+</span>
 </div>
             </div>
 
@@ -100,7 +103,7 @@ function ArticleCard({ article, index }) {
                         className="font-['DM_Sans'] font-medium text-[12px] leading-[1]"
                         style={{ color: "#1E3A8A" }}
                     >
-                        {article.author || "WINGS Team"}
+                        {article.author || t("recentArticles.wingsTeam")}
                     </span>
 
                     <span
@@ -116,7 +119,7 @@ function ArticleCard({ article, index }) {
                                       year: "numeric",
                                   }
                               )
-                            : "Recent"}
+                            : t("recentArticles.recent")}
                     </span>
                 </div>
 
@@ -188,6 +191,7 @@ function ArticleCard({ article, index }) {
 }
 
 export function RecentArticles() {
+    const { t } = useTranslation();
     const [, navigate] = useLocation();
 
     const [articles, setArticles] = useState([]);
@@ -230,7 +234,7 @@ export function RecentArticles() {
 
         } catch (err) {
             console.error("Error fetching articles:", err);
-            setError("Unable to load articles. Please try again later.");
+            setError(true);
         } finally {
             setLoading(false);
         }
@@ -263,13 +267,13 @@ export function RecentArticles() {
             >
                 <div className="navbar-align-outer">
                 <div className="navbar-align-inner text-center py-20">
-                    <p className="text-red-600">{error}</p>
+                    <p className="text-red-600">{t("recentArticles.loadingError")}</p>
 
                     <button
                         onClick={fetchArticles}
                         className="mt-4 px-6 py-2 bg-[#1B4585] text-white rounded-full"
                     >
-                        Try Again
+                        {t("recentArticles.tryAgain")}
                     </button>
                 </div>
                 </div>
@@ -300,7 +304,7 @@ export function RecentArticles() {
                             text-center
                         "
                     >
-                        Our recent articles
+                        {t("recentArticles.title")}
                     </h2>
 
                     <p
@@ -318,7 +322,7 @@ export function RecentArticles() {
                             max-w-[700px]
                         "
                     >
-                        Stay informed with our latest insights
+                        {t("recentArticles.description")}
                     </p>
                 </div>
 
@@ -348,7 +352,7 @@ export function RecentArticles() {
                 ) : (
                     <div className="text-center py-10">
                         <p className="font-['DM_Sans'] text-gray-600">
-                            No published articles available at the moment.
+                            {t("recentArticles.noArticles")}
                         </p>
                     </div>
                 )}
@@ -380,7 +384,7 @@ export function RecentArticles() {
                         fontSize: "clamp(13px,0.9vw,15px)",
                     }}
                 >
-                    View all
+                    {t("recentArticles.viewAll")}
 
                     <svg
                         width="20"

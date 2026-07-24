@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { GetInTouch } from "./GetInTouch";
 import { RecentArticles } from "./RecentArticles";
 import {
@@ -12,8 +13,8 @@ import {
 import { Testimonial } from "./Testimonial";
 
 
-const formatDate = (dateString) => {
-    if (!dateString) return "TBA";
+const formatDate = (dateString, tba) => {
+    if (!dateString) return tba;
 
     return new Date(dateString).toLocaleDateString("en-SG", {
         day: "numeric",
@@ -22,8 +23,8 @@ const formatDate = (dateString) => {
     });
 };
 
-const formatTime = (dateString) => {
-    if (!dateString) return "TBA";
+const formatTime = (dateString, tba) => {
+    if (!dateString) return tba;
 
     return new Date(dateString).toLocaleTimeString("en-SG", {
         hour: "2-digit",
@@ -31,20 +32,17 @@ const formatTime = (dateString) => {
     });
 };
 
-const getEventType = (location) => {
-    const locationLower = location?.toLowerCase() || "";
-    if (locationLower.includes("zoom") || locationLower.includes("online")) {
-        return "Online";
-    }
-    return "In-person";
-};
-
 /* ─── Event Card ───────────────────────────────────────────── */
 
 function EventCard({ event }) {
+    const { t } = useTranslation();
     const [hoveredButton, setHoveredButton] = useState(false);
-    const eventType = getEventType(event.location);
-    const isOnline = eventType === "Online";
+
+    const locationLower = event.location?.toLowerCase() || "";
+    const isOnline =
+        locationLower.includes("zoom") || locationLower.includes("online");
+    const eventType = isOnline ? t("upcoming.online") : t("upcoming.inPerson");
+    const tba = t("upcoming.tba");
 
     return (
         <motion.div
@@ -138,7 +136,7 @@ function EventCard({ event }) {
                                 color: "#333333",
                             }}
                         >
-                            {formatDate(event.eventDate)}
+                            {formatDate(event.eventDate, tba)}
                         </span>
                     </div>
 
@@ -152,7 +150,7 @@ function EventCard({ event }) {
                                 color: "#333333",
                             }}
                         >
-                            {formatTime(event.eventDate)}
+                            {formatTime(event.eventDate, tba)}
                         </span>
                     </div>
 
@@ -181,7 +179,7 @@ function EventCard({ event }) {
                             fontWeight: 700,
                         }}
                     >
-                        {event.price || "Free"}
+                        {event.price || t("upcoming.free")}
                     </span>
 
                     <button
@@ -215,7 +213,7 @@ function EventCard({ event }) {
                                 transition: "color 0.3s ease",
                             }}
                         >
-                            Register now
+                            {t("upcoming.registerNow")}
                         </span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                             <path
@@ -236,6 +234,7 @@ function EventCard({ event }) {
 /* ─── Main Component ───────────────────────────────────────── */
 
 export function Upcoming() {
+    const { t } = useTranslation();
     const sectionRef = useRef(null);
     const [, navigate] = useLocation();
     const [events, setEvents] = useState([]);
@@ -316,7 +315,7 @@ export function Upcoming() {
                         text-[#0D4A7A]
                     "
                 >
-                    Upcoming Events & Workshops
+                    {t("upcoming.title")}
                 </motion.h2>
 
                 {/* Subheading */}
@@ -340,8 +339,7 @@ export function Upcoming() {
                         mb-8
                     "
                 >
-                    Join our community events designed to educate, connect
-                    and empower. Healing doesn't always happen alone.
+                    {t("upcoming.description")}
                 </motion.p>
 
                 {/* Events Grid */}
@@ -370,7 +368,7 @@ export function Upcoming() {
                 </div>
                 ) : (
                     <p className="text-[#666] font-['DM_Sans'] font-medium text-[18px] text-center py-12 mb-6">
-                        No upcoming events at the moment.
+                        {t("upcoming.noEvents")}
                     </p>
                 )}
 
@@ -402,7 +400,7 @@ export function Upcoming() {
                             fontSize: "clamp(13px,0.9vw,15px)",
                         }}
                     >
-                        View all
+                        {t("upcoming.viewAll")}
                         <svg
                             width="20"
                             height="20"

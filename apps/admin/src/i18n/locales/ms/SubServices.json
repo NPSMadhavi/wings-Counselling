@@ -1,0 +1,25 @@
+{
+  "subService": {
+    "hero": {
+      "title": "Penjagaan Profesional yang Disesuaikan untuk Anda",
+      "description": "Kami menyediakan pelbagai perkhidmatan sokongan yang diperibadikan untuk individu, keluarga, profesional, sekolah, tempat kerja dan organisasi komuniti. Setiap perkhidmatan direka khas mengikut keperluan, matlamat dan keadaan unik setiap individu.",
+      "button": "Terokai Perkhidmatan Kami"
+    },
+
+    "navigation": {
+      "backToService": "Kembali ke Perkhidmatan"
+    },
+
+    "team": {
+      "title": "Pasukan yang Akan Bersama Anda",
+      "description": "Setiap kaunselor mempunyai kemahiran, bahasa dan pendekatan terapi yang berbeza supaya anda dapat memilih individu yang paling sesuai dengan perjalanan anda.",
+      "loading": "Memuatkan ahli pasukan...",
+      "updating": "Profil pasukan sedang dikemas kini.",
+      "meetFullTeam": "Lihat Pasukan Kami"
+    },
+
+    "buttons": {
+      "bookAppointment": "Tempah Janji Temu"
+    }
+  }
+}

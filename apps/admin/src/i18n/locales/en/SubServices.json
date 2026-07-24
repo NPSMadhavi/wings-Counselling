@@ -1,0 +1,25 @@
+{
+  "subService": {
+    "hero": {
+      "title": "Professional care, tailored to you",
+      "description": "We provide a wide range of personalised support services for individuals, families, professionals, schools, workplaces and community organisations. Each service is carefully tailored to meet the unique needs, goals and circumstances of those we serve.",
+      "button": "Explore our services"
+    },
+
+    "navigation": {
+      "backToService": "Back to Service"
+    },
+
+    "team": {
+      "title": "The people who'd be in the room with you",
+      "description": "Each counsellor brings a unique set of skills, languages, and therapeutic approaches — so you can find the right fit for your journey.",
+      "loading": "Loading team members...",
+      "updating": "Team profiles are being updated.",
+      "meetFullTeam": "Meet our full team"
+    },
+
+    "buttons": {
+      "bookAppointment": "Book an appointment"
+    }
+  }
+}

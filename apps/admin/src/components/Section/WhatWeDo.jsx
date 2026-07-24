@@ -2,9 +2,11 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { SUPPORT_TOPICS, getSupportTopicPath } from "@/lib/supportTopicsConfig";
 
 export function WhatWeDo() {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const sectionRef = useRef(null);
 
@@ -30,7 +32,9 @@ export function WhatWeDo() {
         group
         flex items-center justify-center
         min-w-0
-        px-2.5 py-3 sm:px-4 md:px-6 md:py-4
+        min-h-[2.75rem]
+        h-auto
+        px-2.5 py-2.5 sm:px-4 md:px-6 md:py-3
         rounded-full
         border border-[#25528A]
         bg-white
@@ -55,7 +59,9 @@ export function WhatWeDo() {
         "
         style={{ fontFamily: "'DM Sans', sans-serif" }}
       >
-        {service.label}
+        {t(`supportTopicsContent.${service.contentKey}.label`, {
+          defaultValue: service.label,
+        })}
       </h3>
 
       <ChevronRight
@@ -111,7 +117,7 @@ export function WhatWeDo() {
               "
             style={{ color: "#0D4A7A" }}
           >
-            Find the help you need today
+            {t("whatWeDo.title")}
           </motion.h2>
 
           <p
@@ -128,7 +134,7 @@ export function WhatWeDo() {
               md:line-clamp-none
             "
           >
-            Pick a topic below that you’d like to explore
+            {t("whatWeDo.description")}
           </p>
         </div>
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Footer } from "@/components/Layout/Footer";
 import { SiteCheckBadge } from "@/components/ui/SiteIcons";
 import PractitionerCard from "@/components/ui/PractitionerCard";
@@ -43,6 +44,7 @@ export default function SubServiceLayout({
   assignedTeamMembers = null,
   appointmentSelection,
 }) {
+  const { t } = useTranslation();
   const { openModal } = useAppointment();
   const [, navigate] = useLocation();
   const [teamMembers, setTeamMembers] = useState([]);
@@ -101,13 +103,13 @@ export default function SubServiceLayout({
               className="text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px] md:pt-[80px] font-semibold leading-[1.15] sm:leading-tight mb-3 sm:mb-6 px-2"
               style={{ fontFamily: "'Outfit', sans-serif", color: "#FFFFFF" }}
             >
-              Professional care, tailored to you
+              {t("subService.hero.title")}
             </h1>
             <p
               className="text-[15px] sm:text-[18px] md:text-[20px] leading-[1.6] sm:leading-relaxed mb-5 sm:mb-8 max-w-[850px] px-2"
               style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, color: "#FFFFFF" }}
             >
-              We provide a wide range of personalised support services for individuals, families, professionals, schools, workplaces and community organisations. Each service is carefully tailored to meet the unique needs, goals and circumstances of those we serve.
+              {t("subService.hero.description")}
             </p>
             <button
               onClick={() => {
@@ -115,7 +117,7 @@ export default function SubServiceLayout({
               }}
               className="mt-4 sm:mt-6 h-[52px] sm:h-[60px] px-6 sm:px-8 rounded-full bg-[#1B4585] text-white font-['Plus_Jakarta_Sans',sans-serif] text-[15px] sm:text-[16px] md:text-[18px] font-semibold flex items-center gap-2 sm:gap-3 hover:scale-105 transition-all duration-300"
             >
-              <span>Explore our services</span>
+              <span>{t("subService.hero.button")}</span>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -132,7 +134,7 @@ export default function SubServiceLayout({
                 onClick={() => navigate(`/services#${backHash}`)}
                 className="underline cursor-pointer hover:opacity-70 transition"
               >
-                Back to Service
+                {t("subService.navigation.backToService")}
               </span>{" "}
               <span className="inline-flex items-center gap-2">/ {serviceLabel}</span>
             </div>
@@ -180,11 +182,11 @@ export default function SubServiceLayout({
           <div className="navbar-align-inner">
 
             <h2 className="mt-4 sm:mt-6 text-[#0D4A7A] font-['Outfit'] text-[clamp(24px,6vw,35px)] font-medium leading-[1.2] px-2">
-              The people who'd be in the room with you
+              {t("subService.team.title")}
             </h2>
 
             <p className="mt-4 sm:mt-6 max-w-[994px] mx-auto font-['DM_Sans'] text-[16px] md:text-[20px] font-medium leading-[1.5] sm:leading-[130%] px-2">
-              Each counsellor brings a unique set of skills, languages, and therapeutic approaches — so you can find the right fit for your journey.
+              {t("subService.team.description")}
             </p>
 
             <div className="mt-14 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8 w-full items-stretch text-left">
@@ -204,13 +206,13 @@ export default function SubServiceLayout({
 
               {!teamLoading && counsellors.length === 0 && (
                 <p className="col-span-full text-center font-['DM_Sans'] text-[#666] text-[16px]">
-                  Team profiles are being updated.{" "}
+                  {t("subService.team.updating")}{" "}
                   <button
                     type="button"
                     onClick={() => navigate("/team")}
                     className="text-[#0D4A7A] underline hover:opacity-70"
                   >
-                    Meet our full team
+                    {t("subService.team.meetFullTeam")}
                   </button>
                 </p>
               )}
@@ -230,7 +232,7 @@ export default function SubServiceLayout({
               onClick={() => openModal(appointmentSelection || serviceLabel)}
               className="mt-12 h-[60px] px-8 rounded-full bg-[#1B4585] text-white font-['Plus_Jakarta_Sans',sans-serif] text-[17px] font-semibold inline-flex items-center gap-4 hover:scale-105 transition-all duration-300"
             >
-              Book an appointment
+              {t("subService.buttons.bookAppointment")}
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>

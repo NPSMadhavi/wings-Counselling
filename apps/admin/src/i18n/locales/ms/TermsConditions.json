@@ -1,0 +1,191 @@
+{
+  "termsConditions": {
+    "hero": {
+      "title": "Terma & Syarat"
+    },
+
+    "acceptance": {
+      "title": "Penerimaan Terma",
+
+      "content": {
+        "paragraph1": "Terma & Syarat ini mengawal akses dan penggunaan laman web serta perkhidmatan kami. Dengan mengakses laman web ini atau membuat tempahan untuk menggunakan perkhidmatan kami, anda mengakui bahawa anda telah membaca, memahami dan bersetuju dengan Terma & Syarat ini. Jika anda tidak bersetuju dengan mana-mana bahagian daripada terma ini, sila hentikan penggunaan laman web dan perkhidmatan kami."
+      }
+    },
+
+    "websiteUse": {
+      "title": "Penggunaan Laman Web Kami",
+
+      "content": {
+        "intro": "Dengan menggunakan laman web ini, anda bersetuju untuk:",
+
+        "items": {
+          "lawfulUse": "Menggunakan laman web ini hanya untuk tujuan yang sah di sisi undang-undang.",
+          "accurateInformation": "Memberikan maklumat yang tepat semasa menghantar sebarang data atau membuat tempahan janji temu.",
+          "noInterference": "Tidak mengganggu fungsi atau keselamatan laman web.",
+          "noUnauthorizedAccess": "Tidak cuba mendapatkan akses tanpa kebenaran ke sistem atau data kami.",
+          "noMaliciousContent": "Tidak memuat naik perisian hasad atau kandungan yang berbahaya."
+        },
+
+        "paragraph1": "Kami berhak menggantung atau menamatkan akses mana-mana pengguna yang melanggar terma ini."
+      }
+    },
+
+    "professionalServices": {
+      "title": "Perkhidmatan Profesional",
+
+      "content": {
+        "paragraph1": "Perkhidmatan kaunseling kami disediakan oleh profesional yang berkelayakan dan dilaksanakan mengikut piawaian amalan profesional yang berkaitan.",
+
+        "intro": "Walaupun kami berusaha memberikan perkhidmatan dengan kualiti penjagaan yang terbaik:",
+
+        "items": {
+          "outcomesVary": "Hasil kaunseling berbeza bagi setiap individu.",
+          "noGuarantee": "Tiada keputusan atau penambahbaikan tertentu yang boleh dijamin.",
+          "voluntary": "Penyertaan dalam sesi kaunseling adalah secara sukarela.",
+          "clientResponsibility": "Klien kekal bertanggungjawab terhadap keputusan yang dibuat berdasarkan perbincangan semasa sesi kaunseling."
+        },
+
+        "paragraph2": "Kaunseling merupakan satu proses kerjasama dan tidak boleh menggantikan rawatan perubatan kecemasan atau rawatan psikiatri."
+      }
+    },
+
+    "emergency": {
+      "title": "Situasi Kecemasan",
+
+      "content": {
+        "paragraph1": "Perkhidmatan kami tidak bertujuan untuk campur tangan krisis atau situasi kecemasan.",
+
+        "intro": "Sekiranya anda berada dalam keadaan krisis atau:",
+
+        "items": {
+          "immediateRisk": "Berisiko mengalami kecederaan atau bahaya yang serta-merta.",
+          "suicidalThoughts": "Mengalami pemikiran untuk membunuh diri.",
+          "medicalEmergency": "Menghadapi kecemasan perubatan."
+        },
+
+        "paragraph2": "Sila hubungi perkhidmatan kecemasan tempatan anda atau kunjungi hospital terdekat dengan segera."
+      }
+    },
+
+    "appointments": {
+      "title": "Janji Temu & Pembatalan",
+
+      "content": {
+        "paragraph1": "Semua janji temu hendaklah dibuat terlebih dahulu.",
+
+        "intro": "Klien bertanggungjawab untuk:",
+
+        "items": {
+          "arriveOnTime": "Hadir tepat pada waktunya bagi janji temu yang telah dijadualkan.",
+          "accurateContact": "Memberikan maklumat hubungan yang tepat.",
+          "reschedule": "Memaklumkan kepada kami dengan segera sekiranya perlu menjadualkan semula atau membatalkan janji temu.",
+          "lateCancellation": "Mengelakkan pembatalan saat akhir atau ketidakhadiran ke janji temu."
+        },
+
+        "paragraph2": "Ketidakhadiran berulang atau pembatalan pada saat akhir mungkin dikenakan caj pembatalan atau sekatan bagi tempahan janji temu pada masa hadapan, jika berkenaan."
+      }
+    },
+
+    "confidentiality": {
+      "title": "Kerahsiaan",
+
+      "content": {
+        "paragraph1": "Melindungi privasi anda merupakan salah satu keutamaan kami.",
+
+        "intro": "Maklumat yang dikongsi semasa sesi kaunseling adalah sulit, kecuali dalam keadaan yang diwajibkan oleh undang-undang atau kod etika profesional, termasuk situasi yang melibatkan:",
+
+        "items": {
+          "riskOfHarm": "Risiko bahaya yang hampir berlaku kepada diri anda atau orang lain.",
+          "abuse": "Disyaki berlaku penderaan atau pengabaian.",
+          "legalObligations": "Kewajipan undang-undang.",
+          "courtOrders": "Perintah mahkamah.",
+          "professionalSupervision": "Penyeliaan profesional apabila diperlukan (secara tanpa nama)."
+        },
+
+        "paragraph2": "Maklumat lanjut boleh didapati dalam Dasar Privasi kami. Piawaian kerahsiaan profesional dan kewajipan undang-undang merupakan amalan biasa dalam kalangan penyedia perkhidmatan kaunseling di Singapura."
+      }
+    },
+
+    "thirdPartyLinks": {
+      "title": "Pautan Pihak Ketiga",
+
+      "content": {
+        "paragraph1": "Laman web kami mungkin mengandungi pautan ke laman web pihak ketiga untuk menyediakan sumber tambahan atau kemudahan kepada pengguna.",
+
+        "paragraph2": "Kami tidak menyokong, mengawal atau bertanggungjawab terhadap kandungan, amalan privasi atau operasi laman web pihak ketiga tersebut. Anda mengakses pautan tersebut atas risiko dan pertimbangan anda sendiri."
+      }
+    },
+
+    "liability": {
+      "title": "Had Liabiliti",
+
+      "content": {
+        "intro": "Setakat yang dibenarkan oleh undang-undang, WINGS Counselling Centre tidak akan bertanggungjawab terhadap:",
+
+        "items": {
+          "indirectDamages": "Kerugian atau kerosakan tidak langsung atau berbangkit.",
+          "lossOfData": "Kehilangan data.",
+          "serviceInterruption": "Gangguan perkhidmatan.",
+          "websiteReliance": "Kebergantungan terhadap maklumat yang terdapat di laman web.",
+          "userDecisions": "Keputusan yang anda buat berdasarkan kandungan yang disediakan."
+        },
+
+        "paragraph1": "Tiada apa-apa dalam Terma & Syarat ini yang mengehadkan liabiliti sekiranya sekatan tersebut tidak dibenarkan di bawah undang-undang yang terpakai."
+      }
+    },
+
+    "websiteAvailability": {
+      "title": "Ketersediaan Laman Web",
+
+      "content": {
+        "paragraph1": "Kami berusaha memastikan laman web kami sentiasa boleh diakses dan beroperasi dengan baik.",
+
+        "paragraph2": "Walau bagaimanapun, kami tidak menjamin akses tanpa gangguan dan berhak untuk menggantung, mengubah suai atau menghentikan mana-mana bahagian laman web tanpa notis terlebih dahulu bagi tujuan penyelenggaraan, kemas kini atau sebab-sebab operasi."
+      }
+    },
+
+    "userSubmissions": {
+      "title": "Penyerahan Pengguna",
+
+      "content": {
+        "intro": "Apabila anda menghantar borang, pertanyaan atau kandungan ke laman web ini, anda mengesahkan bahawa:",
+
+        "items": {
+          "accurateInformation": "Maklumat yang diberikan adalah tepat.",
+          "rightToSubmit": "Anda mempunyai hak untuk menyerahkan kandungan tersebut.",
+          "noRightsViolation": "Kandungan tersebut tidak melanggar hak mana-mana pihak lain."
+        },
+
+        "paragraph1": "Kami berhak untuk membuang sebarang kandungan yang tidak sesuai atau tidak dibenarkan."
+      }
+    },
+
+    "governingLaw": {
+      "title": "Undang-undang yang Mentadbir",
+
+      "content": {
+        "paragraph1": "Terma & Syarat ini hendaklah ditadbir dan ditafsirkan mengikut undang-undang Singapura.",
+
+        "paragraph2": "Sebarang pertikaian yang timbul daripada penggunaan laman web ini atau perkhidmatan kami hendaklah tertakluk kepada bidang kuasa eksklusif mahkamah di Singapura."
+      }
+    },
+
+    "contact": {
+      "title": "Hubungi Kami",
+
+      "content": {
+        "paragraph1": "Sekiranya anda mempunyai sebarang pertanyaan mengenai Terma & Syarat ini, sila hubungi kami.",
+
+        "organization": "WINGS Counselling Centre",
+
+        "details": {
+          "emailLabel": "E-mel",
+          "email": "admin@wingscounselling.org.sg",
+
+          "phoneLabel": "Telefon (Ibu Pejabat)",
+          "phone": "6383 5745"
+        }
+      }
+    }
+  }
+}

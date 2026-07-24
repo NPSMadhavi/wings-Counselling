@@ -1,0 +1,90 @@
+{
+  "appointmentModal": {
+    "common": {
+      "close": "Tutup",
+      "back": "Kembali",
+      "continue": "Teruskan",
+      "submit": "Hantar",
+      "retry": "Cuba Lagi"
+    },
+    "step1": {
+      "title": "Mulakan Perjalanan Pemulihan Anda",
+      "subtitle": "Kami sedia membantu anda. Sila berikan maklumat hubungan asas supaya kami dapat menghubungi anda.",
+      "fields": {
+        "nric": "Nombor NRIC/FIN",
+        "nricPlaceholder": "Contoh: S1234567D",
+        "name": "Nama (Seperti dalam NRIC/FIN)",
+        "namePlaceholder": "Masukkan nama anda",
+        "email": "Alamat E-mel",
+        "emailPlaceholder": "Masukkan alamat e-mel anda",
+        "phone": "Nombor Telefon",
+        "phonePlaceholder": "8 digit nombor",
+        "age": "Umur",
+        "agePlaceholder": "Masukkan umur anda",
+        "gender": "Jantina",
+        "genderPlaceholder": "Pilih Jantina",
+        "nationality": "Kewarganegaraan",
+        "nationalityPlaceholder": "Pilih Kewarganegaraan",
+        "searchCountry": "Cari negara...",
+        "noCountries": "Tiada negara dijumpai"
+      },
+      "genderOptions": {
+        "male": "Lelaki",
+        "female": "Perempuan",
+        "other": "Lain-lain"
+      },
+      "privacyNotice": "Semua maklumat yang anda kongsi akan dikendalikan dengan selamat dan sulit mengikut garis panduan PDPA Singapura."
+    },
+    "step2": {
+      "title": "Pilih Sokongan Yang Anda Perlukan",
+      "subtitle": "Pilih perkhidmatan kaunseling yang paling sesuai dengan keperluan anda.",
+      "loading": "Memuatkan jenis kaunseling...",
+      "counsellingType": "Pilih Jenis Kaunseling",
+      "supportWith": "Apakah jenis sokongan yang anda perlukan?",
+      "helpNote": "Tidak pasti pilihan yang sesuai? Pasukan kami akan membantu anda selepas penghantaran."
+    },
+    "step3": {
+      "title": "Penerangan Ringkas Mengenai Kebimbangan Anda",
+      "subtitle": "Kongsikan apa sahaja yang anda selesa untuk ceritakan.",
+      "descriptionLabel": "Sila kongsikan apa yang membawa anda ke sini hari ini",
+      "descriptionPlaceholder": "Sila terangkan kebimbangan anda",
+      "descriptionHelp": "Maklumat ini membantu kaunselor kami membuat persediaan dan memberikan sokongan yang terbaik kepada anda.",
+      "consent": "Saya memahami bahawa maklumat yang dikongsi akan digunakan untuk memproses permohonan temu janji saya dan menyokong perjalanan kaunseling saya secara sulit."
+    },
+    "success": {
+      "title": "Temu Janji Berjaya Dihantar",
+      "message": "Terima kasih, {{name}}. Kami telah menerima permohonan anda dan akan menghubungi anda dalam masa 3 hari bekerja.",
+      "emailMessage": "E-mel pengesahan telah dihantar kepada {{email}}. Anda boleh menutup tetingkap ini dan terus melayari perkhidmatan kami.",
+      "button": "Tutup",
+      "notification": {
+        "title": "Temu Janji Dihantar",
+        "body": "{{name}} telah menghantar permohonan temu janji baharu"
+      }
+    },
+    "validation": {
+      "required": "Medan ini wajib diisi",
+      "nricRequired": "Nombor NRIC/FIN diperlukan",
+      "nricInvalid": "Mesti mengandungi 9 aksara: huruf di awal dan akhir, 7 nombor di tengah",
+      "nameRequired": "Nama diperlukan.",
+      "nameInvalid": "Nama hanya boleh mengandungi huruf.",
+      "emailRequired": "Alamat e-mel diperlukan",
+      "emailInvalid": "Masukkan alamat e-mel yang sah",
+      "phoneRequired": "Nombor telefon diperlukan",
+      "phoneLeadingZero": "Nombor telefon tidak boleh bermula dengan 0",
+      "phoneInvalid": "Nombor telefon mesti tepat 8 digit",
+      "ageRequired": "Umur diperlukan",
+      "ageInteger": "Umur mestilah nombor bulat",
+      "ageMinimum": "Umur mestilah sekurang-kurangnya 1 tahun",
+      "ageMaximum": "Umur tidak boleh melebihi 120 tahun",
+      "genderRequired": "Sila pilih jantina",
+      "nationalityRequired": "Sila pilih kewarganegaraan",
+      "counsellingRequired": "Sila pilih jenis kaunseling",
+      "descriptionRequired": "Sila terangkan kebimbangan anda"
+    },
+    "errors": {
+      "loadingCounsellingTypes": "Tidak dapat memuatkan jenis kaunseling buat masa ini. Sila cuba lagi.",
+      "bookingFailed": "Gagal menghantar temu janji",
+      "serverError": "Ralat pelayan"
+    }
+  }
+}

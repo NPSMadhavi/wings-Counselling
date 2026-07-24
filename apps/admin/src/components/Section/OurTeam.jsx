@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 
 export function OurTeam() {
+    const { t } = useTranslation();
     const [team, setTeam] = useState([]);
 
     const sectionRef = useRef(null);
@@ -198,7 +200,7 @@ export function OurTeam() {
                     "
                     style={{ color: "#0D4A7A" }}
                 >
-                    Meet our counsellors
+                    {t("team.title")}
                 </motion.h2>
 
                 {/* Description */}
@@ -209,7 +211,7 @@ export function OurTeam() {
                     transition={{ duration: 0.6, delay: 0.2 }}
                     className="text-black text-center font-['DM_Sans'] text-[16px] md:text-[18px] lg:text-[20px] font-normal leading-[1.5] line-clamp-none md:line-clamp-none max-w-[700px] mb-10 md:mb-[60px] px-5"
                 >
-                    Our team of accredited professionals is not only highly trained but also genuinely compassionate, caring deeply about your wellbeing.
+                    {t("team.description")}
                 </motion.p>
 
                 {/* TEAM CARDS */}

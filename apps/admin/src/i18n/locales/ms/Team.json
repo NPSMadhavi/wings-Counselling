@@ -1,0 +1,19 @@
+{
+  "team": {
+    "loading": "Memuatkan ahli pasukan...",
+    "error": "Ralat",
+    "tryAgain": "Cuba Lagi",
+
+    "hero": {
+      "title": "Insan di sebalik perjalanan penyembuhan anda",
+      "description": "Kaunselor kami bukan sahaja profesional yang berkelayakan tinggi, malah mereka juga individu yang penuh empati dan benar-benar mengambil berat tentang kesejahteraan anda. Setiap pengamal di WINGS membawa belas ihsan, kepakaran klinikal serta komitmen peribadi untuk menyokong perjalanan pemulihan anda.",
+      "button": "Terokai pasukan kami"
+    },
+
+    "members": {
+      "title": "Kenali seluruh pasukan kami",
+      "description": "Setiap kaunselor mempunyai kepakaran, bahasa dan pendekatan terapi yang tersendiri supaya anda dapat memilih sokongan yang paling sesuai dengan keperluan anda.",
+      "noMembers": "Tiada ahli pasukan ditemui."
+    }
+  }
+}

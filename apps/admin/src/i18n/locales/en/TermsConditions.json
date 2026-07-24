@@ -1,0 +1,191 @@
+{
+  "termsConditions": {
+    "hero": {
+      "title": "Terms & Conditions"
+    },
+
+    "acceptance": {
+      "title": "Acceptance of Terms",
+
+      "content": {
+        "paragraph1": "These Terms & Conditions govern your access to and use of our website and services. By accessing this website or booking our services, you acknowledge that you have read, understood, and agreed to these Terms & Conditions. If you do not agree with any part of these terms, please discontinue the use of our website and services."
+      }
+    },
+
+    "websiteUse": {
+      "title": "Use of Our Website",
+
+      "content": {
+        "intro": "By using this website, you agree to:",
+
+        "items": {
+          "lawfulUse": "Use the website only for lawful purposes.",
+          "accurateInformation": "Provide accurate information when submitting any data or booking appointments.",
+          "noInterference": "Not interfere with the website's functionality or security.",
+          "noUnauthorizedAccess": "Not attempt to gain unauthorized access to our systems or data.",
+          "noMaliciousContent": "Not upload malicious software or harmful content."
+        },
+
+        "paragraph1": "We reserve the right to suspend or terminate access to any user who violates these terms."
+      }
+    },
+
+    "professionalServices": {
+      "title": "Professional Services",
+
+      "content": {
+        "paragraph1": "Our counselling services are provided by qualified professionals acting in accordance with their appropriate practices.",
+
+        "intro": "While we strive to provide the highest quality of care:",
+
+        "items": {
+          "outcomesVary": "Outcomes vary from person to person.",
+          "noGuarantee": "No specific results or improvements can be guaranteed.",
+          "voluntary": "Participation in counselling is voluntary.",
+          "clientResponsibility": "Clients remain responsible for decisions made based on counselling discussions."
+        },
+
+        "paragraph2": "Counselling is a collaborative process and should not replace emergency medical or psychiatric care."
+      }
+    },
+
+    "emergency": {
+      "title": "Emergency Situations",
+
+      "content": {
+        "paragraph1": "Our services are not intended for crisis intervention or emergency situations.",
+
+        "intro": "If you are in a crisis or:",
+
+        "items": {
+          "immediateRisk": "At immediate risk of harm.",
+          "suicidalThoughts": "Experiencing suicidal thoughts.",
+          "medicalEmergency": "Facing a medical emergency."
+        },
+
+        "paragraph2": "Please contact your local emergency services or visit the nearest hospital immediately."
+      }
+    },
+
+    "appointments": {
+      "title": "Appointments & Cancellations",
+
+      "content": {
+        "paragraph1": "Appointments must be booked strictly.",
+
+        "intro": "Clients are responsible for:",
+
+        "items": {
+          "arriveOnTime": "Arriving on time for scheduled appointments.",
+          "accurateContact": "Providing accurate contact information.",
+          "reschedule": "Informing us promptly if they need to reschedule or cancel.",
+          "lateCancellation": "Late cancellations or missed appointments."
+        },
+
+        "paragraph2": "Repeated missed appointments or late cancellations may be subject to cancellation fees or future booking restrictions where applicable."
+      }
+    },
+
+    "confidentiality": {
+      "title": "Confidentiality",
+
+      "content": {
+        "paragraph1": "Protecting your privacy is one of our highest priorities.",
+
+        "intro": "Information shared during counselling sessions is confidential within the exceptions mandated by law or professional codes, including situations involving:",
+
+        "items": {
+          "riskOfHarm": "Risk of imminent harm to yourself or others.",
+          "abuse": "Suspected abuse or neglect.",
+          "legalObligations": "Legal obligations.",
+          "courtOrders": "Court orders.",
+          "professionalSupervision": "Professional supervision where required (on an anonymous basis)."
+        },
+
+        "paragraph2": "Further details are available in our Privacy Policy. Professional confidentiality standards and legal obligations are common practice among Singapore counselling providers."
+      }
+    },
+
+    "thirdPartyLinks": {
+      "title": "Third-Party Links",
+
+      "content": {
+        "paragraph1": "Our website may contain links to third-party websites for additional resources or convenience.",
+
+        "paragraph2": "We do not endorse, control, or take responsibility for the content, privacy practices, or operations of these external websites. You access these links at your own consent."
+      }
+    },
+
+    "liability": {
+      "title": "Limitation of Liability",
+
+      "content": {
+        "intro": "To the fullest extent permitted by law, WINGS Counselling Centre shall not be liable for:",
+
+        "items": {
+          "indirectDamages": "Indirect or consequential damages.",
+          "lossOfData": "Loss of data.",
+          "serviceInterruption": "Interruption of services.",
+          "websiteReliance": "Reliance on website information.",
+          "userDecisions": "Decisions made by you over content."
+        },
+
+        "paragraph1": "Nothing in these Terms limits liability where such limitation is prohibited by applicable law."
+      }
+    },
+
+    "websiteAvailability": {
+      "title": "Website Availability",
+
+      "content": {
+        "paragraph1": "We aim to ensure our website is reliable at all times.",
+
+        "paragraph2": "However, we do not guarantee uninterrupted access and may suspend, modify, or discontinue parts of the website without prior notice for maintenance, updates, or operational reasons."
+      }
+    },
+
+    "userSubmissions": {
+      "title": "User Submissions",
+
+      "content": {
+        "intro": "When submitting forms, enquiries, and content to the website, you are needed to guarantee that:",
+
+        "items": {
+          "accurateInformation": "The information provided is accurate.",
+          "rightToSubmit": "You have the right to submit it.",
+          "noRightsViolation": "It does not violate the rights of others."
+        },
+
+        "paragraph1": "We reserve the right to remove inappropriate or unauthorized content."
+      }
+    },
+
+    "governingLaw": {
+      "title": "Governing Law",
+
+      "content": {
+        "paragraph1": "These Terms & Conditions shall be governed by and interpreted in accordance with the laws of Singapore.",
+
+        "paragraph2": "Any disputes arising from the use of this website or our services shall be subject to the exclusive jurisdiction of the courts of Singapore."
+      }
+    },
+
+    "contact": {
+      "title": "Contact Us",
+
+      "content": {
+        "paragraph1": "If you have any questions regarding these Terms & Conditions, please contact us.",
+
+        "organization": "WINGS Counselling Centre",
+
+        "details": {
+          "emailLabel": "Email us at",
+          "email": "admin@wingscounselling.org.sg",
+
+          "phoneLabel": "Phone (HQ)",
+          "phone": "6383 5745"
+        }
+      }
+    }
+  }
+}

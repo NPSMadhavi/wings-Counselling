@@ -1,0 +1,19 @@
+{
+  "team": {
+    "loading": "Loading team members...",
+    "error": "Error",
+    "tryAgain": "Try Again",
+
+    "hero": {
+      "title": "The people behind your healing",
+      "description": "Our counsellors are not just highly trained professionals but they are genuinely compassionate people who care deeply about your wellbeing. Every practitioner at WINGS brings empathy, clinical expertise and a personal commitment to your journey.",
+      "button": "Explore our team"
+    },
+
+    "members": {
+      "title": "Meet the whole team",
+      "description": "Each counsellor brings a unique set of skills, languages and therapeutic approaches so you can find the right fit for your journey.",
+      "noMembers": "No team members found."
+    }
+  }
+}

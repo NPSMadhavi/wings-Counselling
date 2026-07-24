@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 
 function ShieldIcon({ size = 32 }) {
   return (
@@ -33,13 +34,6 @@ function ArrowIcon() {
   );
 }
 
-const features = [
-  "Compassion first",
-  "Evidence-based methods",
-  "Confidential & Safe",
-  "Holistic support",
-];
-
 const container = {
   hidden: { opacity: 0 },
   show: {
@@ -58,7 +52,15 @@ const item = {
 };
 
 export function About() {
+  const { t, i18n } = useTranslation();
   const [, navigate] = useLocation();
+
+  const features = [
+    { id: "compassion", label: t("about.features.compassion") },
+    { id: "evidence", label: t("about.features.evidence") },
+    { id: "confidential", label: t("about.features.confidential") },
+    { id: "holistic", label: t("about.features.holistic") },
+  ];
 
   return (
     <motion.section
@@ -78,11 +80,12 @@ export function About() {
             transition={{ duration: 0.6 }}
             className="font-['Outfit'] font-medium text-[#0D4A7A] text-[clamp(22px,4.8vw,28px)] md:text-[35px] leading-[1.2] text-center mb-8 md:mb-10"
           >
-            About WINGS Counselling Centre
+            {t("about.title")}
           </motion.h2>
 
           <div className="w-full flex flex-col lg:flex-row lg:items-stretch lg:justify-between gap-8 lg:gap-12 xl:gap-16">
             <motion.div
+              key={i18n.language}
               variants={container}
               initial="hidden"
               whileInView="show"
@@ -94,47 +97,40 @@ export function About() {
                   variants={item}
                   className="font-['DM_Sans'] text-[16px] md:text-[18px] lg:text-[20px] font-normal max-w-[950px] leading-[1.5] lg:leading-[28px] text-black mb-5 lg:mb-6"
                 >
-                  WINGS Counselling Centre was founded with a simple yet powerful
-                  mission to provide accessible & compassionate mental health support
-                  to the Singapore community. Since 2008, we&apos;ve been a safe haven for
-                  individuals, couples and families navigating life&apos;s most
-                  challenging moments.
+                  {t("about.description1")}
                 </motion.p>
                 <motion.p
-    variants={item}
-    className="font-['DM_Sans'] text-[16px] md:text-[18px] lg:text-[20px] font-normal max-w-[950px] leading-[1.5] lg:leading-[28px] text-black mb-8 lg:mb-10"
-  >
-    At WINGS Counselling Centre, we provide compassionate & personalized mental
-    health support for individuals, couples and families. Our experienced
-    counsellors help people build resilience, strengthen relationships and
-    achieve lasting emotional well-being in a safe and supportive environment.
-  </motion.p>
+                  variants={item}
+                  className="font-['DM_Sans'] text-[16px] md:text-[18px] lg:text-[20px] font-normal max-w-[950px] leading-[1.5] lg:leading-[28px] text-black mb-8 lg:mb-10"
+                >
+                  {t("about.description2")}
+                </motion.p>
 
                 <div className="flex flex-col gap-y-6 sm:flex-row sm:items-start sm:gap-x-10 lg:gap-x-12 w-fit max-w-full">
                   <div className="flex flex-col gap-y-6">
-                    {[features[0], features[2]].map((f) => (
+                    {[features[0], features[2]].map((feature) => (
                       <motion.div
-                        key={f}
+                        key={feature.id}
                         variants={item}
                         className="flex items-center gap-2"
                       >
                         <ShieldIcon size={28} />
-                        <span className="font-['DM_Sans'] font-medium text-[16px] lg:text-[18px] text-black whitespace-nowrap">
-                          {f}
+                        <span className="font-['DM_Sans'] font-medium text-[16px] lg:text-[18px] text-black">
+                          {feature.label}
                         </span>
                       </motion.div>
                     ))}
                   </div>
                   <div className="flex flex-col gap-y-6">
-                    {[features[1], features[3]].map((f) => (
+                    {[features[1], features[3]].map((feature) => (
                       <motion.div
-                        key={f}
+                        key={feature.id}
                         variants={item}
                         className="flex items-center gap-2"
                       >
                         <ShieldIcon size={28} />
-                        <span className="font-['DM_Sans'] font-medium text-[16px] lg:text-[18px] text-black whitespace-nowrap">
-                          {f}
+                        <span className="font-['DM_Sans'] font-medium text-[16px] lg:text-[18px] text-black">
+                          {feature.label}
                         </span>
                       </motion.div>
                     ))}
@@ -149,7 +145,7 @@ export function About() {
                 onClick={() => navigate("/about-us")}
                 className="hidden lg:inline-flex items-center mt-8 gap-2 self-start h-[48px] px-8 rounded-full bg-[#1B4585] text-white text-[16px] font-medium font-['DM_Sans']"
               >
-                Read more <ArrowIcon />
+                {t("about.readMore")} <ArrowIcon />
               </motion.button>
             </motion.div>
 
@@ -162,7 +158,7 @@ export function About() {
             >
               <img
                 src="/assets/Aboutsection.png"
-                alt="About WINGS Counselling Centre"
+                alt={t("about.imageAlt")}
                 className="w-full h-[280px] sm:h-[340px] lg:h-[392px] rounded-[20px] object-cover object-center"
               />
             </motion.div>
@@ -177,7 +173,7 @@ export function About() {
             onClick={() => navigate("/about-us")}
             className="lg:hidden inline-flex items-center gap-2 h-[48px] px-8 rounded-full bg-[#1B4585] text-white text-[16px] font-medium font-['DM_Sans'] mt-8"
           >
-            Read more <ArrowIcon />
+            {t("about.readMore")} <ArrowIcon />
           </motion.button>
         </div>
       </div>

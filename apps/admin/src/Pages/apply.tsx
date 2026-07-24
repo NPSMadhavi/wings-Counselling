@@ -51,12 +51,17 @@ export default function Apply() {
     window.scrollTo(0, 0);
   }, [slug]);
 
-  // Legacy /apply/:id → /career/apply/:id
   useEffect(() => {
     if (location.startsWith("/apply/") && slug) {
       navigate(careersApplyPath(slug), { replace: true });
     }
   }, [location, slug, navigate]);
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate(`/career/${slug}`, { replace: true });
+    }
+  }, [authLoading, isAuthenticated, slug, navigate]);
 
   const { data: job, isLoading: jobQueryLoading } = useQuery<JobPosting>({
     queryKey: [`/api/jobs/by-job-id/${slug}`],
@@ -204,54 +209,13 @@ const submitMutation = useMutation({
     );
   }
 
-  if (!isAuthenticated || applyFlowStage !== "form") {
+  if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#F9F9F9]">
-        <Navbar />
-        <section className="pt-32 pb-20 dark-gradient-bg">
-        <main className="flex-grow flex items-center justify-center px-4 py-16">
-          <div className="w-full max-w-[500px] min-h-[316px] bg-[#0D4A7A] rounded-[20px] shadow-[0_20px_50px_rgba(13,74,122,0.15)] text-white overflow-hidden transition-all duration-300 hover:shadow-[0_25px_60px_rgba(13,74,122,0.25)] select-none px-6 sm:px-8 py-10 sm:py-12 flex flex-col items-center text-center gap-5">
-            <div className="w-[50px] h-[50px] bg-white rounded-[10px] flex items-center justify-center shadow-sm shrink-0">
-              <svg
-                className="w-5 h-5 text-[#0D4A7A]"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-
-            <h2 className="text-xl sm:text-[25px] font-semibold tracking-tight leading-tight font-['DM_Sans']">
-              Sign In to Apply
-            </h2>
-
-            <p className="text-[15px] sm:text-[16px] text-white/90 font-normal leading-relaxed font-['DM_Sans'] max-w-[370px]">
-              You need to create an account or sign in to apply for job positions at WINGS.
-            </p>
-
-            <button
-              onClick={() => {
-                sessionStorage.setItem("careerApplyStage", "form");
-                sessionStorage.setItem("returnTo", location);
-                navigate("/career/register");
-              }}
-              className="w-full sm:w-auto min-w-[200px] px-6 max-w-[244px] h-[46px] bg-white hover:bg-white/95 text-[#0D4A7A] text-[16px] font-medium rounded-full flex items-center justify-center transition-all duration-150 active:scale-[0.98] shadow-[0_4px_12px_rgba(0,0,0,0.08)] font-['DM_Sans']"
-            >
-              Sign in / Create account
-            </button>
-          </div>
-      </main>
-        </section>
-        <Footer />
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
       </div>
     );
   }
-
 
   if (!job) {
     return (
@@ -523,219 +487,224 @@ const submitMutation = useMutation({
 
       {/* ═══ BREADCRUMBS ═══ */}
       <div className="bg-[#F9F9F9] py-5">
-        <div className="container mx-auto px-6 md:px-12 lg:px-[150px] flex items-center gap-2 text-[16px] font-['DM_Sans']">
-          <Link href="/">
-            <span className="text-gray-800 hover:text-[#1B4585] transition-colors cursor-pointer underline">
-              Home
-            </span>
-          </Link>
-          <span className="text-gray-800">/</span>
-          <Link href="/careers">
-            <span className="text-gray-800 hover:text-[#1B4585] transition-colors cursor-pointer underline">
-              Career
-            </span>
-          </Link>
-          <span className="text-gray-800">/</span>
-          <Link href={`/career/${job.jobId}`}>
-            <span className="text-gray-800 hover:text-[#1B4585] transition-colors cursor-pointer underline">
-              {job.title}
-            </span>
-          </Link>
-          <span className="text-gray-800">/</span>
-          <span className="text-gray-800">Application form</span>
+        <div className="navbar-align-outer">
+          <div className="navbar-align-inner flex items-center gap-2 text-[16px] font-['DM_Sans']">
+            <Link href="/">
+              <span className="text-gray-800 hover:text-[#1B4585] transition-colors cursor-pointer underline">
+                Home
+              </span>
+            </Link>
+            <span className="text-gray-800">/</span>
+            <Link href="/careers">
+              <span className="text-gray-800 hover:text-[#1B4585] transition-colors cursor-pointer underline">
+                Career
+              </span>
+            </Link>
+            <span className="text-gray-800">/</span>
+            <Link href={`/career/${job.jobId}`}>
+              <span className="text-gray-800 hover:text-[#1B4585] transition-colors cursor-pointer underline">
+                {job.title}
+              </span>
+            </Link>
+            <span className="text-gray-800">/</span>
+            <span className="text-gray-800">Application form</span>
+          </div>
         </div>
       </div>
 
       {/* ═══ JOB HEADER ═══ */}
       <section className="bg-[#0D4A7A] pt-8 pb-10 border-b-4 border-[#1E3A8A]">
-        <div className="container mx-auto px-6 md:px-12 lg:px-[150px]">
-          <div className="flex items-center gap-3 mb-5 flex-wrap">
-            <span className="px-4 py-1.5 rounded-full border border-white/60 text-white text-xs font-semibold tracking-wide">
-              {job.jobId}
-            </span>
-            {(job.department || getCategoryName(job.categoryId)) && (
+        <div className="navbar-align-outer">
+          <div className="navbar-align-inner">
+            <div className="flex items-center gap-3 mb-5 flex-wrap">
               <span className="px-4 py-1.5 rounded-full border border-white/60 text-white text-xs font-semibold tracking-wide">
-                {job.department || getCategoryName(job.categoryId)}
+                {job.jobId}
               </span>
-            )}
-          </div>
-          <h1 className="text-[28px] sm:text-[34px] md:text-[40px] font-semibold text-white font-['Outfit'] mb-5 leading-tight">
-            {job.title}
-          </h1>
-          <div className="flex flex-wrap items-center gap-5 mb-6 text-white/90 font-['DM_Sans'] font-medium text-[15px]">
-            {job.location && (
-              <div className="flex items-center gap-2">
-                <MapPin className="w-[18px] h-[18px] text-white" />
-                <span>{job.location}</span>
-              </div>
-            )}
-            {job.experience && (
-              <div className="flex items-center gap-2">
-                <Clock className="w-[18px] h-[18px] text-white" />
-                <span>{job.experience}</span>
-              </div>
-            )}
-            {job.employmentType && (
-              <div className="flex items-center gap-2">
-                <Briefcase className="w-[18px] h-[18px] text-white" />
-                <span>{job.employmentType}</span>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-4 flex-wrap">
-            <button
-              onClick={scrollToForm}
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold transition-all duration-300 bg-white hover:bg-gray-100 text-[#0D4A7A] shadow-sm cursor-pointer text-[15px] font-['DM_Sans']"
-            >
-              Apply now
-              <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <path
-                      d="M9 18L15 12L9 6"
-                      stroke="currentColor"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-            </button>
-            <button className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold transition-all duration-300 bg-white hover:bg-gray-100 text-[#0D4A7A] shadow-sm text-[15px] font-['DM_Sans']">
-              Share <Share2 className="w-4 h-4" />
-            </button>
+              {(job.department || getCategoryName(job.categoryId)) && (
+                <span className="px-4 py-1.5 rounded-full border border-white/60 text-white text-xs font-semibold tracking-wide">
+                  {job.department || getCategoryName(job.categoryId)}
+                </span>
+              )}
+            </div>
+            <h1 className="text-[28px] sm:text-[34px] md:text-[40px] font-semibold text-white font-['Outfit'] mb-5 leading-tight">
+              {job.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-5 mb-6 text-white/90 font-['DM_Sans'] font-medium text-[15px]">
+              {job.location && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-[18px] h-[18px] text-white" />
+                  <span>{job.location}</span>
+                </div>
+              )}
+              {job.experience && (
+                <div className="flex items-center gap-2">
+                  <Clock className="w-[18px] h-[18px] text-white" />
+                  <span>{job.experience}</span>
+                </div>
+              )}
+              {job.employmentType && (
+                <div className="flex items-center gap-2">
+                  <Briefcase className="w-[18px] h-[18px] text-white" />
+                  <span>{job.employmentType}</span>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-4 flex-wrap">
+              <button
+                onClick={scrollToForm}
+                className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold transition-all duration-300 bg-white hover:bg-gray-100 text-[#0D4A7A] shadow-sm cursor-pointer text-[15px] font-['DM_Sans']"
+              >
+                Apply now
+                <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        d="M9 18L15 12L9 6"
+                        stroke="currentColor"
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+              </button>
+              <button className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold transition-all duration-300 bg-white hover:bg-gray-100 text-[#0D4A7A] shadow-sm text-[15px] font-['DM_Sans']">
+                Share <Share2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ═══ APPLICATION FORM ═══ */}
       <section id="application-form-section" className="py-10 md:py-14 bg-[#F9F9F9]">
-        <div className="container mx-auto px-6 md:px-12 lg:px-[150px]">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="bg-white rounded-[20px] p-7 md:p-10 border border-gray-200"
-          >
-            <h2 className="text-[24px] md:text-[28px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-2">
-              Application form
-            </h2>
-            <p className="text-gray-500 text-[14px] mb-8">
-              Applying as <span className="font-semibold text-gray-700">{user?.email ?? ""}</span>
-              {job.title ? (
-                <>
-                  {" "}
-                  for <span className="font-semibold text-gray-700">{job.title}</span>
-                </>
-              ) : null}
-            </p>
+        <div className="navbar-align-outer">
+          <div className="navbar-align-inner">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="bg-white rounded-[20px] p-7 md:p-10 border border-gray-200"
+            >
+              <h2 className="text-[24px] md:text-[28px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-2">
+                Application form
+              </h2>
+              <p className="text-gray-500 text-[14px] mb-8">
+                Applying as <span className="font-semibold text-gray-700">{user?.email ?? ""}</span>
+                {job.title ? (
+                  <>
+                    {" "}
+                    for <span className="font-semibold text-gray-700">{job.title}</span>
+                  </>
+                ) : null}
+              </p>
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Cover Letter */}
-              <div>
-                <h3 className="text-[18px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-2">
-                  Cover letter <span className="text-red-500">*</span>
-                </h3>
-                <p className="text-gray-500 text-[13px] mb-3">
-                  Introduce yourself and explain why you are the ideal candidate for this position
-                </p>
-                <textarea
-                  rows={16}
-                  value={coverLetter}
-                  onChange={(e) => setCoverLetter(e.target.value)}
-                  placeholder="Type here"
-                  className="w-full bg-[#E8EEF5] rounded-[10px] px-5 py-4 text-[14px] text-gray-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#0D4A7A]/30 transition-all resize-none border-none"
-                />
-              </div>
+              <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Cover Letter */}
+                <div>
+                  <h3 className="text-[18px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-2">
+                    Cover letter <span className="text-red-500">*</span>
+                  </h3>
+                  <p className="text-gray-500 text-[13px] mb-3">
+                    Introduce yourself and explain why you are the ideal candidate for this position
+                  </p>
+                  <textarea
+                    rows={16}
+                    value={coverLetter}
+                    onChange={(e) => setCoverLetter(e.target.value)}
+                    placeholder="Type here"
+                    className="w-full bg-[#E8EEF5] rounded-[10px] px-5 py-4 text-[14px] text-gray-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#0D4A7A]/30 transition-all resize-none border-none"
+                  />
+                </div>
 
-              {/* Resume / CV */}
-              <div>
-                <h3 className="text-[18px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-2">
-                  Resume / CV <span className="text-red-500">*</span>
-                </h3>
-                <p className="text-gray-500 text-[13px] mb-3">
-                  Upload your latest resume in PDF, DOC or DOCX format (Max 100MB)
-                </p>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                {resumeFile ? (
-                  <div className="flex items-center gap-3 p-4 rounded-[10px] border border-green-200 bg-green-50">
-                    <FileText size={20} className="text-green-600" />
-                    <span className="text-sm font-semibold text-green-700 flex-1 truncate">
-                      {resumeFile.name}
-                    </span>
+                {/* Resume / CV */}
+                <div>
+                  <h3 className="text-[18px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-2">
+                    Resume / CV <span className="text-red-500">*</span>
+                  </h3>
+                  <p className="text-gray-500 text-[13px] mb-3">
+                    Upload your latest resume in PDF, DOC or DOCX format (Max 100MB)
+                  </p>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  {resumeFile ? (
+                    <div className="flex items-center gap-3 p-4 rounded-[10px] border border-green-200 bg-green-50">
+                      <FileText size={20} className="text-green-600" />
+                      <span className="text-sm font-semibold text-green-700 flex-1 truncate">
+                        {resumeFile.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setResumeFile(null);
+                          setResumePath("");
+                          if (fileRef.current) fileRef.current.value = "";
+                        }}
+                        className="text-green-500 hover:text-green-700"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
                     <button
                       type="button"
-                      onClick={() => {
-                        setResumeFile(null);
-                        setResumePath("");
-                        if (fileRef.current) fileRef.current.value = "";
-                      }}
-                      className="text-green-500 hover:text-green-700"
+                      onClick={() => fileRef.current?.click()}
+                      className="w-full border-2 border-dashed border-[#b3c7d6] rounded-[10px] py-6 text-center hover:border-[#0D4A7A] hover:bg-[#0D4A7A]/5 transition-all cursor-pointer"
                     >
-                      <X size={16} />
+                      <div className="flex items-center justify-center gap-2 mb-1">
+                        <Upload size={18} className="text-[#0D4A7A]" />
+                        <p className="text-[14px] font-bold text-[#0D4A7A]">Click to upload resume</p>
+                      </div>
                     </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => fileRef.current?.click()}
-                    className="w-full border-2 border-dashed border-[#b3c7d6] rounded-[10px] py-6 text-center hover:border-[#0D4A7A] hover:bg-[#0D4A7A]/5 transition-all cursor-pointer"
-                  >
-                    <div className="flex items-center justify-center gap-2 mb-1">
-                      <Upload size={18} className="text-[#0D4A7A]" />
-                      <p className="text-[14px] font-bold text-[#0D4A7A]">Click to upload resume</p>
-                    </div>
-                  </button>
-                )}
-              </div>
-
-              {/* Error */}
-              {err && (
-                <div className="flex items-center gap-2 p-3 rounded-[10px] bg-red-50 border border-red-200">
-                  <AlertCircle size={16} className="text-red-500 shrink-0" />
-                  <p className="text-red-600 text-sm font-semibold">{err}</p>
+                  )}
                 </div>
-              )}
 
-              {/* Submit */}
-              <div className="flex justify-end pt-4">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#0D4A7A] hover:bg-[#0a3d66] text-white rounded-full font-bold transition-all duration-300 text-[14px] font-['DM_Sans'] cursor-pointer shadow-sm disabled:opacity-60"
-                >
-                  {loading ? "Submitting..." : "Submit application"}
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
+                {/* Error */}
+                {err && (
+                  <div className="flex items-center gap-2 p-3 rounded-[10px] bg-red-50 border border-red-200">
+                    <AlertCircle size={16} className="text-red-500 shrink-0" />
+                    <p className="text-red-600 text-sm font-semibold">{err}</p>
+                  </div>
+                )}
+
+                {/* Submit */}
+                <div className="flex justify-end pt-4">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#0D4A7A] hover:bg-[#0a3d66] text-white rounded-full font-bold transition-all duration-300 text-[14px] font-['DM_Sans'] cursor-pointer shadow-sm disabled:opacity-60"
                   >
-                    <path
-                      d="M9 18L15 12L9 6"
-                      stroke="currentColor"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </form>
-          </motion.div>
+                    {loading ? "Submitting..." : "Submit application"}
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        d="M9 18L15 12L9 6"
+                        stroke="currentColor"
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-    
     </div>
 
       <Footer />

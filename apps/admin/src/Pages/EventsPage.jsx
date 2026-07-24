@@ -11,15 +11,27 @@ import {
     SiteMapPinIcon,
     SITE_ICON_SIZE_SM,
 } from "@/components/ui/SiteIcons";
+import { useTranslation } from "react-i18next";
 
 import { Footer } from "../components/Layout/Footer.jsx";
 
 function Events() {
+    const { t } = useTranslation();
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [hoveredButton, setHoveredButton] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [selectedFilter, setSelectedFilter] = useState("All events");
+    const [selectedFilter, setSelectedFilter] = useState("all");
+
+    const filterOptions = [
+        { key: "all", label: t("events.listing.filters.all") },
+        { key: "inPerson", label: t("events.listing.filters.inPerson") },
+        { key: "online", label: t("events.listing.filters.online") },
+    ];
+
+    const selectedFilterLabel =
+        filterOptions.find((o) => o.key === selectedFilter)?.label ||
+        t("events.listing.filters.all");
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -64,7 +76,7 @@ function Events() {
     }, []);
 
     const formatDate = (dateString) => {
-        if (!dateString) return "TBA";
+        if (!dateString) return t("events.listing.tba");
 
         return new Date(dateString).toLocaleDateString("en-SG", {
             day: "numeric",
@@ -74,7 +86,7 @@ function Events() {
     };
 
     const formatTime = (dateString) => {
-        if (!dateString) return "TBA";
+        if (!dateString) return t("events.listing.tba");
 
         return new Date(dateString).toLocaleTimeString("en-SG", {
             hour: "2-digit",
@@ -86,14 +98,19 @@ function Events() {
     const getEventType = (location) => {
         const locationLower = location?.toLowerCase() || "";
         if (locationLower.includes("zoom") || locationLower.includes("online")) {
-            return "Online";
+            return "online";
         }
-        return "In-person";
+        return "inPerson";
     };
+
+    const getEventTypeLabel = (typeKey) =>
+        typeKey === "online"
+            ? t("events.listing.online")
+            : t("events.listing.inPerson");
 
     // Filter events based on selected filter
     const filteredEvents = events.filter(event => {
-        if (selectedFilter === "All events") {
+        if (selectedFilter === "all") {
             return true;
         }
         return getEventType(event.location) === selectedFilter;
@@ -137,7 +154,7 @@ function Events() {
                             lineHeight: "100%",
                         }}
                     >
-                        All events
+                        {t("events.listing.title")}
                     </h2>
 
                     {/* Custom Dropdown */}
@@ -159,7 +176,7 @@ function Events() {
                                 cursor: "pointer",
                             }}
                         >
-                            {selectedFilter}
+                            {selectedFilterLabel}
                             <ChevronDown 
                                 size={20} 
                                 color="#6B7280"
@@ -182,11 +199,11 @@ function Events() {
                                     overflow: "hidden",
                                 }}
                             >
-                                {["All events", "In-person", "Online"].map((option) => (
+                                {filterOptions.map((option) => (
                                     <button
-                                        key={option}
+                                        key={option.key}
                                         onClick={() => {
-                                            setSelectedFilter(option);
+                                            setSelectedFilter(option.key);
                                             setIsDropdownOpen(false);
                                         }}
                                         className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
@@ -194,11 +211,11 @@ function Events() {
                                             fontFamily: "'DM Sans', sans-serif",
                                             fontWeight: 500,
                                             fontSize: "14px",
-                                            color: selectedFilter === option ? "#0D4A7A" : "#333333",
-                                            backgroundColor: selectedFilter === option ? "#F0F7FF" : "transparent",
+                                            color: selectedFilter === option.key ? "#0D4A7A" : "#333333",
+                                            backgroundColor: selectedFilter === option.key ? "#F0F7FF" : "transparent",
                                         }}
                                     >
-                                        {option}
+                                        {option.label}
                                     </button>
                                 ))}
                             </motion.div>
@@ -211,7 +228,8 @@ function Events() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-0">
                         {filteredEvents.map((event, index) => {
                             const eventType = getEventType(event.location);
-                            const isOnline = eventType === "Online";
+                            const isOnline = eventType === "online";
+                            const eventTypeLabel = getEventTypeLabel(eventType);
 
                             return (
                                 <div
@@ -262,7 +280,7 @@ function Events() {
                                                     color: "#FFFFFF",
                                                 }}
                                             >
-                                                {eventType}
+                                                {eventTypeLabel}
                                             </span>
                                         </div>
                                     </div>
@@ -351,7 +369,7 @@ function Events() {
                                                     fontWeight: 700,
                                                 }}
                                             >
-                                                {event.price || "Free"}
+                                                {event.price || t("events.listing.free")}
                                             </span>
 
                                             <button
@@ -380,7 +398,7 @@ function Events() {
                                                         transition: "color 0.3s ease",
                                                     }}
                                                 >
-                                                    Register now
+                                                    {t("events.listing.registerNow")}
                                                 </span>
                                                 <svg
                                                     width="20"
@@ -406,7 +424,9 @@ function Events() {
                 ) : (
                     <div className="text-center py-20">
                         <p className="text-[#666] font-['DM_Sans'] font-medium text-[18px]">
-                            No {selectedFilter !== "All events" ? selectedFilter.toLowerCase() : ""} events found.
+                            {selectedFilter === "all"
+                                ? t("events.listing.noEvents")
+                                : t("events.listing.noFilteredEvents", { filter: selectedFilterLabel })}
                         </p>
                     </div>
                 )}
@@ -417,6 +437,7 @@ function Events() {
 }
 
 export default function EventsPage() {
+    const { t } = useTranslation();
     const [subEmail, setSubEmail] = useState("");
     const [subStatus, setSubStatus] = useState("idle"); // idle | loading | success | duplicate | error
 
@@ -475,7 +496,7 @@ export default function EventsPage() {
                                 marginBottom: "24px",
                             }}
                         >
-                            Learn, Grow & Connect
+                            {t("events.hero.title")}
                         </h1>
 
                         <p
@@ -489,9 +510,7 @@ export default function EventsPage() {
                                 marginBottom: "32px",
                             }}
                         >
-                            Join our evidence based workshops and community
-                            programs designed to support your mental wellness
-                            journey
+                            {t("events.hero.description")}
                         </p>
 
                         <motion.button
@@ -523,7 +542,7 @@ export default function EventsPage() {
                                     fontSize: "18px",
                                 }}
                             >
-                                Explore our events
+                                {t("events.hero.button")}
                             </span>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                                 <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -544,17 +563,17 @@ export default function EventsPage() {
       <div className="w-full flex flex-col items-center justify-center relative overflow-hidden bg-[#0D4A7A] rounded-[16px] md:rounded-[20px] px-5 py-10 sm:px-8 sm:py-12 md:py-14 min-h-[280px] sm:min-h-[300px] md:min-h-[338px]">   
 
                         <h2 className="font-['Outfit'] font-medium text-[clamp(24px,5vw,35px)] leading-tight text-white mb-3 sm:mb-4 text-center px-2">
-                            Upcoming Events & Workshops
+                            {t("events.newsletter.title")}
                         </h2>
 
                         <p className="font-['DM_Sans'] font-medium text-[clamp(15px,2.5vw,20px)] leading-snug text-white mb-6 sm:mb-8 md:mb-10 text-center max-w-[600px] px-2">
-                            Our team is busy crafting meaningful workshops and events for the community.
+                            {t("events.newsletter.description")}
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full justify-center max-w-[720px]">
                             {subStatus === "success" ? (
                                 <p className="text-white font-['DM_Sans'] font-semibold text-[15px] sm:text-[17px] text-center">
-                                     Thank you for subscribing! We'll keep you updated on future events.
+                                     {t("events.newsletter.success")}
                                 </p>
                             ) : (
                                 <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full justify-center">
@@ -578,7 +597,7 @@ export default function EventsPage() {
                                             type="email"
                                             value={subEmail}
                                             onChange={(e) => { setSubEmail(e.target.value); setSubStatus("idle"); }}
-                                            placeholder="Enter your email address"
+                                            placeholder={t("events.newsletter.emailPlaceholder")}
                                             required
                                             className="w-full h-full rounded-[24px] sm:rounded-[30px] border-none pl-12 sm:pl-[60px] pr-4 sm:pr-5 font-['DM_Sans'] font-normal text-[15px] sm:text-[16px] md:text-[18px] outline-none bg-white"
                                         />
@@ -591,19 +610,19 @@ export default function EventsPage() {
                                         whileTap={{ scale: 0.95 }}
                                         className="w-full sm:w-[160px] h-[52px] sm:h-[56px] md:h-[60px] shrink-0 bg-transparent rounded-full border border-white text-[#F5F9FF] font-['Plus_Jakarta_Sans'] font-semibold text-[16px] sm:text-[17px] md:text-[18px] cursor-pointer transition-all duration-300 hover:bg-white hover:text-[#0D4A7A] disabled:opacity-70"
                                     >
-                                        {subStatus === "loading" ? "..." : "Notify me"}
+                                        {subStatus === "loading" ? t("events.newsletter.loading") : t("events.newsletter.notifyMe")}
                                     </motion.button>
                                 </form>
                             )}
                         </div>
                         {subStatus === "duplicate" && (
                             <p className="text-[#FFD700] font-['DM_Sans'] text-[13px] sm:text-[14px] mt-3 sm:mt-[10px] text-center">
-                                You're already subscribed. Please enter another email.
+                                {t("events.newsletter.duplicate")}
                             </p>
                         )}
                         {subStatus === "error" && (
                             <p className="text-[#FCA5A5] font-['DM_Sans'] text-[13px] sm:text-[14px] mt-3 sm:mt-[10px] text-center">
-                                Something went wrong. Please try again.
+                                {t("events.newsletter.error")}
                             </p>
                         )}
                     </div>

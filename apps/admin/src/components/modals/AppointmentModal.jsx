@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -77,6 +78,7 @@ const countries = [
 
 // Phone Input — fixed to Singapore (+65), 8 digits only
 const PhoneInputWithCountry = ({ phone, onPhoneChange, onPhoneBlur, error }) => {
+  const { t } = useTranslation();
   return (
     <div
       className={`flex items-stretch border rounded-[10px] bg-[#FAF8F4] transition-all ${
@@ -95,7 +97,7 @@ const PhoneInputWithCountry = ({ phone, onPhoneChange, onPhoneBlur, error }) => 
         value={phone}
         onChange={onPhoneChange}
         onBlur={onPhoneBlur}
-        placeholder="8 digit number"
+        placeholder={t("appointmentModal.step1.fields.phonePlaceholder")}
         maxLength={8}
         className="flex-1 min-w-0 px-4 py-4 text-[16px] bg-transparent outline-none rounded-r-[10px]"
       />
@@ -278,6 +280,7 @@ const resolvePreselectedCounselling = (types, selection) => {
 
 // Custom Nationality Dropdown Component
 const CustomNationalityDropdown = ({ value, onChange, onBlur, error }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef(null);
@@ -336,7 +339,7 @@ const CustomNationalityDropdown = ({ value, onChange, onBlur, error }) => {
           } ${isOpen ? 'border-[#0D4A7A] ring-2 ring-[#0D4A7A]/20' : ''} focus:border-[#0D4A7A]`}
       >
         <span className={value ? "text-[#3A3A3A]" : "text-[#8F8F8F]"}>
-          {value || "Select Nationality"}
+          {value || t("appointmentModal.step1.fields.nationalityPlaceholder")}
         </span>
         <ChevronDown
           size={18}
@@ -351,7 +354,7 @@ const CustomNationalityDropdown = ({ value, onChange, onBlur, error }) => {
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search country..."
+                placeholder={t("appointmentModal.step1.fields.searchCountry")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 text-[14px] border border-[#E3E1E1] rounded outline-none focus:border-[#0D4A7A]"
@@ -373,7 +376,7 @@ const CustomNationalityDropdown = ({ value, onChange, onBlur, error }) => {
                 </div>
               ))
             ) : (
-              <div className="px-3 py-2 text-gray-500 text-center">No countries found</div>
+              <div className="px-3 py-2 text-gray-500 text-center">{t("appointmentModal.step1.fields.noCountries")}</div>
             )}
           </div>
         </div>
@@ -383,6 +386,7 @@ const CustomNationalityDropdown = ({ value, onChange, onBlur, error }) => {
 };
 
 export function AppointmentModal({ isOpen, onClose, preSelectedService }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
@@ -574,7 +578,7 @@ const createNotification = (title, body) => {
         console.error("Failed to fetch counselling types:", result.message);
       }
     } catch (error) {
-      setCounsellingTypesError("Unable to load counselling types right now. Please try again.");
+      setCounsellingTypesError(t("appointmentModal.errors.loadingCounsellingTypes"));
       console.error("Error fetching counselling types:", error);
     } finally {
       setLoadingTypes(false);
@@ -592,7 +596,7 @@ const createNotification = (title, body) => {
   // ========== VALIDATION FUNCTIONS ==========
 const validateNRIC = (nric) => {
   if (!nric || nric.length === 0) {
-    return "NRIC/FIN Number is required";
+    return t("appointmentModal.validation.nricRequired");
   }
 
   const cleanedNRIC = nric.replace(/\s/g, "").toUpperCase();
@@ -601,74 +605,74 @@ const validateNRIC = (nric) => {
   const nricRegex = /^[A-Z]\d{7}[A-Z]$/;
 
   if (!nricRegex.test(cleanedNRIC)) {
-    return "9 characters only: first & last must be alphabets, middle 7 must be numbers";
+    return t("appointmentModal.validation.nricInvalid");
   }
 
   return "";
 };
 
   const validateAge = (age) => {
-    if (age === "" || age === null || age === undefined) return "Age is required";
+    if (age === "" || age === null || age === undefined) return t("appointmentModal.validation.ageRequired");
     const num = Number(age);
-    if (isNaN(num) || !Number.isInteger(num)) return "Age must be a whole number";
-    if (num < 1) return "Age must be at least 1";
-    if (num > 120) return "Age must be 120 or below";
+    if (isNaN(num) || !Number.isInteger(num)) return t("appointmentModal.validation.ageInteger");
+    if (num < 1) return t("appointmentModal.validation.ageMinimum");
+    if (num > 120) return t("appointmentModal.validation.ageMaximum");
     return "";
   };
 
   const validateName = (name) => {
-    if (!name || name.trim().length === 0) return "Name is required.";
+    if (!name || name.trim().length === 0) return t("appointmentModal.validation.nameRequired");
 
     const trimmed = name.trim();
     if (!/^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/.test(trimmed)) {
-      return "Name should contain only letters.";
+      return t("appointmentModal.validation.nameInvalid");
     }
 
     return "";
   };
 
   const validateEmail = (email) => {
-    if (!email || email.length === 0) return "Email is required";
+    if (!email || email.length === 0) return t("appointmentModal.validation.emailRequired");
     const emailRegex = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
-    if (!emailRegex.test(email)) return "Enter a valid email address";
+    if (!emailRegex.test(email)) return t("appointmentModal.validation.emailInvalid");
     return "";
   };
 
 const validatePhone = (phone, pCountry) => {
   if (!phone || phone.length === 0) {
-    return "Phone number is required";
+    return t("appointmentModal.validation.phoneRequired");
   }
 
   const digitsOnly = phone.replace(/\D/g, "");
 
   if (digitsOnly.startsWith("0")) {
-    return "Phone number should not start with 0";
+    return t("appointmentModal.validation.phoneLeadingZero");
   }
 
   if (!/^\d{8}$/.test(digitsOnly)) {
-    return "Phone number must be exactly 8 digits";
+    return t("appointmentModal.validation.phoneInvalid");
   }
 
   return "";
 };
 
   const validateGender = (gender) => {
-    if (!gender) return "Gender is required";
+    if (!gender) return t("appointmentModal.validation.genderRequired");
     return "";
   };
 
   const validateNationality = (nationality) => {
-    if (!nationality) return "Nationality is required";
+    if (!nationality) return t("appointmentModal.validation.nationalityRequired");
     return "";
   };
 
   const validateCounsellingType = (typeId) => {
-    if (!typeId) return "Please select a counselling type";
+    if (!typeId) return t("appointmentModal.validation.counsellingRequired");
     return "";
   };
 
   const validateDescription = (desc) => {
-    if (!desc) return "Please describe your concern";
+    if (!desc) return t("appointmentModal.validation.descriptionRequired");
     return "";
   };
 
@@ -915,7 +919,7 @@ const handleSubmit = async (e) => {
     const data = await response.json();
 
     if (!response.ok) {
-      alert(data.message || "Failed to book appointment");
+      alert(data.message || t("appointmentModal.errors.bookingFailed"));
       return;
     }
 
@@ -928,28 +932,28 @@ const handleSubmit = async (e) => {
 
     // Browser/System Notification
     showSystemNotification(
-      "Appointment Submitted",
-      `${formData.name} submitted a new appointment request`
+      t("appointmentModal.success.notification.title"),
+      t("appointmentModal.success.notification.body", { name: formData.name })
     );
 
   } catch (error) {
     console.error(error);
-    alert("Server error");
+    alert(t("appointmentModal.errors.serverError"));
   } finally {
     setLoading(false);
   }
 };
 
   const getStepTitle = () => {
-    if (step === 1) return "Let's Begin Your Healing Journey";
-    if (step === 2) return "Choose the Support You're Looking For";
-    return "Brief Description of Concerns";
+    if (step === 1) return t("appointmentModal.step1.title");
+    if (step === 2) return t("appointmentModal.step2.title");
+    return t("appointmentModal.step3.title");
   };
 
   const getStepSubtitle = () => {
-    if (step === 1) return "We're here to support you. Please share your basic contact details so we can reach out personally.";
-    if (step === 2) return "Select the counselling service that best matches your current needs.";
-    return "Share anything you feel comfortable sharing.";
+    if (step === 1) return t("appointmentModal.step1.subtitle");
+    if (step === 2) return t("appointmentModal.step2.subtitle");
+    return t("appointmentModal.step3.subtitle");
   };
 
   const isNameValid =
@@ -1020,7 +1024,7 @@ const handleSubmit = async (e) => {
                 <button
                   type="button"
                   onClick={onClose}
-                  aria-label="Close appointment form"
+                  aria-label={t("appointmentModal.common.close")}
                   className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D4A7A] focus-visible:ring-offset-2"
                 >
                   <X size={20} className="text-black" />
@@ -1037,20 +1041,20 @@ const handleSubmit = async (e) => {
                     </svg>
                   </div>
                   <h2 className="text-[#0D4A7A] text-[clamp(20px,5vw,28px)] font-medium mb-3">
-                    Appointment Submitted Successfully
+                    {t("appointmentModal.success.title")}
                   </h2>
                   <p className="text-[#3A3A3A] text-[16px] leading-relaxed max-w-[600px] mb-2">
-                    Thank you, <strong>{formData.name}</strong>. We have received your request and will contact you within 3 Working Days.
+                    {t("appointmentModal.success.message", { name: formData.name })}
                   </p>
                   <p className="text-[#5f6368] text-[14px] max-w-[520px] mb-8">
-                    A confirmation email has been sent to <strong>lavetimadhavilatha19@gmail.com</strong>. You can close this window and continue exploring the services.
+                    {t("appointmentModal.success.emailMessage", { email: formData.email })}
                   </p>
                   <button
                     type="button"
                     onClick={onClose}
                     className="px-8 py-3 rounded-full bg-[#1B4585] text-white font-medium hover:bg-[#0D4A7A] transition-all"
                   >
-                    Close
+                    {t("appointmentModal.success.button")}
                   </button>
                 </div>
             </div>
@@ -1117,7 +1121,7 @@ const handleSubmit = async (e) => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div>
                           <label className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2">
-                            NRIC/FIN Number <span className="text-red-500">*</span>
+                            {t("appointmentModal.step1.fields.nric")} <span className="text-red-500">*</span>
                           </label>
                     <input
   type="text"
@@ -1138,7 +1142,7 @@ const handleSubmit = async (e) => {
     }
   }}
   onBlur={handleBlur}
-  placeholder="Example: S1234567D"
+  placeholder={t("appointmentModal.step1.fields.nricPlaceholder")}
   maxLength={9}
   className={`w-full px-5 py-4 border rounded-[10px] text-[16px] bg-[#FAF8F4] outline-none transition-all ${
     errors.nric_fin_number
@@ -1151,7 +1155,7 @@ const handleSubmit = async (e) => {
 
                         <div>
                           <label className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2">
-                            Name (As per NRIC/FIN Number)<span className="text-red-500">*</span>
+                            {t("appointmentModal.step1.fields.name")}<span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -1159,7 +1163,7 @@ const handleSubmit = async (e) => {
                             value={formData.name}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            placeholder="Enter your name"
+                            placeholder={t("appointmentModal.step1.fields.namePlaceholder")}
                             className={`w-full px-5 py-4 border rounded-[10px] text-[16px] bg-[#FAF8F4] outline-none transition-all ${
                               errors.name
                                 ? "border-red-500"
@@ -1176,7 +1180,7 @@ const handleSubmit = async (e) => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div>
                           <label className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2">
-                            Email Address <span className="text-red-500">*</span>
+                            {t("appointmentModal.step1.fields.email")} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="email"
@@ -1184,7 +1188,7 @@ const handleSubmit = async (e) => {
                             value={formData.email}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            placeholder="Enter your email address"
+                            placeholder={t("appointmentModal.step1.fields.emailPlaceholder")}
                             className={`w-full px-5 py-4 border rounded-[10px] text-[16px] bg-[#FAF8F4] outline-none transition-all ${errors.email ? 'border-red-500' : 'border-[#E3E1E1]'
                               } focus:border-[#0D4A7A]`}
                           />
@@ -1193,7 +1197,7 @@ const handleSubmit = async (e) => {
 
                         <div>
                           <label className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2">
-                            Phone Number<span className="text-red-500">*</span>
+                            {t("appointmentModal.step1.fields.phone")}<span className="text-red-500">*</span>
                           </label>
                           <PhoneInputWithCountry
                             phone={formData.phone}
@@ -1209,7 +1213,7 @@ const handleSubmit = async (e) => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         <div>
                           <label className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2">
-                            Age <span className="text-red-500">*</span>
+                            {t("appointmentModal.step1.fields.age")} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -1218,7 +1222,7 @@ const handleSubmit = async (e) => {
                             value={formData.age}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            placeholder="Enter Your Age"
+                            placeholder={t("appointmentModal.step1.fields.agePlaceholder")}
                             className={`w-full px-5 py-4 border rounded-[10px] text-[16px] bg-[#FAF8F4] outline-none transition-all ${errors.age ? 'border-red-500' : 'border-[#E3E1E1]'
                               } focus:border-[#0D4A7A]`}
                           />
@@ -1227,7 +1231,7 @@ const handleSubmit = async (e) => {
 
                         <div>
                           <label className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2">
-                            Gender <span className="text-red-500">*</span>
+                            {t("appointmentModal.step1.fields.gender")} <span className="text-red-500">*</span>
                           </label>
                    <select
   name="gender"
@@ -1238,10 +1242,10 @@ const handleSubmit = async (e) => {
     errors.gender ? "border-red-500" : "border-[#E3E1E1]"
   } focus:border-[#0D4A7A]`}
 >
-  <option value="">Select Gender</option>
-  <option value="Male">Male</option>
-  <option value="Female">Female</option>
-  <option value="Other">Other</option>
+  <option value="">{t("appointmentModal.step1.fields.genderPlaceholder")}</option>
+  <option value="Male">{t("appointmentModal.step1.genderOptions.male")}</option>
+  <option value="Female">{t("appointmentModal.step1.genderOptions.female")}</option>
+  <option value="Other">{t("appointmentModal.step1.genderOptions.other")}</option>
 </select>
                           <ErrorMessage message={errors.gender} />
                         </div>
@@ -1251,7 +1255,7 @@ const handleSubmit = async (e) => {
                             htmlFor="appointment-nationality"
                             className="text-[#0D4A7A] text-[clamp(14px,3.5vw,18px)] font-medium block mb-2"
                           >
-                            Nationality <span className="text-red-500">*</span>
+                            {t("appointmentModal.step1.fields.nationality")} <span className="text-red-500">*</span>
                           </label>
                           <CustomNationalityDropdown
                             value={formData.nationality}
@@ -1284,7 +1288,7 @@ const handleSubmit = async (e) => {
   
   {/* Content - Starts exactly from right side of icon */}
   <p className="text-[#1F5500] text-[13px] font-medium leading-[19px]">
-    Everything you share is handled securely and confidentially in accordance with Singapore's PDPA guidelines.
+    {t("appointmentModal.step1.privacyNotice")}
   </p>
 </div>
                     </div>
@@ -1295,7 +1299,7 @@ const handleSubmit = async (e) => {
   <div className="flex flex-col min-h-[320px] sm:min-h-[400px] h-auto">
     {loadingTypes ? (
       <div className="text-center py-8">
-        <p className="text-[#0D4A7A]">Loading counselling types...</p>
+        <p className="text-[#0D4A7A]">{t("appointmentModal.step2.loading")}</p>
       </div>
     ) : (
       <>
@@ -1307,7 +1311,7 @@ const handleSubmit = async (e) => {
               onClick={fetchCounsellingTypes}
               className="shrink-0 rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-100"
             >
-              Retry
+              {t("appointmentModal.common.retry")}
             </button>
           </div>
         )}
@@ -1316,7 +1320,7 @@ const handleSubmit = async (e) => {
         <div className="flex-1 overflow-y-auto pr-2">
           <div>
             <label className="text-[#0D4A7A] text-[16px] font-medium block mb-4">
-              Select Counselling type *
+              {t("appointmentModal.step2.counsellingType")} <span className="text-red-500">*</span>
             </label>
             <div
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
@@ -1367,7 +1371,7 @@ const handleSubmit = async (e) => {
           {formData.counselling_type_id && getCurrentServiceOptions().length > 0 && (
             <div className="mt-6">
               <label className="text-[#0D4A7A] text-[16px] font-medium block mb-4">
-                What would you like support with? ({formData.counselling_type_name})
+                {t("appointmentModal.step2.supportWith")} ({formData.counselling_type_name})
               </label>
               <div
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
@@ -1412,7 +1416,7 @@ const handleSubmit = async (e) => {
             </svg>
           </div>
           <p className="text-[#1F5500] text-[15px] font-medium leading-[19px]">
-            Not sure which option fits you? Our team can guide you after submission.
+            {t("appointmentModal.step2.helpNote")}
           </p>
         </div>
       </>
@@ -1426,14 +1430,14 @@ const handleSubmit = async (e) => {
       <div className="space-y-4">
         <div>
           <label className="text-[#0D4A7A] text-[16px] font-medium block mb-2">
-            Please share what brings you here today *
+            {t("appointmentModal.step3.descriptionLabel")} <span className="text-red-500">*</span>
           </label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
             onBlur={handleBlur}
-            placeholder="Please describe your concern"
+            placeholder={t("appointmentModal.step3.descriptionPlaceholder")}
             rows={8}
             className={`w-full h-[280px] p-5 border rounded-[10px] text-[15px] bg-[#FAF8F4] outline-none transition-all resize-none ${errors.description ? 'border-red-500' : 'border-[#E3E1E1]'
               } focus:border-[#0D4A7A]`}
@@ -1442,7 +1446,7 @@ const handleSubmit = async (e) => {
         </div>
 
         <p className="text-[#3A3A3A] text-[14px] mt-2">
-          This information helps our counselors prepare for your session and provide you with the best support.
+          {t("appointmentModal.step3.descriptionHelp")}
         </p>
       </div>
     </div>
@@ -1456,7 +1460,7 @@ const handleSubmit = async (e) => {
   />
   <div className="flex-1">
     <p className="text-[#1F5500] text-[14px] font-medium leading-[19px]">
-      I understand that the information shared will be used to process my appointment request and support my counselling journey with Confidentiality.
+      {t("appointmentModal.step3.consent")}
     </p>
   </div>
 </div>
@@ -1487,9 +1491,7 @@ const handleSubmit = async (e) => {
                           d="M10.157 12.711L4.5 18.368L3.086 16.954L8.036 12.004L3.086 7.05401L4.5 5.64001L10.157 11.297C10.3445 11.4845 10.4498 11.7389 10.4498 12.004C10.4498 12.2692 10.3445 12.5235 10.157 12.711Z"
                           fill="#0D4A7A"
                         />
-                      </svg>
-                      Back
-                    </button>
+                      </svg>{t("appointmentModal.common.back")}</button>
                   )}
 
                   {step < 3 ? (
@@ -1497,9 +1499,7 @@ const handleSubmit = async (e) => {
                       type="button"
                       onClick={handleNext}
                       className="px-8 py-3 rounded-full bg-[#1B4585] text-white font-medium flex items-center gap-2 hover:bg-[#0D4A7A] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B4585]"
-                    >
-                      Continue
-                      <svg
+                    >{t("appointmentModal.common.continue")}<svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="12"
                         height="24"
@@ -1520,7 +1520,7 @@ const handleSubmit = async (e) => {
                       disabled={loading}
                       className="px-8 py-3 rounded-full bg-[#1B4585] text-white font-medium hover:bg-[#0D4A7A] transition-all disabled:opacity-50 flex items-center gap-2"
                     >
-                      {loading ? "Submitting..." : "Submit"}
+                      {loading ? t("appointmentModal.common.submit") : t("appointmentModal.common.submit")}
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="12"

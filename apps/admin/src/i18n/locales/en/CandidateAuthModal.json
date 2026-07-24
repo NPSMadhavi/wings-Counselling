@@ -1,0 +1,111 @@
+{
+  "candidateAuth": {
+    "common": {
+      "title": "Sign in or create an account to apply for jobs",
+      "close": "Close",
+      "back": "Back",
+      "continue": "Continue",
+      "loading": "Loading...",
+      "submitting": "Submitting..."
+    },
+
+    "tabs": {
+      "signIn": "Sign in",
+      "createAccount": "Create account"
+    },
+
+    "signin": {
+      "title": "Sign in",
+
+      "fields": {
+        "email": "Email address",
+        "emailPlaceholder": "Enter your email address",
+
+        "password": "Password",
+        "passwordPlaceholder": "Enter your password"
+      },
+
+      "buttons": {
+        "submit": "Sign in",
+        "forgotPassword": "Forgot password ?"
+      }
+    },
+
+    "createAccount": {
+      "title": "Create account",
+
+      "fields": {
+        "firstName": "First name",
+        "firstNamePlaceholder": "Enter first name",
+
+        "lastName": "Last name",
+        "lastNamePlaceholder": "Enter last name",
+
+        "email": "Email address",
+        "emailPlaceholder": "Enter your email address",
+
+        "mobile": "Mobile number",
+        "mobilePlaceholder": "Enter your mobile number",
+
+        "password": "Password",
+        "passwordPlaceholder": "Enter your password",
+
+        "confirmPassword": "Confirm Password",
+        "confirmPasswordPlaceholder": "Re-enter your password"
+      },
+
+      "terms": {
+        "agree": "I agree to the {{terms}}",
+        "termsAndConditions": "Terms and Conditions"
+      },
+
+      "buttons": {
+        "submit": "Create account"
+      }
+    },
+
+    "validation": {
+      "signIn": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email",
+        "passwordRequired": "Password is required"
+      },
+
+      "createAccount": {
+        "firstNameRequired": "First name is required",
+        "lastNameRequired": "Last name is required",
+
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email",
+
+        "mobileRequired": "Mobile number is required",
+        "mobileInvalid": "Please enter a valid mobile number",
+
+        "passwordRequired": "Password is required",
+        "passwordMin": "Password must be at least 6 characters",
+
+        "confirmPasswordMismatch": "Passwords do not match",
+
+        "termsRequired": "You must agree to the Terms and Conditions"
+      }
+    },
+
+    "toast": {
+      "loginFailed": {
+        "title": "Login failed"
+      },
+
+      "registrationFailed": {
+        "title": "Registration failed"
+      },
+
+      "accountCreated": {
+        "title": "Account created successfully!"
+      },
+
+      "accountCreatedSignIn": {
+        "title": "Account created successfully! Please sign in to continue."
+      }
+    }
+  }
+}

@@ -22,6 +22,7 @@ import { Footer } from "@/components/Layout/Footer";
 import { Button } from "@/components/ui/button";
 import type { JobPosting } from "@/lib/careers-types";
 import { useAuth } from "@/hooks/use-auth";
+import { useCandidateAuth } from "@/context/CandidateAuthContext";
 
 function parseTextToList(text: string): string[] {
   return text
@@ -85,6 +86,7 @@ export default function JobDetail() {
   const [copied, setCopied] = useState(false);
   const shareRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated } = useAuth();
+  const { openAuthModal } = useCandidateAuth();
 
   const {
     data: job,
@@ -325,10 +327,15 @@ export default function JobDetail() {
               </span>
             ) : (
               <Link
-                href={`/apply/${job.jobId}`}
-                onClick={() => {
-                  sessionStorage.setItem("careerApplyStage", "gate");
-                  sessionStorage.setItem("returnTo", `/career/apply/${encodeURIComponent(job.jobId)}`);
+                href={isAuthenticated ? `/apply/${job.jobId}` : "#"}
+                onClick={(e) => {
+                  if (!isAuthenticated) {
+                    e.preventDefault();
+                    openAuthModal(`/apply/${job.jobId}`);
+                  } else {
+                    sessionStorage.setItem("careerApplyStage", "form");
+                    sessionStorage.setItem("returnTo", `/career/apply/${encodeURIComponent(job.jobId)}`);
+                  }
                 }}
               >
                 <span className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold transition-all duration-300 bg-white hover:bg-gray-100 text-[#0D4A7A] shadow-sm cursor-pointer text-[15px] font-['DM_Sans']">
@@ -491,10 +498,15 @@ export default function JobDetail() {
               </span>
             ) : (
               <Link
-                href={`/apply/${job.jobId}`}
-                onClick={() => {
-                  sessionStorage.setItem("careerApplyStage", "gate");
-                  sessionStorage.setItem("returnTo", `/career/apply/${encodeURIComponent(job.jobId)}`);
+                href={isAuthenticated ? `/apply/${job.jobId}` : "#"}
+                onClick={(e) => {
+                  if (!isAuthenticated) {
+                    e.preventDefault();
+                    openAuthModal(`/apply/${job.jobId}`);
+                  } else {
+                    sessionStorage.setItem("careerApplyStage", "form");
+                    sessionStorage.setItem("returnTo", `/career/apply/${encodeURIComponent(job.jobId)}`);
+                  }
                 }}
               >
                 <span className="inline-flex items-center gap-2 px-8 py-4 bg-[#1B4585] hover:bg-[#16386b] text-white rounded-full font-bold transition-all duration-300 shadow-md cursor-pointer text-[16px] font-['DM_Sans']">

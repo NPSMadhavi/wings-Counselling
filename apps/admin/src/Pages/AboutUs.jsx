@@ -1,65 +1,28 @@
 import React from "react";
 import { Trophy } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useAppointment } from "@/context/AppointmentContext";
 import { useLocation } from "wouter";
 import { Footer } from "@/components/Layout/Footer";
 import { SiteCheckBadge } from "@/components/ui/SiteIcons";
 
-const timelineData = [
-  {
-    year: "1995",
-    category: "The beginning",
-    title: "Ramakrishna Mission counselling centre opened",
-    desc: "With funding from the National Council of Social Service (NCSS) 25th Anniversary Endowment Fund, the Ramakrishna Mission launched a pilot project with three counsellors and one administrative assistant, operating from a single room in the mission library. The counsellors immediately began networking with neighbourhood schools to identify students who could benefit from professional support."
-  },
-  {
-    year: "1996",
-    category: "Recognition",
-    title: "NCSS officially recognises the centre",
-    desc: "The National Council of Social Service (NCSS) recognised the centre's positive community impact and made it a fully funded agency for School Social Work (SSW), cementing its role in Singapore's social welfare ecosystem."
-  },
-  {
-    year: "1997",
-    category: "Growth",
-    title: "First major relocation-Sarada Hall",
-    desc: "Growing client demand required a larger footprint. The centre moved to Sarada Hall gaining three counselling rooms, an admin office and a conference space for case discussions.The team meetings marking the beginning of a true centre-based approach."
-  },
-  {
-    year: "2002",
-    category: "Transformation",
-    title: "Rebranded to WINGS and a new home",
-    desc: "The management committee repositioned the centre as a secular community service provider and renaming it \"WINGS Counselling Centre\" symbolising the capacity to rise and grow. Simultaneously, the centre moved to a state of the art facility featuring one way mirror counselling rooms, play therapy suites and art therapy observation spaces."
-  },
-  {
-    year: "2004",
-    category: "Expansion",
-    title: "Family life education programme launched",
-    desc: "Recognising the power of working with entire family units, WINGS became a service provider for the School Family Life Education (SFE) programme under MCYS (now MSF). Skill-based parenting workshops were delivered to primary and secondary schools using a three-pronged approach: schools, homes and community."
-  },
-  {
-    year: "2009",
-    category: "Pioneering",
-    title: "Singapore's first pre-school support programme",
-    desc: "In collaboration with  National Council of Social Service (NCSS). WINGS launched the groundbreaking Pre-School Support Programme (PSSP). It is Singapore's first preventive intervention programme for children aged 2.5 to below 7 years. This programme helped pre-schoolers navigate the transition from home-based informal learning to structured school environments, ensuring every child could reach their full potential."
-  },
-  {
-    year: "2012",
-    category: "Milestone",
-    title: "Family support & Counselling Programme (FSCP)",
-    desc: "WINGS repositioned as a fully centre-based counselling organisation & developing the internally researched Family Support and Counselling Programme (FSCP). Its serving clients aged 7 to 65 with specialised evidence-based therapeutic interventions across individual, couples and family modalities."
-  },
-  {
-    year: "Today",
-    category: "Present",
-    title: "WINGS in schools & centre serving all of Singapore",
-    desc: "WINGS now delivers counselling in primary and secondary schools island-wide, working alongside school leaders and counsellors to support students with family-related challenges. Our centre continues to serve clients from 2.5 to 65 years old using expressive therapies including sand-tray, play therapy and symbol work-tailored to each individual's journey."
-  }
-];
-
 export default function AboutUs() {
+  const { t } = useTranslation();
   const { openModal } = useAppointment();
   const [, navigate] = useLocation();
+
+  const timelineRaw = t("aboutUs.journey.timeline", { returnObjects: true });
+  const timelineData = Array.isArray(timelineRaw) ? timelineRaw : [];
+
+  const visionParagraphsRaw = t("aboutUs.vision.paragraphs", { returnObjects: true });
+  const visionParagraphs = Array.isArray(visionParagraphsRaw) ? visionParagraphsRaw : [];
+
+  const whoWeServeCardsRaw = t("aboutUs.whoWeServe.cards", { returnObjects: true });
+  const whoWeServeCards = Array.isArray(whoWeServeCardsRaw) ? whoWeServeCardsRaw : [];
+
+  const impactPointsRaw = t("aboutUs.impact.points", { returnObjects: true });
+  const impactPoints = Array.isArray(impactPointsRaw) ? impactPointsRaw : [];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -106,8 +69,8 @@ export default function AboutUs() {
               className="text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px] font-semibold leading-tight  text-white"
               style={{ fontFamily: "'Outfit', sans-serif", maxWidth: "800px" }}
             >
-              Healing hearts <br />
-              <span style={{ color: "#4BB6CF" }}>since 1995</span>
+              {t("aboutUs.hero.title")} <br />
+              <span style={{ color: "#4BB6CF" }}>{t("aboutUs.hero.highlight")}</span>
             </motion.h1>
 
             <motion.p
@@ -115,9 +78,7 @@ export default function AboutUs() {
               className="text-[15px] sm:text-[17px] md:text-[20px] leading-relaxed mb-8 sm:mb-10 text-white"
               style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, maxWidth: "800px" }}
             >
-              Born from a deep belief that everyone deserves compassionate support. WINGS has grown
-              from a single counselling room into Singapore's most trusted community mental wellness
-              centre-serving children, families and adults across every stage of life.
+              {t("aboutUs.hero.description")}
             </motion.p>
 
             <motion.button
@@ -140,7 +101,7 @@ export default function AboutUs() {
                 fontSize: "clamp(15px, 1.5vw, 18px)",
               }}
             >
-              Explore our story
+              {t("aboutUs.hero.button")}
               <svg
                 width="20"
                 height="20"
@@ -176,9 +137,7 @@ export default function AboutUs() {
                 maxWidth: "1000px",
               }}
             >
-              "Guidance and support provided at an early stage greatly enhances the
-              ability of children and youth to cope and to grow into well-adjusted &
-              thriving adults."
+              "{t("aboutUs.quote.text")}"
             </p>
 
             <p
@@ -189,7 +148,7 @@ export default function AboutUs() {
                 color: "#111827",
               }}
             >
-              — Swami Jayadevananda, Founder's vision 1995
+              {t("aboutUs.quote.author")}
             </p>
           </div>
         </div>
@@ -217,7 +176,7 @@ export default function AboutUs() {
                   maxWidth: "675px"
                 }}
               >
-                Our journey through the years
+                {t("aboutUs.journey.title")}
               </motion.h2>
 
               <motion.p
@@ -232,8 +191,7 @@ export default function AboutUs() {
                   maxWidth: "1500px"
                 }}
               >
-                From a one-room pilot project in 1995, we have grown into a multi-service counselling centre, providing <br />
-                compassionate support to thousands of families across Singapore.
+                {t("aboutUs.journey.description")}
               </motion.p>
             </div>
 
@@ -312,7 +270,7 @@ export default function AboutUs() {
                               color: "#4B5563",
                             }}
                           >
-                            {item.desc}
+                            {item.description}
                           </p>
                         </motion.div>
                       </div>
@@ -338,7 +296,7 @@ export default function AboutUs() {
                 lineHeight: "1.2",
               }}
             >
-              Our founding vision
+              {t("aboutUs.vision.title")}
             </h2>
 
             <div className="relative shrink-0 w-full lg:w-[435px] h-[440px] order-2 lg:order-1">
@@ -359,7 +317,7 @@ export default function AboutUs() {
                   lineHeight: "1.2",
                 }}
               >
-                Our founding vision
+                {t("aboutUs.vision.title")}
               </h2>
 
               <div
@@ -370,12 +328,8 @@ export default function AboutUs() {
                   color: "#000000",
                 }}
               >
-                {[
-                  "The late president of the Ramakrishna Mission, Swami Jayadevananda had always felt a deep calling to provide meaningful support to children, youth and their families in Singapore. He believed with unwavering conviction that timely guidance and compassionate intervention could change the entire trajectory of a young person's life.",
-                  "His vision was simple but profound: a safe, accessible and non-judgmental space where anyone facing emotional, psychological or social challenges could find professional support and grow into their full potential.",
-                  "Thirty years on, that founding spirit remains the heartbeat of everything. WINGS does from our front-line counsellors to our school programmes to our community workshops."
-                ].map((text, i) => (
-                  <p key={i} className={i < 2 ? "mb-5" : ""}>
+                {visionParagraphs.map((text, i) => (
+                  <p key={i} className={i < visionParagraphs.length - 1 ? "mb-5" : ""}>
                     {text}
                   </p>
                 ))}
@@ -393,38 +347,18 @@ export default function AboutUs() {
               className="text-[22px] sm:text-[28px] md:text-[32px] lg:text-[35px] font-medium mb-4 text-white"
               style={{ fontFamily: "'Outfit', sans-serif", lineHeight: "1.2", maxWidth: "800px" }}
             >
-              Supporting & Counselling for every stage of life
+              {t("aboutUs.whoWeServe.title")}
             </h2>
 
             <p
               className="text-[14px] sm:text-[16px] md:text-[20px] lg:text-[20px] leading-relaxed text-white mb-8 sm:mb-10"
               style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, maxWidth: "900px" }}
             >
-              WINGS serves the full spectrum of life from toddlers navigating their first classroom<br />
-              to adults managing marriage, grief or career stress.
+              {t("aboutUs.whoWeServe.description")}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {[
-                {
-                  age: "2.5 – 7 yrs",
-                  label: "Pre-schoolers",
-                  desc: "Singapore's first preventive intervention for early childhood helping young ones transition to structured learning with confidence and emotional readiness.",
-                  tags: ["Play therapy", "Sand-tray", "Expressive arts", "PSSP"]
-                },
-                {
-                  age: "7 – 20 yrs",
-                  label: "Children, Teens & Youth",
-                  desc: "Support for primary, secondary, JC and polytechnic students facing social, emotional, family-related or absenteeism challenges in school or at the centre.",
-                  tags: ["School counselling", "CBT", "Family sessions", "FSCP"]
-                },
-                {
-                  age: "21 – 65 yrs",
-                  label: "Adults, Couples & Families",
-                  desc: "For individuals, couples and families navigating personal, marital or relational challenges seeking professional support to improve the quality of their lives.",
-                  tags: ["Individual therapy", "Couples counselling", "Grief support", "Family therapy"]
-                }
-              ].map((card, i) => (
+              {whoWeServeCards.map((card, i) => (
                 <div
                   key={i}
                   className="flex flex-col p-5 sm:p-6"
@@ -453,11 +387,11 @@ export default function AboutUs() {
                     className="text-[13px] sm:text-[14px] md:text-[15px] text-white leading-relaxed mb-5 flex-1"
                     style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, opacity: 0.9 }}
                   >
-                    {card.desc}
+                    {card.description}
                   </p>
 
                   <div className="flex flex-wrap gap-2 mt-auto">
-                    {card.tags.map((tag, idx) => (
+                    {(Array.isArray(card.tags) ? card.tags : []).map((tag, idx) => (
                       <span
                         key={idx}
                         className="flex items-center justify-center"
@@ -490,7 +424,7 @@ export default function AboutUs() {
               className="text-[22px] sm:text-[28px] md:text-[32px] lg:text-[35px] font-medium text-center mb-5"
               style={{ fontFamily: "'Outfit', sans-serif", lineHeight: "1.4", color: "#0D4A7A", maxWidth: "900px" }}
             >
-              Our impact on individuals, families and communities
+              {t("aboutUs.impact.title")}
             </h2>
 
             <p
@@ -501,21 +435,12 @@ export default function AboutUs() {
                 maxWidth: "968px",
               }}
             >
-              Over three decades, WINGS has become one of Singapore's most trusted
-              voluntary welfare organisations delivering meaningful change not just
-              in counselling rooms but in homes, schools and communities across the
-              island.
+              {t("aboutUs.impact.description")}
             </p>
 
             <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-6 lg:gap-12 mb-6 sm:mb-8 md:mb-12">
               <div className="flex flex-col gap-6 sm:gap-8 flex-1">
-                {[
-                  "Served 15 primary and secondary schools across Singapore from 1995 to 2011 under the school social work initiative.",
-                  "Pioneered Singapore's first preventive intervention programme for pre-schoolers aged 2.5 to 7 years.",
-                  "Fully funded by the National Council of Social Service (NCSS), recognised for sustained community impact.",
-                  "Provided counselling and family support to clients aged 2.5 to 65 years across all major life challenges.",
-                  "Active collaborator with Ministry of Education(MOE), Ministry of Social and Family Development(MSF),  National Council of Social Service (NCSS) and community organisations island-wide.",
-                ].map((text, index) => (
+                {impactPoints.map((text, index) => (
                   <div
                     key={index}
                     className="flex items-start gap-4"
@@ -564,7 +489,7 @@ export default function AboutUs() {
                 className="font-medium text-center max-w-[90%] md:max-w-[823px] text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight md:leading-[100%] px-4"
                 style={{ fontFamily: "'Outfit', sans-serif", color: "#FFFFFF" }}
               >
-                You don't have to navigate this alone
+                {t("aboutUs.cta.title")}
               </h2>
 
               {/* Description */}
@@ -572,7 +497,7 @@ export default function AboutUs() {
                 className="font-medium text-center mt-6 md:mt-[35px] max-w-[90%] md:max-w-[940px] text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed md:leading-[34px] px-4"
                 style={{ fontFamily: "'DM Sans', sans-serif", color: "#FFFFFF" }}
               >
-                Support begins with a conversation. Whether you're seeking help for yourself, your child or your family. Our compassionate and accredited counsellors are here to support you every step of the way. Reach out today and your first conversation is always confidential.
+                {t("aboutUs.cta.description")}
               </p>
 
               {/* Buttons */}
@@ -585,7 +510,7 @@ export default function AboutUs() {
                   className="flex w-full sm:w-auto items-center justify-center cursor-pointer px-5 sm:px-6 md:px-8 py-3 md:py-4 gap-2 rounded-full bg-[#1B4585] text-white font-semibold text-[14px] min-[375px]:text-[15px] sm:text-base md:text-lg transition-all whitespace-nowrap"
                   style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
                 >
-                  <span className="whitespace-nowrap">Book an appointment</span>
+                  <span className="whitespace-nowrap">{t("aboutUs.cta.bookAppointment")}</span>
 
                   <svg
                     width="18"
@@ -612,7 +537,7 @@ export default function AboutUs() {
                   className="flex w-full sm:w-auto items-center justify-center cursor-pointer px-5 sm:px-6 md:px-8 py-3 md:py-4 rounded-full bg-transparent text-white border border-white font-semibold text-[14px] min-[375px]:text-[15px] sm:text-base md:text-lg transition-all whitespace-nowrap"
                   style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
                 >
-                  Meet our team
+                  {t("aboutUs.cta.meetTeam")}
                 </motion.button>
               </div>
             </div>

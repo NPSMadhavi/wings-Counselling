@@ -1,0 +1,46 @@
+{
+  "careers": {
+    "hero": {
+      "title": "Build meaningful careers that create real impact",
+      "description": "Join WINGS and become part of a compassionate team dedicated to emotional wellness, counselling support and community well-being.",
+      "button": "Explore open positions"
+    },
+
+    "jobs": {
+      "title": "Open positions",
+      "description": "Find your next opportunity with us",
+      "loading": "Loading positions...",
+      "viewDetails": "View details",
+      "applyNow": "Apply now",
+      "alreadyApplied": "Already Applied",
+      "noOpenPositions": {
+        "title": "No Open Positions",
+        "description": "Currently there are no open positions available."
+      }
+    },
+
+    "whyWork": {
+      "title": "Why work with WINGS?",
+      "description": "We prioritize your growth as much as the growth of our community.",
+
+      "cards": [
+        {
+          "title": "Purpose-driven work",
+          "description": "Be part of initiatives that positively impact individuals, families and communities through emotional wellness and counselling support."
+        },
+        {
+          "title": "Supportive culture",
+          "description": "Work in a collaborative environment where compassion, respect and teamwork are at the heart of everything we do."
+        },
+        {
+          "title": "Professional growth",
+          "description": "Gain opportunities to learn, contribute and grow through real-world experience, mentorship and meaningful projects."
+        },
+        {
+          "title": "Inclusive culture",
+          "description": "We value empathy, teamwork, respect and continuous improvement across all roles and departments."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "navbar": {
+    "home": "Home",
+    "about": "About us",
+    "team": "Team",
+    "contact": "Contact",
+    "services": "Services",
+    "counselling": "Counselling & Therapy",
+    "supervision": "Supervision",
+    "training": "Training & Workshop",
+    "resources": "Resources",
+    "events": "Events",
+    "articles": "Articles",
+    "volunteers": "Volunteers",
+    "partners": "Partners",
+    "careers": "Careers",
+
+    "donate": "Donate",
+
+    "bookAppointment": "Book an appointment",
+
+    "language": "Language",
+
+    "english": "English",
+    "malay": "Malay",
+    "chinese": "Chinese",
+    "hindi": "Hindi",
+    "tamil": "Tamil",
+
+    "eng": "Eng",
+    "zh": "中文",
+    "bm": "BM",
+    "hi": "हिंदी",
+    "ta": "தமிழ்"
+  },
+
+    "footer": {
+        "description": "We are committed to providing affordable & professional counselling services to the community regardless of creed, race or religion. Supporting lives since 1995.",
+
+        "links": "Links",
+        "home": "Home",
+        "about": "About us",
+        "services": "Services",
+        "team": "Team",
+        "events": "Events",
+        "partners": "Partners",
+        "contact": "Contact us",
+
+        "stayConnected": "Stay connected",
+        "stayConnectedDescription": "We are committed to providing affordable & professional counselling services.",
+
+        "fullName": "Full name",
+        "email": "Email address",
+
+        "privacy": "By continuing, you accept the privacy policy",
+
+        "success": "Thank you! You will receive updates on new articles and events.",
+        "duplicate": "This email is already subscribed. Please enter another email.",
+        "error": "Something went wrong. Please try again.",
+        "privacyError": "Please accept the privacy policy to continue.",
+
+        "copyright": "© 2026 WINGS Counselling Centre. All rights reserved.",
+        "poweredBy": "Powered by",
+        "privacyPolicy": "Privacy policy"
+    },
+
+  "hero": {
+    "slides": [
+      {
+        "headline": "Feeling overwhelmed?",
+        "description": "At WINGS, we believe in providing a sanctuary for the mind. Our supportive and empathetic approach helps you navigate life's complexities with professional guidance.",
+        "highlightText": "You're not alone."
+      },
+      {
+        "headline": "Professional counselling & Mental wellness support for individuals, couples and families.",
+        "description": "Whether you're facing stress, relationship challenges, grief or life transitions. WINGS provides compassionate & confidential counselling to help you move forward with confidence."
+      }
+    ],
+    "bookAppointment": "Book an appointment",
+    "exploreServices": "Explore our services",
+    "learnApproach": "Learn our approach"
+  },
+
+  "partners": {
+    "title": "Our trusted partners"
+  },
+
+  "whatWeDo": {
+    "title": "Find the help you need today",
+    "description": "Pick a topic below that you'd like to explore"
+  },
+
+  "about": {
+    "title": "About WINGS Counselling Centre",
+
+    "description1": "WINGS Counselling Centre was founded with a simple yet powerful mission to provide accessible & compassionate mental health support to the Singapore community. Since 2008, we've been a safe haven for individuals, couples and families navigating life's most challenging moments.",
+
+    "description2": "At WINGS Counselling Centre, we provide compassionate & personalized mental health support for individuals, couples and families. Our experienced counsellors help people build resilience, strengthen relationships and achieve lasting emotional well-being in a safe and supportive environment.",
+
+    "features": {
+      "compassion": "Compassion first",
+      "evidence": "Evidence-based methods",
+      "confidential": "Confidential & Safe",
+      "holistic": "Holistic support"
+    },
+
+    "readMore": "Read more",
+
+    "imageAlt": "About WINGS Counselling Centre"
+  },
+
+  "howToUse": {
+    "title": "How WINGS Counselling Centre works",
+    "description": "We've made the process as simple and welcoming as possible",
+
+    "steps": [
+      {
+        "number": "01",
+        "title": "Share your concern",
+        "description": "Reach out via phone or our booking form. Tell us what you're going through in a safe & confidential space."
+      },
+      {
+        "number": "02",
+        "title": "Get matched with a counsellor",
+        "description": "We'll connect you with the right professional based on your needs, preferences and situation."
+      },
+      {
+        "number": "03",
+        "title": "Start sessions",
+        "description": "Begin your personalized counselling journey at your own pace, in-person or online."
+      }
+    ]
+  },
+  "services": {
+    "title": "What WINGS Counselling Centre offers",
+    "description": "Comprehensive counselling support for every stage of life",
+    "readMore": "Read more"
+  },
+
+  "team": {
+    "title": "Meet our counsellors",
+    "description": "Our team of accredited professionals is not only highly trained but also genuinely compassionate, caring deeply about your wellbeing."
+  },
+
+
+  "needHelp": {
+    "title": "Need help now? We're here for you",
+    "description": "Reach out in the way that feels most comfortable",
+    "bookAppointment": "Book an appointment"
+  
+},
+
+"upcoming": {
+    "title": "Upcoming Events & Workshops",
+    "description": "Join our community events designed to educate, connect and empower. Healing doesn't always happen alone.",
+
+    "online": "Online",
+    "inPerson": "In-person",
+
+    "tba": "TBA",
+    "free": "Free",
+
+    "registerNow": "Register now",
+
+    "noEvents": "No upcoming events at the moment.",
+
+    "viewAll": "View all"
+  },
+
+  "recentArticles": {
+    "title": "Our recent articles",
+    "description": "Stay informed with our latest insights",
+
+    "general": "General",
+    "wingsTeam": "WINGS Team",
+    "recent": "Recent",
+
+    "viewAll": "View all",
+
+    "noArticles": "No published articles available at the moment.",
+
+    "loadingError": "Unable to load articles. Please try again later.",
+    "tryAgain": "Try Again"
+  },
+
+  "testimonials": {
+    "title": "What our clients say",
+    "description": "Hear how compassionate support has helped individuals and families navigate life's challenges with confidence and hope."
+  },
+
+  "getInTouch": {
+    "title": "Get in touch",
+    "description": "We are here to help you. Reach us during working hours.",
+
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "operatingHours": "Operating hours",
+
+    "bookAppointment": "Book an appointment",
+
+    "mapTitle": "Ramakrishna Mission WINGS Counselling Centre",
+    "openGoogleMaps": "Click to open in Google Maps",
+
+    "days": {
+      "monday": "Monday",
+      "tueFri": "Tue - Fri (exc. Thu)",
+      "thursday": "Thursdays",
+      "saturday": "Saturdays (2nd & 4th)",
+      "sunHoliday": "Sun & Public holidays"
+    },
+
+    "status": {
+      "closed": "Closed"
+    }
+  }
+}

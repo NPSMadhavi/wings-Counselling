@@ -1,8 +1,8 @@
 // src/pages/Volunteer.jsx
-
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Footer } from "@/components/Layout/Footer";
 import {
   HeartHandshake,
@@ -15,120 +15,47 @@ import {
   Heart,
 } from "lucide-react";
 
-/* ───────────── DATA ───────────── */
-
-const volunteerCards = [
-  {
-    title: "Learn & Grow",
-    text: "Gain valuable experience in counselling support environments, communication, teamwork, event coordination and community engagement.",
-    image: "/assets/volunteer1.png",
-  },
-  {
-    title: "Make a positive impact",
-    text: "Support meaningful initiatives and contribute directly to emotional well-being and community care programs.",
-    image: "/assets/volunteer2.png",
-  },
-  {
-    title: "Be part of a supportive community",
-    text: "Connect with like-minded people who care deeply about creating positive change in the community.",
-    image: "/assets/volunteer3.jpeg",
-  },
-  {
-    title: "Flexible involvement",
-    text: "Choose opportunities that fit your schedule and availability while making a genuine difference.",
-    image: "/assets/volunteer4.jpeg",
-  },
+const volunteerCardImages = [
+  "/assets/volunteer1.png",
+  "/assets/volunteer2.png",
+  "/assets/volunteer3.jpeg",
+  "/assets/volunteer4.jpeg",
 ];
 
-const opportunities = [
-  {
-    icon: <Mic size={24} strokeWidth={2} color="#1E3A8A" />,
-    title: "Talks & Workshops",
-    subtitle: "Best for: confident speakers, specialists",
-    description:
-      "Help us run mental wellness workshops, talks for parents, mindfulness sessions and community fundraisers. The warm welcome that makes people feel safe enough to stay.",
-    tags: ["Weekends only", "2-3 hour sessions"],
-  },
-  {
-    icon: <Users size={24} strokeWidth={2} color="#1E3A8A" />,
-    title: "Outreach",
-    subtitle: "Best for: people who love connecting",
-    description:
-      "Represent WINGS at schools, community events and corporate wellness fairs. You'll spread awareness about mental health support and help people who need us actually find us.",
-    tags: ["Event based", "Schools & Community spaces"],
-  },
-  {
-    icon: <TreePine size={24} strokeWidth={2} color="#1E3A8A" />,
-    title: "Outings & Activities",
-    subtitle: "Best for: warm, patient, playful people",
-    description:
-      "Help with outings for the youth and children we support like games, day trips & art sessions. This is where lifelong memories get made, sometimes for kids who don't get many of them.",
-    tags: ["Weekends", "Child-friendly"],
-  },
-  {
-    icon: <ClipboardList size={24} strokeWidth={2} color="#1E3A8A" />,
-    title: "Administrative support",
-    subtitle: "Best for: quietly helpful, detail-oriented",
-    description:
-      "Behind every event is paperwork, logistics and coordination. If you'd rather support quietly from a desk than be front-of-house & this is where you shine.",
-    tags: ["Weekday office", "2-3 hour sessions"],
-  },
+const opportunityIcons = [
+  <Mic size={24} strokeWidth={2} color="#1E3A8A" key="mic" />,
+  <Users size={24} strokeWidth={2} color="#1E3A8A" key="users" />,
+  <TreePine size={24} strokeWidth={2} color="#1E3A8A" key="tree" />,
+  <ClipboardList size={24} strokeWidth={2} color="#1E3A8A" key="clipboard" />,
 ];
 
-const processSteps = [
-  {
-    step: 1,
-    title: "Fill the form",
-    desc: "A few details about you, what you'd like to do and your availability.",
-  },
-  {
-    step: 2,
-    title: "Team review",
-    desc: "Our coordinator reads your application and calls you for a relaxed conversation.",
-  },
-  {
-    step: 3,
-    title: "Orientation",
-    desc: "Meet your coordinator and senior counsellors. Everything you need to know in person.",
-  },
-  {
-    step: 4,
-    title: "Start volunteering",
-    desc: "We pair you with experienced volunteers for your first events. Nobody starts alone.",
-  },
+const whoVolunteerIcons = [
+  <GraduationCap size={28} strokeWidth={2} color="#1E3A8A" key="grad" />,
+  <Briefcase size={28} strokeWidth={2} color="#1E3A8A" key="briefcase" />,
+  <Heart size={28} strokeWidth={2} color="#1E3A8A" key="heart" />,
 ];
-
-const whoVolunteers = [
-  {
-    icon: <GraduationCap size={28} strokeWidth={2} color="#1E3A8A" />,
-    title: "Students",
-    description:
-      "University students looking to give back, gain experience and fulfill community involvement hours in a safe, supportive setting.",
-  },
-  {
-    icon: <Briefcase size={28} strokeWidth={2} color="#1E3A8A" />,
-    title: "Working professionals",
-    description:
-      "Those who want to give a couple of hours to a social cause that fits your schedule & a meaningful outlet from your day-to-day.",
-  },
-  {
-    icon: <Heart size={28} strokeWidth={2} color="#1E3A8A" />,
-    title: "Retirees & seniors",
-    description:
-      "With a lifetime of experience & wisdom and compassion, your steady presence can have a powerful impact on vulnerable communities.",
-  },
-];
-
-/* ───────────── COMPONENT ───────────── */
 
 const Volunteer = () => {
+  const { t } = useTranslation();
   const [, navigate] = useLocation();
+  const [hoveredCard, setHoveredCard] = useState(null);
+
+  const whyCardsRaw = t("volunteer.whyVolunteer.cards", { returnObjects: true });
+  const whyCards = Array.isArray(whyCardsRaw) ? whyCardsRaw : [];
+
+  const opportunitiesRaw = t("volunteer.opportunities.items", { returnObjects: true });
+  const opportunities = Array.isArray(opportunitiesRaw) ? opportunitiesRaw : [];
+
+  const processStepsRaw = t("volunteer.process.steps", { returnObjects: true });
+  const processSteps = Array.isArray(processStepsRaw) ? processStepsRaw : [];
+
+  const whoCardsRaw = t("volunteer.whoVolunteers.cards", { returnObjects: true });
+  const whoCards = Array.isArray(whoCardsRaw) ? whoCardsRaw : [];
 
   return (
     <>
       <main className="bg-[#F9F9F9]">
-
-        {/* ════════════════════  HERO  ════════════════════ */}
+        {/* Hero */}
         <section
           className="relative w-full shrink-0 overflow-hidden bg-cover bg-center"
           style={{
@@ -141,7 +68,6 @@ const Volunteer = () => {
 
           <div className="relative z-10 w-full h-full navbar-align-outer">
             <div className="navbar-align-inner h-full flex flex-col items-center justify-center text-center text-white">
-              {/* Title — Outfit 500 60px line-height 100% center #FFFFFF */}
               <motion.h1
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -156,10 +82,9 @@ const Volunteer = () => {
                   maxWidth: "715px",
                 }}
               >
-                Become a volunteer at WINGS
+                {t("volunteer.hero.title")}
               </motion.h1>
 
-              {/* Description — DM Sans 400 20px line-height 100% center */}
               <motion.p
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -175,14 +100,9 @@ const Volunteer = () => {
                   marginTop: "24px",
                 }}
               >
-                At WINGS Counselling Centre, volunteers play an important role in
-                supporting our mission of emotional well-being and community care.
-                Whether through assisting events, supporting outreach activities
-                or helping us create a safe and welcoming environment every
-                contribution matters.
+                {t("volunteer.hero.description")}
               </motion.p>
 
-              {/* Button — Plus Jakarta Sans 500 18px color #F5F9FF bg #1B4585 radius 9999 padding 16/32 gap 10 */}
               <motion.button
                 onClick={() => navigate("/volunteerform")}
                 initial={{ opacity: 0, y: 20 }}
@@ -207,7 +127,7 @@ const Volunteer = () => {
                   marginTop: "32px",
                 }}
               >
-                Become a volunteer
+                {t("volunteer.hero.button")}
                 <svg
                   width="20"
                   height="20"
@@ -228,15 +148,11 @@ const Volunteer = () => {
           </div>
         </section>
 
-        {/* ════════════════════  WHY VOLUNTEER  ════════════════════ */}
+        {/* Why volunteer */}
         <section style={{ paddingTop: "clamp(60px, 8vw, 100px)", paddingBottom: "clamp(60px, 8vw, 100px)" }}>
           <div className="w-full navbar-align-outer">
             <div className="navbar-align-inner">
-
               <div className="flex flex-col items-center text-center">
-                {/* Pill badge */}
-
-                {/* Heading — Outfit 500 */}
                 <h2
                   style={{
                     fontFamily: "'Outfit', sans-serif",
@@ -246,10 +162,9 @@ const Volunteer = () => {
                     color: "#0D4A7A",
                   }}
                 >
-                  Why volunteer with WINGS?
+                  {t("volunteer.whyVolunteer.title")}
                 </h2>
 
-                {/* Description — DM Sans 400 */}
                 <p
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
@@ -261,80 +176,80 @@ const Volunteer = () => {
                     marginTop: "20px",
                   }}
                 >
-                  Volunteering with WINGS is an opportunity to give back while growing personally and professionally. Gain valuable experience, build meaningful connections and make a lasting impact in the lives of individuals and families.
+                  {t("volunteer.whyVolunteer.description")}
                 </p>
               </div>
 
-              {/* ── Volunteer Image Cards with HeartHandshake icon 24×24 ── */}
               <div
                 className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
                 style={{ marginTop: "50px" }}
               >
-                {volunteerCards.map((card, index) => (
+                {whyCards.map((card, index) => (
                   <div
                     key={index}
-                    className="flex flex-col overflow-hidden transition-transform duration-300 hover:-translate-y-1.5"
+                    onMouseEnter={() => setHoveredCard(index)}
+                    onMouseLeave={() => setHoveredCard(null)}
+                    className="group relative overflow-hidden transition-transform duration-300 hover:-translate-y-1.5"
                     style={{
                       borderRadius: "16px",
                       boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
                     }}
                   >
-                    {/* Image */}
-                    <img
-                      src={card.image}
-                      alt={card.title}
-                      style={{
-                        width: "100%",
-                        height: "260px",
-                        objectFit: "cover",
-                        display: "block",
-                      }}
-                    />
+                    <div className="relative">
+                      <img
+                        src={volunteerCardImages[index] || volunteerCardImages[0]}
+                        alt={card.title}
+                        style={{
+                          width: "100%",
+                          height: "430px",
+                          objectFit: "cover",
+                          display: "block",
+                        }}
+                      />
 
-                    {/* Blue info section */}
-                    <div
-                      className="flex flex-col flex-1"
-                      style={{
-                        backgroundColor: "#0D4A7A",
-                        padding: "23px 20px 20px 20px",
-                        minHeight: "170px",
-                      }}
-                    >
-                      {/* Icon + Title row — HeartHandshake 24×24 */}
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <HeartHandshake
-                          size={24}
-                          strokeWidth={2}
-                          color="#FFFFFF"
-                          style={{ flexShrink: 0 }}
-                        />
-                        <h3
+                      <div
+                        className={`absolute bottom-0 left-0 w-full bg-[#0D4A7A] p-[26px] overflow-hidden transition-all duration-700 ease-in-out ${
+                          hoveredCard === index ? "h-[180px]" : "h-[78px]"
+                        }`}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <HeartHandshake
+                            size={24}
+                            strokeWidth={2}
+                            color="#FFFFFF"
+                            style={{ flexShrink: 0 }}
+                          />
+                          <h3
+                            style={{
+                              fontFamily: "'Outfit', sans-serif",
+                              fontWeight: 500,
+                              fontSize: "18px",
+                              lineHeight: "130%",
+                              color: "#FFFFFF",
+                              margin: 0,
+                            }}
+                          >
+                            {card.title}
+                          </h3>
+                        </div>
+
+                        <p
+                          className={`overflow-hidden transition-all duration-700 ease-in-out ${
+                            hoveredCard === index
+                              ? "max-h-32 opacity-100 mt-3"
+                              : "max-h-0 opacity-0 mt-0"
+                          }`}
                           style={{
-                            fontFamily: "'Outfit', sans-serif",
-                            fontWeight: 500,
-                            fontSize: "18px",
-                            lineHeight: "130%",
-                            color: "#FFFFFF",
-                            margin: 0,
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontWeight: 400,
+                            fontSize: "16px",
+                            lineHeight: "170%",
+                            color: "rgba(255,255,255,0.85)",
                           }}
                         >
-                          {card.title}
-                        </h3>
+                          {card.text}
+                        </p>
                       </div>
-
-                      {/* Description */}
-                      <p
-                        style={{
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontWeight: 400,
-                          fontSize: "16px",
-                          lineHeight: "170%",
-                          color: "rgba(255,255,255,0.85)",
-                          marginTop: "12px",
-                        }}
-                      >
-                        {card.text}
-                      </p>
                     </div>
                   </div>
                 ))}
@@ -343,11 +258,10 @@ const Volunteer = () => {
           </div>
         </section>
 
-        {/* ════════════════════  FOUR WAYS TO SHOW UP  ════════════════════ */}
+        {/* Opportunities */}
         <section style={{ backgroundColor: "#D9E1E8", paddingTop: "clamp(60px, 8vw, 100px)", paddingBottom: "clamp(60px, 8vw, 100px)" }}>
           <div className="w-full navbar-align-outer">
             <div className="navbar-align-inner">
-
               <div>
                 <h2
                   style={{
@@ -358,7 +272,7 @@ const Volunteer = () => {
                     color: "#0D4A7A",
                   }}
                 >
-                  Four ways to show up
+                  {t("volunteer.opportunities.title")}
                 </h2>
 
                 <p
@@ -372,12 +286,10 @@ const Volunteer = () => {
                     maxWidth: "600px",
                   }}
                 >
-                  Pick what fits your skills, schedule and the kind of contribution
-                  that feels meaningful to you.
+                  {t("volunteer.opportunities.description")}
                 </p>
               </div>
 
-              {/* Opportunity Cards 2×2 — icon box 60×60 radius 10 bg #DE5753 30% */}
               <div
                 className="grid gap-6 md:grid-cols-2"
                 style={{ marginTop: "40px" }}
@@ -392,7 +304,6 @@ const Volunteer = () => {
                       padding: "28px",
                     }}
                   >
-                    {/* Icon + Title + Subtitle ROW */}
                     <div
                       style={{
                         display: "flex",
@@ -400,7 +311,6 @@ const Volunteer = () => {
                         gap: "16px",
                       }}
                     >
-                      {/* Icon box — 60×60 radius 10 bg #DE5753 30% */}
                       <div
                         style={{
                           width: "60px",
@@ -414,10 +324,9 @@ const Volunteer = () => {
                           color: "#DE5753",
                         }}
                       >
-                        {item.icon}
+                        {opportunityIcons[index]}
                       </div>
 
-                      {/* Title + Subtitle stacked */}
                       <div>
                         <h3
                           style={{
@@ -447,7 +356,6 @@ const Volunteer = () => {
                       </div>
                     </div>
 
-                    {/* Description */}
                     <p
                       style={{
                         fontFamily: "'DM Sans', sans-serif",
@@ -461,9 +369,8 @@ const Volunteer = () => {
                       {item.description}
                     </p>
 
-                    {/* Tags */}
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "18px" }}>
-                      {item.tags.map((tag, i) => (
+                      {(Array.isArray(item.tags) ? item.tags : []).map((tag, i) => (
                         <span
                           key={i}
                           style={{
@@ -488,11 +395,10 @@ const Volunteer = () => {
           </div>
         </section>
 
-        {/* ════════════════════  YOUR PATH TO IMPACT  ════════════════════ */}
+        {/* Process */}
         <section style={{ paddingTop: "clamp(60px, 8vw, 100px)", paddingBottom: "clamp(60px, 8vw, 100px)" }}>
           <div className="w-full navbar-align-outer">
             <div className="navbar-align-inner" style={{ textAlign: "center" }}>
-
               <h2
                 style={{
                   fontFamily: "'Outfit', sans-serif",
@@ -502,7 +408,7 @@ const Volunteer = () => {
                   color: "#0D4A7A",
                 }}
               >
-                Your path to impact
+                {t("volunteer.process.title")}
               </h2>
 
               <p
@@ -515,12 +421,10 @@ const Volunteer = () => {
                   marginTop: "12px",
                 }}
               >
-                A simple journey toward making a difference.
+                {t("volunteer.process.description")}
               </p>
 
-              {/* Steps with #DE5753 connector bars — 180×5 radius 10 */}
               <div style={{ marginTop: "60px" }}>
-                {/* Desktop: Circles + Bars inline flex row */}
                 <div
                   className="hidden md:flex"
                   style={{
@@ -530,9 +434,8 @@ const Volunteer = () => {
                     marginBottom: "28px",
                   }}
                 >
-                  {processSteps.map((item, index) => (
+                  {processSteps.map((_, index) => (
                     <React.Fragment key={index}>
-                      {/* Number circle */}
                       <div
                         className="transition-transform duration-300 hover:scale-110"
                         style={{
@@ -552,10 +455,9 @@ const Volunteer = () => {
                           zIndex: 2,
                         }}
                       >
-                        {item.step}
+                        {index + 1}
                       </div>
 
-                      {/* Connector bar between circles — rounded ends */}
                       {index < processSteps.length - 1 && (
                         <div
                           style={{
@@ -572,7 +474,6 @@ const Volunteer = () => {
                   ))}
                 </div>
 
-                {/* Mobile: circles stacked 2×2 without line */}
                 <div
                   className="grid grid-cols-2 gap-6 md:hidden"
                   style={{ marginBottom: "24px" }}
@@ -594,7 +495,7 @@ const Volunteer = () => {
                           color: "#FFFFFF",
                         }}
                       >
-                        {item.step}
+                        {index + 1}
                       </div>
                       <h3
                         style={{
@@ -621,13 +522,12 @@ const Volunteer = () => {
                           textAlign: "center",
                         }}
                       >
-                        {item.desc}
+                        {item.description}
                       </p>
                     </div>
                   ))}
                 </div>
 
-                {/* Desktop: Titles + Descriptions grid below circles */}
                 <div
                   className="hidden md:grid md:grid-cols-4"
                   style={{ gap: "0px" }}
@@ -666,7 +566,7 @@ const Volunteer = () => {
                           maxWidth: "200px",
                         }}
                       >
-                        {item.desc}
+                        {item.description}
                       </p>
                     </div>
                   ))}
@@ -676,11 +576,10 @@ const Volunteer = () => {
           </div>
         </section>
 
-        {/* ════════════════════  WHO VOLUNTEERS WITH US  ════════════════════ */}
+        {/* Who volunteers */}
         <section style={{ backgroundColor: "#D9E1E8", paddingTop: "clamp(60px, 8vw, 100px)", paddingBottom: "clamp(60px, 8vw, 100px)" }}>
           <div className="w-full navbar-align-outer">
             <div className="navbar-align-inner">
-
               <div style={{ textAlign: "center" }}>
                 <h2
                   style={{
@@ -691,7 +590,7 @@ const Volunteer = () => {
                     color: "#0D4A7A",
                   }}
                 >
-                  Who volunteers with us?
+                  {t("volunteer.whoVolunteers.title")}
                 </h2>
 
                 <p
@@ -707,17 +606,15 @@ const Volunteer = () => {
                     marginRight: "auto",
                   }}
                 >
-                  Retirees, students, working professionals & parents-anyone with
-                  a few hours to give and a quiet kind of care to bring.
+                  {t("volunteer.whoVolunteers.description")}
                 </p>
               </div>
 
-              {/* Who volunteers cards — icon box 60×60 radius 10 bg #DE5753 30% */}
               <div
                 className="grid gap-6 md:grid-cols-3"
                 style={{ marginTop: "50px" }}
               >
-                {whoVolunteers.map((item, index) => (
+                {whoCards.map((item, index) => (
                   <div
                     key={index}
                     className="transition-transform duration-300 hover:-translate-y-1.5"
@@ -727,7 +624,6 @@ const Volunteer = () => {
                       padding: "32px",
                     }}
                   >
-                    {/* Icon box — 60×60 radius 10 bg #DE5753 30% */}
                     <div
                       style={{
                         width: "60px",
@@ -741,10 +637,9 @@ const Volunteer = () => {
                         marginBottom: "20px",
                       }}
                     >
-                      {item.icon}
+                      {whoVolunteerIcons[index]}
                     </div>
 
-                    {/* Title */}
                     <h3
                       style={{
                         fontFamily: "'Outfit', sans-serif",
@@ -758,7 +653,6 @@ const Volunteer = () => {
                       {item.title}
                     </h3>
 
-                    {/* Description */}
                     <p
                       style={{
                         fontFamily: "'DM Sans', sans-serif",
@@ -778,11 +672,10 @@ const Volunteer = () => {
           </div>
         </section>
 
-        {/* ════════════════════  CTA  ════════════════════ */}
+        {/* CTA */}
         <section style={{ paddingTop: "clamp(60px, 8vw, 100px)", paddingBottom: "clamp(60px, 8vw, 100px)" }}>
           <div className="w-full navbar-align-outer">
             <div className="navbar-align-inner">
-
               <div
                 style={{
                   backgroundColor: "#0D4A7A",
@@ -793,7 +686,6 @@ const Volunteer = () => {
                   overflow: "hidden",
                 }}
               >
-                {/* Subtle decorative gradient circles */}
                 <div
                   style={{
                     position: "absolute",
@@ -819,7 +711,6 @@ const Volunteer = () => {
                   }}
                 />
 
-                {/* Title */}
                 <h2
                   style={{
                     fontFamily: "'Outfit', sans-serif",
@@ -831,10 +722,9 @@ const Volunteer = () => {
                     zIndex: 1,
                   }}
                 >
-                  Ready to make a real difference?
+                  {t("volunteer.cta.title")}
                 </h2>
 
-                {/* Description */}
                 <p
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
@@ -850,12 +740,9 @@ const Volunteer = () => {
                     zIndex: 1,
                   }}
                 >
-                  Take the first step toward becoming a pillar of support for your
-                  community. Our application process is warm, welcoming and open
-                  to everyone.
+                  {t("volunteer.cta.description")}
                 </p>
 
-                {/* Button */}
                 <button
                   onClick={() => navigate("/volunteerform")}
                   className="transition-transform duration-300 hover:scale-105 active:scale-95"
@@ -878,7 +765,7 @@ const Volunteer = () => {
                     zIndex: 1,
                   }}
                 >
-                  Apply as a volunteer
+                  {t("volunteer.cta.button")}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"

@@ -1,0 +1,46 @@
+{
+  "careers": {
+    "hero": {
+      "title": "打造有意义的职业，创造真正的影响",
+      "description": "加入 WINGS，与充满关怀的团队携手，为心理健康、心理辅导及社区福祉贡献力量。",
+      "button": "查看职位空缺"
+    },
+
+    "jobs": {
+      "title": "职位空缺",
+      "description": "寻找适合您的职业机会",
+      "loading": "正在加载职位...",
+      "viewDetails": "查看详情",
+      "applyNow": "立即申请",
+      "alreadyApplied": "已申请",
+      "noOpenPositions": {
+        "title": "暂无职位空缺",
+        "description": "目前暂无开放招聘职位。"
+      }
+    },
+
+    "whyWork": {
+      "title": "为什么加入 WINGS？",
+      "description": "我们不仅关注社区的发展，也重视您的个人成长。",
+
+      "cards": [
+        {
+          "title": "有意义的工作",
+          "description": "参与促进个人、家庭及社区心理健康与福祉的项目，为社会带来积极影响。"
+        },
+        {
+          "title": "支持性的文化",
+          "description": "在充满关怀、尊重与团队合作精神的环境中共同成长。"
+        },
+        {
+          "title": "专业成长",
+          "description": "通过真实项目、导师指导及实践经验不断学习、贡献与成长。"
+        },
+        {
+          "title": "包容的文化",
+          "description": "我们重视同理心、团队合作、相互尊重及持续改进。"
+        }
+      ]
+    }
+  }
+}

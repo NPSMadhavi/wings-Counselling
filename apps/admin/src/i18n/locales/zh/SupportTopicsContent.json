@@ -1,0 +1,111 @@
+{
+  "supportTopicsContent": {
+    "familyConflicts": {
+      "label": "家庭冲突",
+      "breadcrumbLabel": "家庭冲突",
+      "heroTitle": "面对家庭冲突，您无需独自承担",
+      "heroDescription": "了解如何改善家庭关系，认识常见的冲突原因，并探索专业支持，以提升沟通与彼此之间的联系。",
+      "understandingTitle": "了解家庭冲突",
+      "understandingDescription": "家庭冲突是人际关系中的自然现象，可能因沟通方式、期望、责任分配或人生阶段变化而产生。当冲突持续或长期得不到解决时，可能影响情绪健康、彼此信任及家庭和谐。在适当的支持下，家庭成员可以学习更健康的沟通方式，更好地理解与支持彼此。"
+    },
+
+    "depression": {
+      "label": "抑郁症",
+      "breadcrumbLabel": "抑郁症",
+      "heroTitle": "面对生活方式带来的挑战，您无需独自面对",
+      "heroDescription": "了解日常生活习惯及人生变化如何影响您的身心健康，并探索建立更健康、更平衡生活方式的实用方法。",
+      "understandingTitle": "了解生活方式问题",
+      "understandingDescription": "生活方式挑战可能包括难以维持健康习惯、平衡各种责任、适应重大人生变化，或管理个人身心健康。通过积极而细微的改变，可以改善身心健康，并提升整体生活品质。"
+    },
+
+    "traumaPTSD": {
+      "label": "创伤与创伤后压力症候群（PTSD）",
+      "breadcrumbLabel": "创伤与创伤后压力症候群（PTSD）",
+      "heroTitle": "从创伤中康复，您无需独自面对",
+      "heroDescription": "了解创伤及创伤后压力症候群（PTSD），认识常见症状，并获得富有同理心的专业支持，陪伴您迈向康复之路。",
+      "understandingTitle": "了解创伤与创伤后压力症候群（PTSD）",
+      "understandingDescription": "创伤可能源于令人痛苦或危及生命的经历，并持续影响个人的情绪、心理及身体健康。有些人可能因此发展为创伤后压力症候群（PTSD），出现反复回忆、过度焦虑或情绪困扰等症状。在适当的照顾与专业支持下，康复与疗愈是有可能实现的。"
+    },
+
+    "addiction": {
+      "label": "成瘾",
+      "breadcrumbLabel": "成瘾",
+      "heroTitle": "克服成瘾，您无需独自面对",
+      "heroDescription": "了解成瘾对生活的影响，识别早期警讯，并探索专业支持，帮助您迈向持久康复。",
+      "understandingTitle": "了解成瘾",
+      "understandingDescription": "成瘾可能涉及物质依赖或难以控制的行为，即使带来负面后果，仍难以停止。它可能影响身体健康、情绪健康、人际关系及日常生活。及早介入与专业支持能够帮助个人重新掌控生活，并建立更健康的应对方式。"
+    },
+
+    "griefLoss": {
+      "label": "悲伤与失落",
+      "breadcrumbLabel": "悲伤与失落",
+      "heroTitle": "面对失去，您无需独自承受",
+      "heroDescription": "了解失去所带来的情绪影响，学习健康地面对悲伤，并在困难时期获得富有同理心的支持。",
+      "understandingTitle": "了解悲伤与失落",
+      "understandingDescription": "悲伤是失去重要的人或事物后的自然反应。每个人经历悲伤的方式都不同，情绪可能包括悲伤、愤怒、内疚或困惑。在时间及适当支持下，个人能够逐渐面对失去，并适应人生的新阶段。"
+    },
+
+    "stressAnxiety": {
+      "label": "压力 / 焦虑",
+      "breadcrumbLabel": "压力与焦虑",
+      "heroTitle": "面对焦虑，您无需独自面对",
+      "heroDescription": "深入了解压力与焦虑，探索实用的应对策略，并获得符合您需要的专业支持。",
+      "understandingTitle": "了解焦虑：症状、原因与应对方式",
+      "understandingDescription": "焦虑是在面对挑战时产生的害怕、担忧或紧张情绪。每个人在不同情况下都会经历焦虑，这是一种正常的心理反应。然而，当焦虑持续存在，并开始影响日常生活与正常功能时，就可能发展为需要专业关注的心理健康问题。"
+    },
+
+    "relationshipIssues": {
+      "label": "人际关系问题",
+      "breadcrumbLabel": "人际关系问题",
+      "heroTitle": "面对人际关系挑战，您无需独自承担",
+      "heroDescription": "探索改善沟通的方法，建立更健康的人际关系，并获得专业支持，共同应对生活中的挑战。",
+      "understandingTitle": "了解人际关系问题",
+      "understandingDescription": "人际关系问题可能源于沟通困难、长期未解决的冲突、信任问题或人生阶段的变化。健康的人际关系需要彼此理解、尊重及有效沟通。心理辅导能够帮助个人及伴侣重建更稳固、更健康的人际关系。"
+    },
+
+    "parentingChallenges": {
+      "label": "育儿挑战",
+      "breadcrumbLabel": "育儿挑战",
+      "heroTitle": "面对育儿之路，您无需独自前行",
+      "heroDescription": "学习实用的育儿技巧，了解孩子不同成长阶段的需要，并获得适合各个阶段的专业指导与支持。",
+      "understandingTitle": "了解育儿挑战",
+      "understandingDescription": "育儿既充满喜悦，也伴随着挑战。孩子的行为问题、沟通困难、成长变化，以及平衡家庭责任，都可能带来压力。适当的支持与指导能够帮助父母与孩子建立更紧密的关系，并促进孩子健康成长。"
+    },
+
+    "mentalHealth": {
+      "label": "心理健康",
+      "breadcrumbLabel": "心理健康",
+      "heroTitle": "面对经济压力，您无需独自承受",
+      "heroDescription": "了解经济问题如何影响情绪健康及人际关系，并探索更健康的方法来应对财务挑战。",
+      "understandingTitle": "了解财务纠纷",
+      "understandingDescription": "财务分歧可能在家庭、人际关系及工作环境中造成压力。有关预算、债务、开支或财务责任的担忧，可能影响情绪健康及人际关系。透过建设性的沟通及专业指导，可以更有效地解决财务冲突。"
+    },
+
+    "burnoutWorkStress": {
+      "label": "职业倦怠与工作压力",
+      "breadcrumbLabel": "职业倦怠与工作压力",
+      "heroTitle": "面对职业倦怠，您无需独自承担",
+      "heroDescription": "了解职业倦怠的征兆，认识长期工作压力带来的影响，并探索恢复身心平衡与健康的方法。",
+      "understandingTitle": "了解职业倦怠与工作压力",
+      "understandingDescription": "工作压力十分普遍，但长期承受压力而缺乏适当休息，可能导致职业倦怠。常见症状包括情绪耗竭、动力下降、注意力难以集中以及身体疲惫。及早寻求支持有助于恢复平衡，并改善整体身心健康。"
+    },
+
+    "selfEsteemIdentity": {
+      "label": "自尊与自我认同",
+      "breadcrumbLabel": "自尊与自我认同",
+      "heroTitle": "面对自我怀疑，您无需独自面对",
+      "heroDescription": "了解自尊与自我认同如何影响心理健康，并探索建立自信与积极自我认知的方法。",
+      "understandingTitle": "了解自尊与自我认同",
+      "understandingDescription": "自尊反映个人对自己的评价，而自我认同则塑造一个人对自身身份的理解。这些方面的挑战可能影响自信、人际关系、决策能力及情绪健康。心理辅导能够帮助个人建立自我接纳、提升心理韧性，并促进个人成长。"
+    },
+
+    "feelingLonely": {
+      "label": "感到孤独",
+      "breadcrumbLabel": "感到孤独",
+      "heroTitle": "面对孤独，您无需独自承受",
+      "heroDescription": "了解孤独对身心健康的影响，学习建立有意义的人际关系，并获得专业支持，提升整体心理健康。",
+      "understandingTitle": "了解孤独",
+      "understandingDescription": "孤独是一种与他人缺乏联系或缺少有意义人际关系的感受。无论年龄或人生阶段，每个人都有可能经历孤独，它可能影响心理及身体健康。建立支持性的人际关系，并在需要时寻求专业帮助，有助于重新建立连结，提升整体生活品质。"
+    }
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "aboutUs": {
+    "hero": {
+      "title": "Menyembuhkan hati",
+      "highlight": "sejak 1995",
+      "description": "Diasaskan atas kepercayaan bahawa setiap individu berhak menerima sokongan yang penuh belas ihsan. WINGS telah berkembang daripada sebuah bilik kaunseling kecil menjadi salah satu pusat kesejahteraan mental komuniti yang paling dipercayai di Singapura, memberikan sokongan kepada kanak-kanak, keluarga dan orang dewasa di setiap peringkat kehidupan.",
+      "button": "Terokai kisah kami"
+    },
+
+    "quote": {
+      "text": "Bimbingan dan sokongan yang diberikan pada peringkat awal kehidupan mampu meningkatkan keupayaan kanak-kanak dan remaja untuk menghadapi cabaran serta membesar menjadi individu yang seimbang dan berjaya.",
+      "author": "— Swami Jayadevananda, Visi Pengasas 1995"
+    },
+
+    "journey": {
+      "title": "Perjalanan kami sepanjang tahun",
+      "description": "Bermula sebagai projek perintis dengan sebuah bilik kaunseling pada tahun 1995, WINGS kini berkembang menjadi pusat kaunseling pelbagai perkhidmatan yang memberikan sokongan penuh kasih kepada ribuan keluarga di seluruh Singapura.",
+
+      "timeline": [
+        {
+          "year": "1995",
+          "category": "Permulaan",
+          "title": "Pusat Kaunseling Ramakrishna Mission ditubuhkan",
+          "description": "Dengan pembiayaan daripada Dana Endowmen Ulang Tahun ke-25 National Council of Social Service (NCSS), Ramakrishna Mission memulakan projek perintis yang dikendalikan oleh tiga orang kaunselor dan seorang pembantu pentadbiran di sebuah bilik kecil dalam perpustakaan misi. Kaunselor mula bekerjasama dengan sekolah-sekolah berhampiran bagi mengenal pasti pelajar yang memerlukan sokongan profesional."
+        },
+        {
+          "year": "1996",
+          "category": "Pengiktirafan",
+          "title": "NCSS mengiktiraf pusat ini secara rasmi",
+          "description": "National Council of Social Service (NCSS) mengiktiraf impak positif pusat ini terhadap komuniti dan menjadikannya sebuah agensi yang dibiayai sepenuhnya bagi program School Social Work (SSW), sekali gus mengukuhkan peranannya dalam sistem kebajikan sosial Singapura."
+        },
+        {
+          "year": "1997",
+          "category": "Perkembangan",
+          "title": "Berpindah ke Sarada Hall",
+          "description": "Peningkatan jumlah klien memerlukan ruang yang lebih besar. Pusat ini berpindah ke Sarada Hall yang menyediakan tiga bilik kaunseling, pejabat pentadbiran serta bilik persidangan untuk perbincangan kes."
+        },
+        {
+          "year": "2002",
+          "category": "Transformasi",
+          "title": "Penjenamaan semula sebagai WINGS",
+          "description": "Jawatankuasa pengurusan menjenamakan semula pusat ini sebagai WINGS Counselling Centre sebagai sebuah organisasi khidmat masyarakat yang bersifat sekular. Nama WINGS melambangkan harapan, perkembangan dan keupayaan untuk bangkit. Pada masa yang sama, pusat ini berpindah ke kemudahan moden yang dilengkapi bilik kaunseling cermin sehala, bilik terapi bermain dan ruang pemerhatian terapi seni."
+        },
+        {
+          "year": "2004",
+          "category": "Perluasan",
+          "title": "Program Pendidikan Kehidupan Keluarga diperkenalkan",
+          "description": "Bagi menyokong institusi keluarga secara menyeluruh, WINGS menjadi penyedia Program School Family Life Education (SFE) di bawah MCYS (kini MSF), menawarkan bengkel keibubapaan melalui kerjasama antara sekolah, keluarga dan komuniti."
+        },
+        {
+          "year": "2009",
+          "category": "Perintis",
+          "title": "Program sokongan prasekolah pertama di Singapura",
+          "description": "Dengan kerjasama NCSS, WINGS melancarkan Pre-School Support Programme (PSSP), program intervensi pencegahan pertama di Singapura bagi kanak-kanak berumur 2.5 hingga bawah 7 tahun, membantu mereka menyesuaikan diri dengan persekitaran pembelajaran formal."
+        },
+        {
+          "year": "2012",
+          "category": "Pencapaian",
+          "title": "Program Sokongan & Kaunseling Keluarga (FSCP)",
+          "description": "WINGS berkembang menjadi organisasi kaunseling berasaskan pusat sepenuhnya dan memperkenalkan Family Support and Counselling Programme (FSCP), menyediakan intervensi terapeutik berasaskan bukti kepada individu, pasangan dan keluarga berumur antara 7 hingga 65 tahun."
+        },
+        {
+          "year": "Kini",
+          "category": "Masa Kini",
+          "title": "WINGS di sekolah dan komuniti seluruh Singapura",
+          "description": "Hari ini, WINGS menyediakan perkhidmatan kaunseling di sekolah rendah dan menengah di seluruh Singapura serta terus menyokong individu berumur 2.5 hingga 65 tahun melalui terapi bermain, terapi dulang pasir dan terapi simbolik yang disesuaikan dengan keperluan setiap individu."
+        }
+      ]
+    },
+
+    "vision": {
+    "title": "Visi pengasas kami",
+    "paragraphs": [
+      "Mendiang Presiden Ramakrishna Mission, Swami Jayadevananda, mempunyai kepercayaan yang mendalam bahawa kanak-kanak, belia dan keluarga di Singapura harus diberi sokongan yang bermakna. Beliau yakin bahawa bimbingan yang tepat pada masanya serta intervensi yang penuh belas ihsan mampu mengubah hala tuju kehidupan seseorang secara positif.",
+      "Visi beliau adalah mudah tetapi amat bermakna: mewujudkan ruang yang selamat, mudah diakses dan bebas daripada sebarang penghakiman, supaya sesiapa sahaja yang menghadapi cabaran emosi, psikologi atau sosial dapat menerima sokongan profesional dan mencapai potensi diri sepenuhnya.",
+      "Tiga dekad kemudian, visi pengasas ini terus menjadi inspirasi kepada segala yang dilakukan oleh WINGS—daripada kaunselor kami, program berasaskan sekolah, perkhidmatan keluarga hinggalah kepada bengkel komuniti."
+    ]
+  },
+
+  "whoWeServe": {
+    "title": "Menyokong setiap peringkat kehidupan",
+    "description": "WINGS menyediakan sokongan kepada individu pada setiap fasa kehidupan—daripada kanak-kanak prasekolah yang baru melangkah ke alam persekolahan hinggalah kepada orang dewasa yang berdepan cabaran hubungan, kehilangan, kerjaya dan pelbagai cabaran kehidupan.",
+
+    "cards": [
+      {
+        "age": "2.5 – 7 tahun",
+        "label": "Kanak-kanak Prasekolah",
+        "description": "Program intervensi pencegahan pertama di Singapura untuk pendidikan awal kanak-kanak yang membantu mereka menyesuaikan diri dengan alam persekolahan sambil membina keyakinan dan daya tahan emosi.",
+        "tags": [
+          "Terapi bermain",
+          "Terapi dulang pasir",
+          "Terapi seni ekspresif",
+          "PSSP"
+        ]
+      },
+      {
+        "age": "7 – 20 tahun",
+        "label": "Kanak-kanak, Remaja & Belia",
+        "description": "Perkhidmatan kaunseling profesional bagi pelajar yang menghadapi cabaran akademik, tingkah laku, keluarga, sosial dan emosi sama ada di sekolah atau di pusat kaunseling kami.",
+        "tags": [
+          "Kaunseling sekolah",
+          "Terapi CBT",
+          "Sesi keluarga",
+          "FSCP"
+        ]
+      },
+      {
+        "age": "21 – 65 tahun",
+        "label": "Dewasa, Pasangan & Keluarga",
+        "description": "Membantu individu, pasangan dan keluarga mengatasi cabaran emosi, hubungan dan kehidupan melalui perkhidmatan kaunseling profesional yang berasaskan bukti.",
+        "tags": [
+          "Kaunseling individu",
+          "Kaunseling pasangan",
+          "Sokongan kehilangan",
+          "Terapi keluarga"
+        ]
+      }
+    ]
+  },
+
+  "impact": {
+    "title": "Impak kami terhadap individu, keluarga dan komuniti",
+    "description": "Selama lebih tiga dekad, WINGS telah berkembang menjadi salah satu organisasi kaunseling yang paling dipercayai di Singapura, membawa perubahan positif yang berkekalan kepada keluarga, sekolah dan komuniti di seluruh negara.",
+
+    "points": [
+      "Memberikan perkhidmatan kepada 15 buah sekolah rendah dan menengah di Singapura melalui inisiatif School Social Work dari tahun 1995 hingga 2011.",
+      "Memperkenalkan program intervensi pencegahan pertama di Singapura untuk kanak-kanak prasekolah berumur 2.5 hingga 7 tahun.",
+      "Menerima pembiayaan penuh daripada National Council of Social Service (NCSS) sebagai pengiktirafan terhadap sumbangan berterusan kepada masyarakat.",
+      "Menyediakan kaunseling profesional dan sokongan keluarga kepada individu berumur 2.5 hingga 65 tahun melalui pendekatan terapeutik yang berasaskan bukti.",
+      "Bekerjasama rapat dengan Ministry of Education (MOE), Ministry of Social and Family Development (MSF), National Council of Social Service (NCSS) serta pelbagai organisasi komuniti di seluruh Singapura."
+    ]
+  },
+
+  "cta": {
+    "title": "Anda tidak perlu mengharungi perjalanan ini bersendirian",
+    "description": "Sokongan bermula dengan satu perbualan. Sama ada anda mendapatkan bantuan untuk diri sendiri, anak anda atau keluarga, kaunselor kami yang bertauliah dan penuh empati bersedia menemani anda di setiap langkah. Hubungi kami hari ini—setiap perbualan anda akan dirahsiakan sepenuhnya.",
+    "bookAppointment": "Tempah temu janji",
+    "meetTeam": "Kenali pasukan kami"
+  }
+  }
+}

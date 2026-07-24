@@ -1,0 +1,237 @@
+{
+  "volunteerRegistration": {
+    "common": {
+      "close": "Tutup",
+      "back": "Kembali",
+      "continue": "Teruskan",
+      "submit": "Hantar",
+      "submitApplication": "Hantar Permohonan",
+      "submitting": "Sedang menghantar...",
+      "step": "Langkah {{current}} daripada {{total}}"
+    },
+
+    "step1": {
+      "title": "Maklumat Peribadi",
+      "subtitle": "Terima kasih atas minat anda untuk menjadi sukarelawan. Sila berikan maklumat peribadi dan butiran hubungan anda supaya kami dapat menghubungi anda.",
+
+      "sections": {
+        "personalDetails": "Maklumat Peribadi",
+        "contactDetails": "Maklumat Perhubungan"
+      },
+
+      "fields": {
+        "title": "Gelaran",
+        "titlePlaceholder": "Pilih Gelaran",
+
+        "fullName": "Nama Penuh (Seperti dalam NRIC/Pasport)",
+        "fullNamePlaceholder": "Masukkan nama seperti dalam NRIC/Pasport",
+
+        "nricPassport": "NRIC/Pasport (4 Aksara Terakhir)",
+        "nricPassportPlaceholder": "Contoh: 567A",
+
+        "citizenship": "Kewarganegaraan",
+        "citizenshipPlaceholder": "Contoh: Warganegara Singapura",
+
+        "dateOfBirth": "Tarikh Lahir",
+
+        "age": "Umur",
+        "agePlaceholder": "Masukkan umur anda",
+
+        "gender": "Jantina",
+        "genderPlaceholder": "Pilih Jantina",
+
+        "maritalStatus": "Status Perkahwinan",
+        "maritalStatusPlaceholder": "Pilih Status",
+
+        "ethnicity": "Bangsa",
+        "ethnicityPlaceholder": "Contoh: Cina, India",
+
+        "religion": "Agama",
+        "religionPlaceholder": "Contoh: Buddha, Kristian",
+
+        "occupation": "Pekerjaan",
+        "occupationPlaceholder": "Pekerjaan Semasa",
+
+        "address": "Alamat",
+        "addressPlaceholder": "Alamat tempat tinggal anda",
+
+        "phoneMobile": "Telefon (Bimbit)",
+        "phoneResidence": "Telefon (Rumah)",
+        "phonePlaceholder": "Nombor 8 digit",
+
+        "email": "Alamat E-mel",
+        "emailPlaceholder": "Masukkan alamat e-mel anda"
+      },
+
+      "titleOptions": {
+        "mr": "Encik",
+        "ms": "Cik",
+        "mrs": "Puan",
+        "dr": "Dr.",
+        "mdm": "Puan"
+      },
+
+      "genderOptions": {
+        "male": "Lelaki",
+        "female": "Perempuan",
+        "other": "Lain-lain"
+      },
+
+      "maritalStatusOptions": {
+        "single": "Bujang",
+        "married": "Berkahwin",
+        "divorced": "Bercerai",
+        "widowed": "Balu/Duda"
+      }
+    },
+
+    "step2": {
+      "title": "Kongsi Minat & Ketersediaan Anda",
+      "subtitle": "Beritahu kami bidang yang anda ingin sertai dan masa yang anda lapang untuk berkhidmat bersama WINGS.",
+
+      "sections": {
+        "interestAreas": "Bidang Minat",
+        "availability": "Ketersediaan",
+        "commitment": "Komitmen"
+      },
+
+      "interestDescription": "Pilih satu atau lebih bidang yang anda ingin sumbangkan.",
+
+      "interestAreas": {
+        "outreach": {
+          "title": "Program Jangkauan Komuniti",
+          "description": "Menyebarkan kesedaran dalam komuniti setempat dan melalui platform digital."
+        },
+        "talksWorkshops": {
+          "title": "Ceramah & Bengkel",
+          "description": "Mengendalikan atau membantu sesi pendidikan berkaitan kesejahteraan mental."
+        },
+        "administrative": {
+          "title": "Pentadbiran",
+          "description": "Menyokong operasi pejabat dan pengurusan data."
+        },
+        "outings": {
+          "title": "Aktiviti Luar",
+          "description": "Membantu menganjurkan aktiviti berjalan di alam semula jadi dan aktiviti berkumpulan di luar."
+        }
+      },
+
+      "fields": {
+        "otherContribution": "Bagaimanakah anda boleh menyumbang? / Lain-lain (Sila nyatakan)",
+        "otherContributionPlaceholder": "Beritahu kami jika anda ingin membantu dengan cara lain",
+
+        "skillsHobbies": "Kemahiran & Hobi",
+        "skillsHobbiesPlaceholder": "Ceritakan kemahiran, hobi atau cara lain yang anda ingin membantu...",
+
+        "preferredDays": "Pilih Hari Pilihan",
+
+        "timeFrom": "Julat Masa (Dari)",
+        "timeTo": "Julat Masa (Hingga)",
+
+        "expectedDuration": "Tempoh Komitmen",
+        "durationPlaceholder": "Masukkan tempoh",
+
+        "unit": "Unit"
+      },
+
+      "days": {
+        "mon": "Isn",
+        "tue": "Sel",
+        "wed": "Rab",
+        "thu": "Kha",
+        "fri": "Jum",
+        "sat": "Sab",
+        "sun": "Ahd"
+      },
+
+      "units": {
+        "weeks": "Minggu",
+        "months": "Bulan",
+        "years": "Tahun"
+      },
+
+      "notes": {
+        "minimumCommitment": "* Komitmen minimum membantu kami memastikan kesinambungan program-program kami."
+      }
+    },
+
+    "validation": {
+      "step1": {
+        "titleRequired": "Gelaran diperlukan.",
+        "nameRequired": "Nama penuh diperlukan.",
+        "nameMin": "Nama penuh mesti mempunyai sekurang-kurangnya 3 aksara.",
+        "nameInvalid": "Nama penuh hanya boleh mengandungi huruf dan ruang.",
+        "nricRequired": "4 aksara terakhir NRIC/Pasport diperlukan.",
+        "nricInvalid": "Mesti mengandungi tepat 4 aksara huruf atau nombor.",
+        "citizenshipRequired": "Kewarganegaraan diperlukan.",
+        "dobRequired": "Tarikh lahir diperlukan.",
+        "ageRequired": "Umur diperlukan.",
+        "ageInvalid": "Masukkan umur yang sah (1–120).",
+        "genderRequired": "Jantina diperlukan.",
+        "maritalStatusRequired": "Status perkahwinan diperlukan.",
+        "addressRequired": "Alamat diperlukan.",
+        "phoneRequired": "Nombor telefon bimbit diperlukan.",
+        "phoneInvalid": "Masukkan nombor telefon Singapura 8 digit yang sah.",
+        "emailRequired": "Alamat e-mel diperlukan.",
+        "emailInvalid": "Masukkan alamat e-mel yang sah."
+      },
+
+      "step2": {
+        "interestRequired": "Sila pilih sekurang-kurangnya satu bidang minat atau isi bahagian sumbangan lain.",
+        "daysRequired": "Sila pilih sekurang-kurangnya satu hari pilihan.",
+        "commitmentRequired": "Sila masukkan tempoh komitmen yang sah."
+      },
+
+      "step3": {
+        "declarationRequired": "Anda mesti menerima pengisytiharan sebelum menghantar permohonan.",
+        "signatureRequired": "Tandatangan diperlukan.",
+        "signatureMismatch": "Tandatangan mesti sepadan dengan Nama Penuh yang dimasukkan dalam Langkah 1."
+      }
+    },
+
+    "pdpa": {
+      "notice": "Semua maklumat yang anda kongsi akan dikendalikan secara selamat dan sulit mengikut garis panduan Akta Perlindungan Data Peribadi (PDPA) Singapura."
+    },
+
+    "step3": {
+      "title": "Pengisytiharan & Tandatangan",
+      "subtitle": "Sila semak dan sahkan pengisytiharan anda sebelum menghantar permohonan sukarelawan.",
+
+      "sections": {
+        "declaration": "Pengisytiharan"
+      },
+
+      "fields": {
+        "signature": "Tandatangan Digital",
+        "signaturePlaceholder": "Masukkan nama penuh anda sebagai tandatangan",
+        "submissionDate": "Tarikh Penyerahan"
+      },
+
+      "declaration": {
+        "text": "Saya mengisytiharkan bahawa semua maklumat yang diberikan di atas adalah benar dan tepat. Saya memahami bahawa sebarang kenyataan palsu atau kegagalan mendedahkan fakta penting boleh menyebabkan permohonan saya ditolak atau status sukarelawan saya ditamatkan."
+      },
+
+      "signature": {
+        "helperText": "Dengan menaip nama anda, anda memberikan tandatangan digital yang sah di sisi undang-undang."
+      }
+    },
+
+    "success": {
+      "title": "Permohonan Berjaya Dihantar",
+      "message": "Terima kasih, {{name}}. Kami telah menerima permohonan anda untuk menyertai WINGS sebagai sukarelawan.",
+      "description": "Pasukan kami akan menyemak permohonan anda dan menghubungi anda melalui e-mel ({{email}}) dalam tempoh 3–5 hari bekerja.",
+      "closeButton": "Tutup",
+
+      "notification": {
+        "title": "Permohonan Sukarelawan Dihantar",
+        "message": "Terima kasih {{name}}, permohonan anda telah berjaya diterima."
+      }
+    },
+
+    "errors": {
+      "submissionFailed": "Penghantaran gagal.",
+      "submitError": "Gagal menghantar permohonan sukarelawan. Sila cuba lagi.",
+      "unexpectedError": "Sesuatu telah berlaku. Sila cuba lagi kemudian."
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "candidateAuth": {
+    "common": {
+      "title": "வேலைகளுக்கு விண்ணப்பிக்க உள்நுழையவும் அல்லது புதிய கணக்கை உருவாக்கவும்",
+      "close": "மூடு",
+      "back": "பின்னால்",
+      "continue": "தொடரவும்",
+      "loading": "ஏற்றப்படுகிறது...",
+      "submitting": "சமர்ப்பிக்கப்படுகிறது..."
+    },
+
+    "tabs": {
+      "signIn": "உள்நுழை",
+      "createAccount": "கணக்கை உருவாக்கு"
+    },
+
+    "signin": {
+      "title": "உள்நுழை",
+
+      "fields": {
+        "email": "மின்னஞ்சல் முகவரி",
+        "emailPlaceholder": "உங்கள் மின்னஞ்சல் முகவரியை உள்ளிடவும்",
+
+        "password": "கடவுச்சொல்",
+        "passwordPlaceholder": "உங்கள் கடவுச்சொல்லை உள்ளிடவும்"
+      },
+
+      "buttons": {
+        "submit": "உள்நுழை",
+        "forgotPassword": "கடவுச்சொல்லை மறந்துவிட்டீர்களா?"
+      }
+    },
+
+    "createAccount": {
+      "title": "கணக்கை உருவாக்கு",
+
+      "fields": {
+        "firstName": "முதல் பெயர்",
+        "firstNamePlaceholder": "உங்கள் முதல் பெயரை உள்ளிடவும்",
+
+        "lastName": "கடைசி பெயர்",
+        "lastNamePlaceholder": "உங்கள் கடைசி பெயரை உள்ளிடவும்",
+
+        "email": "மின்னஞ்சல் முகவரி",
+        "emailPlaceholder": "உங்கள் மின்னஞ்சல் முகவரியை உள்ளிடவும்",
+
+        "mobile": "மொபைல் எண்",
+        "mobilePlaceholder": "உங்கள் மொபைல் எண்ணை உள்ளிடவும்",
+
+        "password": "கடவுச்சொல்",
+        "passwordPlaceholder": "உங்கள் கடவுச்சொல்லை உள்ளிடவும்",
+
+        "confirmPassword": "கடவுச்சொல்லை உறுதிப்படுத்தவும்",
+        "confirmPasswordPlaceholder": "உங்கள் கடவுச்சொல்லை மீண்டும் உள்ளிடவும்"
+      },
+
+      "terms": {
+        "agree": "நான் {{terms}}-ஐ ஏற்கிறேன்",
+        "termsAndConditions": "விதிமுறைகள் மற்றும் நிபந்தனைகள்"
+      },
+
+      "buttons": {
+        "submit": "கணக்கை உருவாக்கு"
+      }
+    },
+
+    "validation": {
+      "signIn": {
+        "emailRequired": "மின்னஞ்சல் அவசியம்",
+        "emailInvalid": "சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்",
+        "passwordRequired": "கடவுச்சொல் அவசியம்"
+      },
+
+      "createAccount": {
+        "firstNameRequired": "முதல் பெயர் அவசியம்",
+        "lastNameRequired": "கடைசி பெயர் அவசியம்",
+
+        "emailRequired": "மின்னஞ்சல் அவசியம்",
+        "emailInvalid": "சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்",
+
+        "mobileRequired": "மொபைல் எண் அவசியம்",
+        "mobileInvalid": "சரியான மொபைல் எண்ணை உள்ளிடவும்",
+
+        "passwordRequired": "கடவுச்சொல் அவசியம்",
+        "passwordMin": "கடவுச்சொல் குறைந்தது 6 எழுத்துகள் இருக்க வேண்டும்",
+
+        "confirmPasswordMismatch": "கடவுச்சொற்கள் பொருந்தவில்லை",
+
+        "termsRequired": "நீங்கள் விதிமுறைகள் மற்றும் நிபந்தனைகளை ஏற்க வேண்டும்"
+      }
+    },
+
+    "toast": {
+      "loginFailed": {
+        "title": "உள்நுழைவு தோல்வியடைந்தது"
+      },
+
+      "registrationFailed": {
+        "title": "பதிவு தோல்வியடைந்தது"
+      },
+
+      "accountCreated": {
+        "title": "கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது!"
+      },
+
+      "accountCreatedSignIn": {
+        "title": "கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது! தொடர உள்நுழையவும்."
+      }
+    }
+  }
+}

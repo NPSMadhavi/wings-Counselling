@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Footer } from "@/components/Layout/Footer";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const FALLBACK_PARTNERS = [
   {
@@ -25,9 +26,13 @@ const FALLBACK_PARTNERS = [
 const PAGE_SIZE = 3;
 
 const PartnerPage = () => {
+  const { t } = useTranslation();
   const [partners, setPartners] = useState(FALLBACK_PARTNERS);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
+
+  const strengthCardsRaw = t("partners.strength.cards", { returnObjects: true });
+  const strengthCards = Array.isArray(strengthCardsRaw) ? strengthCardsRaw : [];
 
   useEffect(() => {
     let cancelled = false;
@@ -80,10 +85,10 @@ const PartnerPage = () => {
           <div className="navbar-align-inner">
             <div className="max-w-full mx-auto px-4 text-center mt-20 md:mt-24">
               <h1 className="text-white text-[32px] sm:text-[44px] md:text-[45px] lg:text-[60px] font-semibold font-['Outfit'] mb-6 leading-tight">
-                Our trusted partners
+                {t("partners.hero.title")}
               </h1>
               <p className="text-white text-[clamp(15px,2.5vw,20px)] font-normal font-['DM_Sans'] max-w-3xl mx-auto mb-10 leading-relaxed">
-                We collaborate with community organizations, health experts, and local leaders to build a holistic support system for mental wellness in Singapore.
+                {t("partners.hero.description")}
               </p>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -99,7 +104,7 @@ const PartnerPage = () => {
                 className="bg-[#0D4A7A] transition-colors text-white rounded-full px-8 py-4 inline-flex items-center gap-3"
               >
                 <span className="font-['Plus_Jakarta_Sans'] font-semibold text-[18px]">
-                  Explore our partners
+                  {t("partners.hero.button")}
                 </span>
 
                 <svg
@@ -127,12 +132,17 @@ const PartnerPage = () => {
         <div className="w-full navbar-align-outer ">
           <div className="navbar-align-inner">
             <h2 className="text-[#0D4A7A] text-3xl md:text-[40px] font-medium font-['Outfit'] mb-12">
-              Our partners
+              {t("partners.listing.title")}
             </h2>
 
             {loading ? (
-              <div className="flex justify-center py-16">
+              <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <div className="w-8 h-8 rounded-full border-2 border-[#0D4A7A] border-t-transparent animate-spin" />
+                <p className="text-[#0D4A7A] font-['DM_Sans'] text-[15px]">{t("partners.listing.loading")}</p>
+              </div>
+            ) : partners.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-[#4B5563] font-['DM_Sans'] text-[16px]">{t("partners.listing.noPartners")}</p>
               </div>
             ) : (
               <>
@@ -179,7 +189,7 @@ const PartnerPage = () => {
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 text-[#0D4A7A] text-[15px] md:text-[16px] lg:text-[17px] font-semibold font-['DM_Sans'] group mt-auto w-max"
                         >
-                          Visit Website
+                          {t("partners.listing.visitWebsite")}
                           <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </a>
                       )}
@@ -196,7 +206,7 @@ const PartnerPage = () => {
                       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#0D4A7A] text-[#0D4A7A] font-['DM_Sans'] font-medium text-[15px] transition-colors hover:bg-[#0D4A7A] hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#0D4A7A]"
                     >
                       <ChevronLeft size={18} />
-                      Previous
+                      {t("partners.listing.previous")}
                     </button>
 
                     <div className="flex items-center gap-2">
@@ -205,7 +215,7 @@ const PartnerPage = () => {
                           key={i}
                           type="button"
                           onClick={() => setPage(i)}
-                          aria-label={`Go to page ${i + 1}`}
+                          aria-label={t("partners.listing.goToPage", { page: i + 1 })}
                           className={`min-w-[40px] h-[40px] rounded-full font-['DM_Sans'] font-medium text-[15px] transition-colors ${
                             safePage === i
                               ? "bg-[#0D4A7A] text-white"
@@ -223,7 +233,7 @@ const PartnerPage = () => {
                       onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
                       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#0D4A7A] text-[#0D4A7A] font-['DM_Sans'] font-medium text-[15px] transition-colors hover:bg-[#0D4A7A] hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#0D4A7A]"
                     >
-                      Next
+                      {t("partners.listing.next")}
                       <ChevronRight size={18} />
                     </button>
                   </div>
@@ -240,74 +250,47 @@ const PartnerPage = () => {
           <div className="navbar-align-inner">
             <div className="text-center mb-16 max-w-4xl mx-auto">
               <h2 className="text-[#0D4A7A] text-3xl md:text-[35px] font-medium font-['Outfit'] mb-6">
-                The strength of partnership
+                {t("partners.strength.title")}
               </h2>
               <p className="text-black text-lg md:text-[18px] font-normal font-['DM_Sans'] leading-[30px]">
-                No one can heal in isolation. Our partnerships allow us to provide a level of care that goes beyond the counseling room.
+                {t("partners.strength.description")}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Feature 1 */}
-              <div className="bg-white rounded-[20px] p-8 shadow-sm">
-                <div className="w-[60px] h-[60px] rounded-[16px] bg-[#E8F4FD] flex items-center justify-center mb-6 text-[#0D4A7A]">
-                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {strengthCards.map((card, index) => {
+                const icons = [
+                  <svg key="shield" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     <path d="M9 12l2 2 4-4"/>
-                  </svg>
-                </div>
-                <h3 className="text-black text-[25px] font-medium font-['DM_Sans'] mb-4">
-                  Holistic network
-                </h3>
-                <p className="text-black/80 text-[18px] font-normal font-['DM_Sans'] leading-[25px]">
-                  By connecting with medical and social services, we ensure our clients receive complete care for every aspect of their life.
-                </p>
-              </div>
-
-              {/* Feature 2 */}
-              <div className="bg-white rounded-[20px] p-8 shadow-sm">
-                <div className="w-[60px] h-[60px] rounded-[16px] bg-[#E8F4FD] flex items-center justify-center mb-6 text-[#0D4A7A]">
-                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  </svg>,
+                  <svg key="users" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                  </svg>
-                </div>
-                <h3 className="text-black text-[25px] font-medium font-['DM_Sans'] mb-4">
-                  Community reach
-                </h3>
-                <p className="text-black/80 text-[18px] font-normal font-['DM_Sans'] leading-[25px]">
-                  Partnerships help us bring mental health awareness into the heartlands, reaching those who might not otherwise seek help.
-                </p>
-              </div>
-
-              {/* Feature 3 */}
-              <div className="bg-white rounded-[20px] p-8 shadow-sm">
-                <div className="w-[60px] h-[60px] rounded-[16px] bg-[#E8F4FD] flex items-center justify-center mb-6 text-[#0D4A7A]">
-                  <svg
-                    width="30"
-                    height="30"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+                  </svg>,
+                  <svg key="refresh" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
                     <path d="M3 21v-5h5" />
                     <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
                     <path d="M21 3v5h-5" />
-                  </svg>
+                  </svg>,
+                ];
+                return (
+              <div key={index} className="bg-white rounded-[20px] p-8 shadow-sm">
+                <div className="w-[60px] h-[60px] rounded-[16px] bg-[#E8F4FD] flex items-center justify-center mb-6 text-[#0D4A7A]">
+                  {icons[index] || icons[0]}
                 </div>
                 <h3 className="text-black text-[25px] font-medium font-['DM_Sans'] mb-4">
-                  Seamless referrals
+                  {card.title}
                 </h3>
                 <p className="text-black/80 text-[18px] font-normal font-['DM_Sans'] leading-[25px]">
-                  Our established pathways ensure that if you need specialized medical care, the transition is fast, safe and supported.
+                  {card.description}
                 </p>
               </div>
+                );
+              })}
             </div>
           </div>
         </div>
