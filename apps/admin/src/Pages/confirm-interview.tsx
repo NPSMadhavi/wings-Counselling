@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/SiteIcons";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Navbar } from "@/components/layout/Navbar";
+import { Navbar } from "@/components/Layout/Navbar";
 import { Footer } from "@/components/Layout/Footer";
 
 interface InterviewDetails {

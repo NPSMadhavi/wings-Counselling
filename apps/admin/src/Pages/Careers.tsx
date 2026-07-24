@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { SiteCheckIcon } from "@/components/ui/SiteIcons";
 
-import { Navbar } from "@/components/layout/Navbar";
+import { Navbar } from "@/components/Layout/Navbar";
 import { Footer } from "@/components/Layout/Footer";
 import { careersApplyPath } from "@/lib/careers-routes";
 import type { JobPosting } from "@/lib/careers-types";

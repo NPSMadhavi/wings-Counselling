@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Footer } from "@/components/Layout/Footer";
-import { CursorGlow } from "@/components/layout/CursorGlow";
+import { CursorGlow } from "@/components/Layout/CursorGlow";
 import { Award, ChevronDown, Heart } from "lucide-react";
 
 /* ─── Types ─────────────────────────────────────────────────────────────── */

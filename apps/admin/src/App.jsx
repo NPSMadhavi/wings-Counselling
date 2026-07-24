@@ -19,7 +19,7 @@ import EventsPage from "@/Pages/EventsPage";
 import ArticlePage from "@/Pages/ArticlePage";
 import CandidatePortalPage from "@/Pages/CandidatePortal";
 import AdminApp from "@/admin/AdminApp";
-import NotFound from "@/Pages/not-found";
+import NotFound from "@/Pages/Not-found";
 import CareersRegister from "@/Pages/CareersRegister";
 import CareersVerify from "@/Pages/CareersVerify";
 import PartnerPage from "@/Pages/PartnerPage";
@@ -31,7 +31,7 @@ import MentalArticlePage from "@/Pages/MentalArticlePage";
 
 import { CandidateAuthProvider } from "@/context/CandidateAuthContext";
 import { AppointmentProvider, useAppointment } from "@/context/AppointmentContext";
-import { Navbar } from "@/components/layout/Navbar";
+import { Navbar } from "@/components/Layout/Navbar";
 import { AppointmentModal } from "@/components/modals/AppointmentModal";
 import  WhatWeDoPage  from "@/Pages/WhatWeDoPage";
 import SubServicePage from "./Pages/SubServicePage";
