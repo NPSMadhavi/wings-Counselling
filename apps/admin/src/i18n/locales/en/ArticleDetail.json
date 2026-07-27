@@ -19,9 +19,7 @@
     "actions": {
       "copyLink": "Copy Link",
       "copied": "Copied!",
-      "shareEmail": "Share via Email",
-      "downloadPdf": "Download PDF",
-      "printDocument": "Print Document"
+      "share": "Share"
     },
 
     "cta": {

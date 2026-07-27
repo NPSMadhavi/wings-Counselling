@@ -16,9 +16,7 @@
     "actions": {
       "copyLink": "复制链接",
       "copied": "已复制！",
-      "shareEmail": "通过电子邮件分享",
-      "downloadPdf": "下载 PDF",
-      "printDocument": "打印文档"
+      "share": "分享"
     },
     "cta": {
       "title": "准备好和专业人士聊聊了吗？",

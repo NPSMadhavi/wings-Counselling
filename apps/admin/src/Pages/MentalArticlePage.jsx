@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Copy, Mail, Download, Printer, Check } from "lucide-react";
+import { Copy, Share2, Check } from "lucide-react";
 import { Footer } from "@/components/Layout/Footer";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
@@ -62,333 +62,51 @@ export default function MentalArticlePage() {
       setActiveSection(currentSection);
     };
 
-    const mainEl = mainContentRef.current;
     window.addEventListener("scroll", handleScroll);
-    if (mainEl) mainEl.addEventListener("scroll", handleScroll);
+    handleScroll();
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      if (mainEl) mainEl.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href).then(() => {
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
-  const handleShareEmail = () => {
-    const subject = encodeURIComponent("MENTAL HEALTH");
-    const body = encodeURIComponent(
-      `Check out this article on mental health and support:\n\n${window.location.href}`
-    );
-    window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
-  };
-
-  const generatePDF = async (mode = "download") => {
-    const { jsPDF } = await import("jspdf");
-    const doc = new jsPDF("p", "mm", "a4");
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
-    const contentWidth = pageWidth - margin * 2;
-    let y = margin;
-
-    const checkPage = (needed = 12) => {
-      if (y + needed > pageHeight - margin) {
-        doc.addPage();
-        y = margin;
-      }
-    };
-
-    const addWrappedText = (text, x, fontSize, color, maxWidth, lineHeight = 7, fontStyle = "normal") => {
-      doc.setFontSize(fontSize);
-      doc.setTextColor(...color);
-      doc.setFont("helvetica", fontStyle);
-      const lines = doc.splitTextToSize(text, maxWidth);
-      lines.forEach((line) => {
-        checkPage(lineHeight);
-        doc.text(line, x, y);
-        y += lineHeight;
-      });
-    };
-
-    // ─── HEADER BAR ───
-    doc.setFillColor(13, 74, 122); // #0D4A7A
-    doc.rect(0, 0, pageWidth, 70, "F");
-
-    // Title (first)
-    doc.setFontSize(24);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(255, 255, 255);
-    const titleLines = doc.splitTextToSize("MENTAL HEALTH", contentWidth - 10);
-    let titleY = 22;
-    titleLines.forEach((line) => {
-      doc.text(line, margin, titleY);
-      titleY += 10;
-    });
-
-    // Description (below title)
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(210, 225, 240);
-    const subtitle = "Mental health refers to emotional, psychological, and social well-being. It affects how we think, feel, act, cope with stress, maintain relationships, and recover from challenges.";
-    const subLines = doc.splitTextToSize(subtitle, contentWidth - 10);
-    let subY = titleY + 4;
-    subLines.forEach((line) => {
-      doc.text(line, margin, subY);
-      subY += 5;
-    });
-
-    // Authors (below description)
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "italic");
-    doc.setTextColor(180, 200, 220);
-    doc.text("By WINGS Counselling Centre", margin, subY + 3);
-
-    y = 78;
-
-    // ─── LOAD & ADD INTRO IMAGE ───
-    try {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = "/assets/img4.jpeg";
-      });
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-      const imgData = canvas.toDataURL("image/jpeg", 0.85);
-      const imgHeight = (contentWidth * img.naturalHeight) / img.naturalWidth;
-      const displayHeight = Math.min(imgHeight, 65);
-      checkPage(displayHeight + 5);
-      doc.addImage(imgData, "JPEG", margin, y, contentWidth, displayHeight);
-      y += displayHeight + 12;
     } catch {
-      // Skip image if it fails to load
-    }
-
-    // ─── TABLE OF CONTENTS ───
-    checkPage(55);
-    doc.setFillColor(237, 243, 248); // #EDF3F8
-    doc.roundedRect(margin, y, contentWidth, 55, 3, 3, "F");
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(13, 74, 122);
-    doc.text("Table of Contents", margin + 8, y + 10);
-    y += 16;
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(60, 60, 60);
-    const tocItems = [
-      "Introduction",
-      "1. What mental health can feel like",
-      "2. Common mental health challenges",
-      "3. Mental wellness practices",
-      "4. When to seek support",
-      "Final thought",
-    ];
-    tocItems.forEach((item) => {
-      doc.text("•  " + item, margin + 8, y);
-      y += 5.5;
-    });
-    y += 14;
-
-    // ─── HELPER: ADD SECTION ───
-    const addSection = (title, paragraphs, callout = null, listItems = null, calloutType = "info") => {
-      checkPage(25);
-
-      // Divider line before section
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.3);
-      doc.line(margin, y, margin + contentWidth, y);
-      y += 10;
-
-      // Section heading
-      doc.setFontSize(16);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(13, 74, 122); // #0D4A7A
-      const headLines = doc.splitTextToSize(title, contentWidth);
-      headLines.forEach((line) => {
-        checkPage(9);
-        doc.text(line, margin, y);
-        y += 9;
-      });
-      y += 5;
-
-      // Paragraphs
-      paragraphs.forEach((para) => {
-        addWrappedText(para, margin, 10, [61, 57, 53], contentWidth, 5.5); // #3D3935
-        y += 4;
-      });
-
-      // List items
-      if (listItems) {
-        y += 2;
-        listItems.forEach((item) => {
-          checkPage(7);
-          doc.setFontSize(10);
-          doc.setTextColor(61, 57, 53);
-          doc.setFont("helvetica", "normal");
-          const bulletLines = doc.splitTextToSize(item, contentWidth - 10);
-          doc.text("•", margin + 3, y);
-          bulletLines.forEach((line) => {
-            checkPage(6);
-            doc.text(line, margin + 10, y);
-            y += 5.5;
-          });
-        });
-        y += 4;
-      }
-
-      // Callout box
-      if (callout) {
-        y += 3;
-        checkPage(22);
-        const boxColor = calloutType === "error" ? [255, 84, 62] : [62, 86, 109];
-        const bgColor = calloutType === "error" ? [255, 240, 238] : [234, 241, 247];
-        doc.setFillColor(...bgColor);
-        const calloutLines = doc.splitTextToSize(callout.text, contentWidth - 20);
-        const boxHeight = (calloutLines.length * 5) + 20;
-        doc.roundedRect(margin, y, contentWidth, boxHeight, 2, 2, "F");
-        y += 9;
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(...boxColor);
-        doc.text(callout.title, margin + 10, y);
-        y += 7;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
-        calloutLines.forEach((line) => {
-          checkPage(5);
-          doc.text(line, margin + 10, y);
-          y += 5;
-        });
-        y += 6;
-      }
-
-      y += 10;
-    };
-
-    // ─── SECTION: Introduction ───
-    addSection("What is mental health?", [
-      "Mental health refers to emotional, psychological, and social well-being. It is important to understand that mental health is in no way less important than physical health.",
-      "Simply speaking, mental health is about how one thinks, feels, acts, and copes with the stresses of everyday life.",
-      "At times, it can be much more than simple worries or anxieties. It may become difficult to concentrate, manage unhelpful thoughts, maintain healthy relationships, sleep well, or feel emotionally steady.",
-    ]);
-
-    // ─── SECTION 1 ───
-    addSection(
-      "1. What mental health can feel like",
-      [
-        "Mental health can affect thoughts, emotions, behaviour, relationships, and daily life.",
-        "A person may feel unable to concentrate, constantly disturbed by unhelpful thoughts, withdrawn, angry, isolated, exhausted, or mentally drained.",
-        "Anxiety or low mood can be extremely debilitating and is often endured in silence because people around may misunderstand the condition.",
-        "Unhelpful advice such as 'quit worrying' or 'stay calm' can sometimes make a person feel worse rather than supported.",
-      ]
-    );
-
-    // ─── SECTION 2 ───
-    addSection(
-      "2. Common mental health challenges",
-      [
-        "Mental health is more than the absence of a mental disorder.",
-        "Mental health can be shaped by biological, social, and emotional factors. Family history, physical health problems, divorce, job loss, chronic pain, and major life changes can all affect mental well-being.",
-        "Common mental health disorders can include:",
-      ],
-      null,
-      [
-        "Anxiety disorders",
-        "Mood disorders",
-        "Schizophrenia",
-        "Panic disorders",
-        "Phobias",
-        "Obsessive-compulsive disorder",
-        "Post-traumatic stress disorder",
-      ]
-    );
-
-    // ─── SECTION 3 ───
-    addSection(
-      "3. Mental wellness practices",
-      [
-        "Mental wellness needs regular care, just like physical health.",
-        "Staying connected with others, sharing worries with trusted people, regular physical activity, and mindfulness practices can support mental and emotional well-being.",
-        "Relaxing activities, appreciation, gratitude, and finding purpose and meaning in everyday life can also strengthen mental wellness.",
-      ],
-      null,
-      [
-        "Stay connected with people you feel comfortable with",
-        "Share worries with trusted people",
-        "Engage in regular exercise or physical activity",
-        "Practice mindfulness, yoga, meditation, or deep breathing",
-        "Make time for relaxing and enjoyable activities",
-        "Practice appreciation and gratitude",
-        "Find purpose and meaning in everyday life",
-      ]
-    );
-
-    // ─── SECTION 4 ───
-    addSection(
-      "4. When to seek support",
-      [
-        "Professional support can help when daily functioning feels affected.",
-        "If consistent efforts to improve mental and emotional health are not helping, and a person is still not functioning well at home, work, or in relationships, it may be time to seek professional help.",
-        "A therapist or medical professional can provide support, guidance, and care. Counselling can help a person understand their circumstances and learn coping strategies.",
-      ]
-    );
-
-    // ─── SECTION 5 ───
-    addSection(
-      "Final thought",
-      [
-        "If you are experiencing emotional distress, anxiety, low mood, or feeling mentally drained, you are not alone.",
-        "With the right support, it is possible to understand what you are going through, build healthier coping strategies, and move toward better mental and emotional well-being.",
-      ]
-    );
-
-    // ─── FOOTER on last page ───
-    const footerY = pageHeight - 10;
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.setFont("helvetica", "normal");
-    doc.text("WINGS Counselling Centre", pageWidth / 2, footerY, { align: "center" });
-
-    if (mode === "print") {
-      const pdfBlob = doc.output("blob");
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      const iframe = document.createElement("iframe");
-      iframe.style.position = "fixed";
-      iframe.style.left = "-9999px";
-      iframe.style.top = "-9999px";
-      iframe.style.width = "1px";
-      iframe.style.height = "1px";
-      iframe.src = pdfUrl;
-      document.body.appendChild(iframe);
-      iframe.onload = () => {
-        setTimeout(() => {
-          try {
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-          } catch {
-            // fallback: open in new tab
-            window.open(pdfUrl, "_blank");
-          }
-        }, 500);
-      };
-    } else {
-      doc.save("Mental-Health-Support.pdf");
+      // Fallback
     }
   };
 
-  const handleDownloadPDF = () => generatePDF("download");
+  const handleShare = async () => {
+    const shareData = {
+      title: document.title || "Mental Health Support",
+      text: "Check out this article on mental health and support:",
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // User cancelled share dialog
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        const subject = encodeURIComponent("Mental Health Support");
+        const body = encodeURIComponent(
+          `Check out this article on mental health and support:\n\n${window.location.href}`
+        );
+        window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
+      }
+    }
+  };
 
-  const handlePrint = () => generatePDF("print");
+
 
   return (
     <div
@@ -555,11 +273,10 @@ export default function MentalArticlePage() {
 
       {/* ARTICLE */}
       <section className="bg-[#F5F3F0]">
-        <div className="w-full">
-  <div className="w-full px-[24px] md:px-[34px] lg:px-[74px] py-[72px]">
+        <div className="w-full px-[24px] md:px-[34px] lg:px-[74px] py-[72px]">
             <div ref={articleRef} className="grid grid-cols-1 xl:grid-cols-[220px_1fr] gap-[58px] items-start xl:min-h-0">
               {/* LEFT SIDEBAR */}
-              <aside className="sidebar-scroll hidden xl:block w-full xl:w-[220px] self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              <aside className="hidden xl:block w-full xl:w-[220px] sticky top-[120px] self-start max-h-[calc(100vh-140px)] overflow-y-auto sidebar-scroll" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 <div>
                   {/* AUTHOR */}
                   <div className="text-[16px] leading-[190%] text-[#595550]">
@@ -633,7 +350,7 @@ export default function MentalArticlePage() {
               </aside>
 
               {/* RIGHT ARTICLE CONTENT */}
-              <main ref={mainContentRef} className="sidebar-scroll w-full xl:self-stretch xl:overflow-y-auto" style={{ scrollBehavior: "smooth", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              <main ref={mainContentRef} className="sidebar-scroll w-full xl:max-h-[calc(100vh-140px)] xl:overflow-y-auto" style={{ scrollBehavior: "smooth", scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 {/* INTRO */}
                 <motion.div
                   id="what-is-mental-health"
@@ -825,7 +542,7 @@ export default function MentalArticlePage() {
                 </section>
 
                 {/* ACTION BUTTONS */}
-                <div className="mt-16 flex flex-wrap gap-2 border-t border-[#D9D4CD] pt-8">
+                <div className="mt-16 flex flex-wrap gap-3 border-t border-[#D9D4CD] pt-8">
                   {[
                     {
                       icon: copied ? Check : Copy,
@@ -833,19 +550,9 @@ export default function MentalArticlePage() {
                       onClick: handleCopyLink,
                     },
                     {
-                      icon: Mail,
-                      label: t("articleDetail.actions.shareEmail"),
-                      onClick: handleShareEmail,
-                    },
-                    {
-                      icon: Download,
-                      label: t("articleDetail.actions.downloadPdf"),
-                      onClick: handleDownloadPDF,
-                    },
-                    {
-                      icon: Printer,
-                      label: t("articleDetail.actions.printDocument"),
-                      onClick: handlePrint,
+                      icon: Share2,
+                      label: t("articleDetail.actions.share", { defaultValue: "Share" }),
+                      onClick: handleShare,
                     },
                   ].map((item, index) => {
                     const Icon = item.icon;
@@ -856,13 +563,13 @@ export default function MentalArticlePage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={item.onClick}
-                        className={`flex items-center gap-2 flex-wrap whitespace-normal rounded-[6px] border min-h-[2.125rem] h-auto py-2 px-3 sm:px-4 text-[clamp(0.7rem,0.85rem,0.85rem)] cursor-pointer transition-colors ${
+                        className={`flex items-center gap-2 rounded-[6px] border min-h-[2.125rem] h-auto py-2 px-4 text-[clamp(0.75rem,0.85rem,0.9rem)] cursor-pointer transition-colors ${
                           copied && index === 0
                             ? "border-green-400 bg-green-50 text-green-700"
                             : "border-[#D8D2CB] bg-white text-[#49433E] hover:bg-[#F0EDEA]"
                         }`}
                       >
-                        <Icon size={13} />
+                        <Icon size={14} />
                         {item.label}
                       </motion.button>
                     );
@@ -871,7 +578,6 @@ export default function MentalArticlePage() {
               </main>
             </div>
           </div>
-        </div>
       </section>
 
       {/* CTA */}

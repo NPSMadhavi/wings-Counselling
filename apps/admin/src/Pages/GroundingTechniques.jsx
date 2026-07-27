@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Copy, Mail, Download, Printer, Check } from "lucide-react";
+import { Copy, Share2, Check } from "lucide-react";
 import { Footer } from "@/components/Layout/Footer";
 import { useLocation, useRoute } from "wouter";
 import { useTranslation } from "react-i18next";
@@ -212,314 +212,34 @@ export default function AnxietyArticlePage() {
     });
   };
 
-  const handleShareEmail = () => {
-    const subject = encodeURIComponent(displayTitle);
-    const body = encodeURIComponent(
-      `Check out this article:\n\n${window.location.href}`
-    );
-    window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
-  };
-
-  const generatePDF = async (mode = "download") => {
-    const { jsPDF } = await import("jspdf");
-    const doc = new jsPDF("p", "mm", "a4");
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
-    const contentWidth = pageWidth - margin * 2;
-    let y = margin;
-
-    const checkPage = (needed = 12) => {
-      if (y + needed > pageHeight - margin) {
-        doc.addPage();
-        y = margin;
+  const handleShare = async () => {
+    const shareData = {
+      title: displayTitle || document.title || "Grounding Techniques",
+      text: displayExcerpt || "Check out this article on grounding techniques:",
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // User cancelled share
       }
-    };
-
-    const addWrappedText = (text, x, fontSize, color, maxWidth, lineHeight = 7, fontStyle = "normal") => {
-      doc.setFontSize(fontSize);
-      doc.setTextColor(...color);
-      doc.setFont("helvetica", fontStyle);
-      const lines = doc.splitTextToSize(text, maxWidth);
-      lines.forEach((line) => {
-        checkPage(lineHeight);
-        doc.text(line, x, y);
-        y += lineHeight;
-      });
-    };
-
-    // ─── HEADER BAR (current title / author / excerpt) ───
-    doc.setFillColor(13, 74, 122);
-    doc.rect(0, 0, pageWidth, 70, "F");
-
-    doc.setFontSize(24);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(255, 255, 255);
-    const titleLines = doc.splitTextToSize(displayTitle, contentWidth - 10);
-    let titleY = 22;
-    titleLines.forEach((line) => {
-      doc.text(line, margin, titleY);
-      titleY += 10;
-    });
-
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(210, 225, 240);
-    const subLines = doc.splitTextToSize(displayExcerpt || "", contentWidth - 10);
-    let subY = titleY + 4;
-    subLines.slice(0, 3).forEach((line) => {
-      doc.text(line, margin, subY);
-      subY += 5;
-    });
-
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "italic");
-    doc.setTextColor(180, 200, 220);
-    doc.text(`By ${displayAuthor}`, margin, Math.min(subY + 3, 66));
-
-    y = 78;
-
-    // ─── INTRO IMAGE ───
-    try {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = displayCoverImage || "/assets/img4.jpeg";
-      });
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-      const imgData = canvas.toDataURL("image/jpeg", 0.85);
-      const imgHeight = (contentWidth * img.naturalHeight) / img.naturalWidth;
-      const displayHeight = Math.min(imgHeight, 65);
-      checkPage(displayHeight + 5);
-      doc.addImage(imgData, "JPEG", margin, y, contentWidth, displayHeight);
-      y += displayHeight + 12;
-    } catch {
-      // Skip image if it fails to load
-    }
-
-    // ─── TABLE OF CONTENTS (from current sidebar sections) ───
-    if (sections.length > 0) {
-      const tocHeight = 16 + sections.length * 5.5 + 8;
-      checkPage(tocHeight);
-      doc.setFillColor(237, 243, 248);
-      doc.roundedRect(margin, y, contentWidth, tocHeight, 3, 3, "F");
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(13, 74, 122);
-      doc.text("Table of Contents", margin + 8, y + 10);
-      y += 16;
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(60, 60, 60);
-      sections.forEach((item) => {
-        doc.text("•  " + item.label, margin + 8, y);
-        y += 5.5;
-      });
-      y += 14;
-    }
-
-    // ─── BODY: uploaded Word content OR default hardcoded sections ───
-    if (customContent?.html) {
-      const blocks = htmlToPdfBlocks(customContent.html);
-      blocks.forEach((block) => {
-        if (block.type === "heading") {
-          checkPage(20);
-          doc.setDrawColor(200, 200, 200);
-          doc.setLineWidth(0.3);
-          doc.line(margin, y, margin + contentWidth, y);
-          y += 10;
-          const size = block.level === 1 ? 18 : block.level === 2 ? 15 : 13;
-          doc.setFontSize(size);
-          doc.setFont("helvetica", "bold");
-          doc.setTextColor(13, 74, 122);
-          const headLines = doc.splitTextToSize(block.text, contentWidth);
-          headLines.forEach((line) => {
-            checkPage(8);
-            doc.text(line, margin, y);
-            y += 8;
-          });
-          y += 4;
-        } else if (block.type === "quote") {
-          checkPage(14);
-          doc.setFont("helvetica", "italic");
-          addWrappedText(block.text, margin, 11, [61, 57, 53], contentWidth, 6, "italic");
-          y += 4;
-        } else if (block.type === "paragraph") {
-          addWrappedText(block.text, margin, 10, [61, 57, 53], contentWidth, 5.5);
-          y += 4;
-        } else if (block.type === "list") {
-          block.items.forEach((item) => {
-            checkPage(7);
-            doc.setFontSize(10);
-            doc.setTextColor(61, 57, 53);
-            doc.setFont("helvetica", "normal");
-            const bulletLines = doc.splitTextToSize(item, contentWidth - 10);
-            doc.text("•", margin + 3, y);
-            bulletLines.forEach((line) => {
-              checkPage(6);
-              doc.text(line, margin + 10, y);
-              y += 5.5;
-            });
-          });
-          y += 4;
-        }
-      });
     } else {
-      const addSection = (title, paragraphs, callout = null, listItems = null, calloutType = "info") => {
-        checkPage(25);
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.3);
-        doc.line(margin, y, margin + contentWidth, y);
-        y += 10;
-        doc.setFontSize(16);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(13, 74, 122);
-        const headLines = doc.splitTextToSize(title, contentWidth);
-        headLines.forEach((line) => {
-          checkPage(9);
-          doc.text(line, margin, y);
-          y += 9;
-        });
-        y += 5;
-        paragraphs.forEach((para) => {
-          addWrappedText(para, margin, 10, [61, 57, 53], contentWidth, 5.5);
-          y += 4;
-        });
-        if (listItems) {
-          y += 2;
-          listItems.forEach((item) => {
-            checkPage(7);
-            doc.setFontSize(10);
-            doc.setTextColor(61, 57, 53);
-            doc.setFont("helvetica", "normal");
-            const bulletLines = doc.splitTextToSize(item, contentWidth - 10);
-            doc.text("•", margin + 3, y);
-            bulletLines.forEach((line) => {
-              checkPage(6);
-              doc.text(line, margin + 10, y);
-              y += 5.5;
-            });
-          });
-          y += 4;
-        }
-        if (callout) {
-          y += 3;
-          checkPage(22);
-          const boxColor = calloutType === "error" ? [255, 84, 62] : [62, 86, 109];
-          const bgColor = calloutType === "error" ? [255, 240, 238] : [234, 241, 247];
-          doc.setFillColor(...bgColor);
-          const calloutLines = doc.splitTextToSize(callout.text, contentWidth - 20);
-          const boxHeight = calloutLines.length * 5 + 20;
-          doc.roundedRect(margin, y, contentWidth, boxHeight, 2, 2, "F");
-          y += 9;
-          doc.setFontSize(10);
-          doc.setFont("helvetica", "bold");
-          doc.setTextColor(...boxColor);
-          doc.text(callout.title, margin + 10, y);
-          y += 7;
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(9);
-          calloutLines.forEach((line) => {
-            checkPage(5);
-            doc.text(line, margin + 10, y);
-            y += 5;
-          });
-          y += 6;
-        }
-        y += 10;
-      };
-
-      addSection("What is Anxiety?", [
-        "Anxiety is a normal reaction to danger, the body's automatic fight-or-flight response that is triggered when you feel threatened, under pressure, or are facing a challenging situation. However, when anxiety is constant or overwhelming, it can interfere with your daily life and relationships.",
-        "Sometimes it creeps in slowly — tight shoulders, racing thoughts, shallow breathing. Other times it hits all at once, overwhelming you with a sudden wave of panic that makes it feel like you can't breathe.",
-        "The problem is that when anxiety spikes, logic often stops working. Telling yourself to 'calm down' or 'relax' rarely works because your brain's emotional center has taken over.",
-        "That's where grounding techniques help.",
-        "Grounding is not about \"eliminating\" anxiety instantly. It's about reconnecting your brain to the present moment, helping your nervous system realize you are safe right now.",
-        "Here are four grounding techniques that actually work in everyday situations.",
-      ]);
-      addSection(
-        "1. The 5–4–3–2–1 method",
-        ["Best for: Racing thoughts and panic spirals", "This is one of the fastest ways to pull your attention away from anxious thinking and back into your environment. Focus on:"],
-        { title: "Example:", text: "You're sitting in a stressful meeting and feel panic rising. Instead of focusing on catastrophic thoughts, you intentionally notice: the texture of your chair, the hum of the AC, the color of someone's notebook, the smell of coffee nearby. This forces your brain to shift from \"imagined danger\" to \"present reality.\"" },
-        ["5 things you can see", "4 things you can touch", "3 things you can hear", "2 things you can smell", "1 thing you can taste"],
-      );
-      addSection(
-        "2. Controlled breathing",
-        ["Best for: Fast heartbeat and physical anxiety symptoms", "When anxiety spikes, breathing becomes shallow and rapid. Your body interprets this as danger, which increases stress even more.", "Repeat for 1-2 minutes.", "The longer exhale is important because it activates the parasympathetic nervous system — the body's calming response."],
-        { title: "Common mistake:", text: "People often breathe too aggressively when anxious. Don't force 'deep' breaths; Focus on slower, softer breathing instead." },
-        ["Inhale for 4 seconds", "Hold for 4 seconds", "Exhale for 6 seconds"],
-        "error",
-      );
-      addSection(
-        "3. Physical grounding through touch",
-        ["Best for: Feeling disconnected or overwhelmed", "Physical touch is one of the most effective ways to anchor yourself. Try:", "These actions create sensory feedback that reconnects your brain with your body."],
-        null,
-        ["Holding a cold water bottle", "Pressing your feet firmly into the floor", "Running your hands under cold water", "Touching textured fabric or jewelry", "Clenching and releasing your fists"],
-      );
-      addSection(
-        "4. Micro-movements",
-        ["Best for: Anxiety during work or social situations", "Anxiety creates physical tension. Your body prepares to react even when there's no real threat. Small movements can release some of that stored stress without drawing attention.", "Even tiny movements help regulate your nervous system."],
-        null,
-        ["Rolling your shoulders", "Relaxing your jaw", "Stretching your fingers", "Slowly rotating your ankles", "Taking a short walk", "Standing up briefly between tasks"],
-      );
-      addSection(
-        "What grounding can — and cannot — do",
-        ["Grounding techniques are tools, not cures.", "They help you:", "But if anxiety is constant, severely disruptive, or affecting daily functioning, grounding alone may not be enough.", "Chronic anxiety often requires broader support:"],
-        null,
-        ["Regain focus", "Reduce nervous system overload", "Slow spiraling thoughts", "Feel more present", "Therapy", "Lifestyle adjustments", "Stress management", "Sleep regulation", "Medical care"],
-      );
-      addSection(
-        "Final thought",
-        ["You do not need perfect calm to regain control. Sometimes the goal is simply:", "That's often enough to help your nervous system remember: you are here, you are safe, and this moment will pass."],
-        null,
-        ["One slower breath", "One grounded moment", "One interruption to the spiral"],
-      );
-    }
-
-    // ─── FOOTER on last page ───
-    const footerY = pageHeight - 10;
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.setFont("helvetica", "normal");
-    doc.text("WINGS Counselling Centre  •  www.wingscounselling.org", pageWidth / 2, footerY, { align: "center" });
-
-    const fileSafe = displayTitle.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "article";
-
-    if (mode === "print") {
-      const pdfBlob = doc.output("blob");
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      const iframe = document.createElement("iframe");
-      iframe.style.position = "fixed";
-      iframe.style.left = "-9999px";
-      iframe.style.top = "-9999px";
-      iframe.style.width = "1px";
-      iframe.style.height = "1px";
-      iframe.src = pdfUrl;
-      document.body.appendChild(iframe);
-      iframe.onload = () => {
-        setTimeout(() => {
-          try {
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-          } catch {
-            window.open(pdfUrl, "_blank");
-          }
-        }, 500);
-      };
-    } else {
-      doc.save(`${fileSafe}.pdf`);
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        const subject = encodeURIComponent(displayTitle || "Grounding Techniques");
+        const body = encodeURIComponent(
+          `Check out this article:\n\n${window.location.href}`
+        );
+        window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
+      }
     }
   };
 
-  const handleDownloadPDF = () => generatePDF("download");
 
-  const handlePrint = () => generatePDF("print");
 
   return (
     <div
@@ -690,7 +410,7 @@ export default function AnxietyArticlePage() {
           <div className="navbar-align-inner py-[72px]">
             <div ref={articleRef} className="grid grid-cols-1 xl:grid-cols-[220px_1fr] gap-[58px] items-start xl:min-h-0">
               {/* LEFT SIDEBAR */}
-              <aside className="sidebar-scroll hidden xl:block w-full xl:w-[220px] self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              <aside className="hidden xl:block w-full xl:w-[220px] sticky top-[120px] self-start max-h-[calc(100vh-140px)] overflow-y-auto sidebar-scroll" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 <div>
                   {/* AUTHOR */}
                   <div className="text-[16px] leading-[190%] text-[#595550]">
@@ -726,7 +446,7 @@ export default function AnxietyArticlePage() {
               </aside>
 
               {/* RIGHT ARTICLE CONTENT */}
-              <main ref={mainContentRef} className="sidebar-scroll w-full xl:self-stretch xl:overflow-y-auto" style={{ scrollBehavior: "smooth", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              <main ref={mainContentRef} className="sidebar-scroll w-full xl:max-h-[calc(100vh-140px)] xl:overflow-y-auto" style={{ scrollBehavior: "smooth", scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 {customContent?.html ? (
                   <div
                     className="word-article-body space-y-6 text-[18px] leading-[210%] text-[#3D3935]
@@ -1042,7 +762,7 @@ export default function AnxietyArticlePage() {
                 )}
 
                 {/* ACTION BUTTONS */}
-                <div className="mt-16 flex flex-wrap gap-2 border-t border-[#D9D4CD] pt-8">
+                <div className="mt-16 flex flex-wrap gap-3 border-t border-[#D9D4CD] pt-8">
                   {[
                     {
                       icon: copied ? Check : Copy,
@@ -1050,19 +770,9 @@ export default function AnxietyArticlePage() {
                       onClick: handleCopyLink,
                     },
                     {
-                      icon: Mail,
-                      label: t("articleDetail.actions.shareEmail"),
-                      onClick: handleShareEmail,
-                    },
-                    {
-                      icon: Download,
-                      label: t("articleDetail.actions.downloadPdf"),
-                      onClick: handleDownloadPDF,
-                    },
-                    {
-                      icon: Printer,
-                      label: t("articleDetail.actions.printDocument"),
-                      onClick: handlePrint,
+                      icon: Share2,
+                      label: t("articleDetail.actions.share", { defaultValue: "Share" }),
+                      onClick: handleShare,
                     },
                   ].map((item, index) => {
                     const Icon = item.icon;
@@ -1073,13 +783,13 @@ export default function AnxietyArticlePage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={item.onClick}
-                        className={`flex items-center gap-2 flex-wrap whitespace-normal rounded-[6px] border min-h-[2.125rem] h-auto py-2 px-3 sm:px-4 text-[clamp(0.7rem,0.85rem,0.85rem)] cursor-pointer transition-colors ${
+                        className={`flex items-center gap-2 rounded-[6px] border min-h-[2.125rem] h-auto py-2 px-4 text-[clamp(0.75rem,0.85rem,0.9rem)] cursor-pointer transition-colors ${
                           copied && index === 0
                             ? "border-green-400 bg-green-50 text-green-700"
                             : "border-[#D8D2CB] bg-white text-[#49433E] hover:bg-[#F0EDEA]"
                         }`}
                       >
-                        <Icon size={13} />
+                        <Icon size={14} />
                         {item.label}
                       </motion.button>
                     );

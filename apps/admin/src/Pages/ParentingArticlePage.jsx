@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Copy, Mail, Download, Printer, Check } from "lucide-react";
+import { Copy, Share2, Check } from "lucide-react";
 import { Footer } from "@/components/Layout/Footer";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
@@ -62,325 +62,51 @@ export default function ParentingArticlePage() {
       setActiveSection(currentSection);
     };
 
-    const mainEl = mainContentRef.current;
     window.addEventListener("scroll", handleScroll);
-    if (mainEl) mainEl.addEventListener("scroll", handleScroll);
+    handleScroll();
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      if (mainEl) mainEl.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href).then(() => {
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
-  const handleShareEmail = () => {
-    const subject = encodeURIComponent("Parenting - A daunting yet rewarding journey");
-    const body = encodeURIComponent(
-      `Check out this article on parenting support:\n\n${window.location.href}`
-    );
-    window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
-  };
-
-  const generatePDF = async (mode = "download") => {
-    const { jsPDF } = await import("jspdf");
-    const doc = new jsPDF("p", "mm", "a4");
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
-    const contentWidth = pageWidth - margin * 2;
-    let y = margin;
-
-    const checkPage = (needed = 12) => {
-      if (y + needed > pageHeight - margin) {
-        doc.addPage();
-        y = margin;
-      }
-    };
-
-    const addWrappedText = (text, x, fontSize, color, maxWidth, lineHeight = 7, fontStyle = "normal") => {
-      doc.setFontSize(fontSize);
-      doc.setTextColor(...color);
-      doc.setFont("helvetica", fontStyle);
-      const lines = doc.splitTextToSize(text, maxWidth);
-      lines.forEach((line) => {
-        checkPage(lineHeight);
-        doc.text(line, x, y);
-        y += lineHeight;
-      });
-    };
-
-    // ─── HEADER BAR ───
-    doc.setFillColor(13, 74, 122); // #0D4A7A
-    doc.rect(0, 0, pageWidth, 70, "F");
-
-    // Title (first)
-    doc.setFontSize(24);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(255, 255, 255);
-    const titleLines = doc.splitTextToSize("Parenting - A daunting yet rewarding journey", contentWidth - 10);
-    let titleY = 22;
-    titleLines.forEach((line) => {
-      doc.text(line, margin, titleY);
-      titleY += 10;
-    });
-
-    // Description (below title)
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(210, 225, 240);
-    const subtitle = "Parenting can be joyful and rewarding, but it can also feel challenging, frustrating, and emotionally demanding. Support and self-awareness can help parents cope better.";
-    const subLines = doc.splitTextToSize(subtitle, contentWidth - 10);
-    let subY = titleY + 4;
-    subLines.forEach((line) => {
-      doc.text(line, margin, subY);
-      subY += 5;
-    });
-
-    // Authors (below description)
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "italic");
-    doc.setTextColor(180, 200, 220);
-    doc.text("By WINGS Counselling Centre", margin, subY + 3);
-
-    y = 78;
-
-    // ─── LOAD & ADD INTRO IMAGE ───
-    try {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = "/assets/img4.jpeg";
-      });
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-      const imgData = canvas.toDataURL("image/jpeg", 0.85);
-      const imgHeight = (contentWidth * img.naturalHeight) / img.naturalWidth;
-      const displayHeight = Math.min(imgHeight, 65);
-      checkPage(displayHeight + 5);
-      doc.addImage(imgData, "JPEG", margin, y, contentWidth, displayHeight);
-      y += displayHeight + 12;
     } catch {
-      // Skip image if it fails to load
-    }
-
-    // ─── TABLE OF CONTENTS ───
-    checkPage(55);
-    doc.setFillColor(237, 243, 248); // #EDF3F8
-    doc.roundedRect(margin, y, contentWidth, 55, 3, 3, "F");
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(13, 74, 122);
-    doc.text("Table of Contents", margin + 8, y + 10);
-    y += 16;
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(60, 60, 60);
-    const tocItems = [
-      "Introduction",
-      "1. Parenting emotions and expectations",
-      "2. Balance and prioritize your needs",
-      "3. Understand and accept your child",
-      "4. Manage your own stress",
-      "Final thought",
-    ];
-    tocItems.forEach((item) => {
-      doc.text("•  " + item, margin + 8, y);
-      y += 5.5;
-    });
-    y += 14;
-
-    // ─── HELPER: ADD SECTION ───
-    const addSection = (title, paragraphs, callout = null, listItems = null, calloutType = "info") => {
-      checkPage(25);
-
-      // Divider line before section
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.3);
-      doc.line(margin, y, margin + contentWidth, y);
-      y += 10;
-
-      // Section heading
-      doc.setFontSize(16);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(13, 74, 122); // #0D4A7A
-      const headLines = doc.splitTextToSize(title, contentWidth);
-      headLines.forEach((line) => {
-        checkPage(9);
-        doc.text(line, margin, y);
-        y += 9;
-      });
-      y += 5;
-
-      // Paragraphs
-      paragraphs.forEach((para) => {
-        addWrappedText(para, margin, 10, [61, 57, 53], contentWidth, 5.5); // #3D3935
-        y += 4;
-      });
-
-      // List items
-      if (listItems) {
-        y += 2;
-        listItems.forEach((item) => {
-          checkPage(7);
-          doc.setFontSize(10);
-          doc.setTextColor(61, 57, 53);
-          doc.setFont("helvetica", "normal");
-          const bulletLines = doc.splitTextToSize(item, contentWidth - 10);
-          doc.text("•", margin + 3, y);
-          bulletLines.forEach((line) => {
-            checkPage(6);
-            doc.text(line, margin + 10, y);
-            y += 5.5;
-          });
-        });
-        y += 4;
-      }
-
-      // Callout box
-      if (callout) {
-        y += 3;
-        checkPage(22);
-        const boxColor = calloutType === "error" ? [255, 84, 62] : [62, 86, 109];
-        const bgColor = calloutType === "error" ? [255, 240, 238] : [234, 241, 247];
-        doc.setFillColor(...bgColor);
-        const calloutLines = doc.splitTextToSize(callout.text, contentWidth - 20);
-        const boxHeight = (calloutLines.length * 5) + 20;
-        doc.roundedRect(margin, y, contentWidth, boxHeight, 2, 2, "F");
-        y += 9;
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(...boxColor);
-        doc.text(callout.title, margin + 10, y);
-        y += 7;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
-        calloutLines.forEach((line) => {
-          checkPage(5);
-          doc.text(line, margin + 10, y);
-          y += 5;
-        });
-        y += 6;
-      }
-
-      y += 10;
-    };
-
-    // ─── SECTION: Introduction ───
-    addSection("Parenting - A daunting yet rewarding journey", [
-      "All parents will agree that being a parent is as much a source of joy and happiness as it is challenging and frustrating.",
-      "Watching your child grow and develop into a unique individual can be a rewarding experience right from day one, but the path ahead can often feel bumpy and rocky.",
-      "Parenting can bring emotions ranging from happiness, joy, and laughter to frustration, sadness, or anger. During difficult times, parents may start feeling incompetent or bad as parents.",
-    ]);
-
-    // ─── SECTION 1 ───
-    addSection(
-      "1. Parenting emotions and expectations",
-      [
-        "Having awareness about how your own emotions are acting up in difficult situations can be immensely helpful.",
-        "It can help to ask yourself whether you are trying to be the perfect parent all the time, whether your expectations are realistic, or whether you are comparing yourself with other families.",
-        "Parenting in today’s demanding world is one of the toughest roles. Parents need to remain resourceful, patient, understanding, supportive, and loving while also managing many other adult responsibilities.",
-        "When responsibilities pile up, parents can feel tired, exhausted, frustrated, and ineffective in relating, communicating, or disciplining their children.",
-      ]
-    );
-
-    // ─── SECTION 2 ───
-    addSection(
-      "2. Balance and prioritize your needs",
-      [
-        "While discharging all duties as parents, it is common to feel drained and exhausted while neglecting personal well-being.",
-        "Parents may ignore simple needs such as rest, exercise, relaxation, or personal time because they feel it is selfish or too time-consuming. But when parents feel empty inside, they may not be able to give much to others, including their children.",
-        "Children are a priority, but they should not consume all of a parent’s energy and stamina. Making time to relax, care for oneself, and maintain relationships with family, friends, and colleagues can provide important support when things get tough.",
-      ]
-    );
-
-    // ─── SECTION 3 ───
-    addSection(
-      "3. Understand and accept your child",
-      [
-        "Each child is unique and learns and grows in a unique way. Every child has their own strengths, weaknesses, temperament, and needs.",
-        "By understanding children better, parents can support them more consistently and realistically.",
-        "Children, big or small, will make mistakes at times. Sometimes there are valid reasons, and sometimes they may test limits. These moments can make parents feel anxious, lousy, or frustrated.",
-        "Remember: you need to accept and support your child to help them cope with life’s challenges.",
-      ]
-    );
-
-    // ─── SECTION 4 ───
-    addSection(
-      "4. Manage your own stress",
-      [
-        "Everyone experiences stress. Since many physical and emotional problems are caused or influenced by stress, it is important to understand how stress affects the body and mind.",
-        "Learning effective stress management techniques can help parents feel happier, healthier, and more productive.",
-        "Parents can support themselves by getting enough sleep and rest, learning to say no, sharing responsibilities with a spouse or family members, exercising regularly, affirming their strengths, and asking for help when needed.",
-      ],
-      null,
-      [
-        "Make time for sleep and rest",
-        "Learn to say no to things that are not helping you",
-        "Share responsibilities with your spouse or family members",
-        "Take even 10 minutes for brisk walking or exercise",
-        "Affirm your strengths as a parent",
-        "Notice situations that often make you feel frustrated or in conflict",
-        "Hold on to a positive attitude and sense of humour",
-      ]
-    );
-
-    // ─── SECTION 5 ───
-    addSection(
-      "Final thought",
-      [
-        "Knowing that you do not need to be a perfect parent, and that all families go through difficult situations from time to time, can help you see your parenting journey with a better perspective.",
-        "If you are still experiencing difficulty or feeling unsure, do not despair. You can be helped and start enjoying parenthood again.",
-        "Talking to a professional, such as a therapist at WINGS Counselling Centre, can help you support yourself and your child better.",
-      ]
-    );
-
-    // ─── FOOTER on last page ───
-    const footerY = pageHeight - 10;
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.setFont("helvetica", "normal");
-    doc.text("WINGS Counselling Centre", pageWidth / 2, footerY, { align: "center" });
-
-    if (mode === "print") {
-      const pdfBlob = doc.output("blob");
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      const iframe = document.createElement("iframe");
-      iframe.style.position = "fixed";
-      iframe.style.left = "-9999px";
-      iframe.style.top = "-9999px";
-      iframe.style.width = "1px";
-      iframe.style.height = "1px";
-      iframe.src = pdfUrl;
-      document.body.appendChild(iframe);
-      iframe.onload = () => {
-        setTimeout(() => {
-          try {
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-          } catch {
-            // fallback: open in new tab
-            window.open(pdfUrl, "_blank");
-          }
-        }, 500);
-      };
-    } else {
-      doc.save("Parenting-Support.pdf");
+      // Fallback
     }
   };
 
-  const handleDownloadPDF = () => generatePDF("download");
+  const handleShare = async () => {
+    const shareData = {
+      title: document.title || "Parenting Support",
+      text: "Check out this article on parenting support:",
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // User cancelled share
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        const subject = encodeURIComponent("Parenting Support");
+        const body = encodeURIComponent(
+          `Check out this article on parenting support:\n\n${window.location.href}`
+        );
+        window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
+      }
+    }
+  };
 
-  const handlePrint = () => generatePDF("print");
+
 
   return (
     <div
@@ -547,11 +273,10 @@ export default function ParentingArticlePage() {
 
       {/* ARTICLE */}
       <section className="bg-[#F5F3F0]">
-        <div className="w-full">
-  <div className="w-full px-[24px] md:px-[34px] lg:px-[74px] py-[72px]">
+        <div className="w-full px-[24px] md:px-[34px] lg:px-[74px] py-[72px]">
             <div ref={articleRef} className="grid grid-cols-1 xl:grid-cols-[220px_1fr] gap-[58px] items-start xl:min-h-0">
               {/* LEFT SIDEBAR */}
-              <aside className="sidebar-scroll hidden xl:block w-full xl:w-[220px] self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              <aside className="hidden xl:block w-full xl:w-[220px] sticky top-[120px] self-start max-h-[calc(100vh-140px)] overflow-y-auto sidebar-scroll" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 <div>
                   {/* AUTHOR */}
                   <div className="text-[16px] leading-[190%] text-[#595550]">
@@ -625,7 +350,7 @@ export default function ParentingArticlePage() {
               </aside>
 
               {/* RIGHT ARTICLE CONTENT */}
-              <main ref={mainContentRef} className="sidebar-scroll w-full xl:self-stretch xl:overflow-y-auto" style={{ scrollBehavior: "smooth", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              <main ref={mainContentRef} className="sidebar-scroll w-full xl:max-h-[calc(100vh-140px)] xl:overflow-y-auto" style={{ scrollBehavior: "smooth", scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 {/* INTRO */}
                 <motion.div
                   id="parenting-journey"
@@ -847,7 +572,7 @@ export default function ParentingArticlePage() {
                 </section>
 
                 {/* ACTION BUTTONS */}
-                <div className="mt-16 flex flex-wrap gap-2 border-t border-[#D9D4CD] pt-8">
+                <div className="mt-16 flex flex-wrap gap-3 border-t border-[#D9D4CD] pt-8">
                   {[
                     {
                       icon: copied ? Check : Copy,
@@ -855,19 +580,9 @@ export default function ParentingArticlePage() {
                       onClick: handleCopyLink,
                     },
                     {
-                      icon: Mail,
-                      label: t("articleDetail.actions.shareEmail"),
-                      onClick: handleShareEmail,
-                    },
-                    {
-                      icon: Download,
-                      label: t("articleDetail.actions.downloadPdf"),
-                      onClick: handleDownloadPDF,
-                    },
-                    {
-                      icon: Printer,
-                      label: t("articleDetail.actions.printDocument"),
-                      onClick: handlePrint,
+                      icon: Share2,
+                      label: t("articleDetail.actions.share", { defaultValue: "Share" }),
+                      onClick: handleShare,
                     },
                   ].map((item, index) => {
                     const Icon = item.icon;
@@ -878,13 +593,13 @@ export default function ParentingArticlePage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={item.onClick}
-                        className={`flex items-center gap-2 flex-wrap whitespace-normal rounded-[6px] border min-h-[2.125rem] h-auto py-2 px-3 sm:px-4 text-[clamp(0.7rem,0.85rem,0.85rem)] cursor-pointer transition-colors ${
+                        className={`flex items-center gap-2 rounded-[6px] border min-h-[2.125rem] h-auto py-2 px-4 text-[clamp(0.75rem,0.85rem,0.9rem)] cursor-pointer transition-colors ${
                           copied && index === 0
                             ? "border-green-400 bg-green-50 text-green-700"
                             : "border-[#D8D2CB] bg-white text-[#49433E] hover:bg-[#F0EDEA]"
                         }`}
                       >
-                        <Icon size={13} />
+                        <Icon size={14} />
                         {item.label}
                       </motion.button>
                     );
@@ -893,7 +608,6 @@ export default function ParentingArticlePage() {
               </main>
             </div>
           </div>
-        </div>
       </section>
 
       {/* CTA */}

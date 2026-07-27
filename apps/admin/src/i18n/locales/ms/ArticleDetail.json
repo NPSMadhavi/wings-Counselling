@@ -16,9 +16,7 @@
     "actions": {
       "copyLink": "Salin Pautan",
       "copied": "Disalin!",
-      "shareEmail": "Kongsi melalui E-mel",
-      "downloadPdf": "Muat Turun PDF",
-      "printDocument": "Cetak Dokumen"
+      "share": "Kongsi"
     },
     "cta": {
       "title": "Bersedia untuk Berbual dengan Seseorang?",

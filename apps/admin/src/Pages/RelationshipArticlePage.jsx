@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Copy, Mail, Download, Printer, Check } from "lucide-react";
+import { Copy, Share2, Check } from "lucide-react";
 import { Footer } from "@/components/Layout/Footer";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
@@ -63,314 +63,51 @@ export default function RelationshipArticlePage() {
       setActiveSection(currentSection);
     };
 
-    const mainEl = mainContentRef.current;
     window.addEventListener("scroll", handleScroll);
-    if (mainEl) mainEl.addEventListener("scroll", handleScroll);
+    handleScroll();
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      if (mainEl) mainEl.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href).then(() => {
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
-  const handleShareEmail = () => {
-    const subject = encodeURIComponent("Relationship and Marital");
-    const body = encodeURIComponent(
-      `Check out this article on relationship and marital support:\n\n${window.location.href}`
-    );
-    window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
-  };
-
-  const generatePDF = async (mode = "download") => {
-    const { jsPDF } = await import("jspdf");
-    const doc = new jsPDF("p", "mm", "a4");
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
-    const contentWidth = pageWidth - margin * 2;
-    let y = margin;
-
-    const checkPage = (needed = 12) => {
-      if (y + needed > pageHeight - margin) {
-        doc.addPage();
-        y = margin;
-      }
-    };
-
-    const addWrappedText = (text, x, fontSize, color, maxWidth, lineHeight = 7, fontStyle = "normal") => {
-      doc.setFontSize(fontSize);
-      doc.setTextColor(...color);
-      doc.setFont("helvetica", fontStyle);
-      const lines = doc.splitTextToSize(text, maxWidth);
-      lines.forEach((line) => {
-        checkPage(lineHeight);
-        doc.text(line, x, y);
-        y += lineHeight;
-      });
-    };
-
-    // ─── HEADER BAR ───
-    doc.setFillColor(13, 74, 122); // #0D4A7A
-    doc.rect(0, 0, pageWidth, 70, "F");
-
-    // Title (first)
-    doc.setFontSize(24);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(255, 255, 255);
-    const titleLines = doc.splitTextToSize("Relationship and Marital", contentWidth - 10);
-    let titleY = 22;
-    titleLines.forEach((line) => {
-      doc.text(line, margin, titleY);
-      titleY += 10;
-    });
-
-    // Description (below title)
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(210, 225, 240);
-    const subtitle = "Relationship and marital challenges often arise when partners see things differently. With trust, open communication, and support, couples can work toward stronger connection and healthier conflict resolution.";
-    const subLines = doc.splitTextToSize(subtitle, contentWidth - 10);
-    let subY = titleY + 4;
-    subLines.forEach((line) => {
-      doc.text(line, margin, subY);
-      subY += 5;
-    });
-
-    // Authors (below description)
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "italic");
-    doc.setTextColor(180, 200, 220);
-    doc.text("By WINGS Counselling Centre", margin, subY + 3);
-
-    y = 78;
-
-    // ─── LOAD & ADD INTRO IMAGE ───
-    try {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = "/assets/img4.jpeg";
-      });
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-      const imgData = canvas.toDataURL("image/jpeg", 0.85);
-      const imgHeight = (contentWidth * img.naturalHeight) / img.naturalWidth;
-      const displayHeight = Math.min(imgHeight, 65);
-      checkPage(displayHeight + 5);
-      doc.addImage(imgData, "JPEG", margin, y, contentWidth, displayHeight);
-      y += displayHeight + 12;
     } catch {
-      // Skip image if it fails to load
-    }
-
-    // ─── TABLE OF CONTENTS ───
-    checkPage(55);
-    doc.setFillColor(237, 243, 248); // #EDF3F8
-    doc.roundedRect(margin, y, contentWidth, 55, 3, 3, "F");
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(13, 74, 122);
-    doc.text("Table of Contents", margin + 8, y + 10);
-    y += 16;
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(60, 60, 60);
-    const tocItems = [
-      "Introduction",
-      "1. When differences create distance",
-      "2. Building trust and communication",
-      "3. When divorce becomes a concern",
-      "4. Getting support after betrayal",
-      "Final thought",
-    ];
-    tocItems.forEach((item) => {
-      doc.text("•  " + item, margin + 8, y);
-      y += 5.5;
-    });
-    y += 14;
-
-    // ─── HELPER: ADD SECTION ───
-    const addSection = (title, paragraphs, callout = null, listItems = null, calloutType = "info") => {
-      checkPage(25);
-
-      // Divider line before section
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.3);
-      doc.line(margin, y, margin + contentWidth, y);
-      y += 10;
-
-      // Section heading
-      doc.setFontSize(16);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(13, 74, 122); // #0D4A7A
-      const headLines = doc.splitTextToSize(title, contentWidth);
-      headLines.forEach((line) => {
-        checkPage(9);
-        doc.text(line, margin, y);
-        y += 9;
-      });
-      y += 5;
-
-      // Paragraphs
-      paragraphs.forEach((para) => {
-        addWrappedText(para, margin, 10, [61, 57, 53], contentWidth, 5.5); // #3D3935
-        y += 4;
-      });
-
-      // List items
-      if (listItems) {
-        y += 2;
-        listItems.forEach((item) => {
-          checkPage(7);
-          doc.setFontSize(10);
-          doc.setTextColor(61, 57, 53);
-          doc.setFont("helvetica", "normal");
-          const bulletLines = doc.splitTextToSize(item, contentWidth - 10);
-          doc.text("•", margin + 3, y);
-          bulletLines.forEach((line) => {
-            checkPage(6);
-            doc.text(line, margin + 10, y);
-            y += 5.5;
-          });
-        });
-        y += 4;
-      }
-
-      // Callout box
-      if (callout) {
-        y += 3;
-        checkPage(22);
-        const boxColor = calloutType === "error" ? [255, 84, 62] : [62, 86, 109];
-        const bgColor = calloutType === "error" ? [255, 240, 238] : [234, 241, 247];
-        doc.setFillColor(...bgColor);
-        const calloutLines = doc.splitTextToSize(callout.text, contentWidth - 20);
-        const boxHeight = (calloutLines.length * 5) + 20;
-        doc.roundedRect(margin, y, contentWidth, boxHeight, 2, 2, "F");
-        y += 9;
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(...boxColor);
-        doc.text(callout.title, margin + 10, y);
-        y += 7;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
-        calloutLines.forEach((line) => {
-          checkPage(5);
-          doc.text(line, margin + 10, y);
-          y += 5;
-        });
-        y += 6;
-      }
-
-      y += 10;
-    };
-
-    // ─── SECTION: Introduction ───
-    addSection("Relationship and Marital", [
-      "One of the greatest challenges in a relationship is when individuals do not see things the way their partner sees them. These differences can cause agony and relational challenges as the relationship progresses beyond the honeymoon phase.",
-      "Many couples experience differences in a marital relationship due to gender differences, personality traits, habits and preferences, family upbringing, cultural values, emotional needs, and expectations.",
-    ]);
-
-    // ─── SECTION 1 ───
-    addSection(
-      "1. When differences create distance",
-      [
-        "Sometimes, the very differences that are meant to complement the relationship can repel. These differences may become magnified, and partners may begin the blame-game, which can sour the relationship.",
-        "When partners are unable to understand each other's perspective, emotional distance, resentment, and repeated conflict can develop over time.",
-      ]
-    );
-
-    // ─── SECTION 2 ───
-    addSection(
-      "2. Building trust and communication",
-      [
-        "Building a bedrock of trust as the foundation of marriage, together with open communication, is important for a healthy couple relationship.",
-        "Agreeing to disagree with your partner can be a sign of respect and appreciation towards individual differences.",
-        "These qualities can contribute to greater connection, intimacy, emotional satisfaction, and stability in a healthy couple relationship, and may also reduce the risk of divorce.",
-      ]
-    );
-
-    // ─── SECTION 3 ───
-    addSection(
-      "3. When divorce becomes a concern",
-      [
-        "Divorce rates are supposedly on the rise. When divorce happens, it can result in difficulties for both the couple and the children.",
-        "While divorce may be necessary and a healthier choice for some couples, others may wish to salvage whatever is left of the union because the implications on children are real.",
-        "This may be an appropriate time to seek marital counselling to enhance open communication, where each partner feels appreciated and valued.",
-        "Before rushing for a divorce due to an unhappy situation, every parent must consider the needs of their child or children, who need their parents' tender loving care as a foundation for emotional stability.",
-      ]
-    );
-
-    // ─── SECTION 4 ───
-    addSection(
-      "4. Getting support after betrayal",
-      [
-        "Another major contributing factor for a marriage breaking down may be when one or both parties are having an affair, or one partner has had an affair.",
-        "In such circumstances, trust, betrayal, and anger are normal emotions for the partner who is feeling rejected.",
-        "Recovering from an affair is not impossible, but it takes a lot of hard work from both parties to start reconnecting the missing pieces of the relationship.",
-        "Seek help immediately when the relationship feels stuck or overwhelmed by betrayal.",
-      ]
-    );
-
-    // ─── SECTION 5 ───
-    addSection(
-      "Final thought",
-      [
-        "With the support of a trained professional, marital counselling can provide a different perspective on the dynamics of a relationship when a couple has reached a stalemate.",
-        "Unhelpful behaviour patterns that may have become ingrained can be modified when a couple is committed to making changes that benefit them in the long run.",
-        "Seeking professional counselling can enhance communication and effective conflict resolution, which are building blocks for a strong foundation in marriage.",
-        "A professional counsellor can also bring a refreshing element by reminding the couple of their strengths in the relationship.",
-      ]
-    );
-
-    // ─── FOOTER on last page ───
-    const footerY = pageHeight - 10;
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.setFont("helvetica", "normal");
-    doc.text("WINGS Counselling Centre", pageWidth / 2, footerY, { align: "center" });
-
-    if (mode === "print") {
-      const pdfBlob = doc.output("blob");
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      const iframe = document.createElement("iframe");
-      iframe.style.position = "fixed";
-      iframe.style.left = "-9999px";
-      iframe.style.top = "-9999px";
-      iframe.style.width = "1px";
-      iframe.style.height = "1px";
-      iframe.src = pdfUrl;
-      document.body.appendChild(iframe);
-      iframe.onload = () => {
-        setTimeout(() => {
-          try {
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-          } catch {
-            // fallback: open in new tab
-            window.open(pdfUrl, "_blank");
-          }
-        }, 500);
-      };
-    } else {
-      doc.save("Relationship-and-Marital.pdf");
+      // Fallback
     }
   };
 
-  const handleDownloadPDF = () => generatePDF("download");
+  const handleShare = async () => {
+    const shareData = {
+      title: document.title || "Relationship and Marital Support",
+      text: "Check out this article on relationship and marital support:",
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // User cancelled share
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        const subject = encodeURIComponent("Relationship and Marital Support");
+        const body = encodeURIComponent(
+          `Check out this article on relationship and marital support:\n\n${window.location.href}`
+        );
+        window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
+      }
+    }
+  };
 
-  const handlePrint = () => generatePDF("print");
+
 
   return (
     <div
@@ -538,11 +275,10 @@ export default function RelationshipArticlePage() {
 
       {/* ARTICLE */}
       <section className="bg-[#F5F3F0]">
-        <div className="w-full">
-  <div className="w-full px-[24px] md:px-[34px] lg:px-[74px] py-[72px]">
+        <div className="w-full px-[24px] md:px-[34px] lg:px-[74px] py-[72px]">
             <div ref={articleRef} className="grid grid-cols-1 xl:grid-cols-[220px_1fr] gap-[58px] items-start xl:min-h-0">
               {/* LEFT SIDEBAR */}
-              <aside className="sidebar-scroll hidden xl:block w-full xl:w-[220px] self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              <aside className="hidden xl:block w-full xl:w-[220px] sticky top-[120px] self-start max-h-[calc(100vh-140px)] overflow-y-auto sidebar-scroll" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 <div>
                   {/* AUTHOR */}
                   <div className="text-[16px] leading-[190%] text-[#595550]">
@@ -616,7 +352,7 @@ export default function RelationshipArticlePage() {
               </aside>
 
               {/* RIGHT ARTICLE CONTENT */}
-              <main ref={mainContentRef} className="sidebar-scroll w-full xl:self-stretch xl:overflow-y-auto" style={{ scrollBehavior: "smooth", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              <main ref={mainContentRef} className="sidebar-scroll w-full xl:max-h-[calc(100vh-140px)] xl:overflow-y-auto" style={{ scrollBehavior: "smooth", scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 {/* INTRO */}
                 <motion.div
                   id="relationship-and-marital"
@@ -821,7 +557,7 @@ export default function RelationshipArticlePage() {
                 </section>
 
                 {/* ACTION BUTTONS */}
-                <div className="mt-16 flex flex-wrap gap-2 border-t border-[#D9D4CD] pt-8">
+                <div className="mt-16 flex flex-wrap gap-3 border-t border-[#D9D4CD] pt-8">
                   {[
                     {
                       icon: copied ? Check : Copy,
@@ -829,19 +565,9 @@ export default function RelationshipArticlePage() {
                       onClick: handleCopyLink,
                     },
                     {
-                      icon: Mail,
-                      label: t("articleDetail.actions.shareEmail"),
-                      onClick: handleShareEmail,
-                    },
-                    {
-                      icon: Download,
-                      label: t("articleDetail.actions.downloadPdf"),
-                      onClick: handleDownloadPDF,
-                    },
-                    {
-                      icon: Printer,
-                      label: t("articleDetail.actions.printDocument"),
-                      onClick: handlePrint,
+                      icon: Share2,
+                      label: t("articleDetail.actions.share", { defaultValue: "Share" }),
+                      onClick: handleShare,
                     },
                   ].map((item, index) => {
                     const Icon = item.icon;
@@ -852,13 +578,13 @@ export default function RelationshipArticlePage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={item.onClick}
-                        className={`flex items-center gap-2 flex-wrap whitespace-normal rounded-[6px] border min-h-[2.125rem] h-auto py-2 px-3 sm:px-4 text-[clamp(0.7rem,0.85rem,0.85rem)] cursor-pointer transition-colors ${
+                        className={`flex items-center gap-2 rounded-[6px] border min-h-[2.125rem] h-auto py-2 px-4 text-[clamp(0.75rem,0.85rem,0.9rem)] cursor-pointer transition-colors ${
                           copied && index === 0
                             ? "border-green-400 bg-green-50 text-green-700"
                             : "border-[#D8D2CB] bg-white text-[#49433E] hover:bg-[#F0EDEA]"
                         }`}
                       >
-                        <Icon size={13} />
+                        <Icon size={14} />
                         {item.label}
                       </motion.button>
                     );
@@ -867,7 +593,6 @@ export default function RelationshipArticlePage() {
               </main>
             </div>
           </div>
-        </div>
       </section>
 
       {/* CTA */}
