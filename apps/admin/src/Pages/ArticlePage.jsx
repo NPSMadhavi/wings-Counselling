@@ -200,25 +200,30 @@ export default function ArticlePage() {
                         <div className="relative dropdown-container">
                             <button
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                className="flex items-center justify-between bg-white"
+                                className="flex items-center justify-between bg-white text-left gap-3"
                                 style={{
-                                    width: "160px",
-                                    height: "44px",
-                                    padding: "0 16px",
+                                    minWidth: "160px",
+                                    maxWidth: "340px",
+                                    minHeight: "44px",
+                                    height: "auto",
+                                    padding: "8px 16px",
                                     borderRadius: "8px",
                                     border: "1px solid #E5E7EB",
                                     fontFamily: "'DM Sans', sans-serif",
                                     fontWeight: 500,
-                                    fontSize: "16px",
+                                    fontSize: "15px",
                                     color: "#000000",
                                     boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
                                     cursor: "pointer",
                                 }}
                             >
-                                {selectedFilterLabel}
+                                <span className="leading-snug break-words flex-1">
+                                    {selectedFilterLabel}
+                                </span>
                                 <ChevronDown
                                     size={20}
                                     color="#6B7280"
+                                    className="shrink-0"
                                     style={{
                                         transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
                                         transition: "transform 0.3s ease",
@@ -231,11 +236,7 @@ export default function ArticlePage() {
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
-                                    className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-100 z-50"
-                                    style={{
-                                        minWidth: "160px",
-                                        overflow: "hidden",
-                                    }}
+                                    className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-100 z-50 w-max min-w-[200px] max-w-[340px] max-h-[300px] overflow-y-auto"
                                 >
                                     {articleFilterOptions.map((option) => (
                                         <button
@@ -244,7 +245,7 @@ export default function ArticlePage() {
                                                 setSelectedFilter(option.key);
                                                 setIsDropdownOpen(false);
                                             }}
-                                            className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                                            className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors break-words"
                                             style={{
                                                 fontFamily: "'DM Sans', sans-serif",
                                                 fontWeight: 500,

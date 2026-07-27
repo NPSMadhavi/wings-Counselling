@@ -16,7 +16,7 @@ import {
 } from "@/lib/articlePageContent";
 import { resolveAssetUrl } from "@/admin/lib/api";
 
-const heroImg = "/assets/ihero1.jpeg";
+const heroImg = "/assets/articlesection.jpeg";
 const introImg = "/assets/img4.jpg";
 
 const DEFAULT_SECTIONS = [
