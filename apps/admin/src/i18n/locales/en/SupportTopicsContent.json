@@ -12,10 +12,10 @@
     "depression": {
       "label": "Depression",
       "breadcrumbLabel": "Depression",
-      "heroTitle": "You don't have to navigate lifestyle challenges alone",
-      "heroDescription": "Discover how everyday habits and life changes can affect your well-being and explore practical ways to create a healthier more balanced lifestyle.",
-      "understandingTitle": "Understanding lifestyle issues",
-      "understandingDescription": "Lifestyle challenges may include difficulty maintaining healthy routines, balancing responsibilities, adapting to major life changes or managing personal well-being. Small, positive changes can improve both physical and emotional health while enhancing overall quality of life."
+      "heroTitle": "You don't have to navigate depression alone",
+      "heroDescription": "Depression is a common mental health condition that can affect anyone. Learn about its symptoms, causes and discover professional support to help you manage your mental well-being.",
+      "understandingTitle": "Understanding depression",
+      "understandingDescription": "Depression is a common but serious mental health condition that affects how you feel, think and handle daily activities. It can cause persistent sadness, loss of interest in activities, and a range of physical and emotional symptoms. With proper support and treatment, individuals can manage their symptoms and improve their quality of life."
     },
 
     "traumaPTSD": {
@@ -75,10 +75,10 @@
     "mentalHealth": {
       "label": "Mental health",
       "breadcrumbLabel": "Mental health",
-      "heroTitle": "You don't have to deal with financial stress alone",
-      "heroDescription": "Learn how financial concerns can affect emotional well-being and relationships and explore healthy ways to manage financial challenges.",
-      "understandingTitle": "Understanding financial disputes",
-      "understandingDescription": "Financial disagreements can create stress within families, relationships and workplaces. Concerns about budgeting, debt, expenses or financial responsibilities may affect emotional health and interpersonal relationships. Constructive communication and professional guidance can help resolve financial conflicts more effectively."
+      "heroTitle": "You don't have to deal with mental health challenges alone",
+      "heroDescription": "Mental health is an essential aspect of overall well-being. Learn how financial stress can impact emotional health and explore strategies to manage stress and improve mental wellness.",
+      "understandingTitle": "Understanding mental health",
+      "understandingDescription": "Mental health encompasses emotional, psychological and social well-being. It affects how individuals think, feel and behave in daily life. Financial stress can contribute to mental health challenges, impacting relationships, work performance and overall quality of life. Seeking support and developing coping strategies can help individuals maintain mental wellness."
     },
 
     "burnoutWorkStress": {

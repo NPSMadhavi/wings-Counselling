@@ -12,10 +12,10 @@
     "depression": {
       "label": "Kemurungan",
       "breadcrumbLabel": "Kemurungan",
-      "heroTitle": "Anda tidak perlu menghadapi cabaran gaya hidup bersendirian",
-      "heroDescription": "Ketahui bagaimana tabiat harian dan perubahan kehidupan boleh mempengaruhi kesejahteraan anda, serta terokai langkah-langkah praktikal untuk membina gaya hidup yang lebih sihat dan seimbang.",
-      "understandingTitle": "Memahami cabaran gaya hidup",
-      "understandingDescription": "Cabaran gaya hidup boleh merangkumi kesukaran mengekalkan tabiat sihat, mengimbangi tanggungjawab harian, menyesuaikan diri dengan perubahan hidup atau mengurus kesejahteraan diri. Perubahan kecil yang positif boleh membantu meningkatkan kesihatan fizikal, emosi dan kualiti hidup secara keseluruhan."
+      "heroTitle": "Anda tidak perlu menghadapi kemurungan bersendirian",
+      "heroDescription": "Kemurungan ialah keadaan kesihatan mental yang biasa dan boleh menjejaskan sesiapa sahaja. Ketahui simptom, punca serta dapatkan sokongan profesional untuk membantu mengurus kesejahteraan mental anda.",
+      "understandingTitle": "Memahami Kemurungan",
+      "understandingDescription": "Kemurungan ialah keadaan kesihatan mental yang biasa tetapi serius yang mempengaruhi cara anda berfikir, merasa dan menjalani aktiviti harian. Ia boleh menyebabkan kesedihan yang berpanjangan, kehilangan minat terhadap aktiviti serta pelbagai simptom fizikal dan emosi. Dengan sokongan dan rawatan yang sesuai, individu boleh mengurus simptom mereka dan meningkatkan kualiti hidup."
     },
 
     "traumaPTSD": {
@@ -75,10 +75,10 @@
     "mentalHealth": {
       "label": "Kesihatan Mental",
       "breadcrumbLabel": "Kesihatan Mental",
-      "heroTitle": "Anda tidak perlu menghadapi tekanan kewangan bersendirian",
-      "heroDescription": "Fahami bagaimana masalah kewangan boleh memberi kesan kepada kesejahteraan emosi dan hubungan, serta pelajari cara yang lebih sihat untuk mengurus cabaran kewangan.",
-      "understandingTitle": "Memahami pertikaian kewangan",
-      "understandingDescription": "Pertikaian kewangan boleh menyebabkan tekanan dalam keluarga, hubungan dan tempat kerja. Kebimbangan berkaitan bajet, hutang, perbelanjaan atau tanggungjawab kewangan boleh menjejaskan kesejahteraan emosi serta hubungan dengan orang lain. Komunikasi yang membina dan bimbingan profesional dapat membantu menyelesaikan konflik kewangan dengan lebih berkesan."
+      "heroTitle": "Anda tidak perlu menghadapi cabaran kesihatan mental bersendirian",
+      "heroDescription": "Kesihatan mental merupakan aspek penting dalam kesejahteraan keseluruhan. Ketahui bagaimana tekanan kewangan boleh menjejaskan kesihatan emosi dan terokai strategi untuk mengurus tekanan serta meningkatkan kesejahteraan mental.",
+      "understandingTitle": "Memahami Kesihatan Mental",
+      "understandingDescription": "Kesihatan mental merangkumi kesejahteraan emosi, psikologi dan sosial. Ia mempengaruhi cara seseorang berfikir, merasa dan bertindak dalam kehidupan seharian. Tekanan kewangan boleh menyumbang kepada cabaran kesihatan mental, menjejaskan hubungan, prestasi kerja dan kualiti hidup secara keseluruhan. Mendapatkan sokongan dan membina strategi daya tindak yang sihat dapat membantu mengekalkan kesejahteraan mental."
     },
 
     "burnoutWorkStress": {

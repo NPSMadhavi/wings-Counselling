@@ -22,7 +22,7 @@ export const SUPPORT_TOPICS = [
     breadcrumbLabel: "Depression",
     heroTitle: "You don't have to navigate depression alone",
     heroDescription:
-      "Discover how everyday habits and life changes can affect your well-being and explore practical ways to create a healthier more balanced lifestyle.",
+      "Depression is a common mental health condition that can affect anyone. Learn about its symptoms, causes and discover professional support to help you manage your mental well-being.",
     understandingTitle: "Understanding depression",
     understandingDescription:
       "Depression is a common but serious mental health condition that affects how you feel, think and handle daily activities. It can cause persistent sadness, loss of interest in activities, and a range of physical and emotional symptoms. With proper support and treatment, individuals can manage their symptoms and improve their quality of life.",
@@ -130,7 +130,7 @@ export const SUPPORT_TOPICS = [
       "Mental health is an essential aspect of overall well-being. Learn how financial stress can impact emotional health and explore strategies to manage stress and improve mental wellness.",
     understandingTitle: "Understanding mental health",
     understandingDescription:
-      "Financial disagreements can create stress within families, relationships and workplaces. Concerns about budgeting, debt, expenses or financial responsibilities may affect emotional health and interpersonal relationships. Constructive communication and professional guidance can help resolve financial conflicts more effectively.",
+      "Mental health encompasses emotional, psychological and social well-being. It affects how individuals think, feel and behave in daily life. Financial stress can contribute to mental health challenges, impacting relationships, work performance and overall quality of life. Seeking support and developing coping strategies can help individuals maintain mental wellness.",
     articleKeywords: ["financial", "money", "stress", "family", "relationship"],
     serviceKeywords: ["family", "couple", "individual", "counselling"],
   },
