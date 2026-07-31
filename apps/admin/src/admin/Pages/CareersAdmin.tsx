@@ -17,6 +17,7 @@ import {
   AdminLanguageDropdown,
   useAdminLanguages,
 } from "../components/AdminLanguageDropdown";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { api } from "../lib/api";
 
 // =============================================================================
@@ -1424,7 +1425,7 @@ function JobForm({
             className="px-6 py-2.5 bg-[#0D4A7A] text-white rounded-lg font-semibold transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             data-testid="button-save-job"
           >
-            {isLoading ? "Saving..." : job ? "Update Job" : "Save Job"}
+            {isLoading ? "Saving..." : job ? "Update" : "Save"}
           </button>
         </>
       }
@@ -1817,6 +1818,7 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
   const [jobsPage, setJobsPage] = useState(1);
   const [categoriesPage, setCategoriesPage] = useState(1);
   const [usersPage, setUsersPage] = useState(1);
+  const [deleteJobTarget, setDeleteJobTarget] = useState<number | null>(null);
 
   // =============================================================================
   // QUERIES
@@ -2036,6 +2038,7 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
     mutationFn: (id: number) => apiFetch(`/api/jobs/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      setDeleteJobTarget(null);
       toast({ title: "Success", description: "Job deleted successfully" });
     },
     onError: () => toast({ title: "Error", description: "Failed to delete job", variant: "destructive" }),
@@ -3069,7 +3072,7 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
                               </Button>
 
                               <Button
-                                onClick={() => deleteJobMutation.mutate(job.id)}
+                                onClick={() => setDeleteJobTarget(job.id)}
                                 data-testid={`button-delete-job-${job.id}`}
                               >
                                 <Trash2 size="16" />
@@ -3948,6 +3951,18 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={deleteJobTarget !== null}
+        loading={deleteJobMutation.isPending}
+        title="Delete Job Posting"
+        message="This job will be permanently deleted."
+        confirmLabel="Delete"
+        onConfirm={() => {
+          if (deleteJobTarget != null) deleteJobMutation.mutate(deleteJobTarget);
+        }}
+        onCancel={() => setDeleteJobTarget(null)}
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import {
   AdminLanguageDropdown,
   useAdminLanguages,
 } from "../components/AdminLanguageDropdown";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 
 // ✅ reusable easing tuple (fixes TS error cleanly)
 const easeInOut: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
@@ -656,6 +657,8 @@ export default function EventsSection() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const {
     languages,
     selectedLanguageId,
@@ -729,15 +732,18 @@ export default function EventsSection() {
     setEditingEvent(null);
   };
 
-  const handleDeleteEvent = async (eventId) => {
-    if (window.confirm("Are you sure you want to delete this event?")) {
-      try {
-        await api.deleteEvent(eventId);
-        setEvents(prev => prev.filter(e => e.id !== eventId));
-      } catch (error) {
-        console.error("Failed to delete event:", error);
-        alert("Failed to delete event.");
-      }
+  const handleDeleteEvent = async () => {
+    if (deleteTarget == null) return;
+    setDeleting(true);
+    try {
+      await api.deleteEvent(deleteTarget);
+      setEvents((prev) => prev.filter((e) => e.id !== deleteTarget));
+      setDeleteTarget(null);
+    } catch (error) {
+      console.error("Failed to delete event:", error);
+      alert("Failed to delete event.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -943,7 +949,7 @@ export default function EventsSection() {
 
                             {/* DELETE */}
                             <button
-                              onClick={() => handleDeleteEvent(event.id)}
+                              onClick={() => setDeleteTarget(event.id)}
                               className="p-2 rounded-lg transition-colors"
                               title="Delete Event"
                             >
@@ -1002,6 +1008,16 @@ export default function EventsSection() {
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
         event={selectedEvent}
+      />
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        loading={deleting}
+        title="Delete Event"
+        message="This event will be permanently deleted."
+        confirmLabel="Delete"
+        onConfirm={handleDeleteEvent}
+        onCancel={() => setDeleteTarget(null)}
       />
     </>
   );

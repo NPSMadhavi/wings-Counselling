@@ -13,6 +13,7 @@ import {
 
 import { toast } from "react-toastify";
 import { api, resolveAssetUrl } from "../lib/api";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 
 export default function CounsellingTypesPage() {
 
@@ -50,6 +51,8 @@ export default function CounsellingTypesPage() {
     const [selectedLanguageId, setSelectedLanguageId] = useState<number | null>(null);
     const [openLangMenu, setOpenLangMenu] = useState<"header" | "modal" | null>(null);
     const [isSwitchingLanguage, setIsSwitchingLanguage] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState<string | number | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     const selectedLanguage = languages.find((l) => l.id === selectedLanguageId) || null;
     const selectedLangCode = String(selectedLanguage?.code || "en").toLowerCase();
@@ -532,14 +535,15 @@ export default function CounsellingTypesPage() {
        DELETE
     ===================================================== */
 
-    const handleDelete = async (id: any) => {
-        if (!window.confirm("Are you sure?")) return;
+    const handleDelete = async () => {
+        if (deleteTarget == null) return;
+        setDeleting(true);
 
         try {
             const response = await fetch(
-                typeof id === "string" && id.includes("?")
-                    ? `/api/counselling-types/${id}`
-                    : `/api/counselling-types/${id}`,
+                typeof deleteTarget === "string" && deleteTarget.includes("?")
+                    ? `/api/counselling-types/${deleteTarget}`
+                    : `/api/counselling-types/${deleteTarget}`,
                 { method: "DELETE" }
             );
 
@@ -547,6 +551,7 @@ export default function CounsellingTypesPage() {
 
             if (response.ok) {
                 toast.success("Deleted Successfully");
+                setDeleteTarget(null);
                 fetchTypes(selectedLangCode);
             } else {
                 toast.error(data.message || "Delete failed");
@@ -554,6 +559,8 @@ export default function CounsellingTypesPage() {
         } catch (error) {
             console.log(error);
             toast.error("Server Error");
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -667,7 +674,7 @@ export default function CounsellingTypesPage() {
                                                  <Pencil size="16" />
                                             </button>
                                             <button 
-                                                onClick={() => handleDelete(item.id)}
+                                                onClick={() => setDeleteTarget(item.id)}
                                                 className=" transition-colors"
                                                 title="Delete Main Type"
                                             >
@@ -696,7 +703,7 @@ export default function CounsellingTypesPage() {
                                                      <Pencil size="16" />
                                             </button>
                                             <button 
-                                                onClick={() => handleDelete(`${sub.id}?is_sub_type=true`)}
+                                                onClick={() => setDeleteTarget(`${sub.id}?is_sub_type=true`)}
                                                 className=" transition-colors"
                                                 title="Delete Sub Type"
                                             >
@@ -981,6 +988,16 @@ export default function CounsellingTypesPage() {
                     animation: fadeInUp 0.3s ease-out;
                 }
             `}</style>
+
+            <ConfirmDialog
+                open={deleteTarget !== null}
+                loading={deleting}
+                title="Delete Service"
+                message="This service will be permanently deleted."
+                confirmLabel="Delete"
+                onConfirm={handleDelete}
+                onCancel={() => setDeleteTarget(null)}
+            />
         </div>
     );
 }

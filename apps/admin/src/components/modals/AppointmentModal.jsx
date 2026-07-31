@@ -348,7 +348,7 @@ const CustomNationalityDropdown = ({ value, onChange, onBlur, error }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-[#E3E1E1] rounded-[10px] shadow-lg">
+        <div className="absolute z-50 w-full bottom-full mb-1 bg-white border border-[#E3E1E1] rounded-[10px] shadow-lg">
           <div className="p-2 border-b border-[#E3E1E1]">
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />

@@ -5,7 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon"
+    "predev": "node scripts/free-port.js",
+    "dev": "nodemon",
+    "free-port": "node scripts/free-port.js"
   },
   "keywords": [],
   "author": "",

@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 
 const API_BASE = "/api";
 const PAGE_SIZE = 10;
@@ -54,6 +55,8 @@ export default function VolunteerAdmin() {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("view");
   const [editFormData, setEditFormData] = useState({});
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const handleBack = () => window.history.back();
 
@@ -77,19 +80,23 @@ export default function VolunteerAdmin() {
     setCurrentPage(1);
   }, [search]);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this volunteer record?")) return;
+  const handleDelete = async () => {
+    if (deleteTarget == null) return;
+    setDeleting(true);
     try {
-      const response = await fetch(`${API_BASE}/volunteers/${id}`, { method: "DELETE" });
+      const response = await fetch(`${API_BASE}/volunteers/${deleteTarget}`, { method: "DELETE" });
       const data = await response.json();
       if (!response.ok) {
         alert(data.message || "Delete failed");
         return;
       }
       alert("Volunteer record deleted successfully");
+      setDeleteTarget(null);
       fetchVolunteers();
     } catch {
       alert("Failed to delete volunteer record");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -291,7 +298,7 @@ export default function VolunteerAdmin() {
                         <button onClick={() => handleEdit(item)} className="w-9 h-9 rounded-xl flex items-center justify-center hover:scale-105 transition-all" title="Edit">
                           <Pencil size={16} />
                         </button>
-                        <button onClick={() => handleDelete(item.id)} className="w-9 h-9 rounded-xl flex items-center justify-center hover:scale-105 transition-all" title="Delete">
+                        <button onClick={() => setDeleteTarget(item.id)} className="w-9 h-9 rounded-xl flex items-center justify-center hover:scale-105 transition-all" title="Delete">
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -414,6 +421,16 @@ export default function VolunteerAdmin() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        loading={deleting}
+        title="Delete Volunteer"
+        message="This volunteer record will be permanently deleted."
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

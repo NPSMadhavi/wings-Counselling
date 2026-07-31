@@ -21,6 +21,7 @@ import {
     Globe,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
 import { api, resolveAssetUrl, toStorageUrl } from "../lib/api";
 import {
     convertWordToHtml,
@@ -109,15 +110,35 @@ export default function ArticleEditor({ onBack, initialData, article, isSidebarO
         return labels[code] || lang?.name || "Language";
     };
 
-    /** Tick = this language already has saved content or an uploaded document */
-    const languageHasContent = (langId: number | null | undefined) => {
+    /** Green tick only after a real DOC/DOCX was uploaded for that language */
+    const languageHasUploadedDocument = (langId: number | null | undefined) => {
         if (!langId) return false;
         const row = languageDocMap[langId] || languageDocMapRef.current[langId];
         if (!row) return false;
-        if (Number(row.documentId) > 0) return true;
-        if (String(row.htmlContent || "").trim().length > 0) return true;
-        if (String(row.originalName || "").trim().length > 0) return true;
+        const name = String(row.originalName || "").trim().toLowerCase();
+        if (!name) return false;
+        if (name.startsWith("translated-")) return false;
+        if (name === "editor-content.html") return false;
+        return /\.(doc|docx)$/i.test(name);
+    };
+
+    const isPlaceholderTitle = (value: string) => {
+        const s = String(value || "").trim();
+        if (!s) return true;
+        const lower = s.toLowerCase();
+        if (lower === "untitled" || lower === "untitled article") return true;
+        // Common auto-translated "Untitled Article" variants
+        if (/शीर्षक\s*रहित/.test(s)) return true;
+        if (/無標題|无标题/.test(s)) return true;
+        if (/தலைப்பில்லா/.test(s)) return true;
+        if (/artikel tanpa tajuk|tanpa tajuk/i.test(s)) return true;
         return false;
+    };
+
+    const plainTextFromHtml = (html: string) => {
+        const tmp = document.createElement("div");
+        tmp.innerHTML = html || "";
+        return (tmp.textContent || tmp.innerText || "").replace(/\u00a0/g, " ").trim();
     };
 
     // Load existing article data into the editor when editing
@@ -134,8 +155,8 @@ useEffect(() => {
     setIsPublished(Boolean(editData.isPublished));
     setSlug(editData.slug || "");
     setPublishedAt(editData.publishedAt || null);
-    setCategory(editData.category || "Psychology");
-    setAuthor(editData.author || "WINGS Team");
+    setCategory(editData.category || "");
+    setAuthor(editData.author || "");
     setExcerpt(editData.excerpt || "");
 
     // Load the HTML content into the editor — strip Figma embed artifacts first
@@ -278,6 +299,33 @@ useEffect(() => {
             html.match(/<h2[^>]*>([\s\S]*?)<\/h2>/i);
         if (!match) return "";
         return match[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+    };
+
+    /** Remove headline from body so it is not duplicated under CONTENT */
+    const stripHeadlineFromHtml = (html: string, headline: string) => {
+        if (!html?.trim() || !headline?.trim()) return html;
+        const normalize = (s: string) =>
+            s.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+        const target = normalize(headline);
+        if (!target) return html;
+
+        let next = html;
+
+        // Leading h1 / h2 that matches the headline
+        const headingRe = /^\s*(<h([12])[^>]*>[\s\S]*?<\/h\2>)/i;
+        const headingMatch = next.match(headingRe);
+        if (headingMatch && normalize(headingMatch[1]) === target) {
+            next = next.replace(headingRe, "");
+        }
+
+        // Leading paragraph that is only the headline (bold or plain)
+        const paraRe = /^\s*(<p[^>]*>[\s\S]*?<\/p>)/i;
+        const paraMatch = next.match(paraRe);
+        if (paraMatch && normalize(paraMatch[1]) === target) {
+            next = next.replace(paraRe, "");
+        }
+
+        return next.replace(/^\s+/, "");
     };
 
     const cacheLanguageHtml = (
@@ -428,25 +476,38 @@ useEffect(() => {
                 try {
                     await api.saveArticleLanguage(currentArticleId, prevLangId, {
                         htmlContent: currentHtml,
-                        title: currentTitle,
-                        originalName:
-                            languageDocMapRef.current[prevLangId]?.originalName ||
-                            "editor-content.html",
+                        title: isPlaceholderTitle(currentTitle) ? "" : currentTitle,
+                        ...(languageHasUploadedDocument(prevLangId)
+                            ? {
+                                  originalName:
+                                      languageDocMapRef.current[prevLangId]
+                                          ?.originalName,
+                              }
+                            : {}),
                     });
                 } catch (persistErr) {
                     console.warn("Could not persist previous language (continuing):", persistErr);
                 }
             }
 
-            // 4) Load target language — local / server / auto-translate from English
+            // 4) Load target language — local / server (translate only when English has real content)
             let html = languageDocMapRef.current[nextLanguageId]?.htmlContent || "";
             let nextTitle = languageDocMapRef.current[nextLanguageId]?.title || "";
             const nextLang = languages.find((l) => l.id === nextLanguageId);
             const nextCode = nextLang?.code || "en";
 
-            // Ensure article exists so backend can translate
+            // Ensure article exists so backend can translate — only if we may need it
             let ensureId = currentArticleId;
-            if (!ensureId && nextCode !== "en") {
+            const enLang = languages.find((l) => l.code === "en");
+            const enSourceHtml =
+                prevLangId && enLang && prevLangId === enLang.id
+                    ? currentHtml
+                    : enLang
+                      ? languageDocMapRef.current[enLang.id]?.htmlContent || ""
+                      : "";
+            const enHasRealContent = plainTextFromHtml(enSourceHtml).length > 0;
+
+            if (!ensureId && nextCode !== "en" && enHasRealContent) {
                 try {
                     ensureId = await ensureArticleSaved();
                 } catch {
@@ -468,11 +529,19 @@ useEffect(() => {
                             originalName: row.originalName,
                             title: nextTitle,
                         });
+                    } else if (row?.originalName) {
+                        cacheLanguageHtml(nextLanguageId, html, {
+                            documentId: row.documentId,
+                            originalName: row.originalName,
+                            title: row.title || nextTitle,
+                        });
                     }
                 } catch {
                     /* keep local */
                 }
             }
+
+            const nextHasUpload = languageHasUploadedDocument(nextLanguageId);
 
             const looksUntranslated = (code: string, body: string) => {
                 if (!body.trim()) return true;
@@ -482,12 +551,11 @@ useEffect(() => {
                 }
                 if (/\p{L}\s+\d{2,3}\s+\p{L}/u.test(body)) return true;
                 const headingCount = (body.match(/<\/?h[1-6]\b/gi) || []).length;
-                const enLang = languages.find((l) => l.code === "en");
-                const enHtml =
+                const enHtmlCached =
                     (enLang &&
                         languageDocMapRef.current[enLang.id]?.htmlContent) ||
                     "";
-                const enHeadings = (enHtml.match(/<\/?h[1-6]\b/gi) || []).length;
+                const enHeadings = (enHtmlCached.match(/<\/?h[1-6]\b/gi) || []).length;
                 if (
                     enHeadings >= 4 &&
                     headingCount < Math.max(2, Math.floor(enHeadings * 0.4))
@@ -505,10 +573,12 @@ useEffect(() => {
                 return false;
             };
 
-            // Translate from English when missing OR still English under another language
+            // Translate from English only when English has real body content (not empty draft)
             if (
                 ensureId &&
                 nextCode !== "en" &&
+                enHasRealContent &&
+                !nextHasUpload &&
                 looksUntranslated(nextCode, html)
             ) {
                 try {
@@ -522,17 +592,41 @@ useEffect(() => {
                     cacheLanguageHtml(nextLanguageId, html, {
                         documentId: translated?.documentId,
                         title: nextTitle,
-                        originalName: `translated-${nextCode}.html`,
+                        // Do NOT mark as uploaded document — keep green tick for DOC/DOCX only
+                        originalName:
+                            languageDocMapRef.current[nextLanguageId]?.originalName ||
+                            undefined,
                     });
                 } catch (trErr) {
                     console.warn("Auto-translate failed:", trErr);
-                    alert(
+                    toast(
                         trErr instanceof Error
                             ? trErr.message
-                            : "Could not translate. Save/upload English document first, then select language."
+                            : "Could not translate. Save/upload English document first, then select language.",
+                        {
+                            position: "bottom-right",
+                            autoClose: 4000,
+                            theme: "light",
+                            icon: false,
+                            hideProgressBar: true,
+                            style: {
+                                background: "#ffffff",
+                                color: "#111111",
+                                border: "1px solid #E0DFDC",
+                                borderRadius: "12px",
+                                boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                                fontSize: "14px",
+                                fontWeight: 500,
+                            },
+                        }
                     );
                 }
-            } else if (ensureId && nextCode === "en" && !String(html || "").trim()) {
+            } else if (
+                ensureId &&
+                nextCode === "en" &&
+                !String(html || "").trim() &&
+                enHasRealContent
+            ) {
                 try {
                     const translated = await api.translateArticleLanguage(
                         ensureId,
@@ -546,12 +640,21 @@ useEffect(() => {
                 }
             }
 
+            // No uploaded doc + no real content → keep editor empty (no default headline)
+            if (!nextHasUpload && !plainTextFromHtml(html)) {
+                html = "";
+                nextTitle = "";
+            }
+
+            const displayTitle = isPlaceholderTitle(nextTitle) ? "" : nextTitle;
             setContent(html);
-            setTitle(nextTitle);
-            titleRef.current = nextTitle;
+            setTitle(displayTitle);
+            titleRef.current = displayTitle;
             setWordFile(null);
             setWordFileName(
-                languageDocMapRef.current[nextLanguageId]?.originalName || ""
+                nextHasUpload
+                    ? languageDocMapRef.current[nextLanguageId]?.originalName || ""
+                    : ""
             );
             setEditorMountKey((k) => k + 1);
         } catch (err) {
@@ -777,12 +880,15 @@ useEffect(() => {
             }
 
             const extractedTitle = extractTitleFromHtml(html);
+            const bodyHtml = extractedTitle
+                ? stripHeadlineFromHtml(html, extractedTitle)
+                : html;
 
             if (extractedTitle) {
                 setTitle(extractedTitle);
                 titleRef.current = extractedTitle;
             }
-            setContent(html);
+            setContent(bodyHtml);
             setEditorMountKey((k) => k + 1);
 
             const pageKey = getPageKeyFromCategory(category);
@@ -796,7 +902,7 @@ useEffect(() => {
             if (articleSlug && articleSlug !== slug) setSlug(articleSlug);
 
             savePageContent(pageKey, {
-                html,
+                html: bodyHtml,
                 title: (extractedTitle || title).trim(),
                 author: author.trim(),
                 excerpt: excerpt.trim(),
@@ -806,7 +912,7 @@ useEffect(() => {
 
             // Save under the currently selected language (supports per-language Word uploads)
             try {
-                await saveCurrentLanguageContent(html, {
+                await saveCurrentLanguageContent(bodyHtml, {
                     file,
                     originalName: file.name,
                     createArticleIfNeeded: true,
@@ -815,7 +921,7 @@ useEffect(() => {
                 });
 
                 if (selectedLanguageIdRef.current) {
-                    cacheLanguageHtml(selectedLanguageIdRef.current, html, {
+                    cacheLanguageHtml(selectedLanguageIdRef.current, bodyHtml, {
                         originalName: file.name,
                         title: extractedTitle || titleRef.current,
                     });
@@ -884,30 +990,79 @@ useEffect(() => {
         });
     };
 
-    // Publish Article
-    const publishArticle = async () => {
-        if (!title.trim()) {
-            alert("Please add a title before publishing");
-            return;
-        }
+    const showToast = (message: string) => {
+        toast(message, {
+            position: "bottom-right",
+            autoClose: 4000,
+            theme: "light",
+            icon: false,
+            hideProgressBar: true,
+            style: {
+                background: "#ffffff",
+                color: "#111111",
+                border: "1px solid #E0DFDC",
+                borderRadius: "12px",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                fontSize: "14px",
+                fontWeight: 500,
+            },
+        });
+    };
 
-        if (!coverImage) {
-            alert("Please add a cover image before publishing");
+    /** Plain text from the rich-text body (ignores empty HTML shells) */
+    const getBodyText = () => {
+        const html = editorRef.current?.innerHTML ?? content ?? "";
+        const tmp = document.createElement("div");
+        tmp.innerHTML = html;
+        return (tmp.textContent || tmp.innerText || "").replace(/\u00a0/g, " ").trim();
+    };
+
+    /** Build "A X, Y and Z are required..." from only missing items */
+    const requiredFieldsMessage = (missing: string[]) => {
+        if (missing.length === 0) return "";
+        if (missing.length === 1) {
+            return `A ${missing[0]} is required to publish your article`;
+        }
+        if (missing.length === 2) {
+            return `A ${missing[0]} and ${missing[1]} are required to publish your article`;
+        }
+        const last = missing[missing.length - 1];
+        const rest = missing.slice(0, -1).join(", ");
+        return `A ${rest} and ${last} are required to publish your article`;
+    };
+
+    /** Cover image, title, and body required before opening publish settings */
+    const validateArticleBasics = () => {
+        const missing: string[] = [];
+        if (!coverImage) missing.push("cover image");
+        if (!title.trim()) missing.push("headline");
+        if (!getBodyText()) missing.push("content");
+        if (missing.length > 0) {
+            showToast(requiredFieldsMessage(missing));
+            return false;
+        }
+        return true;
+    };
+
+    const handleNextClick = () => {
+        if (!validateArticleBasics()) return;
+        setShowPublishModal(true);
+    };
+
+    const handlePublishModalSave = async () => {
+        const missing: string[] = [];
+        if (!category.trim()) missing.push("category");
+        if (!author.trim()) missing.push("author name");
+        if (missing.length > 0) {
+            showToast(requiredFieldsMessage(missing));
             return;
         }
 
         if (excerpt.length > 500) {
-            alert("Excerpt should be less than 500 characters");
+            showToast("Excerpt should be less than 500 characters");
             return;
         }
 
-        syncPublicPageMeta();
-        await saveArticle(true);
-        setWordFile(null);
-        setWordFileName("");
-    };
-
-    const handlePublishModalSave = async () => {
         syncPublicPageMeta();
         // Modal "Publish Article" must actually publish (not only draft-save)
         if (!isPublished) {
@@ -1075,21 +1230,10 @@ useEffect(() => {
                     </button> */}
 
                     <button
-                        onClick={() => setShowPublishModal(true)}
-                        className="h-[40px] px-8 rounded-full font-bold transition-all shadow-md bg-[#0D4A7A] text-white"
+                        onClick={handleNextClick}
+                        className="h-[40px] px-8 rounded-xl font-bold transition-all shadow-md bg-[#0D4A7A] text-white"
                     >
                         Next
-                    </button>
-
-                    <button
-                        onClick={publishArticle}
-                        disabled={isPublishing}
-                        className="h-[40px] px-8 rounded-full font-bold transition-all shadow-md flex items-center gap-2 bg-[#0D4A7A] text-white"
-                    >
-                        {isPublishing ? (
-                            <Loader2 size={18} className="animate-spin" />
-                        ) : null}
-                        Published
                     </button>
                 </div>
             </div>
@@ -1145,13 +1289,10 @@ useEffect(() => {
                             </button>
 
                             <button
-                                onClick={() => setShowPublishModal(true)}
-                                className={`px-4 py-2 rounded-full font-bold text-sm ${isPublished
-                                    ? "bg-green-600 text-white"
-                                    : "bg-[#0A66C2] text-white"
-                                    }`}
+                                onClick={handleNextClick}
+                                className="px-4 py-2 rounded-full font-bold text-sm bg-[#0A66C2] text-white"
                             >
-                                {isPublished ? "Published" : "Next"}
+                                Next
                             </button>
                         </div>
                     </motion.div>
@@ -1166,9 +1307,9 @@ useEffect(() => {
                         <div className="px-4 pt-4 pb-3 border-b border-[#EEE]">
                             <div className="flex items-center gap-2 mb-1">
                                 <Globe size={18} className="text-[#0D4A7A]" />
-                                <h3 className="text-[15px] font-bold text-[#0D4A7A]">Language</h3>
+                                <h3 className="text-[12px] md:text-[14px] lg:text-[16px] font-bold text-[#0D4A7A]">Language</h3>
                             </div>
-                            <p className="text-[11px] text-[#667085] leading-snug">
+                            <p className="text-[11px] md:text-[13px] lg:text-[14px] text-gray leading-snug">
                                 Select a language to add or edit article content.
                             </p>
                         </div>
@@ -1184,7 +1325,7 @@ useEffect(() => {
                                   ]
                             ).map((lang) => {
                                 const selected = lang.id === selectedLanguageId;
-                                const hasContent = languageHasContent(lang.id);
+                                const hasUploadedDoc = languageHasUploadedDocument(lang.id);
                                 return (
                                     <button
                                         key={lang.code}
@@ -1208,7 +1349,7 @@ useEffect(() => {
                                         <span className="flex-1 text-[14px] font-semibold truncate">
                                             {languageLabel(lang)}
                                         </span>
-                                        {hasContent ? (
+                                        {hasUploadedDoc ? (
                                             <CheckCircle2
                                                 size={17}
                                                 className="text-green-600 shrink-0"
@@ -1243,7 +1384,7 @@ useEffect(() => {
                             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <button
                                     onClick={() => fileRef.current?.click()}
-                                    className="px-4 py-2 md:px-6 md:py-3 bg-white rounded-full font-bold shadow-xl transition-all flex items-center gap-2 text-sm md:text-base hover:bg-[#F3F2EF]"
+                                    className="px-4 py-2 md:px-6 md:py-3 bg-white text-[#0D4A7A] rounded-full font-bold shadow-xl transition-all flex items-center gap-2 text-sm md:text-base hover:bg-[#F3F2EF]"
                                 >
                                     <Upload size={18} /> Change Cover
                                 </button>
@@ -1252,16 +1393,16 @@ useEffect(() => {
                     ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center bg-[#F8F9FA] p-4">
                             <div className="w-12 h-12 md:w-16 md:h-16 bg-[#F3F2EF] rounded-xl flex items-center justify-center mb-4">
-                                <ImageIcon size={24} className="text-[#666] md:size-8" />
+                                <ImageIcon size={24} className="text-[#0D4A7A] md:size-8" />
                             </div>
                             <h2 className="text-xl md:text-2xl font-medium text-[#666] mb-4 md:mb-6 text-center">Add a cover image</h2>
                             <button
                                 onClick={() => fileRef.current?.click()}
-                                className="px-6 md:px-8 py-2 md:py-3 border-2 border-[#666] text-[#666] rounded-full font-bold transition-all flex items-center gap-2 text-sm md:text-base hover:bg-[#F3F2EF]"
+                                className="px-6 md:px-8 py-2 md:py-3 border-2 border-[#0D4A7A] text-[#0D4A7A] rounded-full font-bold transition-all flex items-center gap-2 text-sm md:text-base hover:bg-[#F3F2EF]"
                             >
-                                <Upload size={18} /> Upload from computer
+                                <Upload size={18} /> Upload Image
                             </button>
-                            <p className="mt-3 md:mt-4 text-xs md:text-sm text-gray-400 text-center">Recommended: 1280 x 720 pixels</p>
+                            <p className="mt-1 md:mt-2 lg:mt-2 text-[11px] md:text-[13px] lg:text-[14px] text-gray text-center">Recommended: 1280 x 720 pixels</p>
                         </div>
                     )}
                     <input ref={fileRef} type="file" className="hidden" accept="image/*" onChange={handleCoverUpload} />
@@ -1269,11 +1410,11 @@ useEffect(() => {
 
                 {/* WRITING AREA */}
                 <div className="bg-white border-x border-b border-[#E0DFDC] rounded-b-xl px-4 md:px-10 lg:px-14 py-6 md:py-10 shadow-sm">
-                    <div className="flex flex-col items-center gap-2 mb-6 md:mb-8">
+                    <div className="flex flex-col items-center gap-2 mb-8 md:mb-10">
                         <input
                             ref={wordFileRef}
                             type="file"
-                            accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                             className="hidden"
                             onChange={handleWordFileChange}
                         />
@@ -1281,28 +1422,30 @@ useEffect(() => {
                             type="button"
                             onClick={() => {
                                 if (!selectedLanguageId) {
-                                    alert("Please select a language from the side panel first.");
+                                    showToast("Please select a language from the side panel first.");
                                     return;
                                 }
                                 wordFileRef.current?.click();
                             }}
                             disabled={isConvertingWord || isSwitchingLanguage}
-                            className="h-[40px] px-6 rounded-full border-2 border-[#666] text-[#666] font-bold hover:bg-[#F3F2EF] transition-all flex items-center gap-2"
+                            className="h-[55px] px-6 rounded-full border-2 border-[#0D4A7A] text-[#0D4A7A] font-bold hover:bg-[#F3F2EF] transition-all flex items-center gap-2"
                         >
                             {isConvertingWord ? (
                                 <Loader2 size={18} className="animate-spin" />
                             ) : (
                                 <Upload size={18} />
                             )}
-                            Upload document
-                            {selectedLanguageId
-                                ? ` (${languageLabel(
-                                      languages.find((l) => l.id === selectedLanguageId)
-                                  )})`
-                                : ""}
+                            Upload{" "}
+                            {languageLabel(
+                                languages.find((l) => l.id === selectedLanguageId) || {
+                                    code: "en",
+                                    name: "English",
+                                }
+                            )}{" "}
+                            version
                         </button>
-                        <p className="text-xs text-gray-500 text-center max-w-md">
-                            Attach a document related to the article (DOCX). Upload separately for each language.
+                        <p className="text-[11px] md:text-[13px] lg:text-[14px] text-gray text-center max-w-md">
+                            Attach a document related to the article(DOC, DOCX)
                         </p>
                         {wordFileName ? (
                             <p className="text-xs text-green-700 font-semibold">
@@ -1318,49 +1461,51 @@ useEffect(() => {
                         ) : null}
                     </div>
 
-                    {/* TITLE */}
-                    <textarea
-                        value={title}
-                        onChange={(e) => {
-                            setTitle(e.target.value);
-                            titleRef.current = e.target.value;
-                            e.target.style.height = "auto";
-                            e.target.style.height = e.target.scrollHeight + "px";
-                        }}
-                        onBlur={() => triggerAutoSave()}
-                        placeholder={
-                            selectedLanguageId
-                                ? `Write your headline here (${languageLabel(
-                                      languages.find((l) => l.id === selectedLanguageId)
-                                  )})`
-                                : "Write your headline here."
-                        }
-                        className="w-full bg-transparent border-none outline-none text-3xl md:text-[52px] leading-[1.1] font-bold text-[#111] placeholder:text-gray-300 resize-none mb-6 md:mb-8"
-                        rows={1}
-                    />
+                    {/* HEADLINE — single line, no scroll */}
+                    <div className="mb-6 md:mb-8">
+                        <label className="block text-sm md:text-base font-bold tracking-wide text-[#111] mb-2">
+                            HEADLINE
+                        </label>
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => {
+                                setTitle(e.target.value);
+                                titleRef.current = e.target.value;
+                            }}
+                            onBlur={() => triggerAutoSave()}
+                            placeholder="Write here"
+                            className="w-full bg-transparent border-none outline-none text-2xl md:text-[40px] leading-[1.2] font-bold text-[#111] placeholder:text-gray-300 overflow-hidden whitespace-nowrap text-ellipsis"
+                        />
+                    </div>
 
-                    {/* RICH TEXT EDITOR — remount on language change so content swaps reliably */}
-                    <div
-                        key={editorMountKey}
-                        ref={editorRef}
-                        contentEditable
-                        suppressContentEditableWarning
-                        onInput={handleContentChange}
-                        onBlur={() => triggerAutoSave()}
-                        onPaste={(e) => {
-                            // Strip Figma embed artifacts on paste before they enter the editor
-                            const html = e.clipboardData.getData("text/html");
-                            if (html && (html.includes("data-metadata") || html.includes("data-buffer"))) {
-                                e.preventDefault();
-                                const cleaned = html
-                                    .replace(/<span[^>]*data-metadata[^>]*>[\s\S]*?<\/span>/gi, "")
-                                    .replace(/<span[^>]*data-buffer[^>]*>[\s\S]*?<\/span>/gi, "");
-                                document.execCommand("insertHTML", false, cleaned);
-                            }
-                        }}
-                        className="prose-editor min-h-[400px] md:min-h-[600px] outline-none text-lg md:text-[22px] leading-[1.6] text-[#333] font-normal"
-                        data-placeholder="Write your article content here."
-                    />
+                    {/* CONTENT */}
+                    <div>
+                        <label className="block text-sm md:text-base font-bold tracking-wide text-[#111] mb-2">
+                            CONTENT
+                        </label>
+                        <div
+                            key={editorMountKey}
+                            ref={editorRef}
+                            contentEditable
+                            suppressContentEditableWarning
+                            onInput={handleContentChange}
+                            onBlur={() => triggerAutoSave()}
+                            onPaste={(e) => {
+                                // Strip Figma embed artifacts on paste before they enter the editor
+                                const html = e.clipboardData.getData("text/html");
+                                if (html && (html.includes("data-metadata") || html.includes("data-buffer"))) {
+                                    e.preventDefault();
+                                    const cleaned = html
+                                        .replace(/<span[^>]*data-metadata[^>]*>[\s\S]*?<\/span>/gi, "")
+                                        .replace(/<span[^>]*data-buffer[^>]*>[\s\S]*?<\/span>/gi, "");
+                                    document.execCommand("insertHTML", false, cleaned);
+                                }
+                            }}
+                            className="prose-editor min-h-[400px] md:min-h-[600px] outline-none text-lg md:text-[22px] leading-[1.6] text-[#333] font-normal"
+                            data-placeholder="Write here"
+                        />
+                    </div>
                 </div>
                     </div>
                 </div>
@@ -1419,6 +1564,7 @@ useEffect(() => {
                                         type="text"
                                         value={author}
                                         onChange={(e) => setAuthor(e.target.value)}
+                                        placeholder="Enter author name"
                                         className="w-full h-[52px] px-4 rounded-xl border border-gray-200 focus:border-[#0A66C2] outline-none transition-all"
                                     />
                                 </div>
@@ -1447,7 +1593,7 @@ useEffect(() => {
                                 <button
                                     onClick={handlePublishModalSave}
                                     disabled={isPublishing || isConvertingWord}
-                                    className="w-full md:w-auto h-[48px] px-10 rounded-full bg-[#0D4A7A] text-white font-bold  transition-all flex items-center justify-center gap-2 shadow-lg"
+                                    className="w-full md:w-auto h-[48px] px-10 rounded-xl bg-[#0D4A7A] text-white font-bold  transition-all flex items-center justify-center gap-2 shadow-lg"
                                 >
                                     {isPublishing || isConvertingWord ? (
                                         <Loader2 size={20} className="animate-spin" />

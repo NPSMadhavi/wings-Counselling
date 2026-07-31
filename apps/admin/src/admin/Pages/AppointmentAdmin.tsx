@@ -9,6 +9,7 @@ import {
     Trash2,
     X,
 } from "lucide-react";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 
 const API_BASE = "/api";
 const PAGE_SIZE = 10;
@@ -67,6 +68,8 @@ export default function AppointmentsPage() {
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState("view"); // "view" or "edit"
     const [editFormData, setEditFormData] = useState({});
+    const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     const handleBack = () => {
   window.history.back();
@@ -95,16 +98,13 @@ export default function AppointmentsPage() {
 
     /* ================= DELETE ================= */
 
-    const handleDelete = async (id) => {
-        const confirmDelete = window.confirm(
-            "Are you sure you want to delete this appointment?"
-        );
-
-        if (!confirmDelete) return;
+    const handleDelete = async () => {
+        if (deleteTarget == null) return;
+        setDeleting(true);
 
         try {
             const response = await fetch(
-                `${API_BASE}/appointments/${id}`,
+                `${API_BASE}/appointments/${deleteTarget}`,
                 {
                     method: "DELETE",
                 }
@@ -118,11 +118,14 @@ export default function AppointmentsPage() {
             }
 
             alert("Appointment deleted successfully");
+            setDeleteTarget(null);
             fetchAppointments();
 
         } catch (error) {
             console.log(error);
             alert("Failed to delete appointment");
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -729,7 +732,7 @@ export default function AppointmentsPage() {
                                                     <Pencil size={16} />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDelete(item.id)}
+                                                    onClick={() => setDeleteTarget(item.id)}
                                                     className="w-9 h-9 rounded-xl  flex items-center justify-center hover:scale-105 transition-all"
                                                     title="Delete"
                                                 >
@@ -1009,6 +1012,16 @@ export default function AppointmentsPage() {
                     </div>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={deleteTarget !== null}
+                loading={deleting}
+                title="Delete Appointment"
+                message="This appointment will be permanently deleted."
+                confirmLabel="Delete"
+                onConfirm={handleDelete}
+                onCancel={() => setDeleteTarget(null)}
+            />
         </div>
     );
 }
