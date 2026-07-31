@@ -191,7 +191,7 @@ function ArticleCard({ article, index }) {
 }
 
 export function RecentArticles() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [, navigate] = useLocation();
 
     const [articles, setArticles] = useState([]);
@@ -200,13 +200,14 @@ export function RecentArticles() {
 
     useEffect(() => {
         fetchArticles();
-    }, []);
+    }, [i18n.language]);
 
     const fetchArticles = async () => {
         try {
             setLoading(true);
 
-            const response = await fetch("/api/articles");
+            const lang = (i18n.language || "en").split("-")[0];
+            const response = await fetch(`/api/articles?lang=${encodeURIComponent(lang)}`);
 
             if (!response.ok) {
                 throw new Error("Failed to fetch articles");

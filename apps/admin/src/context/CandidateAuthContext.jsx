@@ -33,12 +33,17 @@ export function CandidateAuthProvider({ children }) {
       return;
     }
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
     fetch(apiUrl("/api/candidate/me"), {
       headers: {
         Authorization: `Bearer ${stored}`,
       },
+      signal: controller.signal,
     })
       .then((r) => {
+        clearTimeout(timeout);
         if (!r.ok) {
           localStorage.removeItem(TOKEN_KEY);
           setIsLoading(false);
@@ -53,10 +58,16 @@ export function CandidateAuthProvider({ children }) {
         });
       })
       .catch(() => {
+        clearTimeout(timeout);
         localStorage.removeItem(TOKEN_KEY);
         queryClient.setQueryData(["/api/candidate/me", ""], null);
         setIsLoading(false);
       });
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
   }, []);
 
   /* -------------------- Login -------------------- */

@@ -4,8 +4,28 @@ import { requireAdmin } from "../middlewares/auth.js";
 import fs from "fs";
 import { addPublicSSEClient, broadcastToPublic } from "../lib/sse.js";
 import { sendSubscriberNotification } from "../lib/email.js";
+import {
+  ensureEventLanguageTables,
+  localizeEvents,
+  saveEventLocalization,
+} from "../services/eventTranslate.js";
+import { looksLikeEnglishText } from "../services/translateService.js";
 
 const router = Router();
+
+function normalizeLangCode(value) {
+  return String(value || "en")
+    .toLowerCase()
+    .split("-")[0];
+}
+
+async function getLanguageIdByCode(code) {
+  const [rows] = await db.query(
+    `SELECT id FROM languages WHERE LOWER(code) = ? LIMIT 1`,
+    [normalizeLangCode(code)]
+  );
+  return rows[0]?.id || null;
+}
 
 let eventStoragePromise;
 
@@ -91,16 +111,26 @@ function buildPayload(body, storage) {
 }
 
 /* ================= PUBLIC EVENTS ================= */
-router.get("/events", async (_req, res) => {
+router.get("/events", async (req, res) => {
   try {
     const storage = await detectEventStorage();
+    const lang = normalizeLangCode(req.query.lang || "en");
 
     const [rows] = await db.query(
       `SELECT * FROM events
        ORDER BY ${storage.eventDate} DESC, id DESC`
     );
 
-    res.json(rows.map((r) => normaliseEvent(r, storage)));
+    let list = rows.map((r) => normaliseEvent(r, storage));
+    if (lang && lang !== "en") {
+      try {
+        list = await localizeEvents(list, lang);
+      } catch (err) {
+        console.warn("[events] localize:", err?.message);
+      }
+    }
+
+    res.json(list);
   } catch (err) {
     log(err.message);
     res.status(500).json({ error: err.message });
@@ -145,16 +175,26 @@ router.get("/events/stream", (req, res) => {
 });
 
 /* ================= ADMIN GET ================= */
-router.get("/admin/events", requireAdmin, async (_req, res) => {
+router.get("/admin/events", requireAdmin, async (req, res) => {
   try {
     const storage = await detectEventStorage();
+    const lang = normalizeLangCode(req.query.lang || "en");
 
     const [rows] = await db.query(
       `SELECT * FROM events
        ORDER BY ${storage.createdAt} DESC, id DESC`
     );
 
-    res.json(rows.map((r) => normaliseEvent(r, storage)));
+    let list = rows.map((r) => normaliseEvent(r, storage));
+    if (lang && lang !== "en") {
+      try {
+        list = await localizeEvents(list, lang);
+      } catch (err) {
+        console.warn("[events] admin localize:", err?.message);
+      }
+    }
+
+    res.json(list);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -175,6 +215,25 @@ router.post("/admin/events", requireAdmin, async (req, res) => {
       vals
     );
 
+    let languageId = req.body.language_id ? Number(req.body.language_id) : null;
+    if (!languageId && req.body.language_code) {
+      languageId = await getLanguageIdByCode(req.body.language_code);
+    }
+    if (!languageId) languageId = await getLanguageIdByCode("en");
+
+    if (languageId) {
+      try {
+        await ensureEventLanguageTables();
+        await saveEventLocalization(result.insertId, languageId, {
+          title: payload.title,
+          description: payload.description,
+          location: payload.location,
+        });
+      } catch (err) {
+        console.warn("[events] save localization:", err?.message);
+      }
+    }
+
     const [rows] = await db.query(
       "SELECT * FROM events WHERE id = ?",
       [result.insertId]
@@ -183,8 +242,9 @@ router.post("/admin/events", requireAdmin, async (req, res) => {
     res.status(201).json(normaliseEvent(rows[0], storage));
 
     // Notify subscribers if the event is published
-    if (req.body.isPublished) {
-      sendSubscriberNotification("event", normaliseEvent(rows[0], storage)).catch((err) =>
+    const created = normaliseEvent(rows[0], storage);
+    if (created.isPublished) {
+      sendSubscriberNotification("event", created).catch((err) =>
         console.error("[Email] Event subscriber notification failed:", err?.message)
       );
     }
@@ -206,12 +266,74 @@ router.put("/admin/events/:id", requireAdmin, async (req, res) => {
     const wasPublished = prevRows[0] ? Boolean(prevRows[0].wasPublished) : false;
 
     const payload = buildPayload(req.body, storage);
-    payload[storage.updatedAt] = new Date();
 
-    await db.query(
-      "UPDATE events SET ? WHERE id = ?",
-      [payload, req.params.id]
-    );
+    let languageId = req.body.language_id ? Number(req.body.language_id) : null;
+    let langCode = req.body.language_code
+      ? normalizeLangCode(req.body.language_code)
+      : null;
+    if (languageId && !langCode) {
+      const [langRows] = await db.query(
+        `SELECT code FROM languages WHERE id = ? LIMIT 1`,
+        [languageId]
+      );
+      langCode = normalizeLangCode(langRows[0]?.code || "en");
+    }
+    if (!langCode) langCode = "en";
+    if (!languageId) languageId = await getLanguageIdByCode(langCode);
+    const isEnglish = langCode === "en";
+    const englishSample = `${payload.title || ""} ${payload.description || ""}`;
+    const canWriteEnglishMaster =
+      isEnglish && looksLikeEnglishText(englishSample);
+
+    if (canWriteEnglishMaster) {
+      payload[storage.updatedAt] = new Date();
+      await db.query("UPDATE events SET ? WHERE id = ?", [
+        payload,
+        req.params.id,
+      ]);
+    } else if (isEnglish) {
+      // Keep English text; still update photos/date/flags/url
+      const partial = {
+        [storage.photoUrls]: payload[storage.photoUrls],
+        [storage.eventDate]: payload[storage.eventDate],
+        [storage.registrationUrl]: payload[storage.registrationUrl],
+        [storage.showDonationButton]: payload[storage.showDonationButton],
+        [storage.isPublished]: payload[storage.isPublished],
+        price: payload.price,
+        [storage.updatedAt]: new Date(),
+      };
+      await db.query("UPDATE events SET ? WHERE id = ?", [
+        partial,
+        req.params.id,
+      ]);
+    } else {
+      const partial = {
+        [storage.photoUrls]: payload[storage.photoUrls],
+        [storage.eventDate]: payload[storage.eventDate],
+        [storage.registrationUrl]: payload[storage.registrationUrl],
+        [storage.showDonationButton]: payload[storage.showDonationButton],
+        [storage.isPublished]: payload[storage.isPublished],
+        price: payload.price,
+        [storage.updatedAt]: new Date(),
+      };
+      await db.query("UPDATE events SET ? WHERE id = ?", [
+        partial,
+        req.params.id,
+      ]);
+    }
+
+    if (languageId && (!isEnglish || canWriteEnglishMaster)) {
+      try {
+        await ensureEventLanguageTables();
+        await saveEventLocalization(Number(req.params.id), languageId, {
+          title: payload.title,
+          description: payload.description,
+          location: payload.location,
+        });
+      } catch (err) {
+        console.warn("[events] update localization:", err?.message);
+      }
+    }
 
     const [rows] = await db.query(
       "SELECT * FROM events WHERE id = ?",
@@ -222,7 +344,7 @@ router.put("/admin/events/:id", requireAdmin, async (req, res) => {
     res.json(updated);
 
     // Notify subscribers only when event is newly published
-    if (!wasPublished && req.body.isPublished) {
+    if (!wasPublished && updated.isPublished) {
       sendSubscriberNotification("event", updated).catch((err) =>
         console.error("[Email] Event subscriber notification failed:", err?.message)
       );

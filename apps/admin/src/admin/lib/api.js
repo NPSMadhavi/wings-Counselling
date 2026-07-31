@@ -74,10 +74,10 @@ async function safeApiFetch(path, fallback, init = {}) {
 }
 
 export const api = {
-  login: (username, password) =>
+  login: (email, password) =>
     apiFetch("/admin/login", {
       method: "POST",
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     }),
 
   getTeam: () => apiFetch("/admin/team"),
@@ -112,6 +112,57 @@ export const api = {
       method: "DELETE",
     }),
 
+  getLanguages: () => apiFetch("/admin/languages"),
+  getArticleLanguages: (articleId) =>
+    apiFetch(`/admin/articles/${articleId}/languages`),
+  saveArticleLanguage: (articleId, languageId, data) =>
+    apiFetch(`/admin/articles/${articleId}/languages/${languageId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  translateArticleLanguage: (articleId, langCode, force = false) =>
+    apiFetch(`/admin/articles/${articleId}/translate/${langCode}`, {
+      method: "POST",
+      body: JSON.stringify({ force }),
+    }),
+
+  getCounsellingTypeLanguages: (typeId) =>
+    apiFetch(`/admin/counselling-types/${typeId}/languages`),
+  saveCounsellingTypeLanguage: (typeId, languageId, data) =>
+    apiFetch(`/admin/counselling-types/${typeId}/languages/${languageId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  translateCounsellingTypeLanguage: (typeId, langCode, force = false) =>
+    apiFetch(`/admin/counselling-types/${typeId}/translate/${langCode}`, {
+      method: "POST",
+      body: JSON.stringify({ force }),
+    }),
+  getCounsellingSubTypeLanguages: (subId) =>
+    apiFetch(`/admin/counselling-sub-types/${subId}/languages`),
+  saveCounsellingSubTypeLanguage: (subId, languageId, data) =>
+    apiFetch(`/admin/counselling-sub-types/${subId}/languages/${languageId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  translateCounsellingSubTypeLanguage: (subId, langCode, force = false) =>
+    apiFetch(`/admin/counselling-sub-types/${subId}/translate/${langCode}`, {
+      method: "POST",
+      body: JSON.stringify({ force }),
+    }),
+
+  uploadDocument: async ({ file, htmlContent, originalName, title }) => {
+    const fd = new FormData();
+    if (file) fd.append("file", file);
+    if (htmlContent != null) fd.append("htmlContent", htmlContent);
+    if (originalName) fd.append("originalName", originalName);
+    if (title != null) fd.append("title", title);
+    return apiFetch("/admin/documents", {
+      method: "POST",
+      body: fd,
+    });
+  },
+
   getCareers: () => apiFetch("/jobs"),
   createCareer: (data) =>
     apiFetch("/jobs", {
@@ -128,7 +179,12 @@ export const api = {
       method: "DELETE",
     }),
 
-  getEvents: () => apiFetch("/admin/events"),
+  getEvents: (lang) =>
+    apiFetch(
+      lang
+        ? `/admin/events?lang=${encodeURIComponent(lang)}`
+        : "/admin/events"
+    ),
   createEvent: (data) =>
     apiFetch("/admin/events", {
       method: "POST",
@@ -142,6 +198,37 @@ export const api = {
   deleteEvent: (id) =>
     apiFetch(`/admin/events/${id}`, {
       method: "DELETE",
+    }),
+  saveEventLanguage: (eventId, languageId, data) =>
+    apiFetch(`/admin/events/${eventId}/languages/${languageId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  translateEventLanguage: (eventId, langCode, force = false) =>
+    apiFetch(`/admin/events/${eventId}/translate/${langCode}`, {
+      method: "POST",
+      body: JSON.stringify({ force }),
+    }),
+
+  saveJobLanguage: (jobId, languageId, data) =>
+    apiFetch(`/admin/jobs/${jobId}/languages/${languageId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  translateJobLanguage: (jobId, langCode, force = false) =>
+    apiFetch(`/admin/jobs/${jobId}/translate/${langCode}`, {
+      method: "POST",
+      body: JSON.stringify({ force }),
+    }),
+  saveCategoryLanguage: (categoryId, languageId, data) =>
+    apiFetch(`/admin/categories/${categoryId}/languages/${languageId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  translateCategoryLanguage: (categoryId, langCode, force = false) =>
+    apiFetch(`/admin/categories/${categoryId}/translate/${langCode}`, {
+      method: "POST",
+      body: JSON.stringify({ force }),
     }),
 
   getApplications: () => safeApiFetch("/admin/applications", []),
@@ -209,7 +296,10 @@ export const api = {
 
   getNotifySubscribers: () => apiFetch("/admin/notify-subscribers"),
 
-  getPartners: () => apiFetch("/admin/partners"),
+  getPartners: (lang) =>
+    apiFetch(
+      lang ? `/admin/partners?lang=${encodeURIComponent(lang)}` : "/admin/partners"
+    ),
   getPartner: (id) => apiFetch(`/admin/partners/${id}`),
   createPartner: (data) =>
     apiFetch("/admin/partners", {
@@ -225,8 +315,39 @@ export const api = {
     apiFetch(`/admin/partners/${id}`, {
       method: "DELETE",
     }),
+  savePartnerLanguage: (partnerId, languageId, data) =>
+    apiFetch(`/admin/partners/${partnerId}/languages/${languageId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  translatePartnerLanguage: (partnerId, langCode, force = false) =>
+    apiFetch(`/admin/partners/${partnerId}/translate/${langCode}`, {
+      method: "POST",
+      body: JSON.stringify({ force }),
+    }),
 
-  getTestimonials: () => apiFetch("/admin/testimonials"),
+  getSocialMediaLinks: () => apiFetch("/admin/social-media"),
+  createSocialMediaLink: (data) =>
+    apiFetch("/admin/social-media", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updateSocialMediaLink: (id, data) =>
+    apiFetch(`/admin/social-media/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  deleteSocialMediaLink: (id) =>
+    apiFetch(`/admin/social-media/${id}`, {
+      method: "DELETE",
+    }),
+
+  getTestimonials: (lang) =>
+    apiFetch(
+      lang
+        ? `/admin/testimonials?lang=${encodeURIComponent(lang)}`
+        : "/admin/testimonials"
+    ),
   getTestimonial: (id) => apiFetch(`/admin/testimonials/${id}`),
   createTestimonial: (data) =>
     apiFetch("/admin/testimonials", {
@@ -241,6 +362,16 @@ export const api = {
   deleteTestimonial: (id) =>
     apiFetch(`/admin/testimonials/${id}`, {
       method: "DELETE",
+    }),
+  saveTestimonialLanguage: (testimonialId, languageId, data) =>
+    apiFetch(`/admin/testimonials/${testimonialId}/languages/${languageId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  translateTestimonialLanguage: (testimonialId, langCode, force = false) =>
+    apiFetch(`/admin/testimonials/${testimonialId}/translate/${langCode}`, {
+      method: "POST",
+      body: JSON.stringify({ force }),
     }),
 
   uploadFiles: async (files) => {

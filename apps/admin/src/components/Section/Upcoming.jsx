@@ -239,11 +239,12 @@ function EventCard({ event }) {
 /* ─── Main Component ───────────────────────────────────────── */
 
 export function Upcoming() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const sectionRef = useRef(null);
     const [, navigate] = useLocation();
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const lang = (i18n.language || "en").split("-")[0];
 
     const { scrollYProgress } = useScroll({
         target: sectionRef,
@@ -255,7 +256,9 @@ export function Upcoming() {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const response = await fetch("/api/events");
+                const response = await fetch(
+                    `/api/events?lang=${encodeURIComponent(lang)}`
+                );
                 if (!response.ok) throw new Error("Failed to fetch events");
                 const data = await response.json();
                 setEvents(Array.isArray(data) ? data.slice(0, 4) : []);
@@ -276,7 +279,7 @@ export function Upcoming() {
         eventSource.onerror = (error) => console.error("SSE Error:", error);
 
         return () => eventSource.close();
-    }, []);
+    }, [lang]);
 
     return (
         <div

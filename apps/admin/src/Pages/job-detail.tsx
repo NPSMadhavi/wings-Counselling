@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/SiteIcons";
 import { SiWhatsapp } from "react-icons/si";
 import { FaLinkedinIn } from "react-icons/fa6";
+import { useTranslation } from "react-i18next";
 
 import { Footer } from "@/components/Layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -87,6 +88,8 @@ export default function JobDetail() {
   const shareRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated } = useAuth();
   const { openAuthModal } = useCandidateAuth();
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.language || "en").split("-")[0];
 
   const {
     data: job,
@@ -94,7 +97,9 @@ export default function JobDetail() {
     isError: jobQueryError,
     error: jobQueryErrorDetail,
   } = useQuery<JobPosting>({
-    queryKey: [`/api/jobs/by-job-id/${slug}`],
+    queryKey: [
+      `/api/jobs/by-job-id/${slug}?lang=${encodeURIComponent(lang)}`,
+    ],
     enabled: !!slug && slug !== "undefined",
   });
 
@@ -157,19 +162,19 @@ export default function JobDetail() {
     return (
       <div className="min-h-screen bg-[#F9F9F9] flex flex-col items-center justify-center px-4 text-center">
         <h1 className="text-2xl font-bold text-[#0D4A7A] mb-4">
-          {jobQueryError ? "Unable to Load Job" : "Job Not Found"}
+          {jobQueryError ? t("careers.detail.unableToLoad") : t("careers.detail.notFound")}
         </h1>
         <p className="text-gray-600 font-['DM_Sans'] mb-6 max-w-md">
           {jobQueryError
             ? (jobQueryErrorDetail instanceof Error
                 ? jobQueryErrorDetail.message
-                : "Failed to fetch job details. Please try again.")
-            : "The job you are looking for does not exist or is no longer available."}
+                : t("careers.detail.loadFailed"))
+            : t("careers.detail.notAvailable")}
         </p>
         <Link href="/careers">
           <Button className="bg-[#0D4A7A] hover:bg-[#08345c]">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Careers
+            {t("careers.detail.backToCareers")}
           </Button>
         </Link>
       </div>
@@ -228,7 +233,7 @@ export default function JobDetail() {
             onClick={scrollToPositions}
             className="inline-flex items-center gap-2 px-8 py-4 bg-[#1B4585] hover:bg-[#16386b] text-white rounded-full font-['DM_Sans'] font-semibold text-[16px] transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
           >
-            Explore open positions
+            {t("careers.hero.button")}
             <svg
               width="20"
               height="20"
@@ -256,13 +261,13 @@ export default function JobDetail() {
           <div className="navbar-align-inner flex items-center gap-2 text-[16px] font-['DM_Sans']">
           <Link href="/">
             <span className="text-gray-800 hover:text-[#1B4585] transition-colors cursor-pointer underline">
-              Home
+              {t("careers.detail.home")}
             </span>
           </Link>
           <span className="text-gray-800">/</span>
           <Link href="/careers">
             <span className="text-gray-800 hover:text-[#1B4585] transition-colors cursor-pointer underline">
-              Career
+              {t("careers.detail.career")}
             </span>
           </Link>
           <span className="text-gray-800">/</span>
@@ -323,7 +328,7 @@ export default function JobDetail() {
             {applicationCheck?.hasApplied ? (
               <span className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold transition-all duration-300 bg-green-100 text-green-700 shadow-sm text-[15px] font-['DM_Sans']">
                 <SiteCheckIcon size={20} color="#FFFFFF" />
-                Already Applied
+                {t("careers.jobs.alreadyApplied")}
               </span>
             ) : (
               <Link
@@ -339,7 +344,7 @@ export default function JobDetail() {
                 }}
               >
                 <span className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold transition-all duration-300 bg-white hover:bg-gray-100 text-[#0D4A7A] shadow-sm cursor-pointer text-[15px] font-['DM_Sans']">
-                  Apply now
+                  {t("careers.jobs.applyNow")}
                   <svg
                     width="20"
                     height="20"
@@ -363,7 +368,7 @@ export default function JobDetail() {
                 onClick={() => handleNativeShare(job.title)}
                 className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold transition-all duration-300 bg-white hover:bg-gray-100 text-[#0D4A7A] shadow-sm text-[15px] font-['DM_Sans']"
               >
-                Share
+                {t("careers.detail.share")}
                 <Share2 className="w-4 h-4" />
               </button>
 
@@ -385,7 +390,7 @@ export default function JobDetail() {
                       ) : (
                         <Copy className="w-4 h-4 text-gray-500" />
                       )}
-                      {copied ? "Link Copied!" : "Copy Link"}
+                      {copied ? t("careers.detail.linkCopied") : t("careers.detail.copyLink")}
                     </button>
 
                     <a
@@ -398,7 +403,7 @@ export default function JobDetail() {
                       onClick={() => setShareOpen(false)}
                     >
                       <SiWhatsapp className="w-4 h-4 text-green-500" />
-                      Share on WhatsApp
+                      {t("careers.detail.shareWhatsApp")}
                     </a>
 
                     <a
@@ -411,7 +416,7 @@ export default function JobDetail() {
                       onClick={() => setShareOpen(false)}
                     >
                       <FaLinkedinIn className="w-4 h-4 text-[#1B4585]" />
-                      Share on LinkedIn
+                      {t("careers.detail.shareLinkedIn")}
                     </a>
                   </motion.div>
                 )}
@@ -436,10 +441,10 @@ export default function JobDetail() {
             className="bg-white rounded-[20px] p-7 md:p-10 border border-gray-200"
           >
             <h2 className="text-[24px] sm:text-[26px] md:text-[25px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-6">
-              About this role
+              {t("careers.detail.aboutRole")}
             </h2>
             <div className="text-gray-700 font-['DM_Sans'] leading-[1.85] text-[16px] md:text-[17px] space-y-5 max-w-[1400px] whitespace-pre-wrap">
-              {job.description || "No description provided."}
+              {job.description || t("careers.detail.noDescription")}
             </div>
           </motion.div>
           </div>
@@ -460,7 +465,7 @@ export default function JobDetail() {
             className="bg-white rounded-[20px] p-7 md:p-10 border border-gray-200"
           >
             <h2 className="text-[24px] sm:text-[26px] md:text-[25px] font-semibold text-[#0D4A7A] font-['Outfit'] mb-8">
-              Key responsibilities
+              {t("careers.detail.keyResponsibilities")}
             </h2>
             <ul className="space-y-4 text-gray-700 font-['DM_Sans'] text-[16px] md:text-[17px] leading-relaxed max-w-[900px]">
               {requirementSections.responsibilities.length ? (
@@ -471,7 +476,7 @@ export default function JobDetail() {
                   </li>
                 ))
               ) : (
-                <li className="text-gray-500 italic">No requirements provided.</li>
+                <li className="text-gray-500 italic">{t("careers.detail.noRequirements")}</li>
               )}
             </ul>
           </motion.div>
@@ -494,7 +499,7 @@ export default function JobDetail() {
             {applicationCheck?.hasApplied ? (
               <span className="inline-flex items-center gap-2 px-8 py-4 bg-green-100 text-green-700 rounded-full font-bold shadow-md text-[16px] font-['DM_Sans']">
                 <SiteCheckIcon size={20} color="#FFFFFF" />
-                You have already applied for this position
+                {t("careers.detail.alreadyAppliedPosition")}
               </span>
             ) : (
               <Link
@@ -510,7 +515,7 @@ export default function JobDetail() {
                 }}
               >
                 <span className="inline-flex items-center gap-2 px-8 py-4 bg-[#1B4585] hover:bg-[#16386b] text-white rounded-full font-bold transition-all duration-300 shadow-md cursor-pointer text-[16px] font-['DM_Sans']">
-                  Apply for this position
+                  {t("careers.detail.applyPosition")}
                   <svg
                     width="20"
                     height="20"

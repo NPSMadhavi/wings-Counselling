@@ -6,7 +6,9 @@ import {
     Pencil,
     Briefcase,
     X,
-    Layers
+    Layers,
+    ChevronDown,
+    Check,
 } from "lucide-react";
 
 import { toast } from "react-toastify";
@@ -43,6 +45,15 @@ export default function CounsellingTypesPage() {
     const [imageUploading, setImageUploading] = useState(false);
     const [selectedMainTypeId, setSelectedMainTypeId] = useState("");
 
+    /* LANGUAGE (same pattern as Articles) */
+    const [languages, setLanguages] = useState<any[]>([]);
+    const [selectedLanguageId, setSelectedLanguageId] = useState<number | null>(null);
+    const [openLangMenu, setOpenLangMenu] = useState<"header" | "modal" | null>(null);
+    const [isSwitchingLanguage, setIsSwitchingLanguage] = useState(false);
+
+    const selectedLanguage = languages.find((l) => l.id === selectedLanguageId) || null;
+    const selectedLangCode = String(selectedLanguage?.code || "en").toLowerCase();
+
     const handleBack = () => {
   window.history.back();
 };
@@ -53,13 +64,14 @@ export default function CounsellingTypesPage() {
        FETCH TYPES
     ===================================================== */
 
-    const fetchTypes = async () => {
+    const fetchTypes = async (langCode?: string) => {
 
         try {
             console.log("FETCHING COUNSELLING TYPES...");
             setFetchError("");
+            const code = langCode || selectedLangCode || "en";
 
-            const response = await fetch("/api/counselling-types");
+            const response = await fetch(`/api/counselling-types?lang=${encodeURIComponent(code)}`);
             const data = await response.json();
 
             if (data.success) {
@@ -78,8 +90,30 @@ export default function CounsellingTypesPage() {
 
 
     useEffect(() => {
-        fetchTypes();
+        (async () => {
+            try {
+                const langs = await api.getLanguages();
+                const list = Array.isArray(langs) ? langs : [];
+                setLanguages(list);
+                const en = list.find((l: any) => String(l.code).toLowerCase() === "en");
+                setSelectedLanguageId(en?.id || list[0]?.id || null);
+            } catch {
+                setLanguages([
+                    { id: 0, code: "en", name: "English" },
+                    { id: 0, code: "zh", name: "中文" },
+                    { id: 0, code: "ms", name: "Bahasa Melayu" },
+                    { id: 0, code: "hi", name: "हिंदी" },
+                    { id: 0, code: "ta", name: "தமிழ்" },
+                ]);
+            }
+        })();
     }, []);
+
+    useEffect(() => {
+        if (selectedLanguageId == null && !languages.length) return;
+        fetchTypes(selectedLangCode);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedLanguageId]);
 
     const fetchTeamMembers = async () => {
         try {
@@ -103,6 +137,131 @@ export default function CounsellingTypesPage() {
         setSelectedMainTypeId("");
         setEditingSubId(null);
     };
+
+    const persistCurrentLanguageFields = async () => {
+        if (!selectedLanguageId) return;
+        try {
+            if ((modalMode === "edit" || modalMode === "add") && editingId) {
+                await api.saveCounsellingTypeLanguage(editingId, selectedLanguageId, {
+                    name,
+                    description,
+                });
+            }
+            if ((modalMode === "edit_sub" || modalMode === "add_sub") && editingSubId) {
+                await api.saveCounsellingSubTypeLanguage(editingSubId, selectedLanguageId, {
+                    name: subName,
+                    description: subDescription,
+                    heading: subHeading,
+                });
+            }
+        } catch (err: any) {
+            console.warn("persist language failed", err);
+        }
+    };
+
+    const loadLanguageIntoForm = async (_languageId: number, langCode: string) => {
+        if (editingId && (modalMode === "edit" || modalMode === "add")) {
+            const result = await api.translateCounsellingTypeLanguage(editingId, langCode);
+            setName(result?.name || "");
+            setDescription(result?.description || "");
+            return;
+        }
+        if (editingSubId && (modalMode === "edit_sub" || modalMode === "add_sub")) {
+            const result = await api.translateCounsellingSubTypeLanguage(editingSubId, langCode);
+            setSubName(result?.name || "");
+            setSubDescription(result?.description || "");
+            setSubHeading(result?.heading || "");
+        }
+    };
+
+    const switchLanguage = async (nextLanguageId: number) => {
+        if (!nextLanguageId || nextLanguageId === selectedLanguageId) {
+            setOpenLangMenu(null);
+            return;
+        }
+        const next = languages.find((l) => l.id === nextLanguageId);
+        if (!next) return;
+
+        const hasSavedEntity =
+            (editingId && (modalMode === "edit" || modalMode === "add")) ||
+            (editingSubId && (modalMode === "edit_sub" || modalMode === "add_sub"));
+
+        try {
+            setIsSwitchingLanguage(true);
+            setOpenLangMenu(null);
+
+            if (isModalOpen && hasSavedEntity) {
+                await persistCurrentLanguageFields();
+                setSelectedLanguageId(nextLanguageId);
+                await loadLanguageIntoForm(nextLanguageId, String(next.code).toLowerCase());
+            } else {
+                setSelectedLanguageId(nextLanguageId);
+            }
+        } catch (err: any) {
+            console.error(err?.message || "Failed to switch language");
+        } finally {
+            setIsSwitchingLanguage(false);
+        }
+    };
+
+    const LanguageDropdown = ({
+        light = false,
+        menuId,
+    }: {
+        light?: boolean;
+        menuId: "header" | "modal";
+    }) => (
+        <div className="relative">
+            <button
+                type="button"
+                onClick={() =>
+                    setOpenLangMenu((v) => (v === menuId ? null : menuId))
+                }
+                disabled={isSwitchingLanguage}
+                className={
+                    light
+                        ? "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-white/15 text-white hover:bg-white/25 disabled:opacity-60"
+                        : "flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold border border-[#0D4A7A]/25 text-[#0D4A7A] bg-white hover:bg-[#eef2ff] disabled:opacity-60 shadow-sm"
+                }
+            >
+                {isSwitchingLanguage
+                    ? "Loading..."
+                    : selectedLanguage?.name || "Language"}{" "}
+                <ChevronDown size={14} />
+            </button>
+            {openLangMenu === menuId && (
+                <div className="absolute top-[48px] right-0 min-w-[200px] bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.18)] border border-black/5 overflow-hidden z-[60] py-2">
+                    {(languages.length
+                        ? languages
+                        : [{ id: 0, code: "en", name: "English" }]
+                    ).map((lang: any) => {
+                        const selected = lang.id === selectedLanguageId;
+                        return (
+                            <button
+                                key={lang.code}
+                                type="button"
+                                onClick={() => {
+                                    if (!lang.id) {
+                                        toast.warning("Languages not loaded yet. Please wait.");
+                                        return;
+                                    }
+                                    void switchLanguage(lang.id);
+                                }}
+                                className={`w-full flex items-center justify-between gap-4 px-5 py-3 text-left transition-all ${
+                                    selected
+                                        ? "bg-[#E8F1FB] text-[#0A66C2]"
+                                        : "text-[#222] hover:bg-[#F7F7F5]"
+                                }`}
+                            >
+                                <span className="text-[15px] font-medium">{lang.name}</span>
+                                {selected ? <Check size={18} className="text-[#0A66C2]" /> : null}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
 
     const toggleTeamMember = (memberId: number) => {
         setSelectedTeamMemberIds((prev) =>
@@ -151,7 +310,12 @@ export default function CounsellingTypesPage() {
         try {
             setLoading(true);
 
-            const payload = { name, description };
+            const payload = {
+                name,
+                description,
+                language_id: selectedLanguageId || undefined,
+                language_code: selectedLangCode,
+            };
             let url = "/api/counselling-types/create";
             let method = "POST";
 
@@ -169,11 +333,22 @@ export default function CounsellingTypesPage() {
             const data = await response.json();
 
             if (response.ok) {
+                const newId = editingId || data?.data?.id;
+                if (newId && selectedLanguageId) {
+                    try {
+                        await api.saveCounsellingTypeLanguage(newId, selectedLanguageId, {
+                            name,
+                            description,
+                        });
+                    } catch {
+                        /* base save already attempted language */
+                    }
+                }
                 toast.success(editingId ? "Updated Successfully" : "Added Successfully");
                 setName("");
                 setDescription("");
                 setEditingId(null);
-                fetchTypes();
+                fetchTypes(selectedLangCode);
                 setIsModalOpen(false);
             } else {
                 toast.error(data.message || "Something went wrong");
@@ -216,7 +391,9 @@ export default function CounsellingTypesPage() {
                 heading: subHeading,
                 image_url: subImageUrl,
                 team_member_ids: selectedTeamMemberIds,
-                counselling_type_id: selectedMainTypeId
+                counselling_type_id: selectedMainTypeId,
+                language_id: selectedLanguageId || undefined,
+                language_code: selectedLangCode,
             };
 
             // If editing sub type
@@ -229,7 +406,9 @@ export default function CounsellingTypesPage() {
                     heading: subHeading,
                     image_url: subImageUrl,
                     team_member_ids: selectedTeamMemberIds,
-                    counselling_type_id: selectedMainTypeId
+                    counselling_type_id: selectedMainTypeId,
+                    language_id: selectedLanguageId || undefined,
+                    language_code: selectedLangCode,
                 };
             }
 
@@ -242,9 +421,21 @@ export default function CounsellingTypesPage() {
             const data = await response.json();
 
             if (response.ok) {
+                const newId = editingSubId || data?.data?.id;
+                if (newId && selectedLanguageId) {
+                    try {
+                        await api.saveCounsellingSubTypeLanguage(newId, selectedLanguageId, {
+                            name: subName,
+                            description: subDescription,
+                            heading: subHeading,
+                        });
+                    } catch {
+                        /* ignore */
+                    }
+                }
                 toast.success(editingSubId ? "Sub Type Updated Successfully" : "Sub counselling type added successfully");
                 resetSubForm();
-                fetchTypes();
+                fetchTypes(selectedLangCode);
                 setIsModalOpen(false);
             } else {
                 toast.error(data.message || "Something went wrong");
@@ -268,25 +459,40 @@ export default function CounsellingTypesPage() {
         setEditingId(null);
         setName("");
         setDescription("");
+        setOpenLangMenu(null);
         setIsModalOpen(true);
     };
 
     const openAddSubModal = () => {
         setModalMode("add_sub");
         resetSubForm();
+        setOpenLangMenu(null);
         setIsModalOpen(true);
         fetchTeamMembers();
     };
 
-    const handleEdit = (item) => {
+    const handleEdit = async (item) => {
         setModalMode("edit");
         setEditingId(item.id);
         setName(item.name);
         setDescription(item.description || "");
+        setOpenLangMenu(null);
         setIsModalOpen(true);
+        if (selectedLangCode && selectedLangCode !== "en") {
+            try {
+                setIsSwitchingLanguage(true);
+                const result = await api.translateCounsellingTypeLanguage(item.id, selectedLangCode);
+                setName(result?.name || item.name);
+                setDescription(result?.description || item.description || "");
+            } catch {
+                /* keep list values */
+            } finally {
+                setIsSwitchingLanguage(false);
+            }
+        }
     };
 
-    const handleEditSub = (subItem, mainTypeId) => {
+    const handleEditSub = async (subItem, mainTypeId) => {
         setModalMode("edit_sub");
         setEditingSubId(subItem.id);
         setSubName(subItem.name);
@@ -299,8 +505,25 @@ export default function CounsellingTypesPage() {
                 : []
         );
         setSelectedMainTypeId(String(mainTypeId));
+        setOpenLangMenu(null);
         setIsModalOpen(true);
         fetchTeamMembers();
+        if (selectedLangCode && selectedLangCode !== "en") {
+            try {
+                setIsSwitchingLanguage(true);
+                const result = await api.translateCounsellingSubTypeLanguage(
+                    subItem.id,
+                    selectedLangCode
+                );
+                setSubName(result?.name || subItem.name);
+                setSubDescription(result?.description || subItem.description || "");
+                setSubHeading(result?.heading || subItem.heading || "");
+            } catch {
+                /* keep list values */
+            } finally {
+                setIsSwitchingLanguage(false);
+            }
+        }
     };
 
 
@@ -324,7 +547,7 @@ export default function CounsellingTypesPage() {
 
             if (response.ok) {
                 toast.success("Deleted Successfully");
-                fetchTypes();
+                fetchTypes(selectedLangCode);
             } else {
                 toast.error(data.message || "Delete failed");
             }
@@ -380,7 +603,8 @@ export default function CounsellingTypesPage() {
   </h1>
 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 items-center flex-wrap">
+                    {!isModalOpen && <LanguageDropdown menuId="header" />}
                     <button
                         onClick={openAddModal}
                         className="bg-[#0D4A7A] text-white font-semibold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg"
@@ -494,25 +718,32 @@ export default function CounsellingTypesPage() {
             ===================================================== */}
 
 {isModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white w-[700px] max-w-[90vw] rounded-2xl shadow-xl animate-fade-in-up">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
+        <div className="bg-white w-[700px] max-w-[90vw] rounded-2xl shadow-xl animate-fade-in-up relative z-[101] overflow-visible">
             
             {/* Modal Header */}
-            <div className="sticky top-0 bg-[#0D4A7A] px-8 py-6 rounded-t-2xl flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-bold text-white">
+            <div className="sticky top-0 bg-[#0D4A7A] px-8 py-6 rounded-t-2xl flex justify-between items-center gap-3 relative z-[102]">
+                <div className="flex items-center gap-2 min-w-0">
+                    <h2 className="text-2xl font-bold text-white truncate">
                         {modalMode === "add" && "Add Service Type"}
                         {modalMode === "edit" && "Edit Service Type"}
                         {modalMode === "add_sub" && "Add Sub Service Type"}
                         {modalMode === "edit_sub" && "Edit Sub Service Type"}
                     </h2>
                 </div>
-                <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="text-white transition-colors hover:text-gray-200"
-                >
-                    <X size={24} />
-                </button>
+                <div className="flex items-center gap-3 shrink-0 relative z-[103]">
+                    <LanguageDropdown light menuId="modal" />
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setIsModalOpen(false);
+                            setOpenLangMenu(null);
+                        }}
+                        className="text-white transition-colors hover:text-gray-200"
+                    >
+                        <X size={24} />
+                    </button>
+                </div>
             </div>
 
             {/* Modal Body - Main Type Form */}

@@ -1,8 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaInstagram, FaFacebookF, FaYoutube } from "react-icons/fa";
 import { Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { scrollToContactWithRetry } from "@/lib/scrollToSection";
+
+const FALLBACK_SOCIAL = [
+  {
+    name: "Instagram",
+    icon: null,
+    link: "https://www.instagram.com/wingscounselling",
+    FaIcon: FaInstagram,
+  },
+  {
+    name: "Facebook",
+    icon: null,
+    link: "https://www.facebook.com/wingscounselling",
+    FaIcon: FaFacebookF,
+  },
+  {
+    name: "YouTube",
+    icon: null,
+    link: "https://www.youtube.com/@wingscounselling",
+    FaIcon: FaYoutube,
+  },
+];
 
 export function Footer() {
   const { t } = useTranslation();
@@ -11,6 +32,32 @@ export function Footer() {
   const [email, setEmail] = useState("");
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [status, setStatus] = useState("idle"); // idle | loading | success | duplicate | error | privacy
+  const [socialLinks, setSocialLinks] = useState(FALLBACK_SOCIAL);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/social-media");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled || !Array.isArray(data) || data.length === 0) return;
+        setSocialLinks(
+          data.map((item) => ({
+            name: item.name || "Social",
+            icon: item.icon || null,
+            link: item.link || "#",
+            FaIcon: null,
+          }))
+        );
+      } catch {
+        /* keep fallback */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleStayConnected = async (e) => {
     e.preventDefault();
@@ -154,28 +201,13 @@ export function Footer() {
 
               {/* Social Icons */}
               <div className="flex flex-wrap gap-2">
-
-                {[
-                  {
-                    icon: <FaInstagram />,
-                    link: "https://www.instagram.com/wingscounselling",
-                  },
-                  {
-                    icon: <FaFacebookF />,
-                    link: "https://www.facebook.com/wingscounselling",
-                  },
-                  {
-                    icon: <FaYoutube />,
-                    link: "https://www.youtube.com/@wingscounselling",
-                  },
-                ].map((item, index) => (
-
+                {socialLinks.map((item, index) => (
                   <a
-                    key={index}
+                    key={`${item.name}-${index}`}
                     href={item.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`Social link ${index + 1}`}
+                    aria-label={item.name || `Social link ${index + 1}`}
                     className="
                       w-[44px] h-[44px]
                       shrink-0
@@ -187,11 +219,17 @@ export function Footer() {
                       hover:bg-white hover:text-[#1F2937]
                     "
                   >
-                    {item.icon}
+                    {item.icon ? (
+                      <img
+                        src={item.icon}
+                        alt={item.name || ""}
+                        className="w-5 h-5 object-contain"
+                      />
+                    ) : item.FaIcon ? (
+                      <item.FaIcon />
+                    ) : null}
                   </a>
-
                 ))}
-
               </div>
             </div>
 

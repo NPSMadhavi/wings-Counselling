@@ -13,6 +13,10 @@ import {
 } from "lucide-react";
 import { api, resolveAssetUrl } from "../lib/api";
 import { ConfirmDialog, AlertDialog } from "../components/ConfirmDialog";
+import {
+  AdminLanguageDropdown,
+  useAdminLanguages,
+} from "../components/AdminLanguageDropdown";
 
 const EMPTY = {
   logo: "",
@@ -38,7 +42,21 @@ function resolveImageUrl(url) {
   return resolveAssetUrl(url);
 }
 
-function PartnerFormModal({ partner, onSave, onClose }) {
+function PartnerFormModal({
+  partner,
+  onSave,
+  onClose,
+  languages,
+  selectedLanguageId,
+  selectedLanguage,
+  selectedLangCode,
+  openLangMenu,
+  setOpenLangMenu,
+  isSwitchingLanguage,
+  setIsSwitchingLanguage,
+  setSelectedLanguageId,
+  onLocalized,
+}) {
   const [form, setForm] = useState({ ...EMPTY, ...(partner || {}) });
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
@@ -48,8 +66,80 @@ function PartnerFormModal({ partner, onSave, onClose }) {
     partner?.logo ? resolveImageUrl(partner.logo) : ""
   );
   const fileRef = useRef(null);
+  const openedForIdRef = useRef(partner?.id ?? "new");
+
+  // Only reset form when opening a different partner — not on every parent re-render
+  useEffect(() => {
+    const key = partner?.id ?? "new";
+    if (openedForIdRef.current !== key) {
+      openedForIdRef.current = key;
+      setForm({ ...EMPTY, ...(partner || {}) });
+      setPreviewUrl(partner?.logo ? resolveImageUrl(partner.logo) : "");
+    }
+  }, [partner]);
 
   const set = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
+
+  async function switchLanguage(nextLanguageId) {
+    if (!nextLanguageId || nextLanguageId === selectedLanguageId) {
+      setOpenLangMenu(null);
+      return;
+    }
+    const next = languages.find((l) => l.id === nextLanguageId);
+    if (!next) return;
+
+    try {
+      setIsSwitchingLanguage(true);
+      setOpenLangMenu(null);
+
+      if (form.id && selectedLanguageId) {
+        try {
+          const prev = languages.find((l) => l.id === selectedLanguageId);
+          const prevCode = String(prev?.code || "").toLowerCase();
+          const sample = `${form.name || ""} ${form.description || ""}`;
+          const looksEnglish =
+            /[A-Za-z]/.test(sample) &&
+            !/[\u0900-\u097F\u0B80-\u0BFF\u4E00-\u9FFF]/.test(sample);
+          // Don't overwrite English master with another language's form text
+          if (!(prevCode === "en" && !looksEnglish)) {
+            await api.savePartnerLanguage(form.id, selectedLanguageId, {
+              name: form.name,
+              description: form.description,
+              duration: form.duration,
+              quote: form.quote,
+            });
+          }
+        } catch (persistErr) {
+          console.warn("Could not persist partner language:", persistErr);
+        }
+      }
+
+      // Update language without triggering full-page list reload while modal is open
+      setSelectedLanguageId(nextLanguageId);
+
+      if (form.id) {
+        // Always re-translate so partial/wrong cached rows (e.g. Malay under Chinese) get fixed
+        const result = await api.translatePartnerLanguage(
+          form.id,
+          String(next.code).toLowerCase(),
+          true
+        );
+        const nextFields = {
+          name: result?.name || form.name,
+          description: result?.description ?? form.description,
+          duration: result?.duration || form.duration,
+          quote: result?.quote ?? form.quote,
+        };
+        setForm((prev) => ({ ...prev, ...nextFields }));
+        onLocalized?.(nextFields);
+      }
+    } catch (err) {
+      console.error(err);
+      setSaveError(err?.message || "Failed to switch language");
+    } finally {
+      setIsSwitchingLanguage(false);
+    }
+  }
 
   async function handleFileChange(e) {
     const file = e.target.files?.[0];
@@ -105,6 +195,8 @@ function PartnerFormModal({ partner, onSave, onClose }) {
         description: form.description,
         quote: form.quote,
         websiteLink: form.websiteLink,
+        language_id: selectedLanguageId || undefined,
+        language_code: selectedLangCode,
       });
     } catch (err) {
       setSaveError(err.message || "Saving partner failed. Please try again.");
@@ -127,8 +219,8 @@ function PartnerFormModal({ partner, onSave, onClose }) {
           transition={{ duration: 0.2 }}
           className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden"
         >
-          <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center">
-            <div>
+          <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center gap-3">
+            <div className="min-w-0">
               <h3 className="text-2xl font-bold text-white">
                 {partner?.id ? "Edit Partner" : "Add Partner"}
               </h3>
@@ -136,12 +228,25 @@ function PartnerFormModal({ partner, onSave, onClose }) {
                 Logo, duration, name, description, quote and website link
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="text-white hover:text-blue-200 transition-colors p-2 hover:bg-white/10 rounded-full"
-            >
-              <X size={20} />
-            </button>
+            <div className="flex items-center gap-3 shrink-0">
+              <AdminLanguageDropdown
+                light
+                menuId="modal"
+                languages={languages}
+                selectedLanguageId={selectedLanguageId}
+                selectedLanguage={selectedLanguage}
+                openLangMenu={openLangMenu}
+                setOpenLangMenu={setOpenLangMenu}
+                isSwitchingLanguage={isSwitchingLanguage}
+                onSelect={switchLanguage}
+              />
+              <button
+                onClick={onClose}
+                className="text-white hover:text-blue-200 transition-colors p-2 hover:bg-white/10 rounded-full"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
@@ -404,21 +509,36 @@ export default function PartnersAdmin() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [loading, setLoading] = useState(true);
   const [, navigate] = useLocation();
+  const langState = useAdminLanguages();
+  const {
+    languages,
+    selectedLanguageId,
+    setSelectedLanguageId,
+    selectedLanguage,
+    selectedLangCode,
+    openLangMenu,
+    setOpenLangMenu,
+    isSwitchingLanguage,
+    setIsSwitchingLanguage,
+  } = langState;
 
   useEffect(() => {
+    // While edit/add modal is open, do not reload the page (that unmounts the popup)
+    if (editing) return;
     load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLanguageId]);
 
-  async function load() {
-    setLoading(true);
+  async function load({ silent = false } = {}) {
+    if (!silent) setLoading(true);
     try {
-      const data = await api.getPartners();
+      const data = await api.getPartners(selectedLangCode);
       setPartners(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
       setPartners([]);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }
 
@@ -436,16 +556,64 @@ async function save(partner) {
     description: partner.description,
     quote: partner.quote,
     websiteLink: partner.websiteLink,
+    language_id: partner.language_id || selectedLanguageId || undefined,
+    language_code: partner.language_code || selectedLangCode,
   };
 
+  let savedId = partnerId;
   if (partnerId) {
     await api.updatePartner(partnerId, payload);
   } else {
-    await api.createPartner(payload);
+    const created = await api.createPartner(payload);
+    savedId = created?.id || partnerId;
+  }
+
+  if (savedId && (payload.language_id || selectedLanguageId)) {
+    try {
+      await api.savePartnerLanguage(
+        savedId,
+        payload.language_id || selectedLanguageId,
+        {
+          name: payload.name,
+          description: payload.description,
+          duration: payload.duration,
+          quote: payload.quote,
+        }
+      );
+    } catch {
+      /* base save already attempted */
+    }
   }
 
   setEditing(null);
+  setOpenLangMenu(null);
   await load();
+}
+
+async function openEdit(partner) {
+  setOpenLangMenu(null);
+  setEditing(partner);
+  if (partner?.id && selectedLangCode && selectedLangCode !== "en") {
+    try {
+      setIsSwitchingLanguage(true);
+      const result = await api.translatePartnerLanguage(
+        partner.id,
+        selectedLangCode,
+        true
+      );
+      setEditing({
+        ...partner,
+        name: result?.name || partner.name,
+        description: result?.description ?? partner.description,
+        duration: result?.duration || partner.duration,
+        quote: result?.quote ?? partner.quote,
+      });
+    } catch {
+      /* keep list values */
+    } finally {
+      setIsSwitchingLanguage(false);
+    }
+  }
 }
 
 async function remove() {
@@ -468,7 +636,7 @@ async function remove() {
     await api.deletePartner(partnerId);
   } catch (err) {
     console.error(err);
-   
+    setPartners(previousPartners);
   }
 }
 
@@ -507,13 +675,33 @@ async function remove() {
                 </h1>
               </div>
             </div>
-            <button
-              onClick={() => setEditing(EMPTY)}
-              className="px-6 py-3 bg-[#0D4A7A] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-            >
-              <Plus size={18} />
-              Add Partner
-            </button>
+            <div className="flex items-center gap-3 flex-wrap">
+              {!editing && (
+                <AdminLanguageDropdown
+                  menuId="header"
+                  languages={languages}
+                  selectedLanguageId={selectedLanguageId}
+                  selectedLanguage={selectedLanguage}
+                  openLangMenu={openLangMenu}
+                  setOpenLangMenu={setOpenLangMenu}
+                  isSwitchingLanguage={isSwitchingLanguage}
+                  onSelect={(id) => {
+                    setOpenLangMenu(null);
+                    setSelectedLanguageId(id);
+                  }}
+                />
+              )}
+              <button
+                onClick={() => {
+                  setOpenLangMenu(null);
+                  setEditing(EMPTY);
+                }}
+                className="px-6 py-3 bg-[#0D4A7A] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+              >
+                <Plus size={18} />
+                Add Partner
+              </button>
+            </div>
           </div>
 
           <motion.div
@@ -584,7 +772,7 @@ async function remove() {
                               <Eye size={16} />
                             </button>
                             <button
-                              onClick={() => setEditing(partner)}
+                              onClick={() => openEdit(partner)}
                               className="p-2 rounded-lg text-gray-500 hover:bg-gray-100"
                               title="Edit"
                             >
@@ -625,7 +813,23 @@ async function remove() {
         <PartnerFormModal
           partner={editing}
           onSave={save}
-          onClose={() => setEditing(null)}
+          onClose={() => {
+            setEditing(null);
+            setOpenLangMenu(null);
+            load({ silent: true });
+          }}
+          languages={languages}
+          selectedLanguageId={selectedLanguageId}
+          selectedLanguage={selectedLanguage}
+          selectedLangCode={selectedLangCode}
+          openLangMenu={openLangMenu}
+          setOpenLangMenu={setOpenLangMenu}
+          isSwitchingLanguage={isSwitchingLanguage}
+          setIsSwitchingLanguage={setIsSwitchingLanguage}
+          setSelectedLanguageId={setSelectedLanguageId}
+          onLocalized={(fields) =>
+            setEditing((prev) => (prev ? { ...prev, ...fields } : prev))
+          }
         />
       )}
 

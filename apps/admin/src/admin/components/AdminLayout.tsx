@@ -8,6 +8,7 @@ import {
   HeartHandshake,
   Handshake,
   MessageSquareQuote,
+  Share2,
   LogOut,
   LayoutDashboard,
   Bell,
@@ -517,6 +518,10 @@ export default function AdminLayout({
       return location === "/admin/testimonials";
     }
 
+    if (href === "/admin/social-media") {
+      return location === "/admin/social-media";
+    }
+
     if (href === "/admin/settings/primary-cc-mails") {
       return isPrimaryCcMailsRoute;
     }
@@ -754,7 +759,7 @@ export default function AdminLayout({
   >
     <Briefcase size={18} />
 
-    {!sidebarCollapsed && <span>Careers / Jobs</span>}
+    {!sidebarCollapsed && <span>Careers</span>}
   </button>
 
   <button
@@ -835,6 +840,19 @@ export default function AdminLayout({
     <MessageSquareQuote size={18} />
 
     {!sidebarCollapsed && <span>Testimonials</span>}
+  </button>
+
+  <button
+    onClick={() => handleNavigate("/admin/social-media")}
+    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[20px] transition-all ${
+      isActive("/admin/social-media")
+        ? "bg-blue-50 text-gray-900"
+        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    }`}
+  >
+    <Share2 size={18} />
+
+    {!sidebarCollapsed && <span>Social Media Links</span>}
   </button>
 </div>
 

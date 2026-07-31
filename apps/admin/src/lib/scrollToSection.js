@@ -12,6 +12,97 @@ const PAGE_CONTENT_TARGETS = {
   "/careers": { id: "open-positions" },
 };
 
+/** Legacy + dynamic sub-service pages — land below the hero */
+const SUB_SERVICE_LEGACY_PATHS = new Set([
+  "/Familysupport",
+  "/Marital",
+  "/SubService",
+  "/Pre-school",
+  "/Youth",
+  "/Adult",
+  "/Clinicalsupervision",
+  "/Personaltherapy",
+  "/Schooloutreach",
+  "/Workplace",
+  "/Community",
+  "/Skill",
+]);
+
+function isSubServicePath(basePath) {
+  return (
+    basePath.startsWith("/services/sub/") || SUB_SERVICE_LEGACY_PATHS.has(basePath)
+  );
+}
+
+export function scrollToServiceDetails({
+  behavior = "auto",
+  offset = NAV_SCROLL_OFFSET,
+} = {}) {
+  return scrollToElement(document.getElementById("service-details"), {
+    behavior,
+    offset,
+  });
+}
+
+export function scrollToServiceDetailsWithRetry({
+  behavior = "auto",
+  offset = NAV_SCROLL_OFFSET,
+} = {}) {
+  const attempt = () => scrollToServiceDetails({ behavior, offset });
+  if (attempt()) {
+    setTimeout(attempt, 100);
+    setTimeout(attempt, 350);
+    return true;
+  }
+  setTimeout(attempt, 100);
+  setTimeout(attempt, 350);
+  setTimeout(attempt, 700);
+  setTimeout(attempt, 1200);
+  return true;
+}
+
+/** Article detail pages — land below the hero at the article body */
+const ARTICLE_DETAIL_LEGACY_PATHS = new Set([
+  "/GroundingTechniques",
+  "/RelationshipArticlePage",
+  "/ParentingArticlePage",
+  "/GriefArticlePage",
+  "/MentalArticlePage",
+]);
+
+function isArticleDetailPath(basePath) {
+  return (
+    basePath.startsWith("/article/") || ARTICLE_DETAIL_LEGACY_PATHS.has(basePath)
+  );
+}
+
+export function scrollToArticleDetails({
+  behavior = "auto",
+  offset = NAV_SCROLL_OFFSET,
+} = {}) {
+  return scrollToElement(document.getElementById("anxiety-article"), {
+    behavior,
+    offset,
+  });
+}
+
+export function scrollToArticleDetailsWithRetry({
+  behavior = "auto",
+  offset = NAV_SCROLL_OFFSET,
+} = {}) {
+  const attempt = () => scrollToArticleDetails({ behavior, offset });
+  if (attempt()) {
+    setTimeout(attempt, 100);
+    setTimeout(attempt, 350);
+    return true;
+  }
+  setTimeout(attempt, 100);
+  setTimeout(attempt, 350);
+  setTimeout(attempt, 700);
+  setTimeout(attempt, 1200);
+  return true;
+}
+
 function scrollToElement(el, { behavior = "auto", offset = NAV_SCROLL_OFFSET } = {}) {
   if (!el) return false;
 
@@ -30,9 +121,21 @@ export function scrollToPageContentSection(
   { behavior = "auto", offset = NAV_SCROLL_OFFSET } = {}
 ) {
   const basePath = path.split("?")[0].split("#")[0];
-  const target = PAGE_CONTENT_TARGETS[basePath];
+  const target = isSubServicePath(basePath)
+    ? { id: "service-details" }
+    : isArticleDetailPath(basePath)
+      ? { id: "anxiety-article" }
+      : PAGE_CONTENT_TARGETS[basePath];
 
   if (!target) return false;
+
+  if (target.id === "service-details") {
+    return scrollToServiceDetailsWithRetry({ behavior, offset });
+  }
+
+  if (target.id === "anxiety-article") {
+    return scrollToArticleDetailsWithRetry({ behavior, offset });
+  }
 
   const attempt = () => {
     if (target.id) {

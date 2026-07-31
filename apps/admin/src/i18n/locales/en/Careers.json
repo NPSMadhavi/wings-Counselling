@@ -19,6 +19,27 @@
       }
     },
 
+    "detail": {
+      "home": "Home",
+      "career": "Career",
+      "share": "Share",
+      "copyLink": "Copy Link",
+      "linkCopied": "Link Copied!",
+      "shareWhatsApp": "Share on WhatsApp",
+      "shareLinkedIn": "Share on LinkedIn",
+      "aboutRole": "About this role",
+      "noDescription": "No description provided.",
+      "keyResponsibilities": "Key responsibilities",
+      "noRequirements": "No requirements provided.",
+      "applyPosition": "Apply for this position",
+      "alreadyAppliedPosition": "You have already applied for this position",
+      "unableToLoad": "Unable to Load Job",
+      "notFound": "Job Not Found",
+      "loadFailed": "Failed to fetch job details. Please try again.",
+      "notAvailable": "The job you are looking for does not exist or is no longer available.",
+      "backToCareers": "Back to Careers"
+    },
+
     "whyWork": {
       "title": "Why work with WINGS?",
       "description": "We prioritize your growth as much as the growth of our community.",

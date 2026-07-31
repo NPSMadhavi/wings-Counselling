@@ -19,6 +19,27 @@
       }
     },
 
+    "detail": {
+      "home": "首页",
+      "career": "招聘",
+      "share": "分享",
+      "copyLink": "复制链接",
+      "linkCopied": "链接已复制！",
+      "shareWhatsApp": "分享到 WhatsApp",
+      "shareLinkedIn": "分享到 LinkedIn",
+      "aboutRole": "关于此职位",
+      "noDescription": "暂无职位描述。",
+      "keyResponsibilities": "主要职责",
+      "noRequirements": "暂无任职要求。",
+      "applyPosition": "申请此职位",
+      "alreadyAppliedPosition": "您已申请此职位",
+      "unableToLoad": "无法加载职位",
+      "notFound": "未找到职位",
+      "loadFailed": "获取职位详情失败，请重试。",
+      "notAvailable": "您查找的职位不存在或已下线。",
+      "backToCareers": "返回招聘页"
+    },
+
     "whyWork": {
       "title": "为什么加入 WINGS？",
       "description": "我们不仅关注社区的发展，也重视您的个人成长。",

@@ -1,4 +1,3 @@
-import * as nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -16,90 +15,108 @@ import {
   recordMailLog,
   ensureNotifyTables,
 } from "./notifyService.js";
+import {
+  sendGraphMail,
+  getMailFrom,
+  getMailTo,
+} from "../services/microsoftMailService.js";
 
 /**
- * Create email transporter — always uses Gmail SMTP with SSL (port 465).
- * Port 465 + secure:true is the most reliable configuration for Gmail App Passwords.
+ * All site emails go through Microsoft Graph (MAIL_FROM mailbox).
+ * SMTP / Gmail is intentionally not used.
  */
-function createTransporter({ host, port, secure, user, pass }) {
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure,
-    auth: { user, pass },
-  });
+function isGraphMailConfigured() {
+  const clientId = process.env.AZURE_CLIENT_ID || process.env.MS_CLIENT_ID;
+  const tenantId = process.env.AZURE_TENANT_ID || process.env.MS_TENANT_ID;
+  const secret = process.env.AZURE_CLIENT_SECRET || process.env.MS_CLIENT_SECRET;
+  const from = getMailFrom();
+  return Boolean(clientId && tenantId && secret && from);
 }
 
-function getTransporterCandidates() {
-  const user = process.env.SMTP_USER ?? process.env.GMAIL_USER;
-  const pass =
-    process.env.SMTP_PASS ??
-    process.env.SMTP_PASSWORD ??
-    process.env.GMAIL_APP_PASSWORD ??
-    process.env.GMAIL_PASS ??
-    process.env.GMAIL_PASSWORD;
-  const host = process.env.SMTP_HOST ?? "smtp.gmail.com";
-  const port = Number.parseInt(process.env.SMTP_PORT ?? "465", 10);
-  const secure =
-    process.env.SMTP_SECURE == null
-      ? port === 465
-      : String(process.env.SMTP_SECURE).toLowerCase() === "true";
+function extractEmailAddress(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  const angle = raw.match(/<([^>]+)>/);
+  return (angle ? angle[1] : raw).trim().toLowerCase();
+}
 
-  if (!user || !pass) {
-    console.warn("[Email] No SMTP credentials configured (SMTP_USER / SMTP_PASS missing).");
-    return [];
-  }
+function getFromAddress() {
+  const addr = getMailFrom() || process.env.EMAIL_FROM || "";
+  return addr
+    ? `WINGS Counselling Centre <${addr}>`
+    : "WINGS Counselling Centre <itsupport@wingscounselling.org.sg>";
+}
 
-  const candidates = [
-    {
-      host,
-      port: Number.isFinite(port) ? port : 465,
-      secure,
-      label: "primary",
-    },
-  ];
-
-  if ((Number.isFinite(port) ? port : 465) !== 587) {
-    candidates.push({
-      host,
-      port: 587,
-      secure: false,
-      label: "fallback-587",
-    });
-  }
-
-  return candidates.map((candidate) => ({
-    ...candidate,
-    transporter: createTransporter({
-      host: candidate.host,
-      port: candidate.port,
-      secure: candidate.secure,
-      user,
-      pass,
-    }),
-  }));
+/** Org inbox for appointment / volunteer / Stay Connected alerts */
+function getOrgNotificationEmail() {
+  const to =
+    getMailTo() ||
+    process.env.APPOINTMENT_NOTIFICATION_EMAIL ||
+    process.env.ORGANIZATION_NOTIFICATION_EMAIL ||
+    process.env.ADMIN_NOTIFICATION_EMAIL ||
+    process.env.EMAIL_NOTIFICATION_TO ||
+    "";
+  return isValidEmail(to) ? to.trim().toLowerCase() : "";
 }
 
 /**
- * Try sending with each transporter candidate in order, stopping on first success.
+ * Send via Microsoft Graph only (no SMTP / Gmail).
  */
 async function sendWithFallback(mailOptions) {
-  const transporters = getTransporterCandidates();
-  if (!transporters.length) {
-    throw new Error("SMTP not configured");
+  if (!isGraphMailConfigured()) {
+    throw new Error(
+      "Microsoft Graph mail is not configured. Set MAIL_FROM, MAIL_TO, and MS_CLIENT_ID / MS_TENANT_ID / MS_CLIENT_SECRET in apps/api/.env"
+    );
   }
-  let lastError = null;
-  for (const candidate of transporters) {
-    try {
-      await candidate.transporter.sendMail(mailOptions);
-      console.log(`[Email] Sent via ${candidate.label} (${candidate.host}:${candidate.port})`);
-      return;
-    } catch (err) {
-      lastError = err;
-      console.error(`[Email] Send failed via ${candidate.label} (${candidate.host}:${candidate.port}):`, err?.message);
-    }
+
+  const from =
+    extractEmailAddress(mailOptions.from) || getMailFrom();
+  const to = mailOptions.to;
+  const html = mailOptions.html || mailOptions.text || "";
+
+  const replyToRaw = mailOptions.replyTo;
+  let replyTo;
+  if (replyToRaw) {
+    const list = Array.isArray(replyToRaw) ? replyToRaw : [replyToRaw];
+    replyTo = list
+      .map((item) => {
+        if (typeof item === "string") {
+          const address = extractEmailAddress(item);
+          return address ? { emailAddress: { address } } : null;
+        }
+        if (item?.emailAddress?.address) return item;
+        if (item?.address) {
+          return { emailAddress: { address: item.address, name: item.name } };
+        }
+        return null;
+      })
+      .filter(Boolean);
   }
-  throw lastError || new Error("All SMTP transports failed");
+
+  // Inline logo for notify emails (Gmail cannot load localhost image URLs)
+  let attachments = Array.isArray(mailOptions.attachments)
+    ? [...mailOptions.attachments]
+    : [];
+  if (
+    String(html).includes(`cid:${NOTIFY_LOGO_CID}`) &&
+    !attachments.some((a) => a?.contentId === NOTIFY_LOGO_CID)
+  ) {
+    const logo = getNotifyLogoGraphAttachment();
+    if (logo) attachments.push(logo);
+  }
+
+  await sendGraphMail({
+    from,
+    to,
+    cc: mailOptions.cc,
+    subject: mailOptions.subject,
+    html,
+    replyTo: replyTo?.length ? replyTo : undefined,
+    attachments: attachments.length ? attachments : undefined,
+    saveToSentItems: true,
+  });
+
+  console.log(`[Email] Sent via Microsoft Graph from=${from} to=${to}`);
 }
 
 function isValidEmail(email) {
@@ -131,11 +148,7 @@ async function getConfiguredEmailRecipients(type) {
   }
 }
 
-const FROM =
-  process.env.EMAIL_FROM ??
-  (process.env.SMTP_USER
-    ? `WINGS Counselling Centre <${process.env.SMTP_USER}>`
-    : "WINGS Counselling Centre <lavetimadhavilatha19@gmail.com>");
+const FROM = getFromAddress; // call as FROM() — Graph mailbox (MAIL_FROM)
 
 function normalizeMobileNumber(value) {
   const raw = String(value ?? "").trim();
@@ -553,18 +566,19 @@ function buildAppointmentConfirmationEmailHtml(appointment) {
 }
 
 /**
- * Appointment notification email — sent ONLY to the configured admin address
- * in .env. The customer's email is never used as a recipient.
+ * Appointment notification — Microsoft Graph only.
+ * From: MAIL_FROM → To: MAIL_TO (org inbox). Customer email is Reply-To only.
  */
 export async function sendAppointmentConfirmationEmail(appointment) {
-  const recipientEmail =
-    process.env.APPOINTMENT_NOTIFICATION_EMAIL ||
-    process.env.ADMIN_NOTIFICATION_EMAIL ||
-    process.env.EMAIL_NOTIFICATION_TO ||
-    process.env.SMTP_USER;
+  const recipientEmail = getOrgNotificationEmail();
 
-  if (!isValidEmail(recipientEmail)) {
-    console.error("[Email] Appointment notification recipient is not configured");
+  if (!recipientEmail) {
+    console.error("[Email] MAIL_TO / APPOINTMENT_NOTIFICATION_EMAIL is not configured");
+    return false;
+  }
+
+  if (!isGraphMailConfigured()) {
+    console.error("[Email] Microsoft Graph mail is not configured");
     return false;
   }
 
@@ -572,60 +586,18 @@ export async function sendAppointmentConfirmationEmail(appointment) {
     (appointment.name || "").trim().split(/\s+/)[0] || "there";
 
   const content = buildAppointmentConfirmationEmailHtml(appointment);
-  const transporters = getTransporterCandidates();
-
-  if (!transporters.length) {
-    console.error("[Email] SMTP not configured");
-    return false;
-  }
+  const subject = `New Appointment — ${clientFirstName} | WINGS Counselling`;
 
   try {
-    let sent = false;
-    let lastError = null;
+    await sendWithFallback({
+      from: getFromAddress(),
+      to: recipientEmail,
+      replyTo: appointment.email || undefined,
+      subject,
+      html: getMentalHealthEmailWrapper(content, "New Appointment Request"),
+    });
 
-    for (const candidate of transporters) {
-      try {
-        if (typeof candidate.transporter.verify === "function") {
-          await candidate.transporter.verify();
-        }
-
-        await candidate.transporter.sendMail({
-          from: FROM,
-
-          // ONLY THE CONFIGURED ADMIN MAIL
-          to: recipientEmail,
-
-          // NO CUSTOMER MAIL
-          // NO CC
-          // NO BCC
-
-          subject: `New Appointment — ${clientFirstName} | WINGS Counselling`,
-          html: getMentalHealthEmailWrapper(
-            content,
-            "New Appointment Request"
-          ),
-        });
-
-        sent = true;
-        console.log(
-          "[Email] Appointment notification sent ONLY to:",
-          recipientEmail,
-          `via ${candidate.label} (${candidate.host}:${candidate.port})`
-        );
-        break;
-      } catch (err) {
-        lastError = err;
-        console.error(
-          `[Email] Appointment send failed via ${candidate.label} (${candidate.host}:${candidate.port}):`,
-          err?.message || err
-        );
-      }
-    }
-
-    if (!sent) {
-      if (lastError) console.error("[Email] Send failed:", lastError);
-      return false;
-    }
+    console.log("[Email] Appointment notification sent via Graph to:", recipientEmail);
 
     try {
       await recordFormSubmissionEmail({
@@ -633,7 +605,7 @@ export async function sendAppointmentConfirmationEmail(appointment) {
         sourceId: appointment.id ?? null,
         primaryMail: recipientEmail,
         ccMail: "",
-        subject: `New Appointment — ${clientFirstName} | WINGS Counselling`,
+        subject,
         content: formatAppointmentEmailContent(appointment),
         remarks: appointment.remarks || "",
         senderEmail: appointment.email || "",
@@ -644,21 +616,21 @@ export async function sendAppointmentConfirmationEmail(appointment) {
 
     return true;
   } catch (err) {
-    console.error("[Email] Send failed:", err);
+    console.error("[Email] Appointment Graph send failed:", err?.message || err);
     return false;
   }
 }
 
 export async function sendVolunteerApplicationEmail(volunteer) {
-  const recipientEmail =
-    process.env.VOLUNTEER_NOTIFICATION_EMAIL ||
-    process.env.APPOINTMENT_NOTIFICATION_EMAIL ||
-    process.env.ADMIN_NOTIFICATION_EMAIL ||
-    process.env.EMAIL_NOTIFICATION_TO ||
-    process.env.SMTP_USER;
+  const recipientEmail = getOrgNotificationEmail();
 
-  if (!isValidEmail(recipientEmail)) {
-    console.error("[Email] Volunteer notification recipient is not configured");
+  if (!recipientEmail) {
+    console.error("[Email] MAIL_TO is not configured for volunteer notifications");
+    return false;
+  }
+
+  if (!isGraphMailConfigured()) {
+    console.error("[Email] Microsoft Graph mail is not configured");
     return false;
   }
 
@@ -678,41 +650,18 @@ export async function sendVolunteerApplicationEmail(volunteer) {
     <p><strong>Commitment:</strong> ${volunteer.commitment_duration || "—"} ${volunteer.commitment_unit || ""}</p>
   `;
 
-  const transporters = getTransporterCandidates();
-  if (!transporters.length) {
-    console.error("[Email] SMTP not configured");
-    return false;
-  }
+  const subject = `New Volunteer Application — ${firstName} | WINGS Counselling`;
 
   try {
-    let sent = false;
-    let lastError = null;
+    await sendWithFallback({
+      from: getFromAddress(),
+      to: recipientEmail,
+      replyTo: volunteer.email || undefined,
+      subject,
+      html: getMentalHealthEmailWrapper(content, "New Volunteer Application"),
+    });
 
-    for (const candidate of transporters) {
-      try {
-        if (typeof candidate.transporter.verify === "function") {
-          await candidate.transporter.verify();
-        }
-
-        await candidate.transporter.sendMail({
-          from: FROM,
-          to: recipientEmail,
-          subject: `New Volunteer Application — ${firstName} | WINGS Counselling`,
-          html: getMentalHealthEmailWrapper(content, "New Volunteer Application"),
-        });
-
-        sent = true;
-        break;
-      } catch (err) {
-        lastError = err;
-        console.error("[Email] Volunteer send failed:", err?.message || err);
-      }
-    }
-
-    if (!sent) {
-      if (lastError) console.error("[Email] Send failed:", lastError);
-      return false;
-    }
+    console.log("[Email] Volunteer notification sent via Graph to:", recipientEmail);
 
     try {
       await recordFormSubmissionEmail({
@@ -720,7 +669,7 @@ export async function sendVolunteerApplicationEmail(volunteer) {
         sourceId: volunteer.id ?? null,
         primaryMail: recipientEmail,
         ccMail: "",
-        subject: `New Volunteer Application — ${firstName} | WINGS Counselling`,
+        subject,
         content: formatVolunteerEmailContent(volunteer),
         remarks: volunteer.other_contribution || "",
         senderEmail: volunteer.email || "",
@@ -731,7 +680,7 @@ export async function sendVolunteerApplicationEmail(volunteer) {
 
     return true;
   } catch (err) {
-    console.error("[Email] Volunteer notification failed:", err);
+    console.error("[Email] Volunteer Graph send failed:", err?.message || err);
     return false;
   }
 }
@@ -740,9 +689,8 @@ export async function sendVolunteerApplicationEmail(volunteer) {
  * Application acknowledgement email
  */
 export async function sendApplicationAcknowledgement(to, data) {
-  const transporters = getTransporterCandidates();
-  if (!transporters.length) {
-    console.log("[Email] SMTP not configured – skipping send");
+  if (!isGraphMailConfigured()) {
+    console.log("[Email] Microsoft Graph mail is not configured – skipping send");
     return;
   }
 
@@ -861,7 +809,7 @@ export async function sendApplicationAcknowledgement(to, data) {
   `;
 
   const mailOptions = {
-    from: FROM,
+    from: getFromAddress(),
     to: userEmail,
     subject,
     html: getMentalHealthEmailWrapper(content, "Application Update"),
@@ -897,9 +845,8 @@ export async function sendApplicationAcknowledgement(to, data) {
  * Interview invite email
  */
 export async function sendInterviewInvite(to, data) {
-  const transporters = getTransporterCandidates();
-  if (!transporters.length) {
-    console.log("[Email] SMTP not configured – skipping send");
+  if (!isGraphMailConfigured()) {
+    console.log("[Email] Microsoft Graph mail is not configured – skipping send");
     return;
   }
 
@@ -967,7 +914,7 @@ export async function sendInterviewInvite(to, data) {
   `;
 
   await sendWithFallback({
-    from: FROM,
+    from: getFromAddress(),
     to,
     subject: `📅 Interview Invitation | ${data.jobTitle} | WINGS Counselling Centre`,
     html: getMentalHealthEmailWrapper(content, "Interview Invitation"),
@@ -998,9 +945,8 @@ function resolveInterviewBookingUrl(data) {
  * Available slots are shown on the booking page, not in the email.
  */
 export async function sendInterviewSlotInvitation(candidateEmail, data) {
-  const transporters = getTransporterCandidates();
-  if (!transporters.length) {
-    const err = new Error("SMTP not configured (SMTP_USER / SMTP_PASS missing)");
+  if (!isGraphMailConfigured()) {
+    const err = new Error("Microsoft Graph mail is not configured (MAIL_FROM / MS_* missing)");
     console.error(`[Email] ${err.message}`);
     throw err;
   }
@@ -1140,7 +1086,7 @@ export async function sendInterviewSlotInvitation(candidateEmail, data) {
   ].join('\n');
 
   const mailOptions = {
-    from: FROM,
+    from: getFromAddress(),
     to: candidateEmail,
     subject,
     text: plainText,
@@ -1164,9 +1110,8 @@ export async function sendInterviewSlotInvitation(candidateEmail, data) {
  * Send interview booking confirmation after candidate books a slot
  */
 export async function sendInterviewBookingConfirmation(candidateEmail, data) {
-  const transporters = getTransporterCandidates();
-  if (!transporters.length) {
-    console.log("[Email] SMTP not configured – skipping send");
+  if (!isGraphMailConfigured()) {
+    console.log("[Email] Microsoft Graph mail is not configured – skipping send");
     return false;
   }
 
@@ -1294,7 +1239,7 @@ export async function sendInterviewBookingConfirmation(candidateEmail, data) {
   const subject = `Interview Confirmed: ${date} at ${timeSlot} — ${jobTitle}`;
 
   const mailOptions = {
-    from: FROM,
+    from: getFromAddress(),
     to: candidateEmail,
     subject,
     html: getMentalHealthEmailWrapper(content, "Interview Confirmation"),
@@ -1316,10 +1261,21 @@ export async function sendInterviewBookingConfirmation(candidateEmail, data) {
  */
 function getPublicSiteUrl() {
   return (
+    process.env.FRONTEND_URL ||
     process.env.CLIENT_URL ||
     process.env.SITE_URL ||
     "http://localhost:5173"
   ).replace(/\/$/, "");
+}
+
+function buildArticlePublicUrl(article) {
+  const siteUrl = getPublicSiteUrl();
+  const slug = String(article?.slug || "")
+    .trim()
+    .replace(/^\/+|\/+$/g, "");
+  if (!slug) return `${siteUrl}/articles`;
+  // Must match apps/admin App.jsx: /article/:slug
+  return `${siteUrl}/article/${encodeURIComponent(slug)}`;
 }
 
 function buildUnsubscribeLink(token) {
@@ -1346,22 +1302,30 @@ const NOTIFY_LOGO_FILE = path.resolve(
 );
 
 function getNotifyLogoSrc() {
+  // Inline CID — email clients block localhost image URLs
   return `cid:${NOTIFY_LOGO_CID}`;
 }
 
-function getNotifyLogoAttachments() {
+/** Microsoft Graph inline image attachment for the WINGS logo. */
+function getNotifyLogoGraphAttachment() {
   if (!fs.existsSync(NOTIFY_LOGO_FILE)) {
     console.warn(`[Email] Logo not found at ${NOTIFY_LOGO_FILE}`);
-    return [];
+    return null;
   }
+  const contentBytes = fs.readFileSync(NOTIFY_LOGO_FILE).toString("base64");
+  return {
+    "@odata.type": "#microsoft.graph.fileAttachment",
+    name: "wingsLogo.png",
+    contentType: "image/png",
+    contentBytes,
+    contentId: NOTIFY_LOGO_CID,
+    isInline: true,
+  };
+}
 
-  return [
-    {
-      filename: "wingsLogo.png",
-      path: NOTIFY_LOGO_FILE,
-      cid: NOTIFY_LOGO_CID,
-    },
-  ];
+function getNotifyLogoAttachments() {
+  const logo = getNotifyLogoGraphAttachment();
+  return logo ? [logo] : [];
 }
 
 function withNotifyLogoAttachments(mailOptions) {
@@ -1388,10 +1352,17 @@ function buildNotifyListCheckIcon() {
 
 function buildNotifyEmailHeader() {
   const logoSrc = getNotifyLogoSrc();
+  // Solid white table cells + class keep navy logo readable in Gmail dark mode
   return `
     <tr>
-      <td align="center" style="background:#ffffff;padding:28px 32px 24px;border-bottom:1px solid #E8EDF2;text-align:center;">
-        <img src="${logoSrc}" alt="WINGS Counselling Centre" width="220" style="display:block;margin:0 auto;max-width:220px;width:220px;height:auto;border:0;" />
+      <td class="wings-logo-wrap" bgcolor="#FFFFFF" align="center" style="background-color:#FFFFFF !important;padding:20px 24px 16px;border-bottom:1px solid #E8EDF2;text-align:center;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" style="background-color:#FFFFFF !important;margin:0 auto;">
+          <tr>
+            <td class="wings-logo-wrap" bgcolor="#FFFFFF" align="center" style="background-color:#FFFFFF !important;padding:16px 20px;border-radius:12px;">
+              <img src="${logoSrc}" alt="WINGS Counselling Centre" width="220" style="display:block;margin:0 auto;max-width:220px;width:220px;height:auto;border:0;outline:none;text-decoration:none;background:#FFFFFF;" />
+            </td>
+          </tr>
+        </table>
       </td>
     </tr>
   `;
@@ -1458,17 +1429,24 @@ function buildNotifyEmailContactFooter(unsubscribeUrl) {
 
 function buildNotifyEmailDocument({ title, bodyRowsHtml, unsubscribeUrl }) {
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light only" />
+  <meta name="supported-color-schemes" content="light only" />
   <title>${escapeHtml(title)}</title>
+  <style type="text/css">
+    :root { color-scheme: light only; }
+    [data-ogsc] .wings-logo-wrap,
+    [data-ogsb] .wings-logo-wrap { background-color:#FFFFFF !important; }
+  </style>
 </head>
 <body style="margin:0;padding:0;background:#EEF2F6;font-family:'Segoe UI',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background:#EEF2F6;padding:24px 12px 32px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="max-width:640px;width:100%;background:#ffffff;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" bgcolor="#FFFFFF" style="max-width:640px;width:100%;background:#ffffff;">
           ${buildNotifyEmailHeader()}
           ${bodyRowsHtml}
           ${buildNotifyEmailContactFooter(unsubscribeUrl)}
@@ -1574,9 +1552,8 @@ export async function sendSubscribeConfirmationEmail({
   subscriber = null,
   subscribers = null,
 }) {
-  const transporters = getTransporterCandidates();
-  if (!transporters.length || !isValidEmail(email)) {
-    console.log("[Email] SMTP not configured or invalid email – skipping subscribe confirmation");
+  if (!isGraphMailConfigured() || !isValidEmail(email)) {
+    console.log("[Email] Graph mail not configured or invalid email – skipping subscribe confirmation");
     return false;
   }
 
@@ -1601,13 +1578,41 @@ export async function sendSubscribeConfirmationEmail({
   const mail = buildSubscribeConfirmationEmail(unsubscribeUrl);
 
   try {
-    await sendWithFallback(withNotifyLogoAttachments({
-      from: FROM,
+    // 1) Confirmation to the person who subscribed (Graph / MAIL_FROM)
+    await sendWithFallback({
+      from: getFromAddress(),
       to: email,
       subject: mail.subject,
       html: mail.html,
-    }));
+    });
     console.log(`[Email] Subscribe confirmation sent to: ${email} (${type})`);
+
+    // 2) Alert org inbox (MAIL_TO) — same From/To pattern as appointment/volunteer
+    const orgTo = getOrgNotificationEmail();
+    if (orgTo && orgTo !== email.toLowerCase()) {
+      const typeLabel =
+        type === "all"
+          ? "Articles & Events"
+          : type === "event"
+            ? "Events"
+            : "Articles";
+      await sendWithFallback({
+        from: getFromAddress(),
+        to: orgTo,
+        replyTo: email,
+        subject: `New Notify Me signup — ${email} | WINGS`,
+        html: getMentalHealthEmailWrapper(
+          `
+          <p><strong>Someone subscribed via Stay Connected / Notify Me</strong></p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>List:</strong> ${typeLabel}</p>
+        `,
+          "New Notify Me Signup"
+        ),
+      });
+      console.log(`[Email] Notify Me org alert sent to: ${orgTo}`);
+    }
+
     return true;
   } catch (err) {
     console.error("[Email] Failed to send subscribe confirmation:", err?.message);
@@ -1626,38 +1631,30 @@ function formatEventDateTime(eventDate) {
 }
 
 function buildArticleNotificationEmail(article, unsubscribeUrl) {
-  const siteUrl = getPublicSiteUrl();
   const title = article.title || "New Article";
   const excerpt = (article.excerpt || article.content || "").replace(/<[^>]+>/g, " ").trim().slice(0, 280);
-  const articleUrl = article.slug
-    ? `${siteUrl}/articles/${article.slug}`
-    : `${siteUrl}/articles`;
+  const articleUrl = buildArticlePublicUrl(article);
 
   const bodyRowsHtml = `
     <tr>
-      <td style="background:#ffffff;padding:36px 32px 28px;font-family:'Segoe UI',Arial,sans-serif;">
+      <td bgcolor="#FFFFFF" style="background-color:#FFFFFF !important;padding:36px 32px 28px;font-family:'Segoe UI',Arial,sans-serif;">
         <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0 0 20px;">Hello,</p>
         <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0 0 24px;">
           We have just published a new article on WINGS Counselling Centre.
         </p>
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background:#F4F8FC;border:1px solid #D4E4ED;border-radius:12px;margin:0 0 28px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" bgcolor="#F4F8FC" style="background:#F4F8FC;border:1px solid #D4E4ED;border-radius:12px;margin:0 0 28px;">
           <tr>
             <td style="padding:24px;">
               <p style="margin:0 0 8px;color:${NOTIFY_BRAND.muted};font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Title</p>
-              <h2 style="color:${NOTIFY_BRAND.navyDark};font-size:24px;margin:0 0 16px;line-height:1.3;font-weight:700;">${escapeHtml(title)}</h2>
+              <h2 style="color:${NOTIFY_BRAND.navyDark};font-size:24px;margin:0 0 16px;line-height:1.3;font-weight:700;">
+                <a href="${articleUrl}" target="_blank" style="color:${NOTIFY_BRAND.navyDark};text-decoration:none;">${escapeHtml(title)}</a>
+              </h2>
               ${excerpt ? `<p style="margin:0 0 8px;color:${NOTIFY_BRAND.muted};font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Short Description</p>
               <p style="color:#475569;font-size:15px;line-height:1.7;margin:0;">${escapeHtml(excerpt)}${excerpt.length >= 280 ? "…" : ""}</p>` : ""}
             </td>
           </tr>
         </table>
-        <table cellpadding="0" cellspacing="0" border="0" role="presentation" align="center" style="margin:0 auto 28px;">
-          <tr>
-            <td align="center" style="border-radius:999px;background:${NOTIFY_BRAND.navy};">
-              <a href="${articleUrl}" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-weight:600;font-size:16px;font-family:'Segoe UI',Arial,sans-serif;">Read Article</a>
-            </td>
-          </tr>
-        </table>
-        <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0 0 12px;">We hope this article supports your wellbeing.</p>
+        <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:24px 0 12px;">We hope this article supports your wellbeing.</p>
         <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0 0 12px;">Thank you for being part of the WINGS community.</p>
         <p style="color:${NOTIFY_BRAND.text};font-size:16px;line-height:1.7;margin:0;">Regards,<br><strong>WINGS Counselling Centre</strong></p>
       </td>
@@ -1732,9 +1729,8 @@ export async function sendEventNotification(event) {
 }
 
 export async function sendSubscriberNotification(type, item) {
-  const transporters = getTransporterCandidates();
-  if (!transporters.length) {
-    console.log("[Email] SMTP not configured – skipping subscriber notification");
+  if (!isGraphMailConfigured()) {
+    console.log("[Email] Microsoft Graph mail is not configured – skipping subscriber notification");
     return;
   }
 
@@ -1745,6 +1741,40 @@ export async function sendSubscriberNotification(type, item) {
   if (!Number.isFinite(referenceId)) {
     console.warn("[Email] Invalid reference id for subscriber notification");
     return;
+  }
+
+  const title =
+    item?.title ||
+    (normalizedType === "event" ? "New Event" : "New Article");
+
+  // Always notify org inbox (MAIL_TO) — same From/To pattern as appointment/volunteer
+  const orgTo = getOrgNotificationEmail();
+  if (orgTo) {
+    try {
+      await sendWithFallback({
+        from: getFromAddress(),
+        to: orgTo,
+        subject:
+          normalizedType === "event"
+            ? `New Event Published — ${title} | WINGS`
+            : `New Article Published — ${title} | WINGS`,
+        html: getMentalHealthEmailWrapper(
+          `
+          <p><strong>A ${normalizedType} was published on the website.</strong></p>
+          <p><strong>Title:</strong> ${escapeHtml(title)}</p>
+          <p><strong>ID:</strong> ${referenceId}</p>
+          <p>Subscribers on the ${normalizedType} list are being notified separately.</p>
+        `,
+          normalizedType === "event" ? "Event Published" : "Article Published"
+        ),
+      });
+      console.log(`[Email] ${normalizedType} org publish alert sent to: ${orgTo}`);
+    } catch (err) {
+      console.error(
+        `[Email] Failed to send ${normalizedType} org alert:`,
+        err?.message
+      );
+    }
   }
 
   const subscribers = await getActiveSubscribers(normalizedType);
@@ -1767,12 +1797,12 @@ export async function sendSubscriberNotification(type, item) {
         ? buildEventNotificationEmail(item, unsubscribeUrl)
         : buildArticleNotificationEmail(item, unsubscribeUrl);
 
-      await sendWithFallback(withNotifyLogoAttachments({
-        from: FROM,
+      await sendWithFallback({
+        from: getFromAddress(),
         to: email,
         subject: mail.subject,
         html: mail.html,
-      }));
+      });
 
       await recordMailLog({
         subscriberId: subscriber.id,
@@ -1806,9 +1836,8 @@ export async function sendSubscriberNotification(type, item) {
  * Send application status update email to candidate
  */
 export async function sendApplicationStatusUpdateEmail(candidateEmail, data) {
-  const transporters = getTransporterCandidates();
-  if (!transporters.length) {
-    const err = new Error("SMTP not configured (SMTP_USER / SMTP_PASS missing)");
+  if (!isGraphMailConfigured()) {
+    const err = new Error("Microsoft Graph mail is not configured (MAIL_FROM / MS_* missing)");
     console.error(`[Email] ${err.message}`);
     throw err;
   }
@@ -1927,7 +1956,7 @@ export async function sendApplicationStatusUpdateEmail(candidateEmail, data) {
   const subject = `Application Update: ${status} — ${jobTitle}`;
 
   const mailOptions = {
-    from: FROM,
+    from: getFromAddress(),
     to: candidateEmail,
     subject,
     html: getMentalHealthEmailWrapper(content, "Application Status Update"),

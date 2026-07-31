@@ -19,6 +19,27 @@
       }
     },
 
+    "detail": {
+      "home": "होम",
+      "career": "करियर",
+      "share": "शेयर करें",
+      "copyLink": "लिंक कॉपी करें",
+      "linkCopied": "लिंक कॉपी हो गया!",
+      "shareWhatsApp": "WhatsApp पर शेयर करें",
+      "shareLinkedIn": "LinkedIn पर शेयर करें",
+      "aboutRole": "इस भूमिका के बारे में",
+      "noDescription": "कोई विवरण उपलब्ध नहीं है।",
+      "keyResponsibilities": "मुख्य जिम्मेदारियाँ",
+      "noRequirements": "कोई आवश्यकताएँ उपलब्ध नहीं हैं।",
+      "applyPosition": "इस पद के लिए आवेदन करें",
+      "alreadyAppliedPosition": "आपने इस पद के लिए पहले ही आवेदन कर दिया है",
+      "unableToLoad": "जॉब लोड नहीं हो सकी",
+      "notFound": "जॉब नहीं मिली",
+      "loadFailed": "जॉब विवरण लाने में विफल। कृपया फिर से प्रयास करें।",
+      "notAvailable": "आप जिस जॉब को खोज रहे हैं वह मौजूद नहीं है या अब उपलब्ध नहीं है।",
+      "backToCareers": "करियर पर वापस जाएँ"
+    },
+
     "whyWork": {
       "title": "WINGS के साथ क्यों काम करें?",
       "description": "हम अपने समुदाय के विकास के साथ-साथ आपके व्यक्तिगत और पेशेवर विकास को भी समान महत्व देते हैं।",

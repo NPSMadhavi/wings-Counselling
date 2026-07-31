@@ -13,6 +13,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { useAuth } from "../context/AuthContext";
+import {
+  AdminLanguageDropdown,
+  useAdminLanguages,
+} from "../components/AdminLanguageDropdown";
+import { api } from "../lib/api";
 
 // =============================================================================
 // TYPES
@@ -53,11 +58,15 @@ interface InsertJobPosting {
   description: string;
   requirements: string;
   isActive: boolean;
+  language_id?: number;
+  language_code?: string;
 }
 
 interface InsertJobCategory {
   name: string;
   description: string | null;
+  language_id?: number;
+  language_code?: string;
 }
 
 interface InterviewAvailableDate {
@@ -1137,6 +1146,7 @@ function AdminFormModalShell({
   children,
   footer,
   maxWidthClass = "max-w-4xl",
+  headerRight = null,
 }: {
   title: string;
   subtitle: string;
@@ -1144,6 +1154,7 @@ function AdminFormModalShell({
   children: ReactNode;
   footer: ReactNode;
   maxWidthClass?: string;
+  headerRight?: ReactNode;
 }) {
   return (
     <AnimatePresence>
@@ -1155,19 +1166,21 @@ function AdminFormModalShell({
           transition={{ duration: 0.2 }}
           className={`bg-white rounded-2xl shadow-2xl w-full ${maxWidthClass} max-h-[90vh] flex flex-col overflow-hidden`}
         >
-          <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center shrink-0">
+          <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center shrink-0 gap-4">
             <div>
               <h3 className="text-2xl font-bold text-white">{title}</h3>
               <p className="text-blue-100 text-sm mt-1">{subtitle}</p>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-white hover:text-blue-200 transition-colors p-2 hover:bg-white/10 rounded-full"
-              aria-label="Close"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-3">
+              {headerRight}
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-white/80 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">{children}</div>
@@ -1233,13 +1246,31 @@ function JobForm({
   onSave,
   onCancel,
   isLoading,
+  languages,
+  selectedLanguageId,
+  selectedLanguage,
+  selectedLangCode,
+  openLangMenu,
+  setOpenLangMenu,
+  isSwitchingLanguage,
+  setIsSwitchingLanguage,
+  setSelectedLanguageId,
 }: {
   open: boolean;
   job: JobPosting | null;
   categories: JobCategory[];
-  onSave: (data: Partial<InsertJobPosting>) => void;
+  onSave: (data: Partial<InsertJobPosting> & { language_id?: number; language_code?: string }) => void;
   onCancel: () => void;
   isLoading: boolean;
+  languages: { id: number; code: string; name: string }[];
+  selectedLanguageId: number | null;
+  selectedLanguage: { id: number; code: string; name: string } | null;
+  selectedLangCode: string;
+  openLangMenu: string | null;
+  setOpenLangMenu: (v: string | null | ((prev: string | null) => string | null)) => void;
+  isSwitchingLanguage: boolean;
+  setIsSwitchingLanguage: (v: boolean) => void;
+  setSelectedLanguageId: (id: number | null) => void;
 }) {
   const [formData, setFormData] = useState({
     jobId: "",
@@ -1282,6 +1313,68 @@ function JobForm({
     Number.isFinite(formData.categoryId) &&
     formData.categoryId > 0;
 
+  async function switchLanguage(nextLanguageId: number) {
+    if (!nextLanguageId || nextLanguageId === selectedLanguageId) {
+      setOpenLangMenu(null);
+      return;
+    }
+    const next = languages.find((l) => l.id === nextLanguageId);
+    if (!next) return;
+
+    try {
+      setIsSwitchingLanguage(true);
+      setOpenLangMenu(null);
+
+      if (job?.id && selectedLanguageId) {
+        try {
+          const prev = languages.find((l) => l.id === selectedLanguageId);
+          const prevCode = String(prev?.code || "").toLowerCase();
+          const sample = `${formData.title || ""} ${formData.description || ""}`;
+          const looksEnglish =
+            /[A-Za-z]/.test(sample) &&
+            !/[\u0900-\u097F\u0B80-\u0BFF\u4E00-\u9FFF]/.test(sample);
+          if (!(prevCode === "en" && !looksEnglish)) {
+            await api.saveJobLanguage(job.id, selectedLanguageId, {
+              title: formData.title,
+              summary: formData.summary,
+              description: formData.description,
+              requirements: formData.requirements,
+              location: formData.location,
+              experience: formData.experience,
+              employmentType: formData.employmentType,
+            });
+          }
+        } catch (persistErr) {
+          console.warn("Could not persist job language:", persistErr);
+        }
+      }
+
+      setSelectedLanguageId(nextLanguageId);
+
+      if (job?.id) {
+        const result = await api.translateJobLanguage(
+          job.id,
+          String(next.code).toLowerCase(),
+          true
+        );
+        setFormData((prev) => ({
+          ...prev,
+          title: result?.title || prev.title,
+          summary: result?.summary ?? prev.summary,
+          description: result?.description ?? prev.description,
+          requirements: result?.requirements ?? prev.requirements,
+          location: result?.location || prev.location,
+          experience: result?.experience || prev.experience,
+          employmentType: result?.employmentType || prev.employmentType,
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSwitchingLanguage(false);
+    }
+  }
+
   const handleSave = () => {
     if (!canSave) return;
     onSave({
@@ -1289,6 +1382,8 @@ function JobForm({
       jobId: formData.jobId.trim(),
       title: formData.title.trim(),
       categoryId: formData.categoryId,
+      language_id: selectedLanguageId || undefined,
+      language_code: selectedLangCode,
     });
   };
 
@@ -1298,6 +1393,19 @@ function JobForm({
       subtitle="Fill in the details below"
       onClose={onCancel}
       maxWidthClass="max-w-4xl"
+      headerRight={
+        <AdminLanguageDropdown
+          languages={languages}
+          selectedLanguageId={selectedLanguageId}
+          selectedLanguage={selectedLanguage}
+          openLangMenu={openLangMenu}
+          setOpenLangMenu={setOpenLangMenu}
+          menuId="job-modal"
+          light
+          isSwitchingLanguage={isSwitchingLanguage}
+          onSelect={switchLanguage}
+        />
+      }
       footer={
         <>
           <button
@@ -1311,8 +1419,8 @@ function JobForm({
           </button>
           <button
             type="button"
-            onClick={() => onSave(formData)}
-            disabled={isLoading || !categories.length}
+            onClick={handleSave}
+            disabled={isLoading || !categories.length || !canSave}
             className="px-6 py-2.5 bg-[#0D4A7A] text-white rounded-lg font-semibold transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             data-testid="button-save-job"
           >
@@ -1451,12 +1559,30 @@ function CategoryForm({
   onSave,
   onCancel,
   isLoading,
+  languages,
+  selectedLanguageId,
+  selectedLanguage,
+  selectedLangCode,
+  openLangMenu,
+  setOpenLangMenu,
+  isSwitchingLanguage,
+  setIsSwitchingLanguage,
+  setSelectedLanguageId,
 }: {
   open: boolean;
   category: JobCategory | null;
-  onSave: (data: Partial<InsertJobCategory>) => void;
+  onSave: (data: Partial<InsertJobCategory> & { language_id?: number; language_code?: string }) => void;
   onCancel: () => void;
   isLoading: boolean;
+  languages: { id: number; code: string; name: string }[];
+  selectedLanguageId: number | null;
+  selectedLanguage: { id: number; code: string; name: string } | null;
+  selectedLangCode: string;
+  openLangMenu: string | null;
+  setOpenLangMenu: (v: string | null | ((prev: string | null) => string | null)) => void;
+  isSwitchingLanguage: boolean;
+  setIsSwitchingLanguage: (v: boolean) => void;
+  setSelectedLanguageId: (id: number | null) => void;
 }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -1473,12 +1599,68 @@ function CategoryForm({
 
   if (!open) return null;
 
+  async function switchLanguage(nextLanguageId: number) {
+    if (!nextLanguageId || nextLanguageId === selectedLanguageId) {
+      setOpenLangMenu(null);
+      return;
+    }
+    const next = languages.find((l) => l.id === nextLanguageId);
+    if (!next) return;
+
+    try {
+      setIsSwitchingLanguage(true);
+      setOpenLangMenu(null);
+
+      if (category?.id && selectedLanguageId) {
+        try {
+          await api.saveCategoryLanguage(category.id, selectedLanguageId, {
+            name: formData.name,
+            description: formData.description,
+          });
+        } catch (persistErr) {
+          console.warn("Could not persist category language:", persistErr);
+        }
+      }
+
+      setSelectedLanguageId(nextLanguageId);
+
+      if (category?.id) {
+        const result = await api.translateCategoryLanguage(
+          category.id,
+          String(next.code).toLowerCase(),
+          true
+        );
+        setFormData({
+          name: result?.name || formData.name,
+          description: result?.description ?? formData.description,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSwitchingLanguage(false);
+    }
+  }
+
   return (
     <AdminFormModalShell
       title={category ? "Edit Category" : "Add Category"}
       subtitle="Fill in the details below"
       onClose={onCancel}
       maxWidthClass="max-w-2xl"
+      headerRight={
+        <AdminLanguageDropdown
+          languages={languages}
+          selectedLanguageId={selectedLanguageId}
+          selectedLanguage={selectedLanguage}
+          openLangMenu={openLangMenu}
+          setOpenLangMenu={setOpenLangMenu}
+          menuId="category-modal"
+          light
+          isSwitchingLanguage={isSwitchingLanguage}
+          onSelect={switchLanguage}
+        />
+      }
       footer={
         <>
           <button
@@ -1492,7 +1674,13 @@ function CategoryForm({
           </button>
           <button
             type="button"
-            onClick={() => onSave(formData)}
+            onClick={() =>
+              onSave({
+                ...formData,
+                language_id: selectedLanguageId || undefined,
+                language_code: selectedLangCode,
+              })
+            }
             disabled={isLoading}
             className="px-6 py-2.5 bg-[#0D4A7A] text-white rounded-lg font-semibold transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             data-testid="button-save-category"
@@ -1589,6 +1777,17 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const {
+    languages,
+    selectedLanguageId,
+    setSelectedLanguageId,
+    selectedLanguage,
+    selectedLangCode,
+    openLangMenu,
+    setOpenLangMenu,
+    isSwitchingLanguage,
+    setIsSwitchingLanguage,
+  } = useAdminLanguages();
 
   // Calendar state
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
@@ -1624,13 +1823,21 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
   // =============================================================================
 
   const { data: jobs, isLoading: jobsLoading } = useQuery<JobPosting[]>({
-    queryKey: ['jobs'],
-    queryFn: () => apiFetch<JobPosting[]>('/api/jobs'),
+    queryKey: ['jobs', selectedLangCode],
+    queryFn: () =>
+      apiFetch<JobPosting[]>(
+        `/api/jobs?lang=${encodeURIComponent(selectedLangCode || "en")}`
+      ),
+    enabled: !showJobForm,
   });
 
   const { data: categories } = useQuery<JobCategory[]>({
-    queryKey: ['categories'],
-    queryFn: () => apiFetch<JobCategory[]>('/api/categories'),
+    queryKey: ['categories', selectedLangCode],
+    queryFn: () =>
+      apiFetch<JobCategory[]>(
+        `/api/categories?lang=${encodeURIComponent(selectedLangCode || "en")}`
+      ),
+    enabled: !showCategoryForm,
   });
 
   const { data: users, isLoading: usersLoading } = useQuery<AdminUser[]>({
@@ -2733,7 +2940,21 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
                       className="pl-10 bg-white border-gray-200"
                     />
                   </div>
-        
+                  {!showJobForm && (
+                    <AdminLanguageDropdown
+                      languages={languages}
+                      selectedLanguageId={selectedLanguageId}
+                      selectedLanguage={selectedLanguage}
+                      openLangMenu={openLangMenu}
+                      setOpenLangMenu={setOpenLangMenu}
+                      menuId="jobs-header"
+                      isSwitchingLanguage={isSwitchingLanguage}
+                      onSelect={(id) => {
+                        setSelectedLanguageId(id);
+                        setOpenLangMenu(null);
+                      }}
+                    />
+                  )}
                   <Button
                     onClick={() => { setShowJobForm(true); setEditingJob(null); }}
                     className="bg-[#0D4A7A] font-bold text-white px-5 py-2.5 rounded-xl"
@@ -2757,114 +2978,119 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
                 }}
                 onCancel={() => { setShowJobForm(false); setEditingJob(null); }}
                 isLoading={createJobMutation.isPending || updateJobMutation.isPending}
+                languages={languages}
+                selectedLanguageId={selectedLanguageId}
+                selectedLanguage={selectedLanguage}
+                selectedLangCode={selectedLangCode}
+                openLangMenu={openLangMenu}
+                setOpenLangMenu={setOpenLangMenu}
+                isSwitchingLanguage={isSwitchingLanguage}
+                setIsSwitchingLanguage={setIsSwitchingLanguage}
+                setSelectedLanguageId={setSelectedLanguageId}
               />
 
-        <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
-  {jobsLoading ? (
-    <div className="text-center py-8 text-gray-500">Loading...</div>
-  ) : filteredJobs.length > 0 ? (
-    <table className="w-full min-w-[1000px]">
-      <thead className="bg-[#eef2ff] border-b-2 border-blue-200">
-        <tr>
-          <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Job ID</th>
-          <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Category</th>
-          <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Title</th>
-          <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Location</th>
-          <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Type</th>
-          <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Experience</th>
-          <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Status</th>
-          <th className="px-6 py-4 text-center text-sm font-semibold text-blue-900">Actions</th>
-        </tr>
-      </thead>
+              <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
+                {jobsLoading ? (
+                  <div className="text-center py-8 text-gray-500">Loading...</div>
+                ) : filteredJobs.length > 0 ? (
+                  <table className="w-full min-w-[1000px]">
+                    <thead className="bg-[#eef2ff] border-b-2 border-blue-200">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Job ID</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Category</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Title</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Location</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Type</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Experience</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Status</th>
+                        <th className="px-6 py-4 text-center text-sm font-semibold text-blue-900">Actions</th>
+                      </tr>
+                    </thead>
 
-      <tbody>
-        {paginatedJobs.map((job) => (
-          <motion.tr
-            key={job.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="border-b border-gray-200 hover:bg-gray-50 transition"
-            data-testid={`admin-job-${job.id}`}
-          >
-            <td className="px-6 py-4">
-              <span className="text-xs  text-gray-900 px-3 py-1 rounded-md">
-                {job.jobId}
-              </span>
-            </td>
+                    <tbody>
+                      {paginatedJobs.map((job) => (
+                        <motion.tr
+                          key={job.id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="border-b border-gray-200 hover:bg-gray-50 transition"
+                          data-testid={`admin-job-${job.id}`}
+                        >
+                          <td className="px-6 py-4">
+                            <span className="text-xs  text-gray-900 px-3 py-1 rounded-md">
+                              {job.jobId}
+                            </span>
+                          </td>
 
-            <td className="px-6 py-4">
-              <span className="text-xs  text-gray-900 px-3 py-1 rounded-md">
-                {getCategoryName(job.categoryId)}
-              </span>
-            </td>
+                          <td className="px-6 py-4">
+                            <span className="text-xs  text-gray-900 px-3 py-1 rounded-md">
+                              {getCategoryName(job.categoryId)}
+                            </span>
+                          </td>
 
-            <td className="px-6 py-4 text-sm  text-gray-900">
-              {job.title}
-            </td>
+                          <td className="px-6 py-4 text-sm  text-gray-900">
+                            {job.title}
+                          </td>
 
-            <td className="px-6 py-4 text-sm text-gray-900">
-              {job.location}
-            </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            {job.location}
+                          </td>
 
-            <td className="px-6 py-4 text-sm text-gray-900">
-              {job.employmentType}
-            </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            {job.employmentType}
+                          </td>
 
-            <td className="px-6 py-4 text-sm text-gray-900">
-              {job.experience}
-            </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            {job.experience}
+                          </td>
 
-            <td className="px-6 py-4">
-              <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                  job.isActive
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                {job.isActive ? "Active" : "Inactive"}
-              </span>
-            </td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                                job.isActive
+                                  ? "bg-emerald-100 text-emerald-700"
+                                  : "bg-gray-200 text-gray-600"
+                              }`}
+                            >
+                              {job.isActive ? "Active" : "Inactive"}
+                            </span>
+                          </td>
 
-            <td className="px-6 py-4">
-              <div className="flex items-center justify-center gap-3">
-                <Button
-                  onClick={() => {
-                    setEditingJob(job);
-                    setShowJobForm(true);
-                  }}
-             
-                  data-testid={`button-edit-job-${job.id}`}
-                >
-                    <Pencil size="16" />
-          
-                </Button>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center justify-center gap-3">
+                              <Button
+                                onClick={() => {
+                                  setEditingJob(job);
+                                  setShowJobForm(true);
+                                }}
+                                data-testid={`button-edit-job-${job.id}`}
+                              >
+                                <Pencil size="16" />
+                              </Button>
 
-                <Button
-                  onClick={() => deleteJobMutation.mutate(job.id)}
-       
-                  data-testid={`button-delete-job-${job.id}`}
-                >
-                  <Trash2 size="16" />
-            
-                </Button>
+                              <Button
+                                onClick={() => deleteJobMutation.mutate(job.id)}
+                                data-testid={`button-delete-job-${job.id}`}
+                              >
+                                <Trash2 size="16" />
+                              </Button>
+                            </div>
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    {jobsSearch ? 'No jobs match your search' : 'No job postings yet'}
+                  </div>
+                )}
+                <TablePagination
+                  totalItems={filteredJobs.length}
+                  currentPage={jobsPage}
+                  onPageChange={setJobsPage}
+                />
               </div>
-            </td>
-          </motion.tr>
-        ))}
-      </tbody>
-    </table>
-  ) : (
-    <div className="text-center py-8 text-gray-500">
-      {jobsSearch ? 'No jobs match your search' : 'No job postings yet'}
-      </div>
-  )}
-      <TablePagination
-        totalItems={filteredJobs.length}
-        currentPage={jobsPage}
-        onPageChange={setJobsPage}
-      />
-      </div>
             </div>
           )}
 
@@ -2883,6 +3109,21 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
                       className="pl-10 bg-white border-gray-200"
                     />
                   </div>
+                  {!showCategoryForm && (
+                    <AdminLanguageDropdown
+                      languages={languages}
+                      selectedLanguageId={selectedLanguageId}
+                      selectedLanguage={selectedLanguage}
+                      openLangMenu={openLangMenu}
+                      setOpenLangMenu={setOpenLangMenu}
+                      menuId="categories-header"
+                      isSwitchingLanguage={isSwitchingLanguage}
+                      onSelect={(id) => {
+                        setSelectedLanguageId(id);
+                        setOpenLangMenu(null);
+                      }}
+                    />
+                  )}
                   <Button
                     onClick={() => { setShowCategoryForm(true); setEditingCategory(null); }}
                     className="bg-[#0D4A7A] text-white"
@@ -2905,6 +3146,15 @@ function AdminContent({ onLogout }: { onLogout: () => void }) {
                 }}
                 onCancel={() => { setShowCategoryForm(false); setEditingCategory(null); }}
                 isLoading={createCategoryMutation.isPending || updateCategoryMutation.isPending}
+                languages={languages}
+                selectedLanguageId={selectedLanguageId}
+                selectedLanguage={selectedLanguage}
+                selectedLangCode={selectedLangCode}
+                openLangMenu={openLangMenu}
+                setOpenLangMenu={setOpenLangMenu}
+                isSwitchingLanguage={isSwitchingLanguage}
+                setIsSwitchingLanguage={setIsSwitchingLanguage}
+                setSelectedLanguageId={setSelectedLanguageId}
               />
 
              <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">

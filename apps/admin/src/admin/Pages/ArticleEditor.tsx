@@ -9,6 +9,7 @@ import {
     Code2,
     Image as ImageIcon,
     ChevronDown,
+    ChevronRight,
     Upload,
     ArrowLeft,
     X,
@@ -17,6 +18,7 @@ import {
     Settings,
     Eye,
     Menu,
+    Globe,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api, resolveAssetUrl, toStorageUrl } from "../lib/api";
@@ -33,10 +35,11 @@ interface ArticleEditorProps {
     isSidebarOpen?: boolean;
 }
 
-export default function ArticleEditor({ onBack, initialData, article, isSidebarOpen = true }: ArticleEditorProps) {
+export default function ArticleEditor({ onBack, initialData, article, isSidebarOpen = false }: ArticleEditorProps) {
     const editData = initialData ?? article;
 
     const [articleId, setArticleId] = useState<number | null>(editData?.id || null);
+    const articleIdRef = useRef<number | null>(editData?.id || null);
     const [title, setTitle] = useState(editData?.title || "");
     const [content, setContent] = useState(editData?.content || "");
     const [coverImage, setCoverImage] = useState<string | null>(
@@ -53,8 +56,28 @@ export default function ArticleEditor({ onBack, initialData, article, isSidebarO
 
     const [showPublishModal, setShowPublishModal] = useState(false);
     const [showStyles, setShowStyles] = useState(false);
+    const [showLanguages, setShowLanguages] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    // Multi-language (English / Chinese / Malaysia / Hindi / Tamil)
+    const [languages, setLanguages] = useState<{ id: number; code: string; name: string }[]>([]);
+    const [selectedLanguageId, setSelectedLanguageId] = useState<number | null>(null);
+    const [languageDocMap, setLanguageDocMap] = useState<
+      Record<
+        number,
+        { documentId: number; htmlContent: string; originalName?: string; title?: string }
+      >
+    >({});
+    const [isSwitchingLanguage, setIsSwitchingLanguage] = useState(false);
+    const selectedLanguageIdRef = useRef<number | null>(null);
+    const languageDocMapRef = useRef<
+      Record<
+        number,
+        { documentId: number; htmlContent: string; originalName?: string; title?: string }
+      >
+    >({});
+    const titleRef = useRef(editData?.title || "");
 
     // Publish Settings
     const [category, setCategory] = useState(editData?.category || "");
@@ -66,6 +89,7 @@ export default function ArticleEditor({ onBack, initialData, article, isSidebarO
     const [wordFileName, setWordFileName] = useState("");
     const [wordImportError, setWordImportError] = useState("");
     const [isConvertingWord, setIsConvertingWord] = useState(false);
+    const [editorMountKey, setEditorMountKey] = useState(0);
 
     const editorRef = useRef<HTMLDivElement>(null);
     const fileRef = useRef<HTMLInputElement>(null);
@@ -73,13 +97,38 @@ export default function ArticleEditor({ onBack, initialData, article, isSidebarO
     const wordFileRef = useRef<HTMLInputElement>(null);
     const autoSaveTimerRef = useRef<NodeJS.Timeout>();
 
+    const languageLabel = (lang: { code?: string; name?: string } | null | undefined) => {
+        const code = String(lang?.code || "").toLowerCase();
+        const labels: Record<string, string> = {
+            en: "English",
+            zh: "Chinese",
+            ms: "Malay",
+            hi: "Hindi",
+            ta: "Tamil",
+        };
+        return labels[code] || lang?.name || "Language";
+    };
+
+    /** Tick = this language already has saved content or an uploaded document */
+    const languageHasContent = (langId: number | null | undefined) => {
+        if (!langId) return false;
+        const row = languageDocMap[langId] || languageDocMapRef.current[langId];
+        if (!row) return false;
+        if (Number(row.documentId) > 0) return true;
+        if (String(row.htmlContent || "").trim().length > 0) return true;
+        if (String(row.originalName || "").trim().length > 0) return true;
+        return false;
+    };
+
     // Load existing article data into the editor when editing
   // Load existing article data into the editor when editing
 useEffect(() => {
     if (!editData?.id) return;
 
     setArticleId(editData.id);
+    articleIdRef.current = editData.id;
     setTitle(editData.title || "");
+    titleRef.current = editData.title || "";
     setContent(editData.content || "");
     setCoverImage(editData.coverImage ? resolveAssetUrl(editData.coverImage) : null);
     setIsPublished(Boolean(editData.isPublished));
@@ -101,6 +150,423 @@ useEffect(() => {
         setContent(cleaned);
     }
 }, [editData?.id]);
+
+    // Load language list + existing article_language rows
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const langs = await api.getLanguages();
+                if (cancelled || !Array.isArray(langs)) return;
+                setLanguages(langs);
+                const defaultLang =
+                    langs.find((l: { code: string }) => l.code === "en") || langs[0];
+                if (defaultLang && selectedLanguageIdRef.current == null) {
+                    setSelectedLanguageId(defaultLang.id);
+                    selectedLanguageIdRef.current = defaultLang.id;
+                }
+
+                if (editData?.id) {
+                    const rows = await api.getArticleLanguages(editData.id);
+                    if (cancelled || !Array.isArray(rows)) return;
+                    const map: Record<
+                        number,
+                        {
+                            documentId: number;
+                            htmlContent: string;
+                            originalName?: string;
+                            title?: string;
+                        }
+                    > = {};
+                    rows.forEach((row: any) => {
+                        map[row.languageId] = {
+                            documentId: row.documentId,
+                            htmlContent: row.htmlContent || "",
+                            originalName: row.originalName,
+                            title: row.title || "",
+                        };
+                    });
+
+                    // Seed default language from article.content if no language row yet
+                    const defaultId = defaultLang?.id;
+                    if (
+                        defaultId &&
+                        !map[defaultId]?.htmlContent?.trim() &&
+                        (editData.content || "").trim()
+                    ) {
+                        map[defaultId] = {
+                            documentId: map[defaultId]?.documentId || 0,
+                            htmlContent: editData.content,
+                            originalName: map[defaultId]?.originalName,
+                            title: editData.title || map[defaultId]?.title || "",
+                        };
+                    }
+
+                    setLanguageDocMap(map);
+                    languageDocMapRef.current = map;
+
+                    const langId = selectedLanguageIdRef.current || defaultLang?.id;
+                    if (langId) {
+                        const entry = map[langId];
+                        if (entry?.htmlContent && editorRef.current) {
+                            editorRef.current.innerHTML = entry.htmlContent;
+                            setContent(entry.htmlContent);
+                        }
+                        if (entry?.title) {
+                            setTitle(entry.title);
+                            titleRef.current = entry.title;
+                        }
+                    }
+                } else if (defaultLang?.id && (editData?.content || content)) {
+                    // New article draft: keep whatever is in editor under default language
+                    const html = editData?.content || content || "";
+                    if (html) {
+                        cacheLanguageHtml(defaultLang.id, html);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load languages", err);
+                alert(
+                    "Could not load languages from server. Please refresh and make sure you are logged in as admin."
+                );
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [editData?.id]);
+
+    const makeUniqueSlug = (text: string) => {
+        const base =
+            text
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/(^-|-$)/g, "") || "untitled";
+        return `${base}-${Date.now()}`;
+    };
+
+    const ensureArticleSaved = async (): Promise<number | null> => {
+        if (articleIdRef.current) return articleIdRef.current;
+        const currentContent = editorRef.current?.innerHTML || content || "";
+        const nextSlug = slug?.trim()
+            ? slug
+            : makeUniqueSlug(title.trim() || "untitled-article");
+        const data: Record<string, unknown> = {
+            title: title.trim() || "Untitled Article",
+            slug: nextSlug,
+            content: currentContent,
+            coverImage: toStorageUrl(coverImage || ""),
+            category,
+            author,
+            excerpt: excerpt.trim(),
+            isPublished: false,
+        };
+        const response = await api.createArticle(data);
+        if (response?.id) {
+            setArticleId(response.id);
+            articleIdRef.current = response.id;
+            if (response.slug) setSlug(response.slug);
+            else setSlug(nextSlug);
+            return response.id;
+        }
+        return null;
+    };
+
+    const extractTitleFromHtml = (html: string) => {
+        const match =
+            html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) ||
+            html.match(/<h2[^>]*>([\s\S]*?)<\/h2>/i);
+        if (!match) return "";
+        return match[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+    };
+
+    const cacheLanguageHtml = (
+        langId: number,
+        html: string,
+        meta?: { documentId?: number; originalName?: string; title?: string }
+    ) => {
+        setLanguageDocMap((prev) => {
+            const next = {
+                ...prev,
+                [langId]: {
+                    documentId: meta?.documentId ?? prev[langId]?.documentId ?? 0,
+                    htmlContent: html,
+                    originalName: meta?.originalName ?? prev[langId]?.originalName,
+                    title:
+                        meta?.title !== undefined
+                            ? meta.title
+                            : prev[langId]?.title || titleRef.current || "",
+                },
+            };
+            languageDocMapRef.current = next;
+            return next;
+        });
+    };
+
+    /** Persist current editor HTML for the active language into documents + article_language */
+    const saveCurrentLanguageContent = async (
+        htmlOverride?: string,
+        options?: {
+            file?: File | null;
+            originalName?: string;
+            articleIdOverride?: number | null;
+            createArticleIfNeeded?: boolean;
+            languageIdOverride?: number | null;
+            titleOverride?: string;
+        }
+    ) => {
+        const langId =
+            options?.languageIdOverride || selectedLanguageIdRef.current;
+        if (!langId) {
+            console.warn("[ArticleEditor] No language selected — cannot save language document");
+            return null;
+        }
+
+        const html =
+            htmlOverride ??
+            editorRef.current?.innerHTML ??
+            content ??
+            "";
+        const langTitle =
+            options?.titleOverride ??
+            titleRef.current ??
+            title ??
+            extractTitleFromHtml(html) ??
+            "";
+
+        cacheLanguageHtml(langId, html, {
+            originalName: options?.originalName || options?.file?.name,
+            title: langTitle,
+        });
+
+        let id =
+            options?.articleIdOverride ||
+            articleIdRef.current ||
+            null;
+
+        const shouldCreate =
+            options?.createArticleIfNeeded === true ||
+            Boolean(options?.file) ||
+            options?.articleIdOverride != null;
+
+        if (!id && shouldCreate) {
+            id = await ensureArticleSaved();
+        }
+
+        if (!id) return null;
+
+        let documentId: number | undefined;
+
+        try {
+            if (options?.file) {
+                const doc = await api.uploadDocument({
+                    file: options.file,
+                    htmlContent: html,
+                    originalName: options.originalName || options.file.name,
+                    title: langTitle,
+                });
+                documentId = doc?.id;
+
+                const saved = await api.saveArticleLanguage(id, langId, {
+                    documentId,
+                    htmlContent: html,
+                    originalName: options.originalName || options.file.name,
+                    title: langTitle,
+                });
+                documentId = saved?.documentId || documentId;
+            } else {
+                const saved = await api.saveArticleLanguage(id, langId, {
+                    htmlContent: html,
+                    originalName: options?.originalName || "",
+                    title: langTitle,
+                });
+                documentId = saved?.documentId;
+            }
+
+            if (documentId) {
+                cacheLanguageHtml(langId, html, {
+                    documentId,
+                    originalName: options?.originalName || options?.file?.name,
+                    title: langTitle,
+                });
+            }
+
+            return documentId ?? null;
+        } catch (err) {
+            console.error("[ArticleEditor] saveCurrentLanguageContent failed", err);
+            throw err;
+        }
+    };
+
+    const switchLanguage = async (nextLanguageId: number) => {
+        if (!nextLanguageId) return;
+        if (nextLanguageId === selectedLanguageIdRef.current) {
+            setShowLanguages(false);
+            return;
+        }
+
+        setShowLanguages(false);
+        setIsSwitchingLanguage(true);
+
+        const prevLangId = selectedLanguageIdRef.current;
+        const currentHtml = editorRef.current?.innerHTML || content || "";
+        const currentTitle = titleRef.current || title || "";
+        const currentArticleId = articleIdRef.current;
+
+        // 1) Cache current language title + content locally
+        if (prevLangId) {
+            cacheLanguageHtml(prevLangId, currentHtml, { title: currentTitle });
+        }
+
+        // 2) Select new language immediately
+        selectedLanguageIdRef.current = nextLanguageId;
+        setSelectedLanguageId(nextLanguageId);
+
+        try {
+            // 3) Persist previous language if article exists
+            if (currentArticleId && prevLangId) {
+                try {
+                    await api.saveArticleLanguage(currentArticleId, prevLangId, {
+                        htmlContent: currentHtml,
+                        title: currentTitle,
+                        originalName:
+                            languageDocMapRef.current[prevLangId]?.originalName ||
+                            "editor-content.html",
+                    });
+                } catch (persistErr) {
+                    console.warn("Could not persist previous language (continuing):", persistErr);
+                }
+            }
+
+            // 4) Load target language — local / server / auto-translate from English
+            let html = languageDocMapRef.current[nextLanguageId]?.htmlContent || "";
+            let nextTitle = languageDocMapRef.current[nextLanguageId]?.title || "";
+            const nextLang = languages.find((l) => l.id === nextLanguageId);
+            const nextCode = nextLang?.code || "en";
+
+            // Ensure article exists so backend can translate
+            let ensureId = currentArticleId;
+            if (!ensureId && nextCode !== "en") {
+                try {
+                    ensureId = await ensureArticleSaved();
+                } catch {
+                    ensureId = null;
+                }
+            }
+
+            if (ensureId) {
+                try {
+                    const rows = await api.getArticleLanguages(ensureId);
+                    const row = Array.isArray(rows)
+                        ? rows.find((r: any) => r.languageId === nextLanguageId)
+                        : null;
+                    if (row && String(row.htmlContent || "").trim()) {
+                        html = row.htmlContent || "";
+                        nextTitle = row.title || nextTitle;
+                        cacheLanguageHtml(nextLanguageId, html, {
+                            documentId: row.documentId,
+                            originalName: row.originalName,
+                            title: nextTitle,
+                        });
+                    }
+                } catch {
+                    /* keep local */
+                }
+            }
+
+            const looksUntranslated = (code: string, body: string) => {
+                if (!body.trim()) return true;
+                // Old translator mangled HTML tags into junk markers
+                if (/[\uE000-\uE0FF]/.test(body) || /\bB\d{1,3}\b/.test(body)) {
+                    return true;
+                }
+                if (/\p{L}\s+\d{2,3}\s+\p{L}/u.test(body)) return true;
+                const headingCount = (body.match(/<\/?h[1-6]\b/gi) || []).length;
+                const enLang = languages.find((l) => l.code === "en");
+                const enHtml =
+                    (enLang &&
+                        languageDocMapRef.current[enLang.id]?.htmlContent) ||
+                    "";
+                const enHeadings = (enHtml.match(/<\/?h[1-6]\b/gi) || []).length;
+                if (
+                    enHeadings >= 4 &&
+                    headingCount < Math.max(2, Math.floor(enHeadings * 0.4))
+                ) {
+                    return true;
+                }
+                if (code === "hi") return !/[\u0900-\u097F]/.test(body);
+                if (code === "ta") return !/[\u0B80-\u0BFF]/.test(body);
+                if (code === "zh") return !/[\u4E00-\u9FFF]/.test(body);
+                if (code === "ms") {
+                    return /Understanding Stress|Stress and anxiety are common|Learning to Manage Life/i.test(
+                        body
+                    );
+                }
+                return false;
+            };
+
+            // Translate from English when missing OR still English under another language
+            if (
+                ensureId &&
+                nextCode !== "en" &&
+                looksUntranslated(nextCode, html)
+            ) {
+                try {
+                    const translated = await api.translateArticleLanguage(
+                        ensureId,
+                        nextCode,
+                        true
+                    );
+                    html = translated?.htmlContent || html;
+                    nextTitle = translated?.title || nextTitle;
+                    cacheLanguageHtml(nextLanguageId, html, {
+                        documentId: translated?.documentId,
+                        title: nextTitle,
+                        originalName: `translated-${nextCode}.html`,
+                    });
+                } catch (trErr) {
+                    console.warn("Auto-translate failed:", trErr);
+                    alert(
+                        trErr instanceof Error
+                            ? trErr.message
+                            : "Could not translate. Save/upload English document first, then select language."
+                    );
+                }
+            } else if (ensureId && nextCode === "en" && !String(html || "").trim()) {
+                try {
+                    const translated = await api.translateArticleLanguage(
+                        ensureId,
+                        "en",
+                        false
+                    );
+                    html = translated?.htmlContent || "";
+                    nextTitle = translated?.title || nextTitle;
+                } catch {
+                    /* ignore */
+                }
+            }
+
+            setContent(html);
+            setTitle(nextTitle);
+            titleRef.current = nextTitle;
+            setWordFile(null);
+            setWordFileName(
+                languageDocMapRef.current[nextLanguageId]?.originalName || ""
+            );
+            setEditorMountKey((k) => k + 1);
+        } catch (err) {
+            console.error("Language switch failed", err);
+            alert(err instanceof Error ? err.message : "Failed to switch language");
+        } finally {
+            setIsSwitchingLanguage(false);
+        }
+    };
+
+    // After language switch remount, paint the correct HTML into the new editor node
+    useEffect(() => {
+        if (!editorRef.current) return;
+        editorRef.current.innerHTML = content || "";
+    }, [editorMountKey]);
 
     // Format function
     function format(command: string, value?: string) {
@@ -202,7 +668,11 @@ useEffect(() => {
         try {
             const data: Record<string, unknown> = {
                 title: title.trim() || "Untitled Article",
-                slug: slug || generateSlug(title.trim() || "Untitled Article"),
+                slug:
+                    slug ||
+                    (articleId
+                        ? generateSlug(title.trim() || "Untitled Article")
+                        : makeUniqueSlug(title.trim() || "untitled-article")),
                 content: currentContent,
                 coverImage: coverForStorage,
                 category,
@@ -224,12 +694,23 @@ useEffect(() => {
                 response = await api.createArticle(data);
                 if (response?.id) {
                     setArticleId(response.id);
+                    articleIdRef.current = response.id;
                     if (response.slug) setSlug(response.slug);
                 }
             }
 
             if (response?.slug) setSlug(response.slug);
             if (response?.publishedAt) setPublishedAt(response.publishedAt);
+
+            // Keep article_language + documents in sync for the selected language
+            try {
+                await saveCurrentLanguageContent(currentContent, {
+                    articleIdOverride: response?.id || articleIdRef.current,
+                    createArticleIfNeeded: true,
+                });
+            } catch (langErr) {
+                console.error("Language document save failed", langErr);
+            }
 
             setSaveStatus("saved");
             setLastSavedTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
@@ -277,8 +758,13 @@ useEffect(() => {
         await applyWordDocument(file);
     };
 
-    /** Convert Word file to HTML and show in editor immediately */
+    /** Convert Word file to HTML and bind it to the currently selected language */
     const applyWordDocument = async (file: File): Promise<string | null> => {
+        if (!selectedLanguageIdRef.current) {
+            alert("Please select a language first, then upload the document.");
+            return null;
+        }
+
         setIsConvertingWord(true);
         setWordImportError("");
         try {
@@ -290,15 +776,19 @@ useEffect(() => {
                 return null;
             }
 
-            if (editorRef.current) {
-                editorRef.current.innerHTML = html;
+            const extractedTitle = extractTitleFromHtml(html);
+
+            if (extractedTitle) {
+                setTitle(extractedTitle);
+                titleRef.current = extractedTitle;
             }
             setContent(html);
+            setEditorMountKey((k) => k + 1);
 
             const pageKey = getPageKeyFromCategory(category);
             const articleSlug =
                 slug ||
-                title
+                (extractedTitle || title)
                     .trim()
                     .toLowerCase()
                     .replace(/[^a-z0-9]+/g, "-")
@@ -307,12 +797,52 @@ useEffect(() => {
 
             savePageContent(pageKey, {
                 html,
-                title: title.trim(),
+                title: (extractedTitle || title).trim(),
                 author: author.trim(),
                 excerpt: excerpt.trim(),
                 coverImage: coverImage || "",
                 slug: articleSlug || "",
             });
+
+            // Save under the currently selected language (supports per-language Word uploads)
+            try {
+                await saveCurrentLanguageContent(html, {
+                    file,
+                    originalName: file.name,
+                    createArticleIfNeeded: true,
+                    languageIdOverride: selectedLanguageIdRef.current,
+                    titleOverride: extractedTitle || titleRef.current,
+                });
+
+                if (selectedLanguageIdRef.current) {
+                    cacheLanguageHtml(selectedLanguageIdRef.current, html, {
+                        originalName: file.name,
+                        title: extractedTitle || titleRef.current,
+                    });
+                }
+
+                // If English was uploaded, keep it as translate source for other languages on switch.
+                // (Non-English uploads stay on that language only — no overwrite of English.)
+
+                setWordFileName(file.name);
+                setSaveStatus("saved");
+                setLastSavedTime(
+                    new Date().toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    })
+                );
+            } catch (langErr) {
+                console.error("Failed to save language document", langErr);
+                const msg =
+                    langErr instanceof Error
+                        ? langErr.message
+                        : "Failed to save document";
+                setWordImportError(msg);
+                alert(msg);
+            } finally {
+                setIsSwitchingLanguage(false);
+            }
 
             return html;
         } catch (err) {
@@ -323,6 +853,7 @@ useEffect(() => {
             return null;
         } finally {
             setIsConvertingWord(false);
+            if (wordFileRef.current) wordFileRef.current.value = "";
         }
     };
 
@@ -378,7 +909,12 @@ useEffect(() => {
 
     const handlePublishModalSave = async () => {
         syncPublicPageMeta();
-        await saveArticle(false);
+        // Modal "Publish Article" must actually publish (not only draft-save)
+        if (!isPublished) {
+            await saveArticle(true);
+        } else {
+            await saveArticle(false);
+        }
         setShowPublishModal(false);
     };
 
@@ -399,18 +935,19 @@ useEffect(() => {
     }, []);
 
     // Calculate header position based on sidebar state
+    // AdminLayout already places this page beside the nav — only offset if explicitly told.
     const headerStyle = {
-        left: isSidebarOpen ? '280px' : '0',
-        transition: 'left 0.3s ease-in-out',
+        left: isSidebarOpen ? "280px" : "0",
+        transition: "left 0.3s ease-in-out",
     };
 
     return (
-        <div className="min-h-screen bg-[#F3F2EF] font-sans text-[#111]">
+        <div className="min-h-screen w-full bg-[#F3F2EF] font-sans text-[#111]">
 
-            {/* TOP BAR - Appears after sidebar */}
+            {/* TOP BAR - sticky within main content (AdminLayout already accounts for nav) */}
             <div
-                className="fixed top-0 right-0 h-[72px] bg-white border-b border-[#E0DFDC] px-8 flex items-center justify-between z-[100]"
-                style={headerStyle}
+                className="sticky top-0 right-0 h-[72px] bg-white border-b border-[#E0DFDC] px-4 sm:px-6 lg:px-8 flex items-center justify-between z-[100] w-full"
+                style={isSidebarOpen ? headerStyle : undefined}
             >
                 {/* LEFT: BACK & STATUS */}
                 <div className="flex items-center gap-6">
@@ -458,7 +995,10 @@ useEffect(() => {
                     {/* STYLE */}
                     <div className="relative">
                         <button
-                            onClick={() => setShowStyles(!showStyles)}
+                            onClick={() => {
+                                setShowStyles(!showStyles);
+                                setShowLanguages(false);
+                            }}
                             className="flex items-center gap-1.5 px-3 py-1 hover:bg-white rounded-full text-[14px] font-semibold text-[#666] transition-all"
                         >
                             Style <ChevronDown size={14} />
@@ -618,13 +1158,85 @@ useEffect(() => {
                 )}
             </AnimatePresence>
 
-            {/* MAIN EDITOR CONTENT */}
-            <div
-                className="pt-[100px] pb-20 max-w-[1128px] mx-auto px-4 md:px-0"
-                style={{ marginLeft: isSidebarOpen ? '280px' : '0', transition: 'margin-left 0.3s ease-in-out' }}
-            >
+            {/* MAIN EDITOR CONTENT — fills available width beside admin nav */}
+            <div className="pt-5 pb-16 w-full px-3 sm:px-5 lg:px-6">
+                <div className="flex flex-col lg:flex-row gap-4 lg:gap-5 items-start w-full">
+                    {/* LANGUAGE SIDE PANEL */}
+                    <aside className="w-full lg:w-[220px] xl:w-[240px] shrink-0 bg-white border border-[#E0DFDC] rounded-2xl shadow-sm overflow-hidden lg:sticky lg:top-[88px]">
+                        <div className="px-4 pt-4 pb-3 border-b border-[#EEE]">
+                            <div className="flex items-center gap-2 mb-1">
+                                <Globe size={18} className="text-[#0D4A7A]" />
+                                <h3 className="text-[15px] font-bold text-[#0D4A7A]">Language</h3>
+                            </div>
+                            <p className="text-[11px] text-[#667085] leading-snug">
+                                Select a language to add or edit article content.
+                            </p>
+                        </div>
+                        <div className="p-1.5">
+                            {(languages.length
+                                ? languages
+                                : [
+                                      { id: 0, code: "en", name: "English" },
+                                      { id: 0, code: "zh", name: "Chinese" },
+                                      { id: 0, code: "ms", name: "Malay" },
+                                      { id: 0, code: "hi", name: "Hindi" },
+                                      { id: 0, code: "ta", name: "Tamil" },
+                                  ]
+                            ).map((lang) => {
+                                const selected = lang.id === selectedLanguageId;
+                                const hasContent = languageHasContent(lang.id);
+                                return (
+                                    <button
+                                        key={lang.code}
+                                        type="button"
+                                        disabled={!lang.id || isSwitchingLanguage}
+                                        onClick={() => {
+                                            if (!lang.id) {
+                                                alert(
+                                                    "Languages not loaded yet. Please wait a moment and try again."
+                                                );
+                                                return;
+                                            }
+                                            void switchLanguage(lang.id);
+                                        }}
+                                        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-left transition-all mb-0.5 disabled:opacity-60 ${
+                                            selected
+                                                ? "bg-[#E8F1FB] text-[#0A66C2]"
+                                                : "text-[#222] hover:bg-[#F7F7F5]"
+                                        }`}
+                                    >
+                                        <span className="flex-1 text-[14px] font-semibold truncate">
+                                            {languageLabel(lang)}
+                                        </span>
+                                        {hasContent ? (
+                                            <CheckCircle2
+                                                size={17}
+                                                className="text-green-600 shrink-0"
+                                                strokeWidth={2.5}
+                                            />
+                                        ) : null}
+                                        <ChevronRight
+                                            size={15}
+                                            className={`shrink-0 ${
+                                                selected ? "text-[#0A66C2]" : "text-[#98A2B3]"
+                                            }`}
+                                        />
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        {isSwitchingLanguage ? (
+                            <div className="px-4 pb-3 flex items-center gap-2 text-[12px] text-[#0A66C2]">
+                                <Loader2 size={14} className="animate-spin" />
+                                Loading language…
+                            </div>
+                        ) : null}
+                    </aside>
+
+                    {/* EDITOR COLUMN — takes remaining width */}
+                    <div className="flex-1 min-w-0 w-full">
                 {/* COVER IMAGE SECTION */}
-                <div className="relative w-full h-[300px] md:h-[450px] bg-white border border-[#E0DFDC] rounded-t-xl overflow-hidden group">
+                <div className="relative w-full h-[220px] md:h-[300px] lg:h-[340px] bg-white border border-[#E0DFDC] rounded-t-xl overflow-hidden group">
                     {coverImage ? (
                         <>
                             <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
@@ -656,8 +1268,8 @@ useEffect(() => {
                 </div>
 
                 {/* WRITING AREA */}
-                <div className="bg-white border-x border-b border-[#E0DFDC] rounded-b-xl px-4 md:px-[64px] py-6 md:py-[48px] shadow-sm">
-                    <div className="flex justify-center mb-6 md:mb-8">
+                <div className="bg-white border-x border-b border-[#E0DFDC] rounded-b-xl px-4 md:px-10 lg:px-14 py-6 md:py-10 shadow-sm">
+                    <div className="flex flex-col items-center gap-2 mb-6 md:mb-8">
                         <input
                             ref={wordFileRef}
                             type="file"
@@ -667,8 +1279,14 @@ useEffect(() => {
                         />
                         <button
                             type="button"
-                            onClick={() => wordFileRef.current?.click()}
-                            disabled={isConvertingWord}
+                            onClick={() => {
+                                if (!selectedLanguageId) {
+                                    alert("Please select a language from the side panel first.");
+                                    return;
+                                }
+                                wordFileRef.current?.click();
+                            }}
+                            disabled={isConvertingWord || isSwitchingLanguage}
                             className="h-[40px] px-6 rounded-full border-2 border-[#666] text-[#666] font-bold hover:bg-[#F3F2EF] transition-all flex items-center gap-2"
                         >
                             {isConvertingWord ? (
@@ -677,7 +1295,27 @@ useEffect(() => {
                                 <Upload size={18} />
                             )}
                             Upload document
+                            {selectedLanguageId
+                                ? ` (${languageLabel(
+                                      languages.find((l) => l.id === selectedLanguageId)
+                                  )})`
+                                : ""}
                         </button>
+                        <p className="text-xs text-gray-500 text-center max-w-md">
+                            Attach a document related to the article (DOCX). Upload separately for each language.
+                        </p>
+                        {wordFileName ? (
+                            <p className="text-xs text-green-700 font-semibold">
+                                Saved for{" "}
+                                {languageLabel(
+                                    languages.find((l) => l.id === selectedLanguageId)
+                                )}
+                                : {wordFileName}
+                            </p>
+                        ) : null}
+                        {wordImportError ? (
+                            <p className="text-xs text-red-600 font-semibold">{wordImportError}</p>
+                        ) : null}
                     </div>
 
                     {/* TITLE */}
@@ -685,17 +1323,25 @@ useEffect(() => {
                         value={title}
                         onChange={(e) => {
                             setTitle(e.target.value);
+                            titleRef.current = e.target.value;
                             e.target.style.height = "auto";
                             e.target.style.height = e.target.scrollHeight + "px";
                         }}
                         onBlur={() => triggerAutoSave()}
-                        placeholder="Headline"
+                        placeholder={
+                            selectedLanguageId
+                                ? `Write your headline here (${languageLabel(
+                                      languages.find((l) => l.id === selectedLanguageId)
+                                  )})`
+                                : "Write your headline here."
+                        }
                         className="w-full bg-transparent border-none outline-none text-3xl md:text-[52px] leading-[1.1] font-bold text-[#111] placeholder:text-gray-300 resize-none mb-6 md:mb-8"
                         rows={1}
                     />
 
-                    {/* RICH TEXT EDITOR */}
+                    {/* RICH TEXT EDITOR — remount on language change so content swaps reliably */}
                     <div
+                        key={editorMountKey}
                         ref={editorRef}
                         contentEditable
                         suppressContentEditableWarning
@@ -713,8 +1359,10 @@ useEffect(() => {
                             }
                         }}
                         className="prose-editor min-h-[400px] md:min-h-[600px] outline-none text-lg md:text-[22px] leading-[1.6] text-[#333] font-normal"
-                        data-placeholder="Write your article here..."
+                        data-placeholder="Write your article content here."
                     />
+                </div>
+                    </div>
                 </div>
             </div>
 
@@ -806,7 +1454,7 @@ useEffect(() => {
                                     ) : isPublished ? (
                                         "Save Changes"
                                     ) : (
-                                        "Save"
+                                        "Publish"
                                     )}
                                 </button>
                             </div>

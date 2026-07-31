@@ -91,7 +91,7 @@ const trainingData = {
 };
 
 export default function ServicePage() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { openModal } = useAppointment();
     const [activeTab, setActiveTab] = useState("counselling");
     const [hoveredButton, setHoveredButton] = useState(null);
@@ -100,10 +100,11 @@ export default function ServicePage() {
 
     useEffect(() => {
         let cancelled = false;
+        const lang = (i18n.language || "en").split("-")[0];
 
         const loadServices = async () => {
             try {
-                const response = await fetch("/api/counselling-types");
+                const response = await fetch(`/api/counselling-types?lang=${encodeURIComponent(lang)}`);
                 const json = await response.json();
                 if (!cancelled && json.success && Array.isArray(json.data)) {
                     setDynamicCardsByTab(buildServiceCardsByTab(json.data));
@@ -117,7 +118,7 @@ export default function ServicePage() {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [i18n.language]);
 
     const counsellingRoutes = [
         "/Familysupport",

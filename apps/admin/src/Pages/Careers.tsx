@@ -29,7 +29,8 @@ const whyWorkIcons = [
 ];
 
 export default function Careers() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.language || "en").split("-")[0];
 
   useEffect(() => {
     scrollToPageContentSection("/career");
@@ -42,7 +43,7 @@ export default function Careers() {
   const whyWorkCards = Array.isArray(whyWorkCardsRaw) ? whyWorkCardsRaw : [];
 
   const { data: jobs, isLoading: jobsLoading } = useQuery<JobPosting[]>({
-    queryKey: ["/api/jobs?active=true"],
+    queryKey: [`/api/jobs?active=true&lang=${encodeURIComponent(lang)}`],
   });
 
   // Fetch this candidate's applications to show per-job "Already Applied" badges

@@ -23,16 +23,19 @@ const FALLBACK_TESTIMONIALS = [
 ];
 
 export const Testimonial = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const testimonialsRef = useRef(null);
   const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
 
   useEffect(() => {
     let cancelled = false;
+    const lang = (i18n.language || "en").split("-")[0];
 
     const loadTestimonials = async () => {
       try {
-        const response = await fetch("/api/testimonials");
+        const response = await fetch(
+          `/api/testimonials?lang=${encodeURIComponent(lang)}`
+        );
         if (!response.ok) throw new Error("Failed to fetch testimonials");
 
         const data = await response.json();
@@ -57,7 +60,7 @@ export const Testimonial = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [i18n.language]);
 
   const handleTestimonialScroll = (direction) => {
     const container = testimonialsRef.current;

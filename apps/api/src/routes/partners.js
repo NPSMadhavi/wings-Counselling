@@ -2,8 +2,28 @@ import { Router } from "express";
 import { db } from "../config/db.js";
 import { requireAdmin } from "../middlewares/auth.js";
 import { isDuplicateColumnError } from "../config/pg-helpers.js";
+import {
+  ensurePartnerLanguageTables,
+  localizePartners,
+  savePartnerLocalization,
+} from "../services/partnerTranslate.js";
+import { looksLikeEnglishText } from "../services/translateService.js";
 
 const router = Router();
+
+function normalizeLangCode(value) {
+  return String(value || "en")
+    .toLowerCase()
+    .split("-")[0];
+}
+
+async function getLanguageIdByCode(code) {
+  const [rows] = await db.query(
+    `SELECT id FROM languages WHERE LOWER(code) = ? LIMIT 1`,
+    [normalizeLangCode(code)]
+  );
+  return rows[0]?.id || null;
+}
 
 async function ensurePartnerColumns() {
   const columns = [
@@ -38,6 +58,11 @@ async function ensureLogosTable() {
   `);
 
   await ensurePartnerColumns();
+  try {
+    await ensurePartnerLanguageTables();
+  } catch (err) {
+    console.warn("[partners] language tables:", err?.message);
+  }
 }
 
 ensureLogosTable().catch((err) => {
@@ -70,15 +95,18 @@ function buildPayload(body) {
 }
 
 /* ================= PUBLIC ================= */
-router.get("/partners", async (_req, res) => {
+router.get("/partners", async (req, res) => {
   try {
     await ensureLogosTable();
+    const lang = normalizeLangCode(req.query.lang);
 
-    const [rows] = await db.query(
-      `SELECT * FROM logos ORDER BY id ASC`
-    );
+    const [rows] = await db.query(`SELECT * FROM logos ORDER BY id ASC`);
+    let data = rows.map(normalizePartner);
+    if (lang && lang !== "en") {
+      data = await localizePartners(data, lang);
+    }
 
-    res.json(rows.map(normalizePartner));
+    res.json(data);
   } catch (err) {
     console.error("GET /partners:", err);
     res.status(500).json({ error: err.message });
@@ -86,15 +114,18 @@ router.get("/partners", async (_req, res) => {
 });
 
 /* ================= ADMIN LIST ================= */
-router.get("/admin/partners", requireAdmin, async (_req, res) => {
+router.get("/admin/partners", requireAdmin, async (req, res) => {
   try {
     await ensureLogosTable();
+    const lang = normalizeLangCode(req.query.lang);
 
-    const [rows] = await db.query(
-      `SELECT * FROM logos ORDER BY id ASC`
-    );
+    const [rows] = await db.query(`SELECT * FROM logos ORDER BY id ASC`);
+    let data = rows.map(normalizePartner);
+    if (lang && lang !== "en") {
+      data = await localizePartners(data, lang);
+    }
 
-    res.json(rows.map(normalizePartner));
+    res.json(data);
   } catch (err) {
     console.error("GET /admin/partners:", err);
     res.status(500).json({ error: err.message });
@@ -131,6 +162,12 @@ router.post("/admin/partners", requireAdmin, async (req, res) => {
       return res.status(400).json({ error: "Partner name is required" });
     }
 
+    let languageId = req.body.language_id ? Number(req.body.language_id) : null;
+    if (!languageId && req.body.language_code) {
+      languageId = await getLanguageIdByCode(req.body.language_code);
+    }
+    if (!languageId) languageId = await getLanguageIdByCode("en");
+
     const [result] = await db.query(
       `INSERT INTO logos (logo, name, description, website_link, duration, quote)
        VALUES (?, ?, ?, ?, ?, ?)`,
@@ -143,6 +180,20 @@ router.post("/admin/partners", requireAdmin, async (req, res) => {
         payload.quote,
       ]
     );
+
+    if (languageId) {
+      try {
+        await ensurePartnerLanguageTables();
+        await savePartnerLocalization(result.insertId, languageId, {
+          name: payload.name,
+          description: payload.description,
+          duration: payload.duration,
+          quote: payload.quote,
+        });
+      } catch (err) {
+        console.warn("[partners] save localization:", err?.message);
+      }
+    }
 
     const [rows] = await db.query(`SELECT * FROM logos WHERE id = ?`, [
       result.insertId,
@@ -167,20 +218,77 @@ router.put("/admin/partners/:id", requireAdmin, async (req, res) => {
       return res.status(400).json({ error: "Partner name is required" });
     }
 
-    await db.query(
-      `UPDATE logos
-       SET logo = ?, name = ?, description = ?, website_link = ?, duration = ?, quote = ?, updated_at = CURRENT_TIMESTAMP
-       WHERE id = ?`,
-      [
-        payload.logo,
-        payload.name,
-        payload.description,
-        payload.website_link,
-        payload.duration,
-        payload.quote,
-        id,
-      ]
-    );
+    let languageId = req.body.language_id ? Number(req.body.language_id) : null;
+    let langCode = req.body.language_code
+      ? normalizeLangCode(req.body.language_code)
+      : null;
+    if (languageId && !langCode) {
+      const [langRows] = await db.query(
+        `SELECT code FROM languages WHERE id = ? LIMIT 1`,
+        [languageId]
+      );
+      langCode = normalizeLangCode(langRows[0]?.code || "en");
+    }
+    if (!langCode) langCode = "en";
+    if (!languageId) languageId = await getLanguageIdByCode(langCode);
+    const isEnglish = langCode === "en";
+    const englishSample = `${payload.name || ""} ${payload.description || ""}`;
+    // Never overwrite logos English master with Hindi/Tamil/Chinese text
+    const canWriteEnglishMaster =
+      isEnglish && looksLikeEnglishText(englishSample);
+
+    if (canWriteEnglishMaster) {
+      await db.query(
+        `UPDATE logos
+         SET logo = ?, name = ?, description = ?, website_link = ?, duration = ?, quote = ?, updated_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+        [
+          payload.logo,
+          payload.name,
+          payload.description,
+          payload.website_link,
+          payload.duration,
+          payload.quote,
+          id,
+        ]
+      );
+    } else if (isEnglish) {
+      // Still update logo/link; keep existing English text on logos
+      await db.query(
+        `UPDATE logos
+         SET logo = COALESCE(NULLIF(?, ''), logo),
+             website_link = COALESCE(NULLIF(?, ''), website_link),
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+        [payload.logo, payload.website_link, id]
+      );
+    } else {
+      await db.query(
+        `UPDATE logos
+         SET logo = COALESCE(NULLIF(?, ''), logo),
+             website_link = COALESCE(NULLIF(?, ''), website_link),
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+        [payload.logo, payload.website_link, id]
+      );
+    }
+
+    if (languageId) {
+      try {
+        await ensurePartnerLanguageTables();
+        // Do not store non-English text under the English language row
+        if (!isEnglish || canWriteEnglishMaster) {
+          await savePartnerLocalization(Number(id), languageId, {
+            name: payload.name,
+            description: payload.description,
+            duration: payload.duration,
+            quote: payload.quote,
+          });
+        }
+      } catch (err) {
+        console.warn("[partners] update localization:", err?.message);
+      }
+    }
 
     const [rows] = await db.query(`SELECT * FROM logos WHERE id = ?`, [id]);
 

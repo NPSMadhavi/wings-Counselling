@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { JobPosting, JobCategory, UserProfile } from "@shared/schema";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 
 export default function Apply() {
   const params = useParams<{ id: string }>();
@@ -25,6 +26,8 @@ export default function Apply() {
   const [location, navigate] = useLocation();
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const { i18n } = useTranslation();
+  const lang = (i18n.language || "en").split("-")[0];
   const applyFlowStage = sessionStorage.getItem("careerApplyStage") || "gate";
   const { uploadFile, isUploading } = useUpload({
     onSuccess: (response) => {
@@ -64,14 +67,16 @@ export default function Apply() {
   }, [authLoading, isAuthenticated, slug, navigate]);
 
   const { data: job, isLoading: jobQueryLoading } = useQuery<JobPosting>({
-    queryKey: [`/api/jobs/by-job-id/${slug}`],
+    queryKey: [
+      `/api/jobs/by-job-id/${slug}?lang=${encodeURIComponent(lang)}`,
+    ],
     enabled: !!slug && slug !== "undefined" && !location.startsWith("/apply/"),
   });
 
   const numericJobId = job?.id;
 
   const { data: categories } = useQuery<JobCategory[]>({
-    queryKey: ['/api/categories'],
+    queryKey: [`/api/categories?lang=${encodeURIComponent(lang)}`],
   });
 
   const { data: applicationCheck } = useQuery<{ hasApplied: boolean }>({

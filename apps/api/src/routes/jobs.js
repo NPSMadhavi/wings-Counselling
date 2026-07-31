@@ -2,15 +2,47 @@ import { Router } from "express";
 import { db } from "../config/db.js";
 import { isFkViolation, isUniqueViolation } from "../config/pg-helpers.js";
 import { requireAdmin } from "../middlewares/auth.js";
+import {
+  ensureJobLanguageTables,
+  ensureJobTranslation,
+  localizeJobs,
+  localizeCategories,
+  saveJobLocalization,
+  saveCategoryLocalization,
+} from "../services/jobTranslate.js";
+import { looksLikeEnglishText } from "../services/translateService.js";
 
 const router = Router();
 
-router.get("/categories", async (_req, res) => {
+function normalizeLangCode(value) {
+  return String(value || "en")
+    .toLowerCase()
+    .split("-")[0];
+}
+
+async function getLanguageIdByCode(code) {
+  const [rows] = await db.query(
+    `SELECT id FROM languages WHERE LOWER(code) = ? LIMIT 1`,
+    [normalizeLangCode(code)]
+  );
+  return rows[0]?.id || null;
+}
+
+router.get("/categories", async (req, res) => {
   try {
+    const lang = normalizeLangCode(req.query.lang || "en");
     const [rows] = await db.execute(
       "SELECT id, name, description FROM job_categories ORDER BY id DESC"
     );
-    res.json(rows);
+    let list = rows;
+    if (lang && lang !== "en") {
+      try {
+        list = await localizeCategories(list, lang);
+      } catch (err) {
+        console.warn("[categories] localize:", err?.message);
+      }
+    }
+    res.json(list);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch categories" });
   }
@@ -24,6 +56,25 @@ router.post("/categories", requireAdmin, async (req, res) => {
       "INSERT INTO job_categories (name, description) VALUES (?, ?)",
       [name, description]
     );
+
+    let languageId = req.body.language_id ? Number(req.body.language_id) : null;
+    if (!languageId && req.body.language_code) {
+      languageId = await getLanguageIdByCode(req.body.language_code);
+    }
+    if (!languageId) languageId = await getLanguageIdByCode("en");
+
+    if (languageId) {
+      try {
+        await ensureJobLanguageTables();
+        await saveCategoryLocalization(result.insertId, languageId, {
+          name,
+          description: description || "",
+        });
+      } catch (err) {
+        console.warn("[categories] save localization:", err?.message);
+      }
+    }
+
     res.status(201).json({ id: result.insertId, name, description });
   } catch (error) {
     res.status(500).json({ error: "Failed to create category" });
@@ -36,21 +87,71 @@ router.patch("/categories/:id", requireAdmin, async (req, res) => {
     if (name === undefined && description === undefined) {
       return res.status(400).json({ error: "No fields to update" });
     }
-    const updates = [];
-    const params = [];
-    if (name !== undefined) {
-      updates.push("name = ?");
-      params.push(name);
+
+    let languageId = req.body.language_id ? Number(req.body.language_id) : null;
+    let langCode = req.body.language_code
+      ? normalizeLangCode(req.body.language_code)
+      : null;
+    if (languageId && !langCode) {
+      const [langRows] = await db.query(
+        `SELECT code FROM languages WHERE id = ? LIMIT 1`,
+        [languageId]
+      );
+      langCode = normalizeLangCode(langRows[0]?.code || "en");
     }
-    if (description !== undefined) {
-      updates.push("description = ?");
-      params.push(description);
+    if (!langCode) langCode = "en";
+    if (!languageId) languageId = await getLanguageIdByCode(langCode);
+    const isEnglish = langCode === "en";
+    const sample = `${name || ""} ${description || ""}`;
+    const canWriteEnglish =
+      isEnglish &&
+      (name === undefined || looksLikeEnglishText(sample) || !String(sample).trim());
+
+    if (canWriteEnglish || (!isEnglish && false)) {
+      // only write base table for English
     }
-    params.push(req.params.id);
-    await db.execute(
-      `UPDATE job_categories SET ${updates.join(", ")} WHERE id = ?`,
-      params
-    );
+
+    if (isEnglish && canWriteEnglish) {
+      const updates = [];
+      const params = [];
+      if (name !== undefined) {
+        updates.push("name = ?");
+        params.push(name);
+      }
+      if (description !== undefined) {
+        updates.push("description = ?");
+        params.push(description);
+      }
+      if (updates.length) {
+        params.push(req.params.id);
+        await db.execute(
+          `UPDATE job_categories SET ${updates.join(", ")} WHERE id = ?`,
+          params
+        );
+      }
+    }
+
+    if (languageId && (name !== undefined || description !== undefined)) {
+      if (!isEnglish || canWriteEnglish) {
+        try {
+          await ensureJobLanguageTables();
+          const [cur] = await db.execute(
+            "SELECT name, description FROM job_categories WHERE id = ?",
+            [req.params.id]
+          );
+          await saveCategoryLocalization(Number(req.params.id), languageId, {
+            name: name !== undefined ? name : cur[0]?.name || "",
+            description:
+              description !== undefined
+                ? description || ""
+                : cur[0]?.description || "",
+          });
+        } catch (err) {
+          console.warn("[categories] update localization:", err?.message);
+        }
+      }
+    }
+
     const [rows] = await db.execute(
       "SELECT id, name, description FROM job_categories WHERE id = ?",
       [req.params.id]
@@ -146,11 +247,20 @@ function mapJobRow(row) {
 router.get("/jobs", async (req, res) => {
   try {
     const activeOnly = req.query.active === "true";
+    const lang = normalizeLangCode(req.query.lang || "en");
     const where = activeOnly ? " WHERE c.is_active = true" : "";
     const [rows] = await db.execute(
       `${jobSelect}${where} ORDER BY c.created_at DESC`
     );
-    res.json(rows.map(mapJobRow));
+    let list = rows.map(mapJobRow);
+    if (lang && lang !== "en") {
+      try {
+        list = await localizeJobs(list, lang);
+      } catch (err) {
+        console.warn("[jobs] localize:", err?.message);
+      }
+    }
+    res.json(list);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch jobs" });
   }
@@ -158,6 +268,7 @@ router.get("/jobs", async (req, res) => {
 
 router.get("/jobs/by-job-id/:jobId", async (req, res) => {
   try {
+    const lang = normalizeLangCode(req.query.lang || "en");
     const [rows] = await db.execute(
       `${jobSelect} WHERE c.job_id = ? LIMIT 1`,
       [req.params.jobId]
@@ -165,7 +276,17 @@ router.get("/jobs/by-job-id/:jobId", async (req, res) => {
     if (!rows.length) {
       return res.status(404).json({ error: "Job not found" });
     }
-    res.json(mapJobRow(rows[0]));
+    let job = mapJobRow(rows[0]);
+    if (lang && lang !== "en") {
+      try {
+        await ensureJobTranslation(job.id, lang, { force: false });
+        const [localized] = await localizeJobs([job], lang);
+        job = localized || job;
+      } catch (err) {
+        console.warn("[jobs] localize one:", err?.message);
+      }
+    }
+    res.json(job);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch job" });
   }
@@ -173,6 +294,7 @@ router.get("/jobs/by-job-id/:jobId", async (req, res) => {
 
 router.get("/jobs/:id", async (req, res) => {
   try {
+    const lang = normalizeLangCode(req.query.lang || "en");
     const [rows] = await db.execute(
       `${jobSelect} WHERE c.id = ? LIMIT 1`,
       [req.params.id]
@@ -180,7 +302,16 @@ router.get("/jobs/:id", async (req, res) => {
     if (!rows.length) {
       return res.status(404).json({ error: "Job not found" });
     }
-    res.json(mapJobRow(rows[0]));
+    let job = mapJobRow(rows[0]);
+    if (lang && lang !== "en") {
+      try {
+        const [localized] = await localizeJobs([job], lang);
+        job = localized || job;
+      } catch (err) {
+        console.warn("[jobs] localize one:", err?.message);
+      }
+    }
+    res.json(job);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch job" });
   }
@@ -263,6 +394,29 @@ router.post("/jobs", requireAdmin, async (req, res) => {
       [result.insertId]
     );
 
+    let languageId = req.body.language_id ? Number(req.body.language_id) : null;
+    if (!languageId && req.body.language_code) {
+      languageId = await getLanguageIdByCode(req.body.language_code);
+    }
+    if (!languageId) languageId = await getLanguageIdByCode("en");
+
+    if (languageId) {
+      try {
+        await ensureJobLanguageTables();
+        await saveJobLocalization(result.insertId, languageId, {
+          title: resolvedTitle,
+          summary: summary || "",
+          description: description || "",
+          requirements: requirements || "",
+          location: location || "",
+          experience: experience || "",
+          employmentType: employmentType || "",
+        });
+      } catch (err) {
+        console.warn("[jobs] save localization:", err?.message);
+      }
+    }
+
     res.status(201).json(mapJobRow(rows[0]) || rows[0] || null);
   } catch (error) {
     if (isUniqueViolation(error)) {
@@ -291,28 +445,118 @@ router.patch("/jobs/:id", requireAdmin, async (req, res) => {
       summary: "summary",
       description: "description",
       requirements: "requirements",
-      isActive: "is_active"
+      isActive: "is_active",
     };
+
+    let languageId = body.language_id ? Number(body.language_id) : null;
+    let langCode = body.language_code
+      ? normalizeLangCode(body.language_code)
+      : null;
+    if (languageId && !langCode) {
+      const [langRows] = await db.query(
+        `SELECT code FROM languages WHERE id = ? LIMIT 1`,
+        [languageId]
+      );
+      langCode = normalizeLangCode(langRows[0]?.code || "en");
+    }
+    if (!langCode) langCode = "en";
+    if (!languageId) languageId = await getLanguageIdByCode(langCode);
+    const isEnglish = langCode === "en";
+    const englishSample = `${body.title || ""} ${body.description || ""}`;
+    const canWriteEnglishMaster =
+      isEnglish &&
+      (body.title === undefined ||
+        looksLikeEnglishText(englishSample) ||
+        !String(englishSample).trim());
+
+    const sharedKeys = new Set(["jobId", "categoryId", "isActive"]);
+    const textKeys = new Set([
+      "title",
+      "location",
+      "employmentType",
+      "experience",
+      "summary",
+      "description",
+      "requirements",
+    ]);
+
     const updates = [];
     const params = [];
     for (const [key, column] of Object.entries(fieldMap)) {
-      if (body[key] !== undefined) {
-        updates.push(`${column} = ?`);
-        params.push(key === "isActive" ? Boolean(body[key]) : body[key]);
+      if (body[key] === undefined) continue;
+      if (textKeys.has(key) && !(isEnglish && canWriteEnglishMaster)) {
+        continue;
+      }
+      if (!sharedKeys.has(key) && !textKeys.has(key)) continue;
+      if (textKeys.has(key) && !isEnglish) continue;
+      updates.push(`${column} = ?`);
+      params.push(key === "isActive" ? Boolean(body[key]) : body[key]);
+    }
+
+    // Always allow shared non-text updates
+    for (const key of sharedKeys) {
+      if (body[key] === undefined) continue;
+      const column = fieldMap[key];
+      if (updates.some((u) => u.startsWith(`${column} =`))) continue;
+      updates.push(`${column} = ?`);
+      params.push(key === "isActive" ? Boolean(body[key]) : body[key]);
+    }
+
+    if (updates.length) {
+      params.push(req.params.id);
+      await db.execute(
+        `UPDATE job_postings SET ${updates.join(", ")} WHERE id = ?`,
+        params
+      );
+    }
+
+    if (languageId) {
+      try {
+        await ensureJobLanguageTables();
+        const [cur] = await db.execute(
+          `${jobSelect} WHERE c.id = ?`,
+          [req.params.id]
+        );
+        const current = mapJobRow(cur[0]) || {};
+        if (!isEnglish || canWriteEnglishMaster) {
+          await saveJobLocalization(Number(req.params.id), languageId, {
+            title: body.title !== undefined ? body.title : current.title || "",
+            summary:
+              body.summary !== undefined ? body.summary : current.summary || "",
+            description:
+              body.description !== undefined
+                ? body.description
+                : current.description || "",
+            requirements:
+              body.requirements !== undefined
+                ? body.requirements
+                : current.requirements || "",
+            location:
+              body.location !== undefined
+                ? body.location
+                : current.location || "",
+            experience:
+              body.experience !== undefined
+                ? body.experience
+                : current.experience || "",
+            employmentType:
+              body.employmentType !== undefined
+                ? body.employmentType
+                : current.employmentType || "",
+          });
+        }
+      } catch (err) {
+        console.warn("[jobs] update localization:", err?.message);
       }
     }
-    if (!updates.length) return res.status(400).json({ error: "No fields to update" });
-    params.push(req.params.id);
-    await db.execute(
-      `UPDATE job_postings SET ${updates.join(", ")} WHERE id = ?`,
-      params
-    );
+
     const [rows] = await db.execute(
       `${jobSelect} WHERE c.id = ?`,
       [req.params.id]
     );
     res.json(mapJobRow(rows[0]) || null);
   } catch (error) {
+    console.error("PATCH /jobs:", error);
     res.status(500).json({ error: "Failed to update job" });
   }
 });

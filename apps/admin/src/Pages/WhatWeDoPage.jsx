@@ -100,7 +100,7 @@ export default function SupportTopicPage() {
     const loadArticles = async () => {
       setArticlesLoading(true);
       try {
-        const response = await fetch("/api/articles");
+        const response = await fetch(`/api/articles?lang=${encodeURIComponent((i18n.language || "en").split("-")[0])}`);
         if (!response.ok) throw new Error("Failed to fetch articles");
         const data = await response.json();
         if (!cancelled) {
@@ -118,7 +118,8 @@ export default function SupportTopicPage() {
     const loadServices = async () => {
       setServicesLoading(true);
       try {
-        const response = await fetch("/api/counselling-types");
+        const lang = (i18n.language || "en").split("-")[0];
+        const response = await fetch(`/api/counselling-types?lang=${encodeURIComponent(lang)}`);
         const json = await response.json();
         if (!cancelled && json.success && Array.isArray(json.data)) {
           const flattened = json.data.flatMap((mainType) =>

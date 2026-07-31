@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { Footer } from "../components/Layout/Footer.jsx";
 
 function Events() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [hoveredButton, setHoveredButton] = useState(null);
@@ -33,10 +33,14 @@ function Events() {
         filterOptions.find((o) => o.key === selectedFilter)?.label ||
         t("events.listing.filters.all");
 
+    const lang = (i18n.language || "en").split("-")[0];
+
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const response = await fetch("/api/events");
+                const response = await fetch(
+                    `/api/events?lang=${encodeURIComponent(lang)}`
+                );
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch events");
@@ -73,7 +77,7 @@ function Events() {
             eventSource.close();
         };
 
-    }, []);
+    }, [lang]);
 
     const formatDate = (dateString) => {
         if (!dateString) return t("events.listing.tba");

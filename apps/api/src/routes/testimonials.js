@@ -1,8 +1,27 @@
 import { Router } from "express";
 import { db } from "../config/db.js";
 import { requireAdmin } from "../middlewares/auth.js";
+import {
+  ensureTestimonialLanguageTables,
+  localizeTestimonials,
+  saveTestimonialLocalization,
+} from "../services/testimonialTranslate.js";
 
 const router = Router();
+
+function normalizeLangCode(value) {
+  return String(value || "en")
+    .toLowerCase()
+    .split("-")[0];
+}
+
+async function getLanguageIdByCode(code) {
+  const [rows] = await db.query(
+    `SELECT id FROM languages WHERE LOWER(code) = ? LIMIT 1`,
+    [normalizeLangCode(code)]
+  );
+  return rows[0]?.id || null;
+}
 
 async function ensureTestimonialsTable() {
   await db.query(`
@@ -18,9 +37,11 @@ async function ensureTestimonialsTable() {
   `);
 }
 
-ensureTestimonialsTable().catch((err) => {
-  console.error("Failed to ensure testmonials table:", err.message);
-});
+ensureTestimonialsTable()
+  .then(() => ensureTestimonialLanguageTables())
+  .catch((err) => {
+    console.error("Failed to ensure testmonials table:", err.message);
+  });
 
 function normalizeTestimonial(row) {
   return {
@@ -45,15 +66,18 @@ function buildPayload(body) {
 }
 
 /* ================= PUBLIC ================= */
-router.get("/testimonials", async (_req, res) => {
+router.get("/testimonials", async (req, res) => {
   try {
     await ensureTestimonialsTable();
+    const lang = normalizeLangCode(req.query.lang);
 
-    const [rows] = await db.query(
-      `SELECT * FROM testmonials ORDER BY id ASC`
-    );
+    const [rows] = await db.query(`SELECT * FROM testmonials ORDER BY id ASC`);
+    let data = rows.map(normalizeTestimonial);
+    if (lang && lang !== "en") {
+      data = await localizeTestimonials(data, lang);
+    }
 
-    res.json(rows.map(normalizeTestimonial));
+    res.json(data);
   } catch (err) {
     console.error("GET /testimonials:", err);
     res.status(500).json({ error: err.message });
@@ -61,15 +85,18 @@ router.get("/testimonials", async (_req, res) => {
 });
 
 /* ================= ADMIN LIST ================= */
-router.get("/admin/testimonials", requireAdmin, async (_req, res) => {
+router.get("/admin/testimonials", requireAdmin, async (req, res) => {
   try {
     await ensureTestimonialsTable();
+    const lang = normalizeLangCode(req.query.lang);
 
-    const [rows] = await db.query(
-      `SELECT * FROM testmonials ORDER BY id ASC`
-    );
+    const [rows] = await db.query(`SELECT * FROM testmonials ORDER BY id ASC`);
+    let data = rows.map(normalizeTestimonial);
+    if (lang && lang !== "en") {
+      data = await localizeTestimonials(data, lang);
+    }
 
-    res.json(rows.map(normalizeTestimonial));
+    res.json(data);
   } catch (err) {
     console.error("GET /admin/testimonials:", err);
     res.status(500).json({ error: err.message });
@@ -110,6 +137,12 @@ router.post("/admin/testimonials", requireAdmin, async (req, res) => {
       return res.status(400).json({ error: "Client name is required" });
     }
 
+    let languageId = req.body.language_id ? Number(req.body.language_id) : null;
+    if (!languageId && req.body.language_code) {
+      languageId = await getLanguageIdByCode(req.body.language_code);
+    }
+    if (!languageId) languageId = await getLanguageIdByCode("en");
+
     const [result] = await db.query(
       `INSERT INTO testmonials (service_name, description, client_name, client_company_name)
        VALUES (?, ?, ?, ?)`,
@@ -120,6 +153,20 @@ router.post("/admin/testimonials", requireAdmin, async (req, res) => {
         payload.client_company_name,
       ]
     );
+
+    if (languageId) {
+      try {
+        await ensureTestimonialLanguageTables();
+        await saveTestimonialLocalization(result.insertId, languageId, {
+          serviceName: payload.service_name,
+          description: payload.description,
+          clientName: payload.client_name,
+          clientCompanyName: payload.client_company_name,
+        });
+      } catch (err) {
+        console.warn("[testimonials] save localization:", err?.message);
+      }
+    }
 
     const [rows] = await db.query(`SELECT * FROM testmonials WHERE id = ?`, [
       result.insertId,
@@ -148,18 +195,49 @@ router.put("/admin/testimonials/:id", requireAdmin, async (req, res) => {
       return res.status(400).json({ error: "Client name is required" });
     }
 
-    await db.query(
-      `UPDATE testmonials
-       SET service_name = ?, description = ?, client_name = ?, client_company_name = ?, updated_at = CURRENT_TIMESTAMP
-       WHERE id = ?`,
-      [
-        payload.service_name,
-        payload.description,
-        payload.client_name,
-        payload.client_company_name,
-        id,
-      ]
-    );
+    let languageId = req.body.language_id ? Number(req.body.language_id) : null;
+    let langCode = req.body.language_code
+      ? normalizeLangCode(req.body.language_code)
+      : null;
+    if (languageId && !langCode) {
+      const [langRows] = await db.query(
+        `SELECT code FROM languages WHERE id = ? LIMIT 1`,
+        [languageId]
+      );
+      langCode = normalizeLangCode(langRows[0]?.code || "en");
+    }
+    if (!langCode) langCode = "en";
+    if (!languageId) languageId = await getLanguageIdByCode(langCode);
+    const isEnglish = langCode === "en";
+
+    if (isEnglish) {
+      await db.query(
+        `UPDATE testmonials
+         SET service_name = ?, description = ?, client_name = ?, client_company_name = ?, updated_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+        [
+          payload.service_name,
+          payload.description,
+          payload.client_name,
+          payload.client_company_name,
+          id,
+        ]
+      );
+    }
+
+    if (languageId) {
+      try {
+        await ensureTestimonialLanguageTables();
+        await saveTestimonialLocalization(Number(id), languageId, {
+          serviceName: payload.service_name,
+          description: payload.description,
+          clientName: payload.client_name,
+          clientCompanyName: payload.client_company_name,
+        });
+      } catch (err) {
+        console.warn("[testimonials] update localization:", err?.message);
+      }
+    }
 
     const [rows] = await db.query(`SELECT * FROM testmonials WHERE id = ?`, [id]);
 

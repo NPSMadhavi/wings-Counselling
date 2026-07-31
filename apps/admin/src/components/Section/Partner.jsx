@@ -73,7 +73,7 @@ function PartnerCard({ partner }) {
 }
 
 export function Partners() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const sectionRef = useRef(null);
     const scrollContainerRef = useRef(null);
     const [partners, setPartners] = useState(FALLBACK_PARTNERS);
@@ -88,10 +88,13 @@ export function Partners() {
 
     useEffect(() => {
         let cancelled = false;
+        const lang = (i18n.language || "en").split("-")[0];
 
         const loadPartners = async () => {
             try {
-                const response = await fetch("/api/partners");
+                const response = await fetch(
+                    `/api/partners?lang=${encodeURIComponent(lang)}`
+                );
                 if (!response.ok) throw new Error("Failed to fetch partners");
 
                 const data = await response.json();
@@ -115,7 +118,7 @@ export function Partners() {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [i18n.language]);
 
     useEffect(() => {
         const updateAutoScroll = () => {

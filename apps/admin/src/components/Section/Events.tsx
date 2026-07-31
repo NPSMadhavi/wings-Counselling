@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { ExternalLink, Heart, Sparkles, Mail, Loader2 } from "lucide-react";
 import { SiteCheckIcon } from "@/components/ui/SiteIcons";
+import { useTranslation } from "react-i18next";
 
 interface Event {
   id: number;
@@ -157,16 +158,18 @@ function SubscribeForm() {
 }
 
 export function Events() {
+  const { i18n } = useTranslation();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const lang = (i18n.language || "en").split("-")[0];
 
   useEffect(() => {
-    fetch("/api/events")
+    fetch(`/api/events?lang=${encodeURIComponent(lang)}`)
       .then((r) => r.json())
       .then((data: Event[]) => setEvents(data))
       .catch(() => { })
       .finally(() => setLoading(false));
-  }, []);
+  }, [lang]);
 
   const isEmpty = loading || events.length === 0;
 

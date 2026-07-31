@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRoute } from "wouter";
+import { useTranslation } from "react-i18next";
 import SubServiceLayout from "./SubServiceLayout";
 import { tabForMainTypeName } from "@/lib/serviceTabs";
 
@@ -7,6 +8,7 @@ const DEFAULT_IMAGE = "/assets/card2.jpg.jpeg";
 
 export default function SubServiceDetailPage() {
   const [, params] = useRoute("/services/sub/:id");
+  const { i18n } = useTranslation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -15,12 +17,15 @@ export default function SubServiceDetailPage() {
     if (!params?.id) return;
 
     let cancelled = false;
+    const lang = (i18n.language || "en").split("-")[0];
 
     const load = async () => {
       setLoading(true);
       setError("");
       try {
-        const response = await fetch(`/api/counselling-types/sub/${params.id}`);
+        const response = await fetch(
+          `/api/counselling-types/sub/${params.id}?lang=${encodeURIComponent(lang)}`
+        );
         const json = await response.json();
         if (!response.ok || !json.success) {
           throw new Error(json.message || "Sub service not found");
@@ -40,7 +45,7 @@ export default function SubServiceDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [params?.id]);
+  }, [params?.id, i18n.language]);
 
   if (loading) {
     return (

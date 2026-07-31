@@ -19,6 +19,27 @@
       }
     },
 
+    "detail": {
+      "home": "Laman Utama",
+      "career": "Kerjaya",
+      "share": "Kongsi",
+      "copyLink": "Salin Pautan",
+      "linkCopied": "Pautan Disalin!",
+      "shareWhatsApp": "Kongsi di WhatsApp",
+      "shareLinkedIn": "Kongsi di LinkedIn",
+      "aboutRole": "Mengenai peranan ini",
+      "noDescription": "Tiada penerangan disediakan.",
+      "keyResponsibilities": "Tanggungjawab utama",
+      "noRequirements": "Tiada keperluan disediakan.",
+      "applyPosition": "Mohon jawatan ini",
+      "alreadyAppliedPosition": "Anda telah memohon jawatan ini",
+      "unableToLoad": "Tidak Dapat Memuatkan Jawatan",
+      "notFound": "Jawatan Tidak Ditemui",
+      "loadFailed": "Gagal mendapatkan butiran jawatan. Sila cuba lagi.",
+      "notAvailable": "Jawatan yang anda cari tidak wujud atau tidak lagi tersedia.",
+      "backToCareers": "Kembali ke Kerjaya"
+    },
+
     "whyWork": {
       "title": "Mengapa Bekerja di WINGS?",
       "description": "Kami mengutamakan perkembangan anda sama seperti perkembangan komuniti kami.",

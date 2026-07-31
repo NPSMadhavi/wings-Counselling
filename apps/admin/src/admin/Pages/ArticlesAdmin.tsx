@@ -93,20 +93,10 @@ export default function ArticlesAdmin({
     setShowEditor(true);
   };
 
-  // Handle Edit Article - Opens Popup Modal
+  // Handle Edit Article - Opens full editor (with Language toolbar)
   const handleEdit = (article: Article) => {
-    setEditForm({
-      title: article.title || "",
-      slug: article.slug || "",
-      excerpt: article.excerpt || "",
-      content: article.content || "",
-      author: article.author || "",
-      category: article.category || "",
-      coverImage: article.coverImage || "",
-      isPublished: article.isPublished || false
-    });
     setEditingArticle(article);
-    setShowEditModal(true);
+    setShowEditor(true);
   };
 
   useEffect(() => {
@@ -201,11 +191,11 @@ export default function ArticlesAdmin({
     load(); // Refresh the list
   };
 
-  // SHOW LINKEDIN-STYLE EDITOR (only for Add New)
+  // SHOW LINKEDIN-STYLE EDITOR (Add New + Edit — includes Language toolbar)
   if (showEditor) {
     return (
       <ArticleEditor
-        initialData={null}
+        initialData={editingArticle}
         onBack={handleEditorClose}
       />
     );

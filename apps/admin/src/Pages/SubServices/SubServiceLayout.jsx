@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -6,6 +6,7 @@ import { Footer } from "@/components/Layout/Footer";
 import { SiteCheckBadge } from "@/components/ui/SiteIcons";
 import PractitionerCard from "@/components/ui/PractitionerCard";
 import { useAppointment } from "@/context/AppointmentContext";
+import { scrollToServiceDetailsWithRetry } from "@/lib/scrollToSection";
 
 const heroImg = "/assets/card1.jpg.jpeg";
 
@@ -51,6 +52,11 @@ export default function SubServiceLayout({
   const [teamLoading, setTeamLoading] = useState(true);
 
   const hasPresetTeam = Array.isArray(assignedTeamMembers);
+
+  // Card click / route enter → jump below hero to service details (not top of hero)
+  useLayoutEffect(() => {
+    scrollToServiceDetailsWithRetry({ behavior: "auto" });
+  }, [serviceLabel, sectionTitle]);
 
   useEffect(() => {
     if (hasPresetTeam) {
@@ -113,7 +119,7 @@ export default function SubServiceLayout({
             </p>
             <button
               onClick={() => {
-                document.getElementById("service-details")?.scrollIntoView({ behavior: "smooth" });
+                scrollToServiceDetailsWithRetry({ behavior: "smooth" });
               }}
               className="mt-4 sm:mt-6 h-[52px] sm:h-[60px] px-6 sm:px-8 rounded-full bg-[#1B4585] text-white font-['Plus_Jakarta_Sans',sans-serif] text-[15px] sm:text-[16px] md:text-[18px] font-semibold flex items-center gap-2 sm:gap-3 hover:scale-105 transition-all duration-300"
             >

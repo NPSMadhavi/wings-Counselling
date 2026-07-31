@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "../config/db.js";
 import { requireAdmin } from "../middlewares/auth.js";
 import { subscribe } from "../lib/notifyService.js";
+import { sendSubscribeConfirmationEmail } from "../lib/email.js";
 
 const router = Router();
 
@@ -21,6 +22,14 @@ router.post("/event-subscribe", async (req, res) => {
         alreadySubscribed: true,
       });
     }
+
+    sendSubscribeConfirmationEmail({
+      email: String(email ?? "").trim().toLowerCase(),
+      type: "event",
+      subscriber: result.subscriber ?? null,
+    }).catch((err) => {
+      console.error("[EventSubscribe] confirmation email failed:", err?.message);
+    });
 
     return res.status(201).json({ ok: true });
   } catch (e) {

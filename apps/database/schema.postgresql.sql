@@ -271,3 +271,31 @@ CREATE TABLE IF NOT EXISTS volunteer_applications (
   created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Article multi-language support
+CREATE TABLE IF NOT EXISTS languages (
+  id   SERIAL PRIMARY KEY,
+  code VARCHAR(10) NOT NULL UNIQUE,
+  name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS documents (
+  id            SERIAL PRIMARY KEY,
+  original_name TEXT NOT NULL DEFAULT '',
+  file_name     TEXT,
+  file_path     TEXT,
+  mime_type     TEXT,
+  html_content  TEXT NOT NULL DEFAULT '',
+  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS article_language (
+  id          SERIAL PRIMARY KEY,
+  article_id  INT NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+  language_id INT NOT NULL REFERENCES languages(id) ON DELETE RESTRICT,
+  document_id INT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT uq_article_language UNIQUE (article_id, language_id)
+);

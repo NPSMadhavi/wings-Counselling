@@ -1,8 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { api } from "../lib/api";
 import type { Event } from "../lib/types";
 import { Eye, Pencil, Trash2 } from "lucide-react";
+import {
+  AdminLanguageDropdown,
+  useAdminLanguages,
+} from "../components/AdminLanguageDropdown";
 
 // ✅ reusable easing tuple (fixes TS error cleanly)
 const easeInOut: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
@@ -21,7 +25,23 @@ const containerVariants: Variants = {
 
 /* -------------------- MODAL COMPONENT -------------------- */
 
-function AddEventModal({ isOpen, onClose, onAddEvent, editingEvent, onUpdateEvent }) {
+function AddEventModal({
+  isOpen,
+  onClose,
+  onAddEvent,
+  editingEvent,
+  onUpdateEvent,
+  languages,
+  selectedLanguageId,
+  selectedLanguage,
+  selectedLangCode,
+  openLangMenu,
+  setOpenLangMenu,
+  isSwitchingLanguage,
+  setIsSwitchingLanguage,
+  setSelectedLanguageId,
+  onLocalized,
+}) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -37,12 +57,21 @@ function AddEventModal({ isOpen, onClose, onAddEvent, editingEvent, onUpdateEven
 
   const [previewUrl, setPreviewUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const openedForIdRef = useRef(editingEvent?.id ?? "new");
 
   /* =========================
      EDIT EVENT DATA
   ========================= */
 
   useEffect(() => {
+    if (!isOpen) return;
+    const key = editingEvent?.id ?? "new";
+    if (openedForIdRef.current !== key && !isSwitchingLanguage) {
+      openedForIdRef.current = key;
+    } else if (isSwitchingLanguage) {
+      return;
+    }
+
     if (editingEvent) {
       setFormData({
         title: editingEvent.title || "",
@@ -50,27 +79,18 @@ function AddEventModal({ isOpen, onClose, onAddEvent, editingEvent, onUpdateEven
         eventDate: editingEvent.eventDate || "",
         location: editingEvent.location || "",
         price: editingEvent.price || "",
-        registrationUrl:
-          editingEvent.registrationUrl || "",
-
-        showDonationButton:
-          editingEvent.showDonationButton || false,
-
+        registrationUrl: editingEvent.registrationUrl || "",
+        showDonationButton: editingEvent.showDonationButton || false,
         isPublished:
           editingEvent.isPublished !== undefined
             ? editingEvent.isPublished
             : true,
-
-        photoUrl:
-          editingEvent.photoUrls?.[0] || "",
-
+        photoUrl: editingEvent.photoUrls?.[0] || "",
         photoFile: null,
       });
 
       if (editingEvent.photoUrls?.[0]) {
-        setPreviewUrl(
-          editingEvent.photoUrls[0]
-        );
+        setPreviewUrl(editingEvent.photoUrls[0]);
       }
     } else {
       setFormData({
@@ -85,10 +105,65 @@ function AddEventModal({ isOpen, onClose, onAddEvent, editingEvent, onUpdateEven
         photoUrl: "",
         photoFile: null,
       });
-
       setPreviewUrl("");
     }
-  }, [editingEvent]);
+  }, [editingEvent, isOpen]);
+
+  async function switchLanguage(nextLanguageId) {
+    if (!nextLanguageId || nextLanguageId === selectedLanguageId) {
+      setOpenLangMenu(null);
+      return;
+    }
+    const next = languages.find((l) => l.id === nextLanguageId);
+    if (!next) return;
+
+    try {
+      setIsSwitchingLanguage(true);
+      setOpenLangMenu(null);
+
+      if (editingEvent?.id && selectedLanguageId) {
+        try {
+          const prev = languages.find((l) => l.id === selectedLanguageId);
+          const prevCode = String(prev?.code || "").toLowerCase();
+          const sample = `${formData.title || ""} ${formData.description || ""}`;
+          const looksEnglish =
+            /[A-Za-z]/.test(sample) &&
+            !/[\u0900-\u097F\u0B80-\u0BFF\u4E00-\u9FFF]/.test(sample);
+          if (!(prevCode === "en" && !looksEnglish)) {
+            await api.saveEventLanguage(editingEvent.id, selectedLanguageId, {
+              title: formData.title,
+              description: formData.description,
+              location: formData.location,
+            });
+          }
+        } catch (persistErr) {
+          console.warn("Could not persist event language:", persistErr);
+        }
+      }
+
+      setSelectedLanguageId(nextLanguageId);
+
+      if (editingEvent?.id) {
+        const result = await api.translateEventLanguage(
+          editingEvent.id,
+          String(next.code).toLowerCase(),
+          true
+        );
+        const nextFields = {
+          title: result?.title || formData.title,
+          description: result?.description ?? formData.description,
+          location: result?.location || formData.location,
+        };
+        setFormData((prev) => ({ ...prev, ...nextFields }));
+        onLocalized?.(nextFields);
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err?.message || "Failed to switch language");
+    } finally {
+      setIsSwitchingLanguage(false);
+    }
+  }
 
   /* =========================
      HANDLE CHANGE
@@ -195,6 +270,9 @@ function AddEventModal({ isOpen, onClose, onAddEvent, editingEvent, onUpdateEven
         photoUrls:
           photoUrl ? [photoUrl] : [],
 
+        language_id: selectedLanguageId || undefined,
+        language_code: selectedLangCode,
+
         createdAt: editingEvent
           ? editingEvent.createdAt
           : new Date().toISOString(),
@@ -248,21 +326,35 @@ function AddEventModal({ isOpen, onClose, onAddEvent, editingEvent, onUpdateEven
             transition={{ duration: 0.2 }}
             className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
           >
-            <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center">
+            <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center gap-4">
               <div>
                 <h3 className="text-2xl font-bold text-white">
                   {editingEvent ? " Edit Event" : "Add Event"}
                 </h3>
                 <p className="text-sm text-white mt-1">Fill in the details below</p>
               </div>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-3">
+                <AdminLanguageDropdown
+                  languages={languages}
+                  selectedLanguageId={selectedLanguageId}
+                  selectedLanguage={selectedLanguage}
+                  openLangMenu={openLangMenu}
+                  setOpenLangMenu={setOpenLangMenu}
+                  menuId="event-modal"
+                  light
+                  isSwitchingLanguage={isSwitchingLanguage}
+                  onSelect={switchLanguage}
+                />
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="text-white/80 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <form
@@ -564,12 +656,25 @@ export default function EventsSection() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
+  const {
+    languages,
+    selectedLanguageId,
+    setSelectedLanguageId,
+    selectedLanguage,
+    selectedLangCode,
+    openLangMenu,
+    setOpenLangMenu,
+    isSwitchingLanguage,
+    setIsSwitchingLanguage,
+  } = useAdminLanguages();
 
-  // Load events from API and localStorage on mount
+  // Load events from API (localized) — skip full reload while modal is open
   useEffect(() => {
+    if (isModalOpen) return;
+
     const loadAllEvents = async () => {
       try {
-        const data: Event[] = await api.getEvents();
+        const data: Event[] = await api.getEvents(selectedLangCode);
         setEvents(data);
       } catch (error) {
         console.error("Failed to load events:", error);
@@ -590,7 +695,16 @@ export default function EventsSection() {
     return () => {
       eventSource.close();
     };
-  }, []);
+  }, [selectedLangCode, isModalOpen]);
+
+  async function switchListLanguage(nextLanguageId) {
+    if (!nextLanguageId || nextLanguageId === selectedLanguageId) {
+      setOpenLangMenu(null);
+      return;
+    }
+    setSelectedLanguageId(nextLanguageId);
+    setOpenLangMenu(null);
+  }
 
   const handleAddEvent = async (newEvent) => {
     try {
@@ -672,15 +786,29 @@ export default function EventsSection() {
               </h1>
             </div>
 
-            <button
-              onClick={() => {
-                setEditingEvent(null);
-                setIsModalOpen(true);
-              }}
-              className="px-8 py-3.5 bg-[#0D4A7A] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-            >
-              <span className="text-base">Add Event</span>
-            </button>
+            <div className="flex items-center gap-3">
+              {!isModalOpen && (
+                <AdminLanguageDropdown
+                  languages={languages}
+                  selectedLanguageId={selectedLanguageId}
+                  selectedLanguage={selectedLanguage}
+                  openLangMenu={openLangMenu}
+                  setOpenLangMenu={setOpenLangMenu}
+                  menuId="events-header"
+                  isSwitchingLanguage={isSwitchingLanguage}
+                  onSelect={switchListLanguage}
+                />
+              )}
+              <button
+                onClick={() => {
+                  setEditingEvent(null);
+                  setIsModalOpen(true);
+                }}
+                className="px-8 py-3.5 bg-[#0D4A7A] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+              >
+                <span className="text-base">Add Event</span>
+              </button>
+            </div>
           </div>
 
           {/* TABLE VIEW */}
@@ -775,9 +903,37 @@ export default function EventsSection() {
 
                             {/* EDIT */}
                             <button
-                              onClick={() => {
+                              onClick={async () => {
                                 setEditingEvent(event);
                                 setIsModalOpen(true);
+                                if (
+                                  event?.id &&
+                                  selectedLangCode &&
+                                  selectedLangCode !== "en"
+                                ) {
+                                  try {
+                                    setIsSwitchingLanguage(true);
+                                    const result =
+                                      await api.translateEventLanguage(
+                                        event.id,
+                                        selectedLangCode,
+                                        true
+                                      );
+                                    setEditingEvent((prev) => ({
+                                      ...prev,
+                                      ...event,
+                                      title: result?.title || event.title,
+                                      description:
+                                        result?.description ?? event.description,
+                                      location:
+                                        result?.location || event.location,
+                                    }));
+                                  } catch (err) {
+                                    console.warn(err);
+                                  } finally {
+                                    setIsSwitchingLanguage(false);
+                                  }
+                                }
                               }}
                               className="p-2 rounded-lg transition-colors"
                               title="Edit Event"
@@ -827,6 +983,18 @@ export default function EventsSection() {
         onAddEvent={handleAddEvent}
         onUpdateEvent={handleUpdateEvent}
         editingEvent={editingEvent}
+        languages={languages}
+        selectedLanguageId={selectedLanguageId}
+        selectedLanguage={selectedLanguage}
+        selectedLangCode={selectedLangCode}
+        openLangMenu={openLangMenu}
+        setOpenLangMenu={setOpenLangMenu}
+        isSwitchingLanguage={isSwitchingLanguage}
+        setIsSwitchingLanguage={setIsSwitchingLanguage}
+        setSelectedLanguageId={setSelectedLanguageId}
+        onLocalized={(fields) => {
+          setEditingEvent((prev) => (prev ? { ...prev, ...fields } : prev));
+        }}
       />
 
       {/* VIEW EVENT MODAL */}

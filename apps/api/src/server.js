@@ -2,7 +2,9 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+import session from "express-session";
 import "./config/env.js";
+import { getMsEnvStatus } from "./config/env.js";
 import { getCandidatePortalOrigin } from "./lib/candidatePortalLinks.js";
 
 import eventsRouter from "./routes/events.js";
@@ -10,12 +12,19 @@ import authRouter from "./routes/auth.js";
 import teamRouter from "./routes/team.js";
 import uploadRouter from "./routes/upload.js";
 import articlesRouter from "./routes/articles.js";
+import articleLanguageRouter, {
+  ensureArticleLanguageTables,
+} from "./routes/articleLanguageRoutes.js";
 import jobsRouter from "./routes/jobs.js";
 import appointmentRouter from "./routes/appointment.js";
 import volunteersRouter from "./routes/volunteers.js";
 import counsellingTypesRouter from "./routes/counsellingTypes.js";
+import counsellingLanguageRouter from "./routes/counsellingLanguageRoutes.js";
+import partnerTestimonialLanguageRouter from "./routes/partnerTestimonialLanguageRoutes.js";
+import eventJobLanguageRouter from "./routes/eventJobLanguageRoutes.js";
 import partnersRouter from "./routes/partners.js";
 import testimonialsRouter from "./routes/testimonials.js";
+import socialMediaRouter from "./routes/socialMedia.js";
 import applicationsRouter from "./routes/applications.js";
 import emailRecipientsRouter from "./routes/emailRecipients.js";
 import formSubmissionEmailsRouter from "./routes/formSubmissionEmails.js";
@@ -32,16 +41,6 @@ import { requireAdmin } from "./middlewares/auth.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-import fs from "fs";
-
-// Debug logging middleware
-app.use((req, res, next) => {
-  try {
-    fs.appendFileSync("c:/Users/Madhavi Latha/OneDrive/Netopsys Projects/Wings-Project/api_debug.log", `[${new Date().toISOString()}] ${req.method} ${req.url}\n`);
-  } catch (e) { }
-  next();
-});
-
 const PORT = process.env.PORT || 5001;
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -95,6 +94,29 @@ app.use(
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+// ── Express Session ────────────────────────────────────────────────────────
+// Required for Microsoft OAuth state storage (CSRF protection).
+// In production: replace the default MemoryStore with Redis or another
+// persistent store (e.g., connect-redis) to avoid session loss on restart.
+const isProductionSession = process.env.NODE_ENV === "production";
+app.use(
+  session({
+    name: "wings_session",
+    secret: process.env.SESSION_SECRET || "wings-session-secret-change-in-prod",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: isProductionSession,   // true in production (requires HTTPS)
+      sameSite: "lax",
+      maxAge: 10 * 60 * 1000,       // 10 minutes — only needed during OAuth flow
+    },
+    // TODO (production): Replace MemoryStore with a persistent store:
+    // const RedisStore = require("connect-redis")(session);
+    // store: new RedisStore({ client: redisClient }),
+  })
+);
+
 const uploadsPath = path.resolve(__dirname, "../uploads");
 app.use("/api/uploads", express.static(uploadsPath));
 
@@ -112,10 +134,16 @@ app.get("/api/test", (_req, res) => {
 
 // Add health check endpoint
 app.get("/api/health", (_req, res) => {
+  const ms = getMsEnvStatus();
   res.json({
     status: "OK",
     server: "Running",
-    timestamp: new Date()
+    timestamp: new Date(),
+    project: "Wings-Project 28July / Wings-Project 23July",
+    cwd: process.cwd(),
+    envPath: ms.envPath,
+    microsoftConfigured: ms.configured,
+    microsoftMissing: ms.missing,
   });
 });
 
@@ -127,7 +155,11 @@ app.use("/api", authRouter);
 app.use("/api", eventsRouter);
 app.use("/api", teamRouter);
 app.use("/api", articlesRouter);
-app.use("/api", jobsRouter);
+app.use("/api", articleLanguageRouter);
+app.use("/api", counsellingLanguageRouter);
+app.use("/api", partnerTestimonialLanguageRouter);
+  app.use("/api", eventJobLanguageRouter);
+  app.use("/api", jobsRouter);
 app.use("/api", uploadRouter);
 app.use("/api", applicationsRouter);
 app.use("/api", candidatesRouter);
@@ -140,6 +172,7 @@ app.use("/api/volunteers", volunteersRouter);
 app.use("/api/counselling-types", counsellingTypesRouter);
 app.use("/api", partnersRouter);
 app.use("/api", testimonialsRouter);
+app.use("/api", socialMediaRouter);
 const DEFAULT_INTERVIEW_SLOT_SETTINGS = [
   { round: 1, timeSlot: "07:30", isActive: true },
   { round: 1, timeSlot: "08:30", isActive: true },
@@ -850,6 +883,13 @@ app.delete("/api/categories/:id", requireAdmin, async (req, res) => {
   }
 });
 
+// Global error handler - catches unhandled errors so browser never gets ERR_EMPTY_RESPONSE
+app.use((err, _req, res, _next) => {
+  console.error("[Server] Unhandled error:", err?.message, err?.stack);
+  if (res.headersSent) return;
+  res.status(500).json({ error: err?.message || "Internal server error" });
+});
+
 const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`🌐 API URL: http://localhost:${PORT}/api`);
@@ -889,6 +929,7 @@ void (async () => {
     await ensureInterviewCalendarTables();
     await ensureInterviewAvailabilityTable();
     await ensureNotifyTables();
+    await ensureArticleLanguageTables();
   } catch (err) {
     console.error("[DB] startup bootstrap:", err?.message);
   }

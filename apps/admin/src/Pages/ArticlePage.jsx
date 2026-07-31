@@ -8,7 +8,7 @@ import { useAppointment } from "@/context/AppointmentContext";
 import { getArticleDetailPath } from "@/lib/articlePageContent";
 
 export default function ArticlePage() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [, navigate] = useLocation();
     const { openModal } = useAppointment();
 
@@ -73,10 +73,11 @@ export default function ArticlePage() {
         }
     };
 
-    // FETCH ARTICLES
+    // FETCH ARTICLES (localized by navbar language)
     const fetchArticles = async () => {
         try {
-            const response = await fetch("/api/articles");
+            const lang = (i18n.language || "en").split("-")[0];
+            const response = await fetch(`/api/articles?lang=${encodeURIComponent(lang)}`);
 
             if (!response.ok) {
                 throw new Error("Failed to fetch articles");
@@ -96,7 +97,7 @@ export default function ArticlePage() {
 
     useEffect(() => {
         fetchArticles();
-    }, []);
+    }, [i18n.language]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {

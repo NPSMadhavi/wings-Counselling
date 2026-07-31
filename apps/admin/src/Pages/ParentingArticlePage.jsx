@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Copy, Share2, Check } from "lucide-react";
 import { Footer } from "@/components/Layout/Footer";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { useAppointment } from "@/context/AppointmentContext";
+import { scrollToArticleDetailsWithRetry } from "@/lib/scrollToSection";
 
 const heroImg = "/assets/ihero1.jpeg";
 const introImg = "/assets/img4.jpg";
@@ -36,6 +37,10 @@ export default function ParentingArticlePage() {
   const articleRef = useRef(null);
   const mainContentRef = useRef(null);
   const [copied, setCopied] = useState(false);
+
+  useLayoutEffect(() => {
+    scrollToArticleDetailsWithRetry({ behavior: "auto" });
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -174,9 +179,7 @@ export default function ParentingArticlePage() {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
-                  document
-                    .getElementById("anxiety-article")
-                    ?.scrollIntoView({ behavior: "smooth" });
+                  scrollToArticleDetailsWithRetry({ behavior: "smooth" });
                 }}
                 className="group flex items-center justify-center gap-2 cursor-pointer rounded-full bg-[#15467B] min-h-[3.75rem] h-auto py-3 px-6 sm:px-8 mt-9"
               >

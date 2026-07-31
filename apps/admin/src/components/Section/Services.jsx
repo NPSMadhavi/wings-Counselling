@@ -95,7 +95,7 @@
 
   /* ─── Main Component ───────────────────────────────────────── */
   export function Services() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const scrollRef = useRef(null);
     const sectionRef = useRef(null);
 
@@ -117,10 +117,11 @@
     /* Fetch services from backend */
     useEffect(() => {
       let cancelled = false;
+      const lang = (i18n.language || "en").split("-")[0];
 
       const loadServices = async () => {
         try {
-          const response = await fetch("/api/counselling-types");
+          const response = await fetch(`/api/counselling-types?lang=${encodeURIComponent(lang)}`);
           const json = await response.json();
 
           if (!cancelled && json.success && Array.isArray(json.data)) {
@@ -150,7 +151,7 @@
       return () => {
         cancelled = true;
       };
-    }, []);
+    }, [i18n.language]);
 
     /* Responsive Cards */
     useEffect(() => {

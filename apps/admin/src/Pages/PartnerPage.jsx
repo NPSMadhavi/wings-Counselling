@@ -26,7 +26,7 @@ const FALLBACK_PARTNERS = [
 const PAGE_SIZE = 3;
 
 const PartnerPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [partners, setPartners] = useState(FALLBACK_PARTNERS);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
@@ -36,10 +36,13 @@ const PartnerPage = () => {
 
   useEffect(() => {
     let cancelled = false;
+    const lang = (i18n.language || "en").split("-")[0];
 
     const loadPartners = async () => {
       try {
-        const response = await fetch("/api/partners");
+        const response = await fetch(
+          `/api/partners?lang=${encodeURIComponent(lang)}`
+        );
         if (!response.ok) throw new Error("Failed to fetch partners");
 
         const data = await response.json();
@@ -58,7 +61,7 @@ const PartnerPage = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [i18n.language]);
 
   const pageCount = Math.max(1, Math.ceil(partners.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);

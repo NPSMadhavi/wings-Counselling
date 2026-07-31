@@ -1,10 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { Plus, Pencil, Trash2, Eye, X, MessageSquareQuote } from "lucide-react";
 import { api } from "../lib/api";
 import { ConfirmDialog, AlertDialog } from "../components/ConfirmDialog";
 import { flushSync } from "react-dom";
+import {
+  AdminLanguageDropdown,
+  useAdminLanguages,
+} from "../components/AdminLanguageDropdown";
 
 const EMPTY = {
   serviceName: "",
@@ -24,12 +28,86 @@ const containerVariants = {
   },
 };
 
-function TestimonialFormModal({ testimonial, onSave, onClose }) {
+function TestimonialFormModal({
+  testimonial,
+  onSave,
+  onClose,
+  languages,
+  selectedLanguageId,
+  selectedLanguage,
+  selectedLangCode,
+  openLangMenu,
+  setOpenLangMenu,
+  isSwitchingLanguage,
+  setIsSwitchingLanguage,
+  setSelectedLanguageId,
+  onLocalized,
+}) {
   const [form, setForm] = useState(testimonial || EMPTY);
   const [saveError, setSaveError] = useState(null);
   const [saving, setSaving] = useState(false);
+  const openedForIdRef = useRef(testimonial?.id ?? "new");
+
+  useEffect(() => {
+    const key = testimonial?.id ?? "new";
+    if (openedForIdRef.current !== key) {
+      openedForIdRef.current = key;
+      setForm(testimonial || EMPTY);
+    }
+  }, [testimonial]);
 
   const set = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
+
+  async function switchLanguage(nextLanguageId) {
+    if (!nextLanguageId || nextLanguageId === selectedLanguageId) {
+      setOpenLangMenu(null);
+      return;
+    }
+    const next = languages.find((l) => l.id === nextLanguageId);
+    if (!next) return;
+
+    try {
+      setIsSwitchingLanguage(true);
+      setOpenLangMenu(null);
+
+      if (form.id && selectedLanguageId) {
+        try {
+          await api.saveTestimonialLanguage(form.id, selectedLanguageId, {
+            serviceName: form.serviceName,
+            description: form.description,
+            clientName: form.clientName,
+            clientCompanyName: form.clientCompanyName,
+          });
+        } catch (persistErr) {
+          console.warn("Could not persist testimonial language:", persistErr);
+        }
+      }
+
+      setSelectedLanguageId(nextLanguageId);
+
+      if (form.id) {
+        const result = await api.translateTestimonialLanguage(
+          form.id,
+          String(next.code).toLowerCase(),
+          true
+        );
+        const nextFields = {
+          serviceName: result?.serviceName || form.serviceName,
+          description: result?.description ?? form.description,
+          clientName: result?.clientName || form.clientName,
+          clientCompanyName:
+            result?.clientCompanyName || form.clientCompanyName,
+        };
+        setForm((prev) => ({ ...prev, ...nextFields }));
+        onLocalized?.(nextFields);
+      }
+    } catch (err) {
+      console.error(err);
+      setSaveError(err?.message || "Failed to switch language");
+    } finally {
+      setIsSwitchingLanguage(false);
+    }
+  }
 
   async function save() {
     if (saving) return;
@@ -54,6 +132,8 @@ function TestimonialFormModal({ testimonial, onSave, onClose }) {
         description: form.description,
         clientName: form.clientName.trim(),
         clientCompanyName: form.clientCompanyName,
+        language_id: selectedLanguageId || undefined,
+        language_code: selectedLangCode,
       });
     } catch (err) {
       setSaveError(err.message || "Saving testimonial failed. Please try again.");
@@ -75,8 +155,8 @@ function TestimonialFormModal({ testimonial, onSave, onClose }) {
           exit={{ opacity: 0, scale: 0.95 }}
           className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden"
         >
-          <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center">
-            <div>
+          <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center gap-3">
+            <div className="min-w-0">
               <h3 className="text-2xl font-bold text-white">
                 {testimonial?.id ? "Edit Testimonial" : "Add Testimonial"}
               </h3>
@@ -84,12 +164,25 @@ function TestimonialFormModal({ testimonial, onSave, onClose }) {
                 Service name, description, client name and company
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="text-white hover:text-blue-200 transition-colors p-2 hover:bg-white/10 rounded-full"
-            >
-              <X size={20} />
-            </button>
+            <div className="flex items-center gap-3 shrink-0">
+              <AdminLanguageDropdown
+                light
+                menuId="modal"
+                languages={languages}
+                selectedLanguageId={selectedLanguageId}
+                selectedLanguage={selectedLanguage}
+                openLangMenu={openLangMenu}
+                setOpenLangMenu={setOpenLangMenu}
+                isSwitchingLanguage={isSwitchingLanguage}
+                onSelect={switchLanguage}
+              />
+              <button
+                onClick={onClose}
+                className="text-white hover:text-blue-200 transition-colors p-2 hover:bg-white/10 rounded-full"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
@@ -231,32 +324,103 @@ export default function TestimonialsAdmin() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [loading, setLoading] = useState(true);
   const [, navigate] = useLocation();
+  const {
+    languages,
+    selectedLanguageId,
+    setSelectedLanguageId,
+    selectedLanguage,
+    selectedLangCode,
+    openLangMenu,
+    setOpenLangMenu,
+    isSwitchingLanguage,
+    setIsSwitchingLanguage,
+  } = useAdminLanguages();
 
   useEffect(() => {
+    // While modal is open, skip list reload (avoids unmounting the popup)
+    if (editing) return;
     load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLanguageId]);
 
-  async function load() {
-    setLoading(true);
+  async function load({ silent = false } = {}) {
+    if (!silent) setLoading(true);
     try {
-      const data = await api.getTestimonials();
+      const data = await api.getTestimonials(selectedLangCode);
       setTestimonials(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
       setTestimonials([]);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }
 
   async function save(testimonial) {
+    const payload = {
+      serviceName: testimonial.serviceName,
+      description: testimonial.description,
+      clientName: testimonial.clientName,
+      clientCompanyName: testimonial.clientCompanyName,
+      language_id: testimonial.language_id || selectedLanguageId || undefined,
+      language_code: testimonial.language_code || selectedLangCode,
+    };
+
+    let savedId = testimonial.id;
     if (testimonial.id) {
-      await api.updateTestimonial(testimonial.id, testimonial);
+      await api.updateTestimonial(testimonial.id, payload);
     } else {
-      await api.createTestimonial(testimonial);
+      const created = await api.createTestimonial(payload);
+      savedId = created?.id || testimonial.id;
     }
+
+    if (savedId && (payload.language_id || selectedLanguageId)) {
+      try {
+        await api.saveTestimonialLanguage(
+          savedId,
+          payload.language_id || selectedLanguageId,
+          {
+            serviceName: payload.serviceName,
+            description: payload.description,
+            clientName: payload.clientName,
+            clientCompanyName: payload.clientCompanyName,
+          }
+        );
+      } catch {
+        /* ignore */
+      }
+    }
+
     setEditing(null);
+    setOpenLangMenu(null);
     await load();
+  }
+
+  async function openEdit(testimonial) {
+    setOpenLangMenu(null);
+    setEditing(testimonial);
+    if (testimonial?.id && selectedLangCode && selectedLangCode !== "en") {
+      try {
+        setIsSwitchingLanguage(true);
+        const result = await api.translateTestimonialLanguage(
+          testimonial.id,
+          selectedLangCode,
+          true
+        );
+        setEditing({
+          ...testimonial,
+          serviceName: result?.serviceName || testimonial.serviceName,
+          description: result?.description ?? testimonial.description,
+          clientName: result?.clientName || testimonial.clientName,
+          clientCompanyName:
+            result?.clientCompanyName || testimonial.clientCompanyName,
+        });
+      } catch {
+        /* keep */
+      } finally {
+        setIsSwitchingLanguage(false);
+      }
+    }
   }
 
   function getTestimonialId(testimonial) {
@@ -321,13 +485,33 @@ export default function TestimonialsAdmin() {
                 </h1>
               </div>
             </div>
-            <button
-              onClick={() => setEditing(EMPTY)}
-              className="px-6 py-3 bg-[#0D4A7A] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-            >
-              <Plus size={18} />
-              Add Testimonial
-            </button>
+            <div className="flex items-center gap-3 flex-wrap">
+              {!editing && (
+                <AdminLanguageDropdown
+                  menuId="header"
+                  languages={languages}
+                  selectedLanguageId={selectedLanguageId}
+                  selectedLanguage={selectedLanguage}
+                  openLangMenu={openLangMenu}
+                  setOpenLangMenu={setOpenLangMenu}
+                  isSwitchingLanguage={isSwitchingLanguage}
+                  onSelect={(id) => {
+                    setOpenLangMenu(null);
+                    setSelectedLanguageId(id);
+                  }}
+                />
+              )}
+              <button
+                onClick={() => {
+                  setOpenLangMenu(null);
+                  setEditing(EMPTY);
+                }}
+                className="px-6 py-3 bg-[#0D4A7A] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+              >
+                <Plus size={18} />
+                Add Testimonial
+              </button>
+            </div>
           </div>
 
           <motion.div
@@ -382,7 +566,7 @@ export default function TestimonialsAdmin() {
                               <Eye size={16} />
                             </button>
                             <button
-                              onClick={() => setEditing(item)}
+                              onClick={() => openEdit(item)}
                               className="p-2 rounded-lg text-gray-500 hover:bg-gray-100"
                               title="Edit"
                             >
@@ -423,7 +607,23 @@ export default function TestimonialsAdmin() {
         <TestimonialFormModal
           testimonial={editing}
           onSave={save}
-          onClose={() => setEditing(null)}
+          onClose={() => {
+            setEditing(null);
+            setOpenLangMenu(null);
+            load({ silent: true });
+          }}
+          languages={languages}
+          selectedLanguageId={selectedLanguageId}
+          selectedLanguage={selectedLanguage}
+          selectedLangCode={selectedLangCode}
+          openLangMenu={openLangMenu}
+          setOpenLangMenu={setOpenLangMenu}
+          isSwitchingLanguage={isSwitchingLanguage}
+          setIsSwitchingLanguage={setIsSwitchingLanguage}
+          setSelectedLanguageId={setSelectedLanguageId}
+          onLocalized={(fields) =>
+            setEditing((prev) => (prev ? { ...prev, ...fields } : prev))
+          }
         />
       )}
 

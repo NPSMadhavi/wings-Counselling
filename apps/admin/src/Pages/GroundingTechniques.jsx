@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Copy, Share2, Check } from "lucide-react";
 import { Footer } from "@/components/Layout/Footer";
@@ -15,6 +15,7 @@ import {
   extractFirstParagraphFromHtml,
 } from "@/lib/articlePageContent";
 import { resolveAssetUrl } from "@/admin/lib/api";
+import { scrollToArticleDetailsWithRetry } from "@/lib/scrollToSection";
 
 const heroImg = "/assets/articlesection.jpeg";
 const introImg = "/assets/img4.jpg";
@@ -44,7 +45,7 @@ const styles = {
 export default function AnxietyArticlePage() {
   const [, navigate] = useLocation();
   const [isArticleRoute, articleParams] = useRoute("/article/:slug");
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { openModal } = useAppointment();
   const [activeSection, setActiveSection] = useState("what-is-anxiety");
   const articleRef = useRef(null);
@@ -53,6 +54,11 @@ export default function AnxietyArticlePage() {
 
   const [customContent, setCustomContent] = useState(null);
   const [sections, setSections] = useState(DEFAULT_SECTIONS);
+
+  const uiLang = useMemo(
+    () => (i18n.language || "en").toLowerCase().split("-")[0],
+    [i18n.language]
+  );
 
   // Prefer /article/:slug path param; also support legacy ?slug=
   const urlSlug = useMemo(() => {
@@ -85,7 +91,7 @@ export default function AnxietyArticlePage() {
     }
   };
 
-  // Load THIS article from backend by slug — never reuse another article's data
+  // Load THIS article from backend by slug + current UI language
   useEffect(() => {
     let cancelled = false;
 
@@ -97,39 +103,38 @@ export default function AnxietyArticlePage() {
       }
 
       try {
-        const res = await fetch("/api/articles");
-        if (!res.ok) throw new Error("Failed to fetch articles");
-        const articles = await res.json();
-        if (!Array.isArray(articles) || cancelled) return;
-
         let match = null;
+
         if (urlSlug) {
-          match = articles.find(
-            (a) => (a.slug || "").toLowerCase() === urlSlug.toLowerCase()
+          const res = await fetch(
+            `/api/articles/by-slug/${encodeURIComponent(urlSlug)}?lang=${encodeURIComponent(uiLang)}`
           );
-        }
-        // Legacy /GroundingTechniques with no slug → keep default template
-        if (!match && !urlSlug) {
+          if (res.ok) {
+            match = await res.json();
+          }
+        } else {
+          const res = await fetch(`/api/articles?lang=${encodeURIComponent(uiLang)}`);
+          if (!res.ok) throw new Error("Failed to fetch articles");
+          const articles = await res.json();
+          if (!Array.isArray(articles) || cancelled) return;
+          // Legacy /GroundingTechniques with no slug → keep default template
           if (!cancelled) {
             setCustomContent(null);
             setSections(DEFAULT_SECTIONS);
           }
           return;
         }
+
+        if (cancelled) return;
         if (!match) return;
 
         const pageKey = getPageKeyFromCategory(match.category) || PAGE_KEY;
-        const stored = loadPageContent(pageKey, match.slug) || {};
 
-        // Backend is source of truth for each article.
+        // Backend localized content is source of truth for each language
         const htmlFromBackend = (match.content || "").trim();
-        const htmlFromLocal =
-          stored.slug === match.slug && (stored.html || "").trim()
-            ? stored.html
-            : "";
 
         const next = {
-          html: htmlFromBackend || htmlFromLocal || "",
+          html: htmlFromBackend || "",
           title: match.title || "",
           author: match.author || "WINGS Team",
           excerpt: match.excerpt || "",
@@ -137,10 +142,12 @@ export default function AnxietyArticlePage() {
             ? resolveAssetUrl(match.coverImage)
             : "",
           slug: match.slug || "",
+          language: match.language || uiLang,
           updatedAt: match.updatedAt || match.publishedAt || null,
         };
 
-        savePageContent(pageKey, next);
+        // Cache per language so localStorage doesn't overwrite other langs
+        savePageContent(`${pageKey}:${uiLang}`, next);
         if (!cancelled) applyArticleData(next);
       } catch (err) {
         console.error("Failed to load article from backend", err);
@@ -150,7 +157,7 @@ export default function AnxietyArticlePage() {
     return () => {
       cancelled = true;
     };
-  }, [urlSlug]);
+  }, [urlSlug, uiLang]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -204,6 +211,11 @@ export default function AnxietyArticlePage() {
         day: "numeric",
       })
     : "february 27, 2026";
+
+  // Card click → land below hero on article content (not hero top)
+  useLayoutEffect(() => {
+    scrollToArticleDetailsWithRetry({ behavior: "auto" });
+  }, [urlSlug, displayTitle]);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href).then(() => {
@@ -314,9 +326,7 @@ export default function AnxietyArticlePage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
-                  document
-                    .getElementById("anxiety-article")
-                    ?.scrollIntoView({ behavior: "smooth" });
+                  scrollToArticleDetailsWithRetry({ behavior: "smooth" });
                 }}
                 className="flex items-center justify-center gap-2.5 min-h-[3.75rem] h-auto py-3 px-6 sm:px-8 rounded-full bg-[#1B4585] cursor-pointer"
               >

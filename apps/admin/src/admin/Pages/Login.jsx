@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
-import { Eye, EyeOff, Lock, User } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 export default function Login() {
   const { login } = useAuth();
   const [, navigate] = useLocation();
 
-  const [u, setU] = useState("");
+  const [email, setEmail] = useState("");
   const [p, setP] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [err, setErr] = useState("");
@@ -21,11 +21,18 @@ export default function Login() {
     setErr("");
 
     try {
-      const { token } = await api.login(u, p);
+      const { token } = await api.login(email.trim(), p);
       login(token);
       navigate("/admin");
     } catch (error) {
-      setErr("Invalid username or password");
+      const msg = error instanceof Error ? error.message : "";
+      if (/invalid credentials/i.test(msg)) {
+        setErr("Invalid email or password");
+      } else if (/failed to fetch|network|load failed/i.test(msg) || !msg) {
+        setErr("Cannot reach server. Make sure the API is running on port 5001.");
+      } else {
+        setErr(msg || "Invalid email or password");
+      }
     } finally {
       setLoading(false);
     }
@@ -36,7 +43,6 @@ export default function Login() {
       className="min-h-screen relative flex items-center justify-center p-4"
       style={{ fontFamily: "'Nunito',sans-serif" }}
     >
-      {/* VIDEO BACKGROUND */}
       <video
         autoPlay
         muted
@@ -46,7 +52,6 @@ export default function Login() {
         src="/assets/hero-video.mp4"
       />
 
-      {/* DARK OVERLAY */}
       <div
         className="absolute inset-0"
         style={{
@@ -55,9 +60,8 @@ export default function Login() {
         }}
       />
 
-      {/* LOGIN CARD */}
       <div
-        className="relative z-10 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl bg-white"
+        className="relative z-10 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl bg-white"
         style={{
           backgroundImage:
             "url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27400%27 height=%27400%27%3E%3Cfilter id=%27noise%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.75%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3CfeColorMatrix type=%27saturate%27 values=%270%27/%3E%3C/filter%3E%3Crect width=%27400%27 height=%27400%27 filter=%27url(%23noise)%27 opacity=%270.04%27/%3E%3C/svg%3E')",
@@ -65,7 +69,6 @@ export default function Login() {
             "0 32px 80px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.1)",
         }}
       >
-        {/* TOP STRIP */}
         <div
           style={{
             height: 5,
@@ -73,7 +76,6 @@ export default function Login() {
           }}
         />
 
-        {/* HEADER */}
         <div className="pt-8 pb-6 px-8 text-center border-b border-gray-100">
           <img
             src="/assets/wingsLogo.png"
@@ -88,7 +90,6 @@ export default function Login() {
           </p>
         </div>
 
-        {/* FORM */}
         <div className="px-8 pt-6 pb-4">
           <div className="text-center mb-5 py-2 rounded-xl bg-gradient-to-r from-blue-700 to-blue-900">
             <p className="text-white text-xs font-bold uppercase tracking-widest">
@@ -97,29 +98,28 @@ export default function Login() {
           </div>
 
           <form onSubmit={submit} className="flex flex-col gap-4">
-
-            {/* USERNAME */}
             <div>
               <label className="text-xs font-bold mb-1 block text-gray-600 uppercase">
-                Username
+                Email
               </label>
 
               <div className="relative">
-                <User
+                <Mail
                   size={15}
                   className="absolute left-3 top-3 text-gray-400"
                 />
                 <input
-                  value={u}
-                  onChange={(e) => setU(e.target.value)}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
+                  autoComplete="email"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm font-semibold bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-700"
-                  placeholder="Enter username"
+                  placeholder="Enter email"
                 />
               </div>
             </div>
 
-            {/* PASSWORD */}
             <div>
               <label className="text-xs font-bold mb-1 block text-gray-600 uppercase">
                 Password
@@ -136,6 +136,7 @@ export default function Login() {
                   value={p}
                   onChange={(e) => setP(e.target.value)}
                   required
+                  autoComplete="current-password"
                   className="w-full pl-10 pr-10 py-2.5 rounded-xl text-sm font-semibold bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-700"
                   placeholder="Enter password"
                 />
@@ -150,14 +151,12 @@ export default function Login() {
               </div>
             </div>
 
-            {/* ERROR */}
             {err && (
               <div className="text-red-600 text-xs font-semibold bg-red-50 border border-red-200 p-2 rounded-lg text-center">
                 {err}
               </div>
             )}
 
-            {/* BUTTON */}
             <button
               type="submit"
               disabled={loading}
@@ -168,7 +167,6 @@ export default function Login() {
           </form>
         </div>
 
-        {/* FOOTER */}
         <div className="px-8 py-4 text-center border-t border-gray-100">
           <p className="text-xs text-gray-400">
             WINGS Counselling Centre © {new Date().getFullYear()}

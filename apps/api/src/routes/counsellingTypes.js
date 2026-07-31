@@ -1,8 +1,29 @@
 import express from "express";
 import { db, columnExists } from "../config/db.js";
 import { isUniqueViolation } from "../config/pg-helpers.js";
+import {
+  ensureCounsellingLanguageTables,
+  localizeCounsellingTree,
+  localizeSubTypeDetail,
+  saveTypeLocalization,
+  saveSubTypeLocalization,
+} from "../services/counsellingTranslate.js";
 
 const router = express.Router();
+
+function normalizeLangCode(value) {
+  return String(value || "en")
+    .toLowerCase()
+    .split("-")[0];
+}
+
+async function getLanguageIdByCode(code) {
+  const [rows] = await db.query(
+    `SELECT id FROM languages WHERE LOWER(code) = ? LIMIT 1`,
+    [normalizeLangCode(code)]
+  );
+  return rows[0]?.id || null;
+}
 
 function parseTeamMemberIds(value) {
   if (!value) return [];
@@ -67,6 +88,12 @@ async function ensureCounsellingSchema() {
   if (!(await columnExists("counselling_sub_types", "team_member_ids"))) {
     await db.query(`ALTER TABLE counselling_sub_types ADD COLUMN team_member_ids TEXT`);
   }
+
+  try {
+    await ensureCounsellingLanguageTables();
+  } catch (err) {
+    console.warn("[counselling] language tables:", err?.message);
+  }
 }
 
 function parseJsonArray(value) {
@@ -120,15 +147,12 @@ ensureCounsellingSchema().catch((err) => {
 });
 
 /* ================= GET ================= */
-/* ================= GET ================= */
-router.get("/", async (_req, res) => {
-
+router.get("/", async (req, res) => {
   try {
     await ensureCounsellingSchema();
 
-    console.log("GET COUNSELLING TYPES API HIT");
+    const lang = normalizeLangCode(req.query.lang);
 
-    /* MAIN TYPES */
     const [types] = await db.query(`
       SELECT
         id,
@@ -139,9 +163,6 @@ router.get("/", async (_req, res) => {
       ORDER BY id DESC
     `);
 
-    console.log("MAIN TYPES:", types);
-
-    /* SUB TYPES */
     const [subTypes] = await db.query(`
       SELECT
         id,
@@ -156,47 +177,32 @@ router.get("/", async (_req, res) => {
       ORDER BY id DESC
     `);
 
-    console.log("SUB TYPES:", subTypes);
-
-    /* GROUP SUB TYPES */
     const groupedSubTypes = {};
-
     subTypes.forEach((sub) => {
-
       const parentId = sub.counselling_type_id;
-
-      if (!groupedSubTypes[parentId]) {
-        groupedSubTypes[parentId] = [];
-      }
-
+      if (!groupedSubTypes[parentId]) groupedSubTypes[parentId] = [];
       groupedSubTypes[parentId].push(normalizeSubTypeRow(sub));
     });
 
-    /* FINAL DATA */
-    const finalData = types.map((type) => ({
+    let finalData = types.map((type) => ({
       id: type.id,
       name: type.name,
       description: type.description,
       is_active: Boolean(type.is_active),
-
-      sub_types:
-        groupedSubTypes[type.id] || []
+      sub_types: groupedSubTypes[type.id] || [],
     }));
 
-    console.log("FINAL DATA:", finalData);
+    if (lang && lang !== "en") {
+      finalData = await localizeCounsellingTree(finalData, lang);
+    }
 
     return res.status(200).json({
       success: true,
       data: finalData,
+      lang,
     });
-
   } catch (error) {
-
-    console.log(
-      "GET COUNSELLING TYPES ERROR:",
-      error
-    );
-
+    console.log("GET COUNSELLING TYPES ERROR:", error);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -210,6 +216,7 @@ router.get("/sub/:id", async (req, res) => {
     await ensureCounsellingSchema();
 
     const { id } = req.params;
+    const lang = normalizeLangCode(req.query.lang);
     const [rows] = await db.query(
       `SELECT
         st.id,
@@ -236,18 +243,25 @@ router.get("/sub/:id", async (req, res) => {
     const team_member_ids = parseTeamMemberIds(row.team_member_ids);
     const team_members = await fetchTeamMembersByIds(team_member_ids);
 
+    let data = {
+      ...normalizeSubTypeRow(row),
+      counselling_type_id: row.counselling_type_id,
+      parent_type: {
+        id: row.counselling_type_id,
+        name: row.parent_name,
+        description: row.parent_description,
+      },
+      team_members,
+    };
+
+    if (lang && lang !== "en") {
+      data = await localizeSubTypeDetail(data, lang);
+    }
+
     return res.status(200).json({
       success: true,
-      data: {
-        ...normalizeSubTypeRow(row),
-        counselling_type_id: row.counselling_type_id,
-        parent_type: {
-          id: row.counselling_type_id,
-          name: row.parent_name,
-          description: row.parent_description,
-        },
-        team_members,
-      },
+      data,
+      lang,
     });
   } catch (error) {
     return res.status(500).json({
@@ -270,12 +284,22 @@ router.post("/create", async (req, res) => {
       heading,
       image_url,
       team_member_ids,
+      language_id: bodyLanguageId,
+      language_code: bodyLanguageCode,
     } = req.body;
 
     if (!name || typeof name !== "string") {
       return res.status(400).json({
         message: "Counselling type name is required",
       });
+    }
+
+    let languageId = bodyLanguageId ? Number(bodyLanguageId) : null;
+    if (!languageId && bodyLanguageCode) {
+      languageId = await getLanguageIdByCode(bodyLanguageCode);
+    }
+    if (!languageId) {
+      languageId = await getLanguageIdByCode("en");
     }
 
     if (counselling_type_id) {
@@ -303,6 +327,19 @@ router.post("/create", async (req, res) => {
         ]
       );
 
+      if (languageId) {
+        try {
+          await ensureCounsellingLanguageTables();
+          await saveSubTypeLocalization(result.insertId, languageId, {
+            name: name.trim(),
+            description: description || "",
+            heading: heading?.trim() || "",
+          });
+        } catch (err) {
+          console.warn("[counselling] save sub localization:", err?.message);
+        }
+      }
+
       return res.status(201).json({
         message: "Sub counselling type added successfully",
         data: {
@@ -321,6 +358,18 @@ router.post("/create", async (req, res) => {
       `INSERT INTO counselling_types (name, description) VALUES (?, ?)`,
       [name.trim(), description || null]
     );
+
+    if (languageId) {
+      try {
+        await ensureCounsellingLanguageTables();
+        await saveTypeLocalization(result.insertId, languageId, {
+          name: name.trim(),
+          description: description || "",
+        });
+      } catch (err) {
+        console.warn("[counselling] save type localization:", err?.message);
+      }
+    }
 
     res.status(201).json({
       message: "Main counselling type added successfully",
@@ -350,36 +399,109 @@ router.put("/:id", async (req, res) => {
       heading,
       image_url,
       team_member_ids,
+      language_id: bodyLanguageId,
+      language_code: bodyLanguageCode,
     } = req.body;
 
     if (!name || typeof name !== "string") {
       return res.status(400).json({ message: "Name is required" });
     }
 
-    if (counselling_type_id) {
+    let languageId = bodyLanguageId ? Number(bodyLanguageId) : null;
+    if (!languageId && bodyLanguageCode) {
+      languageId = await getLanguageIdByCode(bodyLanguageCode);
+    }
+    const langCode = bodyLanguageCode
+      ? normalizeLangCode(bodyLanguageCode)
+      : languageId
+        ? null
+        : "en";
+
+    let resolvedLangCode = langCode;
+    if (languageId && !resolvedLangCode) {
+      const [langRows] = await db.query(
+        `SELECT code FROM languages WHERE id = ? LIMIT 1`,
+        [languageId]
+      );
+      resolvedLangCode = normalizeLangCode(langRows[0]?.code || "en");
+    }
+    if (!resolvedLangCode) resolvedLangCode = "en";
+    if (!languageId) {
+      languageId = await getLanguageIdByCode(resolvedLangCode);
+    }
+
+    const isEnglish = resolvedLangCode === "en";
+
+    if (counselling_type_id || String(req.query.is_sub_type) === "true") {
       const teamIdsJson = JSON.stringify(parseTeamMemberIds(team_member_ids));
 
-      await db.query(
-        `UPDATE counselling_sub_types
-         SET counselling_type_id=?, name=?, description=?, heading=?, image_url=?, team_member_ids=?
-         WHERE id=?`,
-        [
-          counselling_type_id,
-          name.trim(),
-          description || null,
-          heading?.trim() || null,
-          image_url?.trim() || null,
-          teamIdsJson,
-          id,
-        ]
-      );
+      if (isEnglish) {
+        await db.query(
+          `UPDATE counselling_sub_types
+           SET counselling_type_id=COALESCE(?, counselling_type_id),
+               name=?, description=?, heading=?, image_url=?, team_member_ids=?
+           WHERE id=?`,
+          [
+            counselling_type_id || null,
+            name.trim(),
+            description || null,
+            heading?.trim() || null,
+            image_url?.trim() || null,
+            teamIdsJson,
+            id,
+          ]
+        );
+      } else if (image_url !== undefined || team_member_ids !== undefined || counselling_type_id) {
+        // Non-text fields stay shared across languages
+        await db.query(
+          `UPDATE counselling_sub_types
+           SET counselling_type_id=COALESCE(?, counselling_type_id),
+               image_url=COALESCE(?, image_url),
+               team_member_ids=COALESCE(?, team_member_ids)
+           WHERE id=?`,
+          [
+            counselling_type_id || null,
+            image_url?.trim() || null,
+            team_member_ids != null ? teamIdsJson : null,
+            id,
+          ]
+        );
+      }
+
+      if (languageId) {
+        try {
+          await ensureCounsellingLanguageTables();
+          await saveSubTypeLocalization(Number(id), languageId, {
+            name: name.trim(),
+            description: description || "",
+            heading: heading?.trim() || "",
+          });
+        } catch (err) {
+          console.warn("[counselling] update sub localization:", err?.message);
+        }
+      }
+
       return res.json({ message: "Sub counselling type updated successfully" });
     }
 
-    await db.query(
-      `UPDATE counselling_types SET name=?, description=? WHERE id=?`,
-      [name.trim(), description || null, id]
-    );
+    if (isEnglish) {
+      await db.query(
+        `UPDATE counselling_types SET name=?, description=? WHERE id=?`,
+        [name.trim(), description || null, id]
+      );
+    }
+
+    if (languageId) {
+      try {
+        await ensureCounsellingLanguageTables();
+        await saveTypeLocalization(Number(id), languageId, {
+          name: name.trim(),
+          description: description || "",
+        });
+      } catch (err) {
+        console.warn("[counselling] update type localization:", err?.message);
+      }
+    }
 
     res.json({
       message: "Main counselling type updated successfully",
