@@ -53,9 +53,9 @@ pool.on("error", (err) => {
 });
 
 async function runQuery(client, sql, params = []) {
-  const { text, values, isInsert } = prepareQuery(sql, params);
+  const { text, values, isModification } = prepareQuery(sql, params);
   const result = await client.query(text, values);
-  return formatQueryResult(result, isInsert);
+  return formatQueryResult(result, isModification);
 }
 
 async function query(sql, params = []) {

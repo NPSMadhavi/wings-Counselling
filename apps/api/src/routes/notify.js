@@ -6,6 +6,7 @@ import {
   getSubscriberByToken,
   unsubscribeByToken,
   listNotifySubscribersForAdmin,
+  deleteNotifySubscriber,
 } from "../lib/notifyService.js";
 import { sendSubscribeConfirmationEmail } from "../lib/email.js";
 import { requireAdmin } from "../middlewares/auth.js";
@@ -172,6 +173,19 @@ router.get("/admin/notify-subscribers", requireAdmin, async (_req, res) => {
   } catch (err) {
     console.error("[Notify] admin list error:", err?.message);
     return res.status(500).json({ error: "Failed to load notify subscribers." });
+  }
+});
+
+/* DELETE /api/admin/notify-subscribers/:id — delete a notify subscriber */
+router.delete("/admin/notify-subscribers/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!id) return res.status(400).json({ error: "Invalid id." });
+    await deleteNotifySubscriber(id);
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("[Notify] admin delete error:", err?.message);
+    return res.status(500).json({ error: "Failed to delete subscriber." });
   }
 });
 

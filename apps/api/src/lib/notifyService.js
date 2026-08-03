@@ -315,3 +315,10 @@ export async function listNotifySubscribersForAdmin() {
     events: rows.filter((r) => r.type === "event").map(mapRow),
   };
 }
+
+/** Admin — delete a notify subscriber by id. */
+export async function deleteNotifySubscriber(id) {
+  await ensureNotifyTables();
+  await db.execute(`DELETE FROM notify_subscribers WHERE id = ?`, [Number(id)]);
+  return { ok: true };
+}

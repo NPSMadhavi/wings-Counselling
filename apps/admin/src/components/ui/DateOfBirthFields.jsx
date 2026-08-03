@@ -182,7 +182,7 @@ export function DateOfBirthPicker({ value, onChange, error = false, placeholder 
   return (
     <div ref={containerRef} className="relative w-full">
       {isOpen && (
-        <div className="absolute bottom-full left-0 right-0 z-[100001] mb-2">
+        <div className="absolute top-full left-0 right-0 z-[100001] mt-2">
           <div className="bg-white border border-[#E3E1E1] rounded-[12px] shadow-lg p-4 w-full max-w-[320px] sm:min-w-[280px]">
             {view === "day" && (
               <>

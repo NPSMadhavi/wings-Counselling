@@ -233,6 +233,23 @@ export default function SupportTopicPage() {
     );
   };
 
+  useEffect(() => {
+    const attempt = () => {
+      const el = document.getElementById("support-section");
+      if (!el) return false;
+      const top = el.getBoundingClientRect().top + window.scrollY - 100;
+      window.scrollTo({ top: Math.max(0, top), behavior: "auto" });
+      return true;
+    };
+    if (!attempt()) {
+      setTimeout(attempt, 100);
+      setTimeout(attempt, 350);
+      return;
+    }
+    setTimeout(attempt, 100);
+    setTimeout(attempt, 350);
+  }, [topic?.slug]);
+
   return (
     <div className="bg-[#F5F5F5] text-black overflow-x-hidden">
       {/* Fonts */}
@@ -317,7 +334,10 @@ export default function SupportTopicPage() {
         <div className="navbar-align-inner py-4 sm:py-6 lg:py-10">
           <p className="text-[14px] sm:text-[16px]" style={styles.body}>
             <span
-              onClick={() => navigate("/")}
+              onClick={() => {
+                sessionStorage.setItem("scrollToIssues", "1");
+                navigate("/");
+              }}
               className="underline cursor-pointer hover:opacity-70 transition"
             >
               {t("supportTopic.navigation.backToHome")}

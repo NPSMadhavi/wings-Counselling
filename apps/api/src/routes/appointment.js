@@ -165,8 +165,7 @@ router.post("/", async (req, res) => {
             success: true,
             message: "Appointment created successfully",
             appointment,
-            emailSent,
-            msEmailSent
+            emailSent
         });
 
     } catch (error) {

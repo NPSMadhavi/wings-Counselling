@@ -79,6 +79,7 @@ export function WhatWeDo() {
 
   return (
     <motion.section
+      id="issues"
       ref={sectionRef}
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}

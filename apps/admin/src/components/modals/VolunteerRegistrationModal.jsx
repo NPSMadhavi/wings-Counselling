@@ -73,6 +73,9 @@ const SINGAPORE_PHONE_REGEX = /^[0-9]{8}$/;
 const getSingaporePhoneError = (value, { required = false, t } = {}) => {
   const digits = value.replace(/\D/g, "");
   if (!digits) return required ? (t ? t("volunteerRegistration.validation.step1.phoneRequired") : "Mobile number is required") : "";
+  if (digits.startsWith("0")) {
+    return t ? t("volunteerRegistration.validation.step1.phoneNoZero") || "Phone number cannot start with 0" : "Phone number cannot start with 0";
+  }
   if (!SINGAPORE_PHONE_REGEX.test(digits)) {
     return t ? t("volunteerRegistration.validation.step1.phoneInvalid") : "Enter a valid 8-digit Singapore number";
   }
@@ -117,6 +120,14 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
   // Multiselect interests and days
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [selectedDays, setSelectedDays] = useState([]);
+
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo(0, 0);
+    }
+  }, [step]);
 
   useEffect(() => {
     if (isOpen) {
@@ -553,7 +564,7 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                   onSubmit={step === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }}
                   className="flex flex-col flex-1 min-h-0"
                 >
-                  <div className="flex-1 overflow-y-auto p-6 md:p-8 pt-4 md:pt-6 min-h-0">
+                  <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 md:p-8 pt-4 md:pt-6 min-h-0">
                   {/* Header with icon + title */}
                   <div className="flex items-start gap-4 md:gap-[26px] mb-6 md:mb-8">
                     <div className="w-[56px] h-[56px] md:w-[70px] md:h-[70px] rounded-[18px] bg-[#0D4A7A29] flex items-center justify-center flex-shrink-0">

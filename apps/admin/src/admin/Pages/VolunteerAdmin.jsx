@@ -87,14 +87,11 @@ export default function VolunteerAdmin() {
       const response = await fetch(`${API_BASE}/volunteers/${deleteTarget}`, { method: "DELETE" });
       const data = await response.json();
       if (!response.ok) {
-        alert(data.message || "Delete failed");
         return;
       }
-      alert("Volunteer record deleted successfully");
       setDeleteTarget(null);
       fetchVolunteers();
     } catch {
-      alert("Failed to delete volunteer record");
     } finally {
       setDeleting(false);
     }
@@ -139,14 +136,11 @@ export default function VolunteerAdmin() {
       });
       const data = await response.json();
       if (!response.ok) {
-        alert(data.message || "Update failed");
         return;
       }
-      alert("Volunteer updated successfully");
       setShowModal(false);
       fetchVolunteers();
     } catch {
-      alert("Failed to update volunteer");
     }
   };
 

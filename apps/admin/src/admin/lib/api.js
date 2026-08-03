@@ -295,6 +295,8 @@ export const api = {
     }),
 
   getNotifySubscribers: () => apiFetch("/admin/notify-subscribers"),
+  deleteNotifySubscriber: (id) =>
+    apiFetch(`/admin/notify-subscribers/${id}`, { method: "DELETE" }),
 
   getPartners: (lang) =>
     apiFetch(

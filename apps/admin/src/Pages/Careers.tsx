@@ -465,16 +465,17 @@ export default function Careers() {
                               justify-center
                               gap-[10px]
                               w-full
-                              lg:w-[158px]
+                              lg:w-auto
                               h-[45px]
                               rounded-full
                               border
                               border-[#0D4A7A]
                               bg-white
-                              
+                               px-8
                               group
                               transition-all
                               duration-300
+                              whitespace-nowrap
                             "
                           >
 
@@ -504,8 +505,9 @@ export default function Careers() {
                               justify-center
                               gap-2
                               w-full
-                              lg:w-[158px]
+                              lg:w-auto
                               h-[45px]
+                              px-8
                               rounded-full
                               bg-green-100
                               text-green-700
@@ -539,11 +541,12 @@ export default function Careers() {
                                 justify-center
                                 gap-[10px]
                                 w-full
-                                lg:w-[158px]
+                                lg:w-auto
+                                px-8
                                 h-[45px]
                                 rounded-full
                                 bg-[#0D4A7A]
-                                
+                                whitespace-nowrap
                                 transition-all
                                 duration-300
                               "

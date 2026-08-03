@@ -113,17 +113,14 @@ export default function AppointmentsPage() {
             const data = await response.json();
 
             if (!response.ok) {
-                alert(data.message || "Delete failed");
                 return;
             }
 
-            alert("Appointment deleted successfully");
             setDeleteTarget(null);
             fetchAppointments();
 
         } catch (error) {
             console.log(error);
-            alert("Failed to delete appointment");
         } finally {
             setDeleting(false);
         }
@@ -197,16 +194,14 @@ export default function AppointmentsPage() {
             const data = await response.json();
 
             if (!response.ok) {
-                alert(data.message || "Update failed");
                 return;
             }
 
-            alert("Appointment updated successfully");
             setShowModal(false);
             fetchAppointments();
+
         } catch (error) {
             console.log(error);
-            alert("Failed to update appointment");
         }
     };
 
@@ -425,7 +420,6 @@ export default function AppointmentsPage() {
             setShowExport(false);
         } catch (error) {
             console.error("PDF Export Error:", error);
-            alert("Failed to generate PDF. Please make sure jspdf and html2canvas are installed.");
         }
     };
 
@@ -723,13 +717,6 @@ export default function AppointmentsPage() {
                                                     title="View"
                                                 >
                                                     <Eye size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleEdit(item)}
-                                                    className="w-9 h-9 rounded-xl  flex items-center justify-center hover:scale-105 transition-all"
-                                                    title="Edit"
-                                                >
-                                                    <Pencil size={16} />
                                                 </button>
                                                 <button
                                                     onClick={() => setDeleteTarget(item.id)}

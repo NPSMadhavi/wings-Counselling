@@ -70,8 +70,8 @@ export function Hero() {
       }))
     : [];
 
-  const secondaryButtonText = i18n.exists("hero.learnApproach")
-    ? t("hero.learnApproach")
+  const secondaryButtonText = i18n.exists("hero.exploreServices")
+    ? t("hero.exploreServices")
     : t("hero.exploreServices");
 
   const [currentIndex, setCurrentIndex] = useState(0);

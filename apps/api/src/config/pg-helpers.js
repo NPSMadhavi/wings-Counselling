@@ -27,6 +27,7 @@ export function buildSetClause(data, startIndex = 1) {
 export function prepareQuery(sql, params = []) {
   let text = sql.trim();
   let values = [...params];
+  const isModification = /^(INSERT|UPDATE|DELETE)\s+/i.test(text);
   const isInsert = /^INSERT\s+/i.test(text);
   const hasSetPlaceholder = /\bSET\s+\?/i.test(text);
 
@@ -46,12 +47,12 @@ export function prepareQuery(sql, params = []) {
     text += " RETURNING id";
   }
 
-  return { text, values, isInsert };
+  return { text, values, isModification };
 }
 
 /** Map pg query result to mysql2-compatible tuple */
-export function formatQueryResult(pgResult, isInsert) {
-  if (isInsert) {
+export function formatQueryResult(pgResult, isModification) {
+  if (isModification) {
     const header = {
       insertId: pgResult.rows[0]?.id ?? null,
       affectedRows: pgResult.rowCount ?? 0,

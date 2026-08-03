@@ -58,6 +58,25 @@ export default function Home() {
         return;
       }
 
+      if (sessionStorage.getItem("scrollToIssues")) {
+        sessionStorage.removeItem("scrollToIssues");
+        const attempt = () => {
+          const el = document.getElementById("issues");
+          if (!el) return false;
+          const top = el.getBoundingClientRect().top + window.scrollY - 100;
+          window.scrollTo({ top: Math.max(0, top), behavior: "auto" });
+          return true;
+        };
+        if (!attempt()) {
+          setTimeout(attempt, 100);
+          setTimeout(attempt, 350);
+          return;
+        }
+        setTimeout(attempt, 100);
+        setTimeout(attempt, 350);
+        return;
+      }
+
       if (sessionStorage.getItem("scrollToPartners")) {
         sessionStorage.removeItem("scrollToPartners");
         scrollToPartnersWithRetry();

@@ -2,14 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FileText,
   Calendar,
-  RefreshCw,
   Search,
   X,
   ChevronLeft,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { api } from "../lib/api";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 
 const PAGE_SIZE = 5;
 
@@ -43,6 +44,7 @@ function SubscriberTable({
   emptyMessage,
   page,
   onPageChange,
+  onDelete,
 }: {
   title: string;
   icon: typeof FileText;
@@ -51,6 +53,7 @@ function SubscriberTable({
   emptyMessage: string;
   page: number;
   onPageChange: (page: number) => void;
+  onDelete: (id: number) => void;
 }) {
   const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
@@ -78,12 +81,15 @@ function SubscriberTable({
               <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">
                 Subscribed Date
               </th>
+              <th className="px-6 py-4 text-center text-sm font-semibold text-blue-900">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={3} className="px-6 py-12 text-center">
+                <td colSpan={4} className="px-6 py-12 text-center">
                   <div className="flex justify-center">
                     <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                   </div>
@@ -91,7 +97,7 @@ function SubscriberTable({
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
                   {emptyMessage}
                 </td>
               </tr>
@@ -106,6 +112,16 @@ function SubscriberTable({
                     {row.createdAt
                       ? new Date(row.createdAt).toLocaleString()
                       : "—"}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <button
+                      type="button"
+                      onClick={() => onDelete(row.id)}
+                      className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"
+                      title="Delete subscriber"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </td>
                 </tr>
               ))
@@ -155,6 +171,7 @@ export default function NotifyMailsAdmin() {
   const [search, setSearch] = useState("");
   const [articlePage, setArticlePage] = useState(0);
   const [eventPage, setEventPage] = useState(0);
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
 
   const loadSubscribers = useCallback(async () => {
     setLoading(true);
@@ -196,6 +213,19 @@ export default function NotifyMailsAdmin() {
   const activeArticleCount = articles.filter((r) => r.status === "active").length;
   const activeEventCount = events.filter((r) => r.status === "active").length;
 
+  async function handleDelete() {
+    if (deleteTarget == null) return;
+    try {
+      await api.deleteNotifySubscriber(deleteTarget);
+      toast.success("Subscriber deleted successfully.");
+      setDeleteTarget(null);
+      await loadSubscribers();
+    } catch {
+      toast.error("Failed to delete subscriber.");
+      setDeleteTarget(null);
+    }
+  }
+
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
@@ -208,7 +238,6 @@ export default function NotifyMailsAdmin() {
               Article and event notification subscribers from the database.
             </p>
           </div>
-       
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
@@ -265,6 +294,7 @@ export default function NotifyMailsAdmin() {
             emptyMessage="No article notify subscribers found."
             page={articlePage}
             onPageChange={setArticlePage}
+            onDelete={setDeleteTarget}
           />
           <SubscriberTable
             title="Events Notify Emails"
@@ -274,9 +304,18 @@ export default function NotifyMailsAdmin() {
             emptyMessage="No event notify subscribers found."
             page={eventPage}
             onPageChange={setEventPage}
+            onDelete={setDeleteTarget}
           />
         </div>
       </div>
+
+      <ConfirmDialog
+        open={deleteTarget != null}
+        title="Delete Subscriber"
+        message="Are you sure you want to delete this subscriber? They will no longer receive notification emails."
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }
