@@ -133,6 +133,8 @@ export default function SupportTopicPage() {
                 image: sub.image_url || FALLBACK_SERVICE_IMAGE,
                 parentName: mainType.name,
                 appointmentSelection: {
+                  counsellingTypeId: mainType.id,
+                  subTypeId: sub.id,
                   counsellingTypeName: mainType.name,
                   subTypeName: sub.name,
                 },
@@ -223,10 +225,12 @@ export default function SupportTopicPage() {
       navigate(`/services/sub/${service.id}`);
       return;
     }
-    openModal({
-      counsellingTypeName: service.parentName,
-      subTypeName: service.title,
-    });
+    openModal(
+      service.appointmentSelection || {
+        counsellingTypeName: service.parentName,
+        subTypeName: service.title,
+      }
+    );
   };
 
   return (

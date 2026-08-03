@@ -293,13 +293,18 @@ export async function localizeCounsellingTree(types, langCode) {
     const tLoc = typeLocById.get(type.id);
     return {
       ...type,
+      name_en: type.name_en || type.name,
       name: tLoc?.name || type.name,
       description: tLoc?.description ?? type.description,
       sub_types: (type.sub_types || []).map((sub) => {
         const sLoc = subLocById.get(sub.id);
-        if (!sLoc) return sub;
-        return {
+        const withEnglishName = {
           ...sub,
+          name_en: sub.name_en || sub.name,
+        };
+        if (!sLoc) return withEnglishName;
+        return {
+          ...withEnglishName,
           name: sLoc.name || sub.name,
           description: sLoc.description ?? sub.description,
           heading: sLoc.heading || sub.heading,
@@ -323,6 +328,7 @@ export async function localizeSubTypeDetail(data, langCode) {
         const pLoc = await ensureTypeTranslation(parentId, code);
         parent = {
           ...(parent || { id: parentId }),
+          name_en: parent?.name_en || parent?.name,
           name: pLoc.name || parent?.name,
           description: pLoc.description ?? parent?.description,
         };
@@ -332,6 +338,7 @@ export async function localizeSubTypeDetail(data, langCode) {
     }
     return {
       ...data,
+      name_en: data.name_en || data.name,
       name: loc.name || data.name,
       description: loc.description ?? data.description,
       heading: loc.heading || data.heading,

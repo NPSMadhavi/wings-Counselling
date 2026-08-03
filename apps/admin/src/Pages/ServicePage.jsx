@@ -104,10 +104,29 @@ export default function ServicePage() {
 
         const loadServices = async () => {
             try {
-                const response = await fetch(`/api/counselling-types?lang=${encodeURIComponent(lang)}`);
-                const json = await response.json();
-                if (!cancelled && json.success && Array.isArray(json.data)) {
-                    setDynamicCardsByTab(buildServiceCardsByTab(json.data));
+                const localizedUrl = `/api/counselling-types?lang=${encodeURIComponent(lang)}`;
+                const requests =
+                    lang === "en"
+                        ? [fetch(localizedUrl)]
+                        : [fetch(localizedUrl), fetch("/api/counselling-types")];
+
+                const responses = await Promise.all(requests);
+                const localizedJson = await responses[0].json();
+                const englishJson =
+                    responses[1] != null ? await responses[1].json() : null;
+
+                if (
+                    !cancelled &&
+                    localizedJson.success &&
+                    Array.isArray(localizedJson.data)
+                ) {
+                    const englishTypes =
+                        englishJson?.success && Array.isArray(englishJson.data)
+                            ? englishJson.data
+                            : null;
+                    setDynamicCardsByTab(
+                        buildServiceCardsByTab(localizedJson.data, englishTypes)
+                    );
                 }
             } catch {
                 if (!cancelled) setDynamicCardsByTab(null);

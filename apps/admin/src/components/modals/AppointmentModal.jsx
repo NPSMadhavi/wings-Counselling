@@ -168,7 +168,9 @@ const resolvePreselectedCounselling = (types, selection) => {
     );
 
     if (Number.isFinite(counsellingTypeId)) {
-      const matchedTypeById = types.find((type) => type.id === counsellingTypeId);
+      const matchedTypeById = types.find(
+        (type) => Number(type.id) === counsellingTypeId
+      );
 
       if (matchedTypeById) {
         const subtypeId = Number(
@@ -178,7 +180,9 @@ const resolvePreselectedCounselling = (types, selection) => {
         );
 
         const matchedSubTypeById = Number.isFinite(subtypeId)
-          ? (matchedTypeById.sub_types || []).find((subType) => subType.id === subtypeId)
+          ? (matchedTypeById.sub_types || []).find(
+              (subType) => Number(subType.id) === subtypeId
+            )
           : null;
 
         return {

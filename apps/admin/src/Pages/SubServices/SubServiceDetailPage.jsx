@@ -66,7 +66,9 @@ export default function SubServiceDetailPage() {
     );
   }
 
-  const backHash = tabForMainTypeName(data.parent_type?.name);
+  const backHash = tabForMainTypeName(
+    data.parent_type?.name_en || data.parent_type?.name
+  );
 
   return (
     <SubServiceLayout
@@ -78,6 +80,8 @@ export default function SubServiceDetailPage() {
       backHash={backHash}
       assignedTeamMembers={data.team_members || []}
       appointmentSelection={{
+        counsellingTypeId: data.parent_type?.id ?? data.counselling_type_id,
+        subTypeId: data.id,
         counsellingTypeName: data.parent_type?.name,
         subTypeName: data.name,
       }}
