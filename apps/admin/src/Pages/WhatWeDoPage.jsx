@@ -199,6 +199,24 @@ export default function SupportTopicPage() {
     <PersonStanding key="person" size={30} color="#DE5753" strokeWidth={2.2} />,
   ];
 
+  useEffect(() => {
+    if (!topic?.slug) return;
+    const attempt = () => {
+      const el = document.getElementById("support-section");
+      if (!el) return false;
+      const top = el.getBoundingClientRect().top + window.scrollY - 100;
+      window.scrollTo({ top: Math.max(0, top), behavior: "auto" });
+      return true;
+    };
+    if (!attempt()) {
+      setTimeout(attempt, 100);
+      setTimeout(attempt, 350);
+      return;
+    }
+    setTimeout(attempt, 100);
+    setTimeout(attempt, 350);
+  }, [topic?.slug]);
+
   if (!topic) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#F5F5F5] px-4 text-center">
@@ -232,23 +250,6 @@ export default function SupportTopicPage() {
       }
     );
   };
-
-  useEffect(() => {
-    const attempt = () => {
-      const el = document.getElementById("support-section");
-      if (!el) return false;
-      const top = el.getBoundingClientRect().top + window.scrollY - 100;
-      window.scrollTo({ top: Math.max(0, top), behavior: "auto" });
-      return true;
-    };
-    if (!attempt()) {
-      setTimeout(attempt, 100);
-      setTimeout(attempt, 350);
-      return;
-    }
-    setTimeout(attempt, 100);
-    setTimeout(attempt, 350);
-  }, [topic?.slug]);
 
   return (
     <div className="bg-[#F5F5F5] text-black overflow-x-hidden">
