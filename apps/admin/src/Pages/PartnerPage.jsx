@@ -4,30 +4,11 @@ import { Footer } from "@/components/Layout/Footer";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
-const FALLBACK_PARTNERS = [
-  {
-    id: 1,
-    name: "Holy Tree Sri Balasubramaniar Temple",
-    logo: "/assets/holy-tree-logo.png",
-    description:
-      "Role of the Temple is to provide for the spiritual needs of our devotees, a significant priority is also to reach out and serve the needs of all who live in the vicinity.",
-    websiteLink: "https://www.htsbt.org.sg/",
-  },
-  {
-    id: 2,
-    name: "Iyad Perdaus",
-    logo: "/assets/iyad-perdaus-logo.png",
-    description:
-      "Long-standing collaboration providing community-based support and early childhood development resources.",
-    websiteLink: "https://www.iyadperdaus.sg/",
-  },
-];
-
 const PAGE_SIZE = 3;
 
 const PartnerPage = () => {
   const { t, i18n } = useTranslation();
-  const [partners, setPartners] = useState(FALLBACK_PARTNERS);
+  const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
 
@@ -46,11 +27,16 @@ const PartnerPage = () => {
         if (!response.ok) throw new Error("Failed to fetch partners");
 
         const data = await response.json();
-        if (!cancelled && Array.isArray(data) && data.length) {
-          setPartners(data);
+        if (!cancelled) {
+          if (Array.isArray(data) && data.length) {
+            setPartners(data);
+          } else {
+            setPartners([]);
+          }
         }
       } catch (error) {
         console.error("Error fetching partners:", error);
+        if (!cancelled) setPartners([]);
       } finally {
         if (!cancelled) setLoading(false);
       }

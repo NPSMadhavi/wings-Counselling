@@ -2,21 +2,6 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-const FALLBACK_PARTNERS = [
-    {
-        id: 1,
-        name: "Partner",
-        logo: "/assets/partnerlogo1.png",
-        websiteLink: "",
-    },
-    {
-        id: 2,
-        name: "Partner",
-        logo: "/assets/partnerlogo2.png",
-        websiteLink: "",
-    },
-];
-
 const CARD_WIDTH_MOBILE = 170;
 const CARD_WIDTH_DESKTOP = 220;
 const CARD_GAP_MOBILE = 16;
@@ -76,7 +61,7 @@ export function Partners() {
     const { t, i18n } = useTranslation();
     const sectionRef = useRef(null);
     const scrollContainerRef = useRef(null);
-    const [partners, setPartners] = useState(FALLBACK_PARTNERS);
+    const [partners, setPartners] = useState([]);
     const [shouldAutoScroll, setShouldAutoScroll] = useState(false);
 
     const { scrollYProgress } = useScroll({
@@ -98,18 +83,23 @@ export function Partners() {
                 if (!response.ok) throw new Error("Failed to fetch partners");
 
                 const data = await response.json();
-                if (!cancelled && Array.isArray(data) && data.length) {
-                    setPartners(
-                        data.map((partner) => ({
-                            id: partner.id,
-                            name: partner.name,
-                            logo: partner.logo || "/assets/partnerlogo1.png",
-                            websiteLink: partner.websiteLink || "",
-                        }))
-                    );
+                if (!cancelled) {
+                    if (Array.isArray(data) && data.length) {
+                        setPartners(
+                            data.map((partner) => ({
+                                id: partner.id,
+                                name: partner.name,
+                                logo: partner.logo || "/assets/partnerlogo1.png",
+                                websiteLink: partner.websiteLink || "",
+                            }))
+                        );
+                    } else {
+                        setPartners([]);
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching partners:", error);
+                if (!cancelled) setPartners([]);
             }
         };
 
@@ -246,6 +236,8 @@ export function Partners() {
             scrollContainer.removeEventListener("mouseleave", handleMouseLeave);
         };
     }, [shouldAutoScroll, partners.length]);
+
+    if (!partners.length) return null;
 
     return (
         <section

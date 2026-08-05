@@ -1,31 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useTranslation } from "react-i18next";
 
-const FALLBACK_TESTIMONIALS = [
-  {
-    title: "Anxiety",
-    text: "I was struggling with anxiety and didn't know where to turn. My counsellor helped me understand my emotions and develop practical coping strategies. I feel more confident and hopeful today.",
-    name: "Anonymous Client",
-    role: "Client of company"
-  },
-  {
-    title: "Relationship",
-    text: "The counselling sessions gave us the tools to rebuild trust and strengthen our relationship. We are grateful for the guidance and support.",
-    name: "Anonymous Client",
-    role: "Client of company"
-  },
-  {
-    title: "Family",
-    text: "Our family communication has improved tremendously. We learned how to listen, understand each other better and work through conflicts together.",
-    name: "Anonymous Client",
-    role: "Client of company"
-  }
-];
-
 export const Testimonial = () => {
   const { t, i18n } = useTranslation();
   const testimonialsRef = useRef(null);
-  const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
+  const [testimonials, setTestimonials] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,19 +18,24 @@ export const Testimonial = () => {
         if (!response.ok) throw new Error("Failed to fetch testimonials");
 
         const data = await response.json();
-        if (!cancelled && Array.isArray(data) && data.length) {
-          setTestimonials(
-            data.map((item) => ({
-              id: item.id,
-              title: item.serviceName,
-              text: item.description || "",
-              name: item.clientName,
-              role: item.clientCompanyName || "",
-            }))
-          );
+        if (!cancelled) {
+          if (Array.isArray(data) && data.length) {
+            setTestimonials(
+              data.map((item) => ({
+                id: item.id,
+                title: item.serviceName,
+                text: item.description || "",
+                name: item.clientName,
+                role: item.clientCompanyName || "",
+              }))
+            );
+          } else {
+            setTestimonials([]);
+          }
         }
       } catch (error) {
         console.error("Error fetching testimonials:", error);
+        if (!cancelled) setTestimonials([]);
       }
     };
 
@@ -61,6 +45,8 @@ export const Testimonial = () => {
       cancelled = true;
     };
   }, [i18n.language]);
+
+  if (!testimonials.length) return null;
 
   const handleTestimonialScroll = (direction) => {
     const container = testimonialsRef.current;

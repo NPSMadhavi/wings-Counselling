@@ -8,88 +8,6 @@ import { useLocation } from "wouter";
 import { buildServiceCardsByTab } from "@/lib/serviceTabs";
 
 
-const counsellingCards = [
-    {
-        title: "Family support & Counselling program",
-        description: "Family Support & Counselling Program (FSCP) is an integrated counselling programme for children, youths, individuals, couples and families from ages between 2.5 and 65 years old. The service is open to anyone seeking help regardless of their ethnicity or religious affiliation. At WINGS Counselling Centre, we understand that seeking help is a difficult first step to achieving the life you want which is why a strict confidentiality policy is maintained. Our niche area of work is to serve children and at-risk youth. The aim of the programme is to help clients enhance the quality of their personal, social, emotional, behavioural, family and marital life, while overcoming developmental or other challenge.",
-        price: "From $60/Session",
-        duration: "15 Min",
-        image: "/assets/familysupportservice.png"
-    },
-    {
-        title: "Marital & Couple therapy",
-        description: "Couples today face a myriad of stressors juggling work, home, children and trying to live up to expectations of their spouse and extended family. As a result, many marriages break down and couples end up on the brink of divorce. Furthermore, the never-ending adjustment and challenges that couples face in the early years of marriage adjusting to their new partner, in-laws, expectations, differing life goals, work or simply managing differences-pose a threat to them.",
-        price: "From $60/Session",
-        duration: "15 Min",
-        image: "/assets/counselling2.jpg"
-    },
-    {
-        title: "Individual therapy",
-        description: "The friendly counsellors at WINGS Counselling Centre provide assistance to individuals and adults who may be experiencing a variety of personal issues such as work stress, relationship difficulties, transitional challenges or family and personal dilemmas. Our counsellors are specially trained to employ a range of techniques based on systemic communication, experiential relationship building, therapeutic dialogue, cognitive-behavioural therapy and expressive therapy to help clients create meaningful changes in their lives that elevate and improve their overall well-being, while facilitating the quality of their relationship with significant others.",
-        price: "From $60/Session",
-        duration: "15 Min",
-        image: "/assets/indvidualservice.png"
-    },
-    {
-        title: "Pre-school children",
-        description: "Younger children aged between 2.5 and 7 years not only display developmental challenges but also encounter social, emotional, behavioural or learning-related difficulties. Research has shown that these manifested difficulties that children go through may have arisen from deeper underlying issues, things that are unclear or go unseen by parents. Such challenges during the early years of learning may severely limit the child’s ability to fully enjoy pre-school leaning and socialise amongst his or her peers. If left undetected, these difficulties could ultimately affect the young child’s confidence and self-esteem.",
-        price: "From $60/Session",
-        duration: "15 Min",
-        image: "/assets/preschoolservice.png"
-    },
-    {
-        title: " Youth",
-        description: "The children and youth of today face many challenges that range from self-esteem to relationship issues. A lack of motivation toward studies and navigating the developmental issues that adolescents face are issues that adults often misunderstand. WINGS Counselling Centre’s niche area of work is helping children and youth through timely intervention. We have also been providing school-based counselling since 1995. We adopt a collaborative approach by working closely with students, their parents and schools to identify and address the challenges that youths face. We aim to empower youths with a sensible voice coupled with a sense of responsibility as well as provide them with a nurturing environment within which they can flourish and grow as individuals.",
-        price: "From $60/Session",
-        duration: "15 Min",
-        image: "/assets/youthservice.png"
-    },
-    {
-        title: "Adults ",
-        description: "The friendly counsellors at WINGS Counselling Centre provide assistance to individuals and adults who may be experiencing a variety of personal issues such as work stress, relationship difficulties, transitional challenges or family and personal dilemmas. Our counsellors are specially trained to employ a range of techniques based on systemic communication, experiential relationship building, therapeutic dialogue, cognitive-behavioural therapy and expressive therapy to help clients create meaningful changes in their lives that elevate and improve their overall well-being, while facilitating the quality of their relationship with significant others",
-        price: "From $60/Session",
-        duration: "15 Min",
-        image: "/assets/adultservice.jpeg"
-    }
-];
-
-const supervisionData = {
-    title: "Supervision",
-    description: "Clinical internships & supervision for budding counsellors. Kindly note that all our services are only available to Singapore citizens and permanent residents.",
-    cards: [
-        {
-            title: " Supervision",
-            appointmentSelection: {
-                counsellingTypeName: "Supervision",
-                subTypeName: "Supervision",
-            },
-            description: "WINGS Counselling Centre has been a popular destination for internships since 2000. We provide clinical internships and supervision for budding counsellors who have the theoretical knowledge in counselling but lack the micro skills required for its practical implementation. Supervision is a process in which a social service professional such as a counsellor can speak to a trained supervisor for guidance. Supervision can be in the form of clinical internships or attachments for professional counsellors, graduating and graduated students. Those seeking supervision for aiming to become a Registered Counsellor at the Singapore Association for Counselling. We have a collaborative relationship with a number of institutions such as UniSIM, Nanyang Polytechnic, Monash University, James Cook University and the Executive Counselling & Training Academy. Those pursuing a Certificate, Diploma, Degree or Masters in Counselling can contact us should they require clinical supervision. Independent counsellors seeking clinical supervision are welcomed as well.",
-            image: "/assets/supervisionservice.png"
-        },
-        {
-            title: "Personal therapy (for counsellors)",
-            description: "While you are pursuing your studies to become a professional counsellor, it is critical for budding counsellors to seek personal therapy for a couple of reasons. Budding counsellors need to experience being a client to know the anxieties of meeting a counsellor for the first time and having to disclose personal or family matters without knowing how much the client can trust the counsellor.  When budding counsellors go through personal experiences they become more aware of the client’s challenges about disclosures, trust issues and their vulnerabilities. Furthermore, personal therapy also helps budding counsellors to manage their own discomforts so that they are better equipped to manage transferences and counter-transferences.",
-            image: "/assets/personaltherpayservice.png"
-        }
-    ]
-};
-
-const trainingData = {
-    title: "Training & Workshops",
-    description: "Assessment, treatment and management of clinical conditions that impair emotional, cognitive, physical, behavioural and social functioning. Kindly note that all our services are only available to Singapore Citizens and Permanent Residents.",
-    cards: [
-        {
-            title: "Workshops",
-            appointmentSelection: {
-                counsellingTypeName: "Training & Workshops",
-                subTypeName: "Workshops",
-            },
-            description: "Workshops and talks can be organised for schools, national, multinational companies and community organisations. The purpose of outreach programmes are to facilitate the awareness of issues that may affect the targeted audience (i.e. students, parents or employees). Custom tailor-made programmes that suit the requirements of the target group are offered.",
-           image: "/assets/workshopservice.png"
-        }
-    ]
-};
-
 export default function ServicePage() {
     const { t, i18n } = useTranslation();
     const { openModal } = useAppointment();
@@ -203,19 +121,8 @@ export default function ServicePage() {
     const isSupervisionTab = activeTab === "supervision";
     const isCounsellingTab = activeTab === "counselling";
 
-    const getStaticCards = () => {
-        switch (activeTab) {
-            case "counselling": return counsellingCards;
-            case "supervision": return supervisionData.cards;
-            case "training": return trainingData.cards;
-            default: return counsellingCards;
-        }
-    };
-
     const getCards = () => {
-        const dynamicCards = dynamicCardsByTab?.[activeTab];
-        if (dynamicCards?.length) return dynamicCards;
-        return getStaticCards();
+        return dynamicCardsByTab?.[activeTab] || [];
     };
 
     const navigateToCard = useCallback((card, index) => {

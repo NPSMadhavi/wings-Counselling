@@ -4,74 +4,6 @@
   import { useTranslation } from "react-i18next";
   const FALLBACK_SERVICE_IMAGE = "/assets/card2.jpg.jpeg";
 
-  /* ─── Fallback service data (used if API is unavailable) ─── */
-  const FALLBACK_SERVICES = [
-    {
-      id: 1,
-      title: "Personal therapy (for counsellors)",
-      description:
-        "WINGS Counselling Centre has been a popular destination for internships since...",
-      image: "/assets/personaltherpayservice.png",
-       href: "/Personaltherapy",
-    },
-    {
-      id: 2,
-      title: "Supervision",
-      description:
-        "While you are pursuing your studies to become a professional counsellor, it is...",
-      image: "/assets/supervisionservicesection.png",
-      href: "/Clinicalsupervision",
-    },
-    {
-      id: 3,
-      title: "Family support & Counselling program",
-      description:
-        "Family Support & Counselling Program (FSCP) is an integrated counselling programme...",
-      image: "/assets/familysupportservice.png",
-      href: "/Familysupport",
-    },
-    {
-      id: 4,
-      title: "Individual therapy",
-      description:
-        "The friendly counsellors at WINGS Counselling Centre provide assistance to...",
-      image: "/assets/indvidualservice.png",
-      href: "/SubService",
-    },
-    {
-      id: 5,
-      title: "Marital & Couple therapy",
-      description:
-        "Couples today face a myriad of stressors – juggling work, home, children, and trying to...",
-      image: "/assets/counselling2.jpg",
-      href: "/Marital",
-    },
-    {
-      id: 6,
-      title: "Family & Parenting",
-      description:
-        "Parenting brings unique pressures—from managing behaviour and school...",
-      image: "/assets/family&parenting.png",
-      href: "/FamilyParenting",
-    },
-    {
-      id: 7,
-      title: "Youth",
-      description:
-        "The children and youth of today face many challenges that range from self-esteem to...",
-      image: "/assets/youthservice.png",
-      href: "/Youth",
-    },
-    {
-      id: 8,
-      title: "Pre-school children",
-      description:
-        "Younger children aged between 2.5 and 7 years not only display developmental...",
-      image: "/assets/preschoolservice.png",
-      href: "/Pre-school",
-    },
-  ];
-
   /* ─── Arrow Icon ───────────────────────────────────────────── */
   function ArrowIcon({ direction = "right" }) {
     return (
@@ -99,7 +31,7 @@
     const scrollRef = useRef(null);
     const sectionRef = useRef(null);
 
-    const [services, setServices] = useState(FALLBACK_SERVICES);
+    const [services, setServices] = useState([]);
     const [isVisible, setIsVisible] = useState(false);
     const [cardsPerView, setCardsPerView] = useState(4);
 
@@ -124,25 +56,27 @@
           const response = await fetch(`/api/counselling-types?lang=${encodeURIComponent(lang)}`);
           const json = await response.json();
 
-          if (!cancelled && json.success && Array.isArray(json.data)) {
-            const flattened = json.data.flatMap((mainType) =>
-              (mainType.sub_types || [])
-                .filter((sub) => sub.is_active !== false)
-                .map((sub) => ({
-                  id: sub.id,
-                  title: sub.name,
-                  description: sub.description || "",
-                  image: sub.image_url || FALLBACK_SERVICE_IMAGE,
-                  href: `/services/sub/${sub.id}`,
-                }))
-            );
-
-            if (flattened.length) {
+          if (!cancelled) {
+            if (json.success && Array.isArray(json.data)) {
+              const flattened = json.data.flatMap((mainType) =>
+                (mainType.sub_types || [])
+                  .filter((sub) => sub.is_active !== false)
+                  .map((sub) => ({
+                    id: sub.id,
+                    title: sub.name,
+                    description: sub.description || "",
+                    image: sub.image_url || FALLBACK_SERVICE_IMAGE,
+                    href: `/services/sub/${sub.id}`,
+                  }))
+              );
               setServices(flattened);
+            } else {
+              setServices([]);
             }
           }
         } catch (error) {
           console.error("Error fetching services:", error);
+          if (!cancelled) setServices([]);
         }
       };
 
@@ -271,6 +205,8 @@
 
       return `calc((100% - ${totalGap}px) / ${cardsPerView})`;
     };
+
+    if (!services.length) return null;
 
     return (
       <motion.section
