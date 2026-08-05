@@ -452,43 +452,44 @@ export default function Careers() {
                       </div>
 
                       {/* Right Buttons */}
-                      <div className="flex flex-col gap-4 w-full lg:w-auto">
+                      <div className="flex flex-col gap-3 w-full lg:w-[175px] xl:w-[185px] shrink-0 justify-center">
 
                         {/* View Details */}
-                        <Link href={`/career/${job.jobId}`}>
+                        <Link href={`/career/${job.jobId}`} className="w-full flex">
                           <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
                             className="
                               flex
                               items-center
                               justify-center
-                              gap-[10px]
+                              gap-1.5
                               w-full
-                              lg:w-auto
-                              h-[45px]
+                              min-h-[45px]
+                              py-2
+                              px-4
                               rounded-full
                               border
                               border-[#0D4A7A]
                               bg-white
-                               px-8
                               group
                               transition-all
                               duration-300
-                              whitespace-nowrap
                             "
                           >
 
                             <span
                               className="
                                 text-[#0D4A7A]
-                              
                                 text-center
                                 font-['DM_Sans']
-                                text-[15px]
-                                md:text-[16px]
+                                text-[12px]
+                                sm:text-[13px]
+                                md:text-[14px]
                                 font-medium
-                                leading-[28px]
+                                leading-[1.25]
+                                break-words
+                                line-clamp-2
                                 transition-all
                               "
                             >
@@ -503,25 +504,29 @@ export default function Careers() {
                               flex
                               items-center
                               justify-center
-                              gap-2
+                              gap-1.5
                               w-full
-                              lg:w-auto
-                              h-[45px]
-                              px-8
+                              min-h-[45px]
+                              py-2
+                              px-4
                               rounded-full
                               bg-green-100
                               text-green-700
                               font-semibold
                               font-['DM_Sans']
-                              text-[15px]
+                              text-[12px]
+                              sm:text-[13px]
+                              md:text-[14px]
+                              leading-[1.25]
                             "
                           >
-                            <SiteCheckIcon size={16} color="#15803d" />
-                            {t("careers.jobs.alreadyApplied")}
+                            <SiteCheckIcon size={16} color="#15803d" className="shrink-0" />
+                            <span className="break-words line-clamp-2">{t("careers.jobs.alreadyApplied")}</span>
                           </div>
                         ) : (
                           <Link
                             href={isAuthenticated ? careersApplyPath(job.jobId) : "#"}
+                            className="w-full flex"
                             onClick={(e) => {
                               if (!isAuthenticated) {
                                 e.preventDefault();
@@ -533,20 +538,19 @@ export default function Careers() {
                             }}
                           >
                             <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
+                              whileHover={{ scale: 1.03 }}
+                              whileTap={{ scale: 0.97 }}
                               className="
                                 flex
                                 items-center
                                 justify-center
-                                gap-[10px]
+                                gap-1.5
                                 w-full
-                                lg:w-auto
-                                px-8
-                                h-[45px]
+                                min-h-[45px]
+                                py-2
+                                px-4
                                 rounded-full
                                 bg-[#0D4A7A]
-                                whitespace-nowrap
                                 transition-all
                                 duration-300
                               "
@@ -556,19 +560,23 @@ export default function Careers() {
                                   text-[#F5F9FF]
                                   text-center
                                   font-['DM_Sans']
-                                  text-[15px]
-                                  md:text-[16px]
+                                  text-[12px]
+                                  sm:text-[13px]
+                                  md:text-[14px]
                                   font-medium
-                                  leading-[28px]
+                                  leading-[1.25]
+                                  break-words
+                                  line-clamp-2
                                 "
                               >
                                 {t("careers.jobs.applyNow")}
                               </span>
                               <svg
-                                width="20"
-                                height="20"
+                                width="16"
+                                height="16"
                                 viewBox="0 0 24 24"
                                 fill="none"
+                                className="shrink-0"
                               >
                                 <path
                                   d="M9 18L15 12L9 6"

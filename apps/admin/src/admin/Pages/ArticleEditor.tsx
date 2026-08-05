@@ -19,6 +19,7 @@ import {
     Eye,
     Menu,
     Globe,
+    Info,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
@@ -1456,11 +1457,19 @@ useEffect(() => {
                                 Loading language…
                             </div>
                         ) : null}
+
+                        {/* AUTO-TRANSLATION MANUAL REVIEW NOTE BANNER BELOW LANGUAGES */}
+                        <div className="p-3 m-2.5 rounded-xl bg-[#EFF6FF] border border-[#DBEAFE] flex items-start gap-2.5">
+                            <Info size={16} className="text-[#1D4ED8] shrink-0 mt-0.5" />
+                            <p className="text-[11px] md:text-[12px] text-[#1E40AF] font-medium leading-snug">
+                                Auto-translated content may require manual review. Please verify the translation for accuracy before publishing.
+                            </p>
+                        </div>
                     </aside>
 
                     {/* EDITOR COLUMN — takes remaining width */}
                     <div className="flex-1 min-w-0 w-full">
-                {/* COVER IMAGE SECTION */}
+                        {/* COVER IMAGE SECTION */}
                 <div className="relative w-full h-[220px] md:h-[300px] lg:h-[340px] bg-white border border-[#E0DFDC] rounded-t-xl overflow-hidden group">
                     {coverImage ? (
                         <>
