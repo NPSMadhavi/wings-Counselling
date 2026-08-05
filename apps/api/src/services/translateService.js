@@ -282,8 +282,26 @@ export function isSupportedTargetLang(code) {
 const CATEGORY_MAP = {
   "mental health": { zh: "心理健康", ms: "Kesihatan Mental", hi: "मानसिक स्वास्थ्य", ta: "மனநலம்" },
   "relationship": { zh: "人际关系", ms: "Hubungan", hi: "संबंध", ta: "உறவுகள்" },
+  "relationship issues": { zh: "人际关系问题", ms: "Isu Hubungan", hi: "संबंध संबंधी समस्याएं", ta: "உறவுப் பிரச்சனைகள்" },
+  "relationship issues & advice": { zh: "人际关系问题与建议", ms: "Isu Hubungan & Nasihat", hi: "संबंध संबंधी समस्याएं और सलाह", ta: "உறவுப் பிரச்சனைகள் மற்றும் ஆலோசனைகள்" },
   "parenting": { zh: "育儿", ms: "Keibubapaan", hi: "पारवरिश", ta: "பெற்றோர் வளர்ப்பு" },
+  "parenting challenges": { zh: "育儿挑战", ms: "Cabaran Keibubapaan", hi: "पारवरिश की चुनौतियाँ", ta: "பெற்றோர் வளர்ப்பு சவால்கள்" },
   "grief": { zh: "悲伤", ms: "Kesedihan", hi: "शोक", ta: "துக்கம்" },
+  "grief and loss": { zh: "悲伤与丧亲", ms: "Kesedihan & Kehilangan", hi: "शोक और नुकसान", ta: "துக்கம் மற்றும் இழப்பு" },
+  "grief & loss": { zh: "悲伤与丧亲", ms: "Kesedihan & Kehilangan", hi: "शोक और नुकसान", ta: "துக்கம் மற்றும் இழப்பு" },
+  "burnout": { zh: "职业倦怠", ms: "Burnout", hi: "बर्नआउट", ta: "மனவுளைச்சல்" },
+  "burnout & work stress": { zh: "职业倦怠与工作压力", ms: "Burnout & Tekanan Kerja", hi: "बर्नआउट और कार्य तनाव", ta: "மனவுளைச்சல் & வேலை மனஅழுத்தம்" },
+  "burnout and work stress": { zh: "职业倦怠与工作压力", ms: "Burnout & Tekanan Kerja", hi: "बर्नआउट और कार्य तनाव", ta: "மனவுளைச்சல் & வேலை மனஅழுத்தம்" },
+  "work stress": { zh: "工作压力", ms: "Tekanan Kerja", hi: "कार्य तनाव", ta: "வேலை மனஅழுத்தம்" },
+  "family": { zh: "家庭", ms: "Keluarga", hi: "परिवार", ta: "குடும்பம்" },
+  "family conflicts": { zh: "家庭冲突", ms: "Konflik Keluarga", hi: "पारिवारिक विवाद", ta: "குடும்ப மோதல்கள்" },
+  "family conflict": { zh: "家庭冲突", ms: "Konflik Keluarga", hi: "पारिवारिक विवाद", ta: "குடும்ப மோதல்கள்" },
+  "self-esteem": { zh: "自尊", ms: "Harga Diri", hi: "आत्मसम्मान", ta: "சுயமரியாதை" },
+  "identity": { zh: "身份认同", ms: "Identiti", hi: "पहचान", ta: "அடையாளம்" },
+  "self-esteem and identity": { zh: "自尊与身份认同", ms: "Harga Diri & Identiti", hi: "आत्मसम्मान और पहचान", ta: "சுயமரியாதை மற்றும் அடையாளம்" },
+  "self-esteem & identity": { zh: "自尊与身份认同", ms: "Harga Diri & Identiti", hi: "आत्मसम्मान और पहचान", ta: "சுயமரியாதை மற்றும் அடையாளம்" },
+  "mental health stigma and help-seeking": { zh: "心理健康污名与寻求帮助", ms: "Stigma Kesihatan Mental dan Mencari Bantuan", hi: "मानसिक स्वास्थ्य कलंक और मदद की तलाश", ta: "மனநல வடு மற்றும் உதவி நாடுதல்" },
+  "mental health stigma & help-seeking": { zh: "心理健康污名与寻求帮助", ms: "Stigma Kesihatan Mental dan Mencari Bantuan", hi: "मानसिक स्वास्थ्य कलंक और मदद की तलाश", ta: "மனநல வடு மற்றும் உதவி நாடுதல்" },
   "grounding techniques": { zh: "接地技巧", ms: "Teknik Grounding", hi: "ग्राउंडिंग तकनीक", ta: "தரைவழி நுட்பங்கள்" },
   "general": { zh: "常规", ms: "Umum", hi: "सामान्य", ta: "பொதுவான" },
   "counselling": { zh: "咨询", ms: "Kaunseling", hi: "परामर्श", ta: "ஆலோசனை" },
@@ -295,14 +313,11 @@ const CATEGORY_MAP = {
   "trauma and ptsd": { zh: "创伤与PTSD", ms: "Trauma dan PTSD", hi: "आघात और PTSD", ta: "அதிர்ச்சி மற்றும் பிடிஎஸ்டி" },
   "trauma & ptsd": { zh: "创伤与PTSD", ms: "Trauma dan PTSD", hi: "आघात और PTSD", ta: "அதிர்ச்சி மற்றும் பிடிஎஸ்டி" },
   "addiction": { zh: "成瘾", ms: "Ketagihan", hi: "लत", ta: "போதை" },
-  "mental health stigma and help-seeking": { zh: "心理健康污名与寻求帮助", ms: "Stigma Kesihatan Mental dan Mencari Bantuan", hi: "मानसिक स्वास्थ्य कलंक और मदद की तलाश", ta: "மனநல வடு மற்றும் உதவி நாடுதல்" },
   "loneliness": { zh: "孤独", ms: "Kesepian", hi: "अकेलापन", ta: "தனிமை" },
-  "parenting challenges": { zh: "育儿挑战", ms: "Cabaran Keibubapaan", hi: "पारवरिश की चुनौतियाँ", ta: "பெற்றோர் வளர்ப்பு சவால்கள்" },
   "depression": { zh: "抑郁症", ms: "Kemurungan", hi: "अवसाद", ta: "மனச்சோர்வு" },
   "wellness": { zh: "健康", ms: "Kesejahteraan", hi: "कल्याण", ta: "நலம்" },
   "self-care": { zh: "自我照顾", ms: "Penjagaan Diri", hi: "आत्म-देखभाल", ta: "சுய பராமரிப்பு" },
   "therapy": { zh: "治疗", ms: "Terapi", hi: "चिकित्सा", ta: "சிகிச்சை" },
-  "family": { zh: "家庭", ms: "Keluarga", hi: "परिवार", ta: "குடும்பம்" },
   "youth": { zh: "青少年", ms: "Belia", hi: "युवा", ta: "இளைஞர்" },
   "children": { zh: "儿童", ms: "Kanak-kanak", hi: "बच्चे", ta: "குழந்தைகள்" },
   "marriage": { zh: "婚姻", ms: "Perkahwinan", hi: "विवाह", ta: "திருமணம்" },
@@ -315,10 +330,20 @@ export function translateCategory(text, targetLang) {
   if (!text || typeof text !== "string" || !text.trim()) return "";
   const code = String(targetLang || "en").toLowerCase().split("-")[0];
   if (code === "en") return text;
-  const key = text.trim().toLowerCase();
-  if (CATEGORY_MAP[key] && CATEGORY_MAP[key][code]) {
-    return CATEGORY_MAP[key][code];
+
+  const rawKey = text.trim().toLowerCase();
+  const keysToTry = [
+    rawKey,
+    rawKey.replace(/\s*&\s*/g, " and "),
+    rawKey.replace(/\s+and\s+/g, " & "),
+  ];
+
+  for (const k of keysToTry) {
+    if (CATEGORY_MAP[k] && CATEGORY_MAP[k][code]) {
+      return CATEGORY_MAP[k][code];
+    }
   }
+
   return text;
 }
 
