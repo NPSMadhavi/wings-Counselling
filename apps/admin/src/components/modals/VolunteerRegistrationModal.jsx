@@ -319,14 +319,18 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
   };
 
   const handleDobChange = (isoDate) => {
+    const computedAge = isoDate ? calculateAgeFromDob(isoDate) : "";
     setFormData(prev => ({
       ...prev,
       dob: isoDate,
-      ...(isoDate ? { age: calculateAgeFromDob(isoDate) } : {}),
+      age: computedAge,
     }));
-    if (errors.dob) {
-      setErrors(prev => ({ ...prev, dob: "" }));
-    }
+    setErrors(prev => {
+      const next = { ...prev };
+      if (isoDate) delete next.dob;
+      if (computedAge) delete next.age;
+      return next;
+    });
   };
 
   const handleInterestToggle = (id) => {
@@ -697,11 +701,13 @@ export function VolunteerRegistrationModal({ isOpen, onClose }) {
                             type="number"
                             name="age"
                             value={formData.age}
-                            onChange={handleChange}
+                            readOnly
+                            disabled
+                            tabIndex={-1}
                             placeholder={t("volunteerRegistration.step1.fields.agePlaceholder")}
                             min={1}
                             max={120}
-                            className={inputClass(errors.age)}
+                            className={`${inputClass(errors.age)} bg-slate-100/90 text-slate-700 font-medium cursor-not-allowed select-none`}
                           />
                           <ErrorMessage message={errors.age} />
                         </div>
