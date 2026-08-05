@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db, getTableColumns } from "../config/db.js";
 import { requireAdmin } from "../middlewares/auth.js";
 import { sendSubscriberNotification } from "../lib/email.js";
+import { translateCategory } from "../services/translateService.js";
 
 const router = Router();
 
@@ -26,7 +27,8 @@ async function detectArticleStorage() {
   return articleStoragePromise;
 }
 
-function normaliseArticle(row, storage, localization = null) {
+function normaliseArticle(row, storage, localization = null, targetLang = "en") {
+  const effectiveLang = localization?.languageCode || targetLang || "en";
   const base = {
     id: row.id,
     title: row.title ?? "",
@@ -34,19 +36,20 @@ function normaliseArticle(row, storage, localization = null) {
     excerpt: row.excerpt ?? "",
     content: row.content ?? "",
     coverImage: row[storage.coverImage] ?? "",
-    author: row.author ?? "",
-    category: row.category ?? "",
+    author: row.author ?? "", // author name is NOT translated
+    category: translateCategory(row.category ?? "", effectiveLang),
     isPublished: Boolean(row[storage.isPublished]),
     publishedAt: row[storage.publishedAt] ?? null,
     createdAt: row[storage.createdAt] ?? null,
     updatedAt: row[storage.updatedAt] ?? null,
-    language: "en",
+    language: effectiveLang,
   };
 
   if (localization) {
     if (localization.title) base.title = localization.title;
     if (localization.htmlContent) base.content = localization.htmlContent;
     if (localization.languageCode) base.language = localization.languageCode;
+    if (localization.category) base.category = localization.category;
   }
 
   return base;
@@ -126,7 +129,7 @@ router.get("/articles", async (req, res) => {
         ) {
           loc = null; // fall back to English base until by-slug translates
         }
-        return normaliseArticle(r, storage, loc);
+        return normaliseArticle(r, storage, loc, lang);
       })
     );
   } catch (err) {
@@ -190,14 +193,14 @@ router.get("/articles/by-slug/:slug", async (req, res) => {
       }
     }
 
-    const article = normaliseArticle(rows[0], storage, localization);
+    const article = normaliseArticle(rows[0], storage, localization, lang);
 
     // Fallback to English localization / base article if still empty
     if (!String(article.content || "").trim() && lang !== "en") {
       const enMap = await loadLocalizationsByLang("en");
       const enLoc = enMap.get(Number(rows[0].id));
       if (enLoc && String(enLoc.htmlContent || "").trim()) {
-        return res.json(normaliseArticle(rows[0], storage, enLoc));
+        return res.json(normaliseArticle(rows[0], storage, enLoc, lang));
       }
     }
 
