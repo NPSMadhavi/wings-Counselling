@@ -127,7 +127,7 @@ function ImageCropModal({
         if (blob) {
           onCropSave(blob, imageSrc);
         }
-      }, "image/jpeg", 0.92);
+      }, "image/jpeg", 0.98);
     } catch (err) {
       console.error(err);
       alert("Failed to crop image. Please try uploading the image again.");
@@ -252,12 +252,12 @@ function ImageCropModal({
               {saving ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Saving...
+                  Applying...
                 </>
               ) : (
                 <>
-                  <Crop size={16} />
-                  Save
+                  {/* <Crop size={16} /> */}
+                  Done
                 </>
               )}
             </button>
@@ -270,23 +270,29 @@ function ImageCropModal({
 
 function Modal({ member, onSave, onClose }) {
   const [form, setForm] = useState(member || EMPTY);
+  const [rawPhotoUrl, setRawPhotoUrl] = useState<string>(member?.rawPhotoUrl || member?.photoUrl || "");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const [saveError, setSaveError] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [nameError, setNameError] = useState(false);
+  const [titleError, setTitleError] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(member?.photoUrl ? resolveImageUrl(member.photoUrl) : "");
+  const [memberCropOpen, setMemberCropOpen] = useState(false);
+  const [memberCropSrc, setMemberCropSrc] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
   const set = (key, val) => setForm((prev) => ({ ...prev, [key]: val }));
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileChange = async (e) => {
+  const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError("File size should be less than 5MB");
+    if (file.size > 8 * 1024 * 1024) {
+      setUploadError("File size should be less than 8MB");
       return;
     }
 
@@ -296,25 +302,83 @@ function Modal({ member, onSave, onClose }) {
     }
 
     setUploadError(null);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setMemberCropSrc(reader.result as string);
+      setMemberCropOpen(true);
+    };
+    reader.readAsDataURL(file);
+    if (e.target) e.target.value = "";
+  };
+
+  const handleCropExisting = () => {
+    const targetUrl = rawPhotoUrl || form.photoUrl || previewUrl;
+    if (!targetUrl) return;
+    setMemberCropSrc(resolveImageUrl(targetUrl));
+    setMemberCropOpen(true);
+  };
+
+  const handleCroppedSaveMember = async (croppedBlob: Blob, rawSrc: string) => {
     setUploading(true);
-
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
-
+    setUploadError(null);
     try {
-      const { urls } = await api.uploadFiles([file]);
-      if (!urls?.length) throw new Error("No image URL returned from server");
-      set("photoUrl", urls[0]);
-    } catch (err) {
-      setUploadError(err.message || "Image upload failed. Please try again.");
-      setPreviewUrl("");
+      let currentRawUrl = rawPhotoUrl;
+
+      if (rawSrc.startsWith("data:")) {
+        const fetchRes = await fetch(rawSrc);
+        const rawBlob = await fetchRes.blob();
+        const rawFile = new File([rawBlob], `raw-member-photo-${Date.now()}.jpg`, {
+          type: rawBlob.type || "image/jpeg",
+        });
+        const { urls: rawUrls } = await api.uploadFiles([rawFile]);
+        if (rawUrls && rawUrls[0]) {
+          currentRawUrl = rawUrls[0];
+        }
+      }
+
+      const croppedFile = new File([croppedBlob], `cropped-member-photo-${Date.now()}.jpg`, {
+        type: "image/jpeg",
+      });
+      const { urls: croppedUrls } = await api.uploadFiles([croppedFile]);
+
+      if (croppedUrls && croppedUrls[0]) {
+        const uploadedCroppedUrl = croppedUrls[0];
+        const finalRawUrl = currentRawUrl || uploadedCroppedUrl;
+
+        set("photoUrl", uploadedCroppedUrl);
+        setForm((prev) => ({ ...prev, photoUrl: uploadedCroppedUrl, rawPhotoUrl: finalRawUrl }));
+        setRawPhotoUrl(finalRawUrl);
+        setPreviewUrl(resolveImageUrl(uploadedCroppedUrl));
+      }
+      setMemberCropOpen(false);
+      setMemberCropSrc(null);
+    } catch (err: any) {
+      setUploadError(err.message || "Failed to save cropped photo");
     } finally {
       setUploading(false);
     }
-  }
+  };
 
   async function save() {
     if (uploading || saving) return;
+
+    let hasError = false;
+    if (!form.name?.trim()) {
+      setNameError(true);
+      hasError = true;
+    } else {
+      setNameError(false);
+    }
+
+    if (!form.title?.trim()) {
+      setTitleError(true);
+      hasError = true;
+    } else {
+      setTitleError(false);
+    }
+
+    if (hasError) return;
 
     setSaveError(null);
     setSaving(true);
@@ -322,12 +386,13 @@ function Modal({ member, onSave, onClose }) {
     try {
       await onSave({
         id: form.id,
-        name: form.name,
-        title: form.title,
+        name: form.name.trim(),
+        title: form.title.trim(),
         photoUrl: form.photoUrl,
+        rawPhotoUrl: rawPhotoUrl || form.photoUrl,
         isVisible: form.isVisible,
       });
-    } catch (err) {
+    } catch (err: any) {
       setSaveError(err.message || "Saving team member failed. Please try again.");
     } finally {
       setSaving(false);
@@ -345,13 +410,13 @@ function Modal({ member, onSave, onClose }) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.2 }}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden"
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden relative"
         >
           {/* Header */}
-          <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center">
+          <div className="sticky top-0 bg-[#0D4A7A] px-6 py-5 flex justify-between items-center z-10">
             <div>
               <h3 className="text-2xl font-bold text-white">
-                {member?.id ? " Edit Member" : " Add Member"}
+                {member?.id ? "Edit Member" : "Add Member"}
               </h3>
               <p className="text-blue-100 text-sm mt-1">Fill in the details below</p>
             </div>
@@ -365,6 +430,13 @@ function Modal({ member, onSave, onClose }) {
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
+            {saveError && (
+              <div className="p-3.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                {saveError}
+              </div>
+            )}
+
             {/* Image Upload Section */}
             <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
               <label className="block text-sm font-semibold text-gray-700 mb-3">Profile Image</label>
@@ -386,40 +458,53 @@ function Modal({ member, onSave, onClose }) {
 
                 {/* Upload Controls */}
                 <div className="flex-1">
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <label className="cursor-pointer">
-                      <div className="px-4 py-2 bg-[#0D4A7A] text-white rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2">
+                      <div className="px-4 py-2 bg-[#0D4A7A] hover:bg-[#0A3B61] text-white rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2">
                         <Upload size={16} />
-                        {form.photoUrl ? "Change Image" : "Upload Image"}
+                        {form.photoUrl || previewUrl ? "Change Image" : "Upload Image"}
                       </div>
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={handleFileChange}
+                        onChange={handleFileSelect}
                         className="hidden"
                         ref={fileRef}
                       />
                     </label>
-                    {form.photoUrl && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          set("photoUrl", "");
-                          setPreviewUrl("");
-                        }}
-                        className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        Remove
-                      </button>
+
+                    {(form.photoUrl || previewUrl) && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={handleCropExisting}
+                          disabled={uploading}
+                          className="px-4 py-2 bg-[#0D4A7A] hover:bg-[#0A3B61] text-white rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Crop size={16} />
+                          Crop Image
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            set("photoUrl", "");
+                            setPreviewUrl("");
+                          }}
+                          className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      </>
                     )}
                   </div>
-                  <p className="text-xs text-gray-400 mt-2">Upload a profile image (Max 5MB, JPG/PNG)</p>
+                  <p className="text-xs text-gray-400 mt-2">Upload a profile image (Max 8MB, JPG/PNG)</p>
                   {uploading && (
-                    <p className="text-xs text-blue-600 mt-1 flex items-center gap-1">
+                    <div className="text-xs text-blue-600 mt-1 flex items-center gap-1">
                       <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                      Uploading...
-                    </p>
+                      Processing image...
+                    </div>
                   )}
+                  {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}
                 </div>
               </div>
             </div>
@@ -441,20 +526,32 @@ function Modal({ member, onSave, onClose }) {
               <div>
                 <label className={labelClass}>Full Name <span className="text-red-500">*</span></label>
                 <input
-                  className={inputClass}
+                  className={`${inputClass} ${nameError ? 'border-red-500 ring-2 ring-red-100 bg-red-50/20' : ''}`}
                   value={form.name}
-                  onChange={(e) => set("name", e.target.value)}
+                  onChange={(e) => {
+                    set("name", e.target.value);
+                    if (nameError && e.target.value.trim()) setNameError(false);
+                  }}
                   placeholder="Enter full name"
                 />
+                {nameError && (
+                  <p className="text-xs text-red-500 mt-1 font-medium">Please enter full name</p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Title <span className="text-red-500">*</span></label>
                 <input
-                  className={inputClass}
+                  className={`${inputClass} ${titleError ? 'border-red-500 ring-2 ring-red-100 bg-red-50/20' : ''}`}
                   value={form.title}
-                  onChange={(e) => set("title", e.target.value)}
+                  onChange={(e) => {
+                    set("title", e.target.value);
+                    if (titleError && e.target.value.trim()) setTitleError(false);
+                  }}
                   placeholder="e.g., Senior Counsellor"
                 />
+                {titleError && (
+                  <p className="text-xs text-red-500 mt-1 font-medium">Please enter title</p>
+                )}
               </div>
             </div>
 
@@ -478,20 +575,31 @@ function Modal({ member, onSave, onClose }) {
             <button
               type="button"
               onClick={onClose}
-              disabled={saving}
-              className="px-5 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={save}
-              disabled={uploading || saving}
-              className="px-6 py-2.5 bg-[#0D4A7A] text-white rounded-lg font-semibold transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={saving || uploading}
+              className="px-6 py-2.5 rounded-xl bg-[#0D4A7A] hover:bg-[#0A3B61] text-white font-semibold text-sm shadow-md disabled:opacity-50 cursor-pointer"
             >
-              {uploading ? "Uploading..." : saving ? "Saving..." : member?.id ? "Update" : "Save "}
+              {saving ? "Saving..." : "Save"}
             </button>
           </div>
+
+          {memberCropOpen && memberCropSrc && (
+            <ImageCropModal
+              imageSrc={memberCropSrc}
+              onCropSave={handleCroppedSaveMember}
+              onCancel={() => {
+                setMemberCropOpen(false);
+                setMemberCropSrc(null);
+              }}
+              saving={uploading}
+            />
+          )}
         </motion.div>
       </div>
 
@@ -662,14 +770,14 @@ export default function TeamAdmin() {
         const fetchRes = await fetch(rawSrc);
         const rawBlob = await fetchRes.blob();
         const rawFile = new File([rawBlob], `raw-team-group-photo-${Date.now()}.jpg`, { type: rawBlob.type || "image/jpeg" });
-        const { urls: rawUrls } = await api.uploadFiles([rawFile]);
+        const { urls: rawUrls } = await api.uploadFiles([rawFile], "group");
         if (rawUrls && rawUrls[0]) {
           currentRawUrl = rawUrls[0];
         }
       }
 
       const croppedFile = new File([croppedBlob], `cropped-team-group-photo-${Date.now()}.jpg`, { type: "image/jpeg" });
-      const { urls: croppedUrls } = await api.uploadFiles([croppedFile]);
+      const { urls: croppedUrls } = await api.uploadFiles([croppedFile], "group");
 
       if (croppedUrls && croppedUrls[0]) {
         const uploadedCroppedUrl = croppedUrls[0];

@@ -386,14 +386,17 @@ export const api = {
       body: JSON.stringify({ force }),
     }),
 
-  uploadFiles: async (files) => {
+  uploadFiles: async (files, type = "") => {
     const fd = new FormData();
+    if (type) fd.append("type", type);
 
     files.forEach((file) => {
       fd.append("files", file);
     });
 
-    return apiFetch("/admin/upload", {
+    const path = type ? `/admin/upload?type=${encodeURIComponent(type)}` : "/admin/upload";
+
+    return apiFetch(path, {
       method: "POST",
       body: fd,
     });

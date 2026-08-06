@@ -28,7 +28,8 @@ export default function PractitionerCard({ practitioner }) {
           src={resolveImageUrl(practitioner.photoUrl)}
           alt={practitioner.name}
           className="w-full h-full object-cover object-top rounded-[12px]"
-          loading="lazy"
+          style={{ imageRendering: "-webkit-optimize-contrast" }}
+          decoding="async"
           onError={(e) => {
             e.currentTarget.src = "/assets/placeholder-image.jpg";
           }}
