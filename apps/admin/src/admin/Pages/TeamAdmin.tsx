@@ -275,8 +275,8 @@ function Modal({ member, onSave, onClose }) {
   const [saveError, setSaveError] = useState(null);
   const [saving, setSaving] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(member?.photoUrl ? resolveImageUrl(member.photoUrl) : "");
-  const fileRef = useRef(null);
-
+  const fileRef = useRef<HTMLInputElement>(null);
+  const set = (key, val) => setForm((prev) => ({ ...prev, [key]: val }));
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -885,7 +885,7 @@ export default function TeamAdmin() {
                           className="px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-sm rounded-xl transition-all border border-red-200 flex items-center gap-2 disabled:opacity-50 cursor-pointer"
                         >
                           <Trash2 size={18} />
-                          Remove Photo
+                          Remove
                         </button>
                       </>
                     )}
@@ -1033,9 +1033,9 @@ export default function TeamAdmin() {
 
       <ConfirmDialog
         open={confirmRemovePhotoOpen}
-        title="Remove Team Group Photo"
-        message="Are you sure you want to remove the team group photo? This action will remove the current photo banner."
-        confirmLabel="Remove Photo"
+        title="Remove Team Photo"
+        message="Are you sure you want to remove the team photo?"
+        confirmLabel="Remove"
         confirmColor="#ef4444"
         loading={groupPhotoUploading}
         onConfirm={handleGroupPhotoRemoveConfirm}
