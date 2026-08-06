@@ -9,8 +9,11 @@ const TeamPage = () => {
     const [teamMembers, setTeamMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [groupPhotoUrl, setGroupPhotoUrl] = useState(() => {
+        return localStorage.getItem("wings_team_group_photo") || "";
+    });
 
-    // Fetch team members from API
+    // Fetch team members and group photo from API
     useEffect(() => {
         const fetchTeamMembers = async () => {
             try {
@@ -28,8 +31,29 @@ const TeamPage = () => {
             }
         };
 
+        const fetchGroupPhoto = async () => {
+            try {
+                const response = await fetch('/api/team/group-photo');
+                if (response.ok) {
+                    const json = await response.json();
+                    if (json.photoUrl) {
+                        setGroupPhotoUrl(json.photoUrl);
+                        localStorage.setItem("wings_team_group_photo", json.photoUrl);
+                    } else {
+                        setGroupPhotoUrl("");
+                        localStorage.removeItem("wings_team_group_photo");
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch group photo:", err);
+            }
+        };
+
         fetchTeamMembers();
+        fetchGroupPhoto();
     }, []);
+
+    const heroImageSrc = groupPhotoUrl || "/assets/Teamphoto.jpeg";
 
     // Show loading state
     if (loading) {
@@ -63,85 +87,28 @@ const TeamPage = () => {
     return (
         <div className="w-full bg-white font-sans overflow-x-hidden">
             {/* Hero Section */}
-            {/* Mobile: image on top, content below */}
-            <div className="flex flex-col w-full md:hidden pt-[72px] min-[375px]:pt-[80px] sm:pt-[88px]">
-                <div className="w-full bg-[#E8EEF5]">
-                    <img
-                        src="/assets/Teamphoto.jpeg"
-                        alt="WINGS counselling team"
-                        className="w-full h-auto object-center"
-                    />
-                </div>
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                    className="flex flex-col items-center justify-center text-center px-4 min-[375px]:px-6 py-8 min-[375px]:py-10 bg-white"
-                >
-                    <motion.h1
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.6 }}
-                        className="text-[#0D4A7A] font-['Outfit'] font-semibold mb-4 min-[375px]:mb-6 text-[clamp(24px,7vw,32px)] leading-[1.15]"
-                    >
-                        {t("team.hero.title")}
-                    </motion.h1>
-
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.8 }}
-                        className="text-[#333] font-['DM_Sans'] font-normal mb-6 min-[375px]:mb-8 text-[clamp(14px,3.8vw,16px)] leading-[1.6] text-center max-w-[1001px]"
-                    >
-                        {t("team.hero.description")}
-                    </motion.p>
-
-                    <motion.button
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 1.0 }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex items-center justify-center bg-[#1B4585] rounded-full transition-all hover:bg-[#16386b] hover:shadow-xl group px-6 min-[375px]:px-8 py-3.5 min-[375px]:py-4 w-fit min-w-[180px] min-[375px]:min-w-[200px]"
-                        style={{ gap: '12px' }}
-                        onClick={() => {
-                            const teamSection = document.querySelector('#team-section');
-                            teamSection?.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                    >
-                        <span className="text-white font-['DM_Sans'] font-semibold text-[15px] min-[375px]:text-[16px] whitespace-nowrap">
-                            {t("team.hero.button")}
-                        </span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                    </motion.button>
-                </motion.div>
-            </div>
-
-            {/* Tablet, laptop & desktop: full image + chest-level text overlay */}
-            <div className="relative hidden md:block w-full bg-[#E8EEF5]">
-                <div className="relative w-full">
-                    <img
-                        src="/assets/Teamphoto.jpeg"
-                        alt="WINGS counselling team"
-                        className="w-full h-auto object-contain object-center block"
-                    />
-
-                    <div className="absolute inset-x-0 top-[42%] lg:top-[44%] xl:top-[46%] bottom-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent pointer-events-none" />
-
-                    <div className="absolute inset-x-0 top-[44%] md:top-[46%] lg:top-[48%] xl:top-[50%] flex flex-col items-center px-6 md:px-10 lg:px-[100px] pb-6 md:pb-8 lg:pb-10">
+            {groupPhotoUrl ? (
+                <>
+                    {/* Mobile: image on top, content below */}
+                    <div className="flex flex-col w-full md:hidden pt-[72px] min-[375px]:pt-[80px] sm:pt-[88px]">
+                        <div className="w-full bg-[#E8EEF5]">
+                            <img
+                                src={groupPhotoUrl}
+                                alt="WINGS counselling team"
+                                className="w-full h-auto object-center"
+                            />
+                        </div>
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                            className="flex flex-col items-center justify-center text-center w-full max-w-[840px]"
+                            className="flex flex-col items-center justify-center text-center px-4 min-[375px]:px-6 py-8 min-[375px]:py-10 bg-white"
                         >
                             <motion.h1
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.6, delay: 0.6 }}
-                                className="text-white font-['Outfit'] font-semibold mb-3 md:mb-4 lg:mb-5 text-[32px] sm:text-[40px] md:text-[42px] lg:text-[55px] leading-[1.1]"
+                                className="text-[#0D4A7A] font-['Outfit'] font-semibold mb-4 min-[375px]:mb-6 text-[clamp(24px,7vw,32px)] leading-[1.15]"
                             >
                                 {t("team.hero.title")}
                             </motion.h1>
@@ -150,7 +117,7 @@ const TeamPage = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.6, delay: 0.8 }}
-                                className="text-white font-['DM_Sans'] font-normal mb-4 md:mb-5 lg:mb-6 text-[clamp(15px,1.6vw,19px)] leading-[1.55] text-center max-w-[900px]"
+                                className="text-[#333] font-['DM_Sans'] font-normal mb-6 min-[375px]:mb-8 text-[clamp(14px,3.8vw,16px)] leading-[1.6] text-center max-w-[1001px]"
                             >
                                 {t("team.hero.description")}
                             </motion.p>
@@ -161,14 +128,14 @@ const TeamPage = () => {
                                 transition={{ duration: 0.6, delay: 1.0 }}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="flex items-center justify-center bg-[#1B4585] rounded-full transition-all hover:bg-[#16386b] hover:shadow-xl group px-7 md:px-8 py-3.5 md:py-4 w-fit min-w-[200px] lg:min-w-[240px]"
+                                className="flex items-center justify-center bg-[#1B4585] rounded-full transition-all hover:bg-[#16386b] hover:shadow-xl group px-6 min-[375px]:px-8 py-3.5 min-[375px]:py-4 w-fit min-w-[180px] min-[375px]:min-w-[200px]"
                                 style={{ gap: '12px' }}
                                 onClick={() => {
                                     const teamSection = document.querySelector('#team-section');
                                     teamSection?.scrollIntoView({ behavior: 'smooth' });
                                 }}
                             >
-                                <span className="text-white font-['DM_Sans'] font-semibold text-[clamp(15px,1.4vw,20px)] whitespace-nowrap">
+                                <span className="text-white font-['DM_Sans'] font-semibold text-[15px] min-[375px]:text-[16px] whitespace-nowrap">
                                     {t("team.hero.button")}
                                 </span>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -177,8 +144,111 @@ const TeamPage = () => {
                             </motion.button>
                         </motion.div>
                     </div>
+
+                    {/* Tablet, laptop & desktop: full image + chest-level text overlay */}
+                    <div className="relative hidden md:block w-full bg-[#E8EEF5]">
+                        <div className="relative w-full">
+                            <img
+                                src={groupPhotoUrl}
+                                alt="WINGS counselling team"
+                                className="w-full h-auto object-contain object-center block"
+                            />
+
+                            <div className="absolute inset-x-0 top-[42%] lg:top-[44%] xl:top-[46%] bottom-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent pointer-events-none" />
+
+                            <div className="absolute inset-x-0 top-[44%] md:top-[46%] lg:top-[48%] xl:top-[50%] flex flex-col items-center px-6 md:px-10 lg:px-[100px] pb-6 md:pb-8 lg:pb-10">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 30 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+                                    className="flex flex-col items-center justify-center text-center w-full max-w-[840px]"
+                                >
+                                    <motion.h1
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.6, delay: 0.6 }}
+                                        className="text-white font-['Outfit'] font-semibold mb-3 md:mb-4 lg:mb-5 text-[32px] sm:text-[40px] md:text-[42px] lg:text-[55px] leading-[1.1]"
+                                    >
+                                        {t("team.hero.title")}
+                                    </motion.h1>
+
+                                    <motion.p
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.6, delay: 0.8 }}
+                                        className="text-white font-['DM_Sans'] font-normal mb-4 md:mb-5 lg:mb-6 text-[clamp(15px,1.6vw,19px)] leading-[1.55] text-center max-w-[900px]"
+                                    >
+                                        {t("team.hero.description")}
+                                    </motion.p>
+
+                                    <motion.button
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.6, delay: 1.0 }}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="flex items-center justify-center bg-[#1B4585] rounded-full transition-all hover:bg-[#16386b] hover:shadow-xl group px-7 md:px-8 py-3.5 md:py-4 w-fit min-w-[200px] lg:min-w-[240px]"
+                                        style={{ gap: '12px' }}
+                                        onClick={() => {
+                                            const teamSection = document.querySelector('#team-section');
+                                            teamSection?.scrollIntoView({ behavior: 'smooth' });
+                                        }}
+                                    >
+                                        <span className="text-white font-['DM_Sans'] font-semibold text-[clamp(15px,1.4vw,20px)] whitespace-nowrap">
+                                            {t("team.hero.button")}
+                                        </span>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    </motion.button>
+                                </motion.div>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            ) : (
+                /* Header Banner without image */
+                <div className="w-full bg-gradient-to-br from-[#0D4A7A] via-[#16386b] to-[#1B4585] pt-[120px] pb-16 px-6 md:px-12 flex flex-col items-center justify-center text-center">
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="text-white font-['Outfit'] font-semibold mb-4 text-[32px] sm:text-[42px] lg:text-[52px] leading-[1.15]"
+                    >
+                        {t("team.hero.title")}
+                    </motion.h1>
+
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="text-blue-100 font-['DM_Sans'] font-normal mb-8 text-[16px] sm:text-[18px] leading-[1.6] max-w-[840px]"
+                    >
+                        {t("team.hero.description")}
+                    </motion.p>
+
+                    <motion.button
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.4 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center justify-center bg-white text-[#0D4A7A] rounded-full transition-all hover:bg-blue-50 hover:shadow-xl group px-8 py-3.5 w-fit min-w-[200px]"
+                        style={{ gap: '12px' }}
+                        onClick={() => {
+                            const teamSection = document.querySelector('#team-section');
+                            teamSection?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                    >
+                        <span className="font-['DM_Sans'] font-semibold text-[16px] whitespace-nowrap">
+                            {t("team.hero.button")}
+                        </span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="#0D4A7A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </motion.button>
                 </div>
-            </div>
+            )}
 
         
 

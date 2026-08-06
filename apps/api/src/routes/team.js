@@ -3,7 +3,71 @@ import { db, getTableColumns, tableExists } from "../config/db.js";
 import { requireAdmin } from "../middlewares/auth.js";
 import fs from "fs";
 
+import path from "path";
+import { fileURLToPath } from "url";
+
 const router = Router();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const groupPhotoFile = path.resolve(__dirname, "../../uploads/team_group_photo.json");
+
+function getGroupPhotoFromDisk() {
+  try {
+    if (fs.existsSync(groupPhotoFile)) {
+      const content = fs.readFileSync(groupPhotoFile, "utf-8");
+      const parsed = JSON.parse(content);
+      return {
+        photoUrl: parsed.photoUrl || "",
+        rawPhotoUrl: parsed.rawPhotoUrl || parsed.photoUrl || "",
+      };
+    }
+  } catch {}
+  return { photoUrl: "", rawPhotoUrl: "" };
+}
+
+function saveGroupPhotoToDisk(photoUrl, rawPhotoUrl = "") {
+  try {
+    const dir = path.dirname(groupPhotoFile);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(
+      groupPhotoFile,
+      JSON.stringify({ photoUrl, rawPhotoUrl: rawPhotoUrl || photoUrl }),
+      "utf-8"
+    );
+  } catch (err) {
+    console.error("Failed to save group photo:", err);
+  }
+}
+
+/* ================= TEAM GROUP PHOTO ================= */
+router.get("/team/group-photo", async (_req, res) => {
+  try {
+    const data = getGroupPhotoFromDisk();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put("/admin/team/group-photo", requireAdmin, async (req, res) => {
+  try {
+    const { photoUrl, rawPhotoUrl } = req.body;
+    saveGroupPhotoToDisk(photoUrl || "", rawPhotoUrl || photoUrl || "");
+    res.json({ photoUrl: photoUrl || "", rawPhotoUrl: rawPhotoUrl || photoUrl || "" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete("/admin/team/group-photo", requireAdmin, async (_req, res) => {
+  try {
+    saveGroupPhotoToDisk("", "");
+    res.json({ photoUrl: "", rawPhotoUrl: "" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 let teamStoragePromise;
 

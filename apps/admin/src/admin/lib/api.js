@@ -95,6 +95,16 @@ export const api = {
     apiFetch(`/admin/team/${id}`, {
       method: "DELETE",
     }),
+  getTeamGroupPhoto: () => safeApiFetch("/team/group-photo", { photoUrl: "", rawPhotoUrl: "" }),
+  updateTeamGroupPhoto: (photoUrl, rawPhotoUrl = "") =>
+    apiFetch("/admin/team/group-photo", {
+      method: "PUT",
+      body: JSON.stringify({ photoUrl, rawPhotoUrl }),
+    }),
+  deleteTeamGroupPhoto: () =>
+    apiFetch("/admin/team/group-photo", {
+      method: "DELETE",
+    }),
 
   getArticles: () => apiFetch("/admin/articles"),
   createArticle: (data) =>

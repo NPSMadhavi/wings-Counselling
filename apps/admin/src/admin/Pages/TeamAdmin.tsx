@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { api, resolveAssetUrl } from "../lib/api";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, X, ArrowLeft, Image as ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, X, ArrowLeft, Image as ImageIcon, Crop } from "lucide-react";
 import { ConfirmDialog, AlertDialog } from "../components/ConfirmDialog";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -30,6 +30,244 @@ function resolveImageUrl(url) {
   return resolveAssetUrl(url);
 }
 
+/* ───────────────────────────── */
+/* Image Crop Modal Component */
+/* ───────────────────────────── */
+function ImageCropModal({
+  imageSrc,
+  onCropSave,
+  onCancel,
+  saving,
+}: {
+  imageSrc: string;
+  onCropSave: (croppedBlob: Blob, rawSrc: string) => void;
+  onCancel: () => void;
+  saving: boolean;
+}) {
+  const [box, setBox] = useState({ x: 10, y: 10, width: 80, height: 80 });
+  const [dragMode, setDragMode] = useState<'move' | 'nw' | 'ne' | 'sw' | 'se' | null>(null);
+  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+  const [startBox, setStartBox] = useState({ x: 10, y: 10, width: 80, height: 80 });
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  const handleStartDrag = (mode: 'move' | 'nw' | 'ne' | 'sw' | 'se', e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setDragMode(mode);
+    setStartPos({ x: e.clientX, y: e.clientY });
+    setStartBox({ ...box });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!dragMode || !containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const dxPercent = ((e.clientX - startPos.x) / rect.width) * 100;
+    const dyPercent = ((e.clientY - startPos.y) / rect.height) * 100;
+
+    let { x, y, width, height } = startBox;
+
+    if (dragMode === 'move') {
+      x = Math.max(0, Math.min(100 - width, startBox.x + dxPercent));
+      y = Math.max(0, Math.min(100 - height, startBox.y + dyPercent));
+    } else if (dragMode === 'nw') {
+      const newX = Math.max(0, Math.min(startBox.x + startBox.width - 10, startBox.x + dxPercent));
+      const newY = Math.max(0, Math.min(startBox.y + startBox.height - 10, startBox.y + dyPercent));
+      width = startBox.x + startBox.width - newX;
+      height = startBox.y + startBox.height - newY;
+      x = newX;
+      y = newY;
+    } else if (dragMode === 'ne') {
+      const newWidth = Math.max(10, Math.min(100 - startBox.x, startBox.width + dxPercent));
+      const newY = Math.max(0, Math.min(startBox.y + startBox.height - 10, startBox.y + dyPercent));
+      height = startBox.y + startBox.height - newY;
+      width = newWidth;
+      y = newY;
+    } else if (dragMode === 'sw') {
+      const newX = Math.max(0, Math.min(startBox.x + startBox.width - 10, startBox.x + dxPercent));
+      const newHeight = Math.max(10, Math.min(100 - startBox.y, startBox.height + dyPercent));
+      width = startBox.x + startBox.width - newX;
+      height = newHeight;
+      x = newX;
+    } else if (dragMode === 'se') {
+      width = Math.max(10, Math.min(100 - startBox.x, startBox.width + dxPercent));
+      height = Math.max(10, Math.min(100 - startBox.y, startBox.height + dyPercent));
+    }
+
+    setBox({ x, y, width, height });
+  };
+
+  const handleMouseUp = () => {
+    setDragMode(null);
+  };
+
+  const handleApplyCrop = () => {
+    const img = imgRef.current;
+    if (!img) return;
+
+    const naturalW = img.naturalWidth || 1920;
+    const naturalH = img.naturalHeight || 1080;
+
+    const sx = (box.x / 100) * naturalW;
+    const sy = (box.y / 100) * naturalH;
+    const sw = (box.width / 100) * naturalW;
+    const sh = (box.height / 100) * naturalH;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(100, Math.round(sw));
+    canvas.height = Math.max(100, Math.round(sh));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    try {
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        if (blob) {
+          onCropSave(blob, imageSrc);
+        }
+      }, "image/jpeg", 0.92);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to crop image. Please try uploading the image again.");
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm select-none"
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+    >
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden border border-gray-100 flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-blue-100 rounded-xl text-[#0D4A7A]">
+              <Crop size={20} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-[#0D4A7A]">Crop Team Photo</h3>
+              <p className="text-xs text-gray-500">Drag corner handles to manually resize crop frame</p>
+            </div>
+          </div>
+          <button
+            onClick={onCancel}
+            disabled={saving}
+            className="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-200/60 transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Viewport */}
+        <div className="p-6 flex flex-col items-center justify-center bg-slate-950/90 overflow-auto relative select-none">
+          <div
+            ref={containerRef}
+            className="relative inline-block border border-slate-700 shadow-2xl rounded-lg overflow-hidden select-none bg-black"
+          >
+            <img
+              ref={imgRef}
+              src={imageSrc}
+              crossOrigin="anonymous"
+              alt="Original target"
+              draggable={false}
+              className="max-h-[60vh] max-w-full block object-contain select-none pointer-events-none"
+            />
+
+            {/* Interactive Resizable Crop Box */}
+            <div
+              onMouseDown={(e) => handleStartDrag('move', e)}
+              className="absolute border-2 border-blue-400 bg-blue-500/10 cursor-move shadow-2xl flex items-center justify-center"
+              style={{
+                left: `${box.x}%`,
+                top: `${box.y}%`,
+                width: `${box.width}%`,
+                height: `${box.height}%`,
+              }}
+            >
+              {/* Grid Lines */}
+              <div className="w-full h-full border border-white/40 grid grid-cols-3 grid-rows-3 pointer-events-none">
+                <div className="border-r border-b border-white/20" />
+                <div className="border-r border-b border-white/20" />
+                <div className="border-b border-white/20" />
+                <div className="border-r border-b border-white/20" />
+                <div className="border-r border-b border-white/20" />
+                <div className="border-b border-white/20" />
+                <div className="border-r border-white/20" />
+                <div className="border-r border-white/20" />
+                <div />
+              </div>
+
+              {/* Corner Resize Handles */}
+              <div
+                onMouseDown={(e) => handleStartDrag('nw', e)}
+                className="absolute -top-2 -left-2 w-4 h-4 bg-white border-2 border-blue-600 rounded-sm cursor-nwse-resize shadow-md hover:scale-125 transition-transform"
+              />
+              <div
+                onMouseDown={(e) => handleStartDrag('ne', e)}
+                className="absolute -top-2 -right-2 w-4 h-4 bg-white border-2 border-blue-600 rounded-sm cursor-nesw-resize shadow-md hover:scale-125 transition-transform"
+              />
+              <div
+                onMouseDown={(e) => handleStartDrag('sw', e)}
+                className="absolute -bottom-2 -left-2 w-4 h-4 bg-white border-2 border-blue-600 rounded-sm cursor-nesw-resize shadow-md hover:scale-125 transition-transform"
+              />
+              <div
+                onMouseDown={(e) => handleStartDrag('se', e)}
+                className="absolute -bottom-2 -right-2 w-4 h-4 bg-white border-2 border-blue-600 rounded-sm cursor-nwse-resize shadow-md hover:scale-125 transition-transform"
+              />
+            </div>
+          </div>
+          <span className="text-xs text-blue-200/80 mt-3 font-medium flex items-center gap-1.5">
+            📐 Drag white corner handles to resize crop area. Drag inside box to move selection.
+          </span>
+        </div>
+
+        {/* Controls */}
+        <div className="p-5 bg-white border-t border-gray-100 flex items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={() => setBox({ x: 10, y: 10, width: 80, height: 80 })}
+            className="px-3.5 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-xl border border-gray-200 cursor-pointer"
+          >
+            Reset Selection
+          </button>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={saving}
+              className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleApplyCrop}
+              disabled={saving}
+              className="px-6 py-2.5 rounded-xl bg-[#0D4A7A] hover:bg-[#0A3B61] text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+            >
+              {saving ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Crop size={16} />
+                  Save
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Modal({ member, onSave, onClose }) {
   const [form, setForm] = useState(member || EMPTY);
   const [uploading, setUploading] = useState(false);
@@ -39,12 +277,12 @@ function Modal({ member, onSave, onClose }) {
   const [previewUrl, setPreviewUrl] = useState(member?.photoUrl ? resolveImageUrl(member.photoUrl) : "");
   const fileRef = useRef(null);
 
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const handleChange = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
 
-  async function handleFileChange(e) {
+  const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
-    if (fileRef.current) fileRef.current.value = "";
-
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
@@ -359,7 +597,118 @@ export default function TeamAdmin() {
   const [viewMember, setViewMember] = useState<any>(null);
   const [, navigate] = useLocation();
 
-  useEffect(() => { load(); }, []);
+  const [groupPhotoUrl, setGroupPhotoUrl] = useState<string>(() => {
+    return localStorage.getItem("wings_team_group_photo") || "";
+  });
+  const [rawGroupPhotoUrl, setRawGroupPhotoUrl] = useState<string>(() => {
+    return localStorage.getItem("wings_team_raw_group_photo") || "";
+  });
+  const [groupPhotoUploading, setGroupPhotoUploading] = useState<boolean>(false);
+  const [cropModalOpen, setCropModalOpen] = useState<boolean>(false);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+  const [confirmRemovePhotoOpen, setConfirmRemovePhotoOpen] = useState<boolean>(false);
+  const groupFileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    load();
+    loadGroupPhoto();
+  }, []);
+
+  async function loadGroupPhoto() {
+    try {
+      const data = await api.getTeamGroupPhoto();
+      if (data?.photoUrl) {
+        setGroupPhotoUrl(data.photoUrl);
+        setRawGroupPhotoUrl(data.rawPhotoUrl || data.photoUrl);
+        localStorage.setItem("wings_team_group_photo", data.photoUrl);
+        localStorage.setItem("wings_team_raw_group_photo", data.rawPhotoUrl || data.photoUrl);
+      } else {
+        setGroupPhotoUrl("");
+        setRawGroupPhotoUrl("");
+        localStorage.removeItem("wings_team_group_photo");
+        localStorage.removeItem("wings_team_raw_group_photo");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImageSrc(reader.result as string);
+      setCropModalOpen(true);
+    };
+    reader.readAsDataURL(file);
+    if (e.target) e.target.value = "";
+  }
+
+  function handleCropExistingPhoto() {
+    const targetUrl = rawGroupPhotoUrl || groupPhotoUrl;
+    if (!targetUrl) return;
+    setCropImageSrc(resolveImageUrl(targetUrl));
+    setCropModalOpen(true);
+  }
+
+  async function handleCroppedSave(croppedBlob: Blob, rawSrc: string) {
+    setGroupPhotoUploading(true);
+    try {
+      let currentRawUrl = rawGroupPhotoUrl;
+
+      if (rawSrc.startsWith("data:")) {
+        const fetchRes = await fetch(rawSrc);
+        const rawBlob = await fetchRes.blob();
+        const rawFile = new File([rawBlob], `raw-team-group-photo-${Date.now()}.jpg`, { type: rawBlob.type || "image/jpeg" });
+        const { urls: rawUrls } = await api.uploadFiles([rawFile]);
+        if (rawUrls && rawUrls[0]) {
+          currentRawUrl = rawUrls[0];
+        }
+      }
+
+      const croppedFile = new File([croppedBlob], `cropped-team-group-photo-${Date.now()}.jpg`, { type: "image/jpeg" });
+      const { urls: croppedUrls } = await api.uploadFiles([croppedFile]);
+
+      if (croppedUrls && croppedUrls[0]) {
+        const uploadedCroppedUrl = croppedUrls[0];
+        const finalRawUrl = currentRawUrl || uploadedCroppedUrl;
+
+        await api.updateTeamGroupPhoto(uploadedCroppedUrl, finalRawUrl);
+        setGroupPhotoUrl(uploadedCroppedUrl);
+        setRawGroupPhotoUrl(finalRawUrl);
+        localStorage.setItem("wings_team_group_photo", uploadedCroppedUrl);
+        localStorage.setItem("wings_team_raw_group_photo", finalRawUrl);
+      }
+      setCropModalOpen(false);
+      setCropImageSrc(null);
+    } catch (err: any) {
+      alert(err.message || "Failed to save cropped photo");
+    } finally {
+      setGroupPhotoUploading(false);
+    }
+  }
+
+  function handleGroupPhotoRemoveClick() {
+    setConfirmRemovePhotoOpen(true);
+  }
+
+  async function handleGroupPhotoRemoveConfirm() {
+    setGroupPhotoUploading(true);
+    try {
+      await api.deleteTeamGroupPhoto();
+      setGroupPhotoUrl("");
+      setRawGroupPhotoUrl("");
+      localStorage.removeItem("wings_team_group_photo");
+      localStorage.removeItem("wings_team_raw_group_photo");
+    } catch (err: any) {
+      alert(err.message || "Failed to remove team group photo");
+    } finally {
+      setGroupPhotoUploading(false);
+      setConfirmRemovePhotoOpen(false);
+    }
+  }
 
   async function load() {
     setLoading(true);
@@ -410,41 +759,148 @@ export default function TeamAdmin() {
     <>
       <div className="min-h-screen w-full bg-gray-50">
         <div className="w-full px-6 py-8">
-          {/* HEADER WITH BACK BUTTON INTEGRATED */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 pb-4 ">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleBack}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
-                title="Go Back"
+          {/* HEADER WITH BACK BUTTON */}
+          <div className="flex items-center gap-3 mb-8 pb-2">
+            <button
+              onClick={handleBack}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
+              title="Go Back"
+            >
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
               >
-                                <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <path
-                      d="M15 18L9 12L15 6"
-                      stroke="#0D4A7A"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-              </button>
+                <path
+                  d="M15 18L9 12L15 6"
+                  stroke="#0D4A7A"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-[#0D4A7A] mb-1">Team Management</h1>
+            </div>
+          </div>
+          
+          {/* TEAM GROUP PHOTO SECTION */}
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 pb-3 border-b border-gray-100">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-[#0D4A7A] mb-1">Team Management</h1>
-                {/* <p className="text-gray-500 text-sm">Manage your team members and their information</p> */}
+                <h2 className="text-xl font-bold text-[#0D4A7A]">Team Group Photo</h2>
+                <p className="text-gray-500 text-sm mt-0.5">
+                  Upload or update the main team photo displayed in the Hero section of the Team Page.
+                </p>
+              </div>
+              {/* <span className={`text-xs px-3.5 py-1.5 rounded-full font-medium inline-flex items-center gap-1.5 w-fit ${groupPhotoUrl ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
+                <span className={`w-2 h-2 rounded-full ${groupPhotoUrl ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                {groupPhotoUrl ? 'Custom Image Active' : 'No Photo Uploaded'}
+              </span> */}
+            </div>
+
+            <div className="flex flex-col lg:flex-row items-stretch gap-6">
+              {/* Preview Image */}
+              <div className="relative w-full lg:w-[480px] xl:w-[540px] shrink-0 h-60 sm:h-72 rounded-xl overflow-hidden bg-slate-900 border border-gray-200 shadow-md group">
+                {groupPhotoUrl ? (
+                  <img
+                    src={resolveImageUrl(groupPhotoUrl)}
+                    alt="Team Group Photo"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl bg-slate-50 flex flex-col items-center justify-center text-center p-6">
+                    <ImageIcon size={44} className="text-gray-300 mb-2" />
+                    <span className="text-gray-600 font-semibold text-sm">No Team Photo Uploaded</span>
+                    <span className="text-gray-400 text-xs mt-1">Click "Upload Team Photo" below to set the Team Page hero image</span>
+                  </div>
+                )}
+                {groupPhotoUploading && (
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center text-white text-sm font-medium gap-2.5">
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Updating image...
+                  </div>
+                )}
+              </div>
+
+              {/* Controls and Information Panel */}
+              <div className="flex flex-col justify-between flex-1 w-full gap-4">
+                <div className="space-y-4">
+                  <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 space-y-2">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-gray-400">Current Team Photo</div>
+                    <div className="text-sm font-medium text-gray-700">
+                      {groupPhotoUrl ? (
+                        <span className="text-emerald-700 font-semibold">Uploaded team photo displayed on the Team page.</span>
+                      ) : (
+                        <span className="text-gray-500 font-normal">No Team Photo Uploaded.</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <input
+                    type="file"
+                    ref={groupFileInputRef}
+                    onChange={handleFileSelected}
+                    accept="image/*"
+                    className="hidden"
+                  />
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    {!groupPhotoUrl ? (
+                      <button
+                        type="button"
+                        disabled={groupPhotoUploading}
+                        onClick={() => groupFileInputRef.current?.click()}
+                        className="px-5 py-2.5 bg-[#0D4A7A] hover:bg-[#0A3B61] text-white font-semibold text-sm rounded-xl transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                      >
+                        <Upload size={18} />
+                        Upload Team Photo
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          disabled={groupPhotoUploading}
+                          onClick={handleCropExistingPhoto}
+                          className="px-5 py-2.5 bg-[#0D4A7A] hover:bg-[#0A3B61] text-white font-semibold text-sm rounded-xl transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                        >
+                          <Crop size={18} />
+                          Crop Photo
+                        </button>
+                        <button
+                          type="button"
+                          disabled={groupPhotoUploading}
+                          onClick={() => groupFileInputRef.current?.click()}
+                          className="px-5 py-2.5 bg-[#0D4A7A] hover:bg-[#0A3B61] text-white font-semibold text-sm rounded-xl transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                        >
+                          <Upload size={18} />
+                          Replace Photo
+                        </button>
+                        <button
+                          type="button"
+                          disabled={groupPhotoUploading}
+                          onClick={handleGroupPhotoRemoveClick}
+                          className="px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-sm rounded-xl transition-all border border-red-200 flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                        >
+                          <Trash2 size={18} />
+                          Remove Photo
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-blue-50/70 border border-blue-100 rounded-xl p-3.5 text-xs text-blue-900 flex items-start gap-2.5">
+                  <ImageIcon size={18} className="text-[#0D4A7A] shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold block text-[#0D4A7A] mb-0.5">Image Guidelines</span>
+                    Recommended resolution: 1920 × 1080 (16:9 ratio). Supported file formats: JPG, PNG, WEBP. Maximum allowed file size: 8MB.
+                  </div>
+                </div>
               </div>
             </div>
-            <button
-              onClick={() => setEditing(EMPTY)}
-              className="px-6 py-3 bg-[#0D4A7A] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-            >
-
-              Add Member
-            </button>
           </div>
           
           {/* TABLE VIEW */}
@@ -454,6 +910,22 @@ export default function TeamAdmin() {
             variants={containerVariants}
             className="bg-white rounded-xl shadow-lg overflow-hidden w-full"
           >
+            {/* Table Header Bar with Add Member Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-bold text-[#0D4A7A]">Team Members</h2>
+                <span className="px-3 py-1 bg-blue-50 text-[#0D4A7A] text-xs font-semibold rounded-full border border-blue-100">
+                  {members.length} {members.length === 1 ? 'member' : 'members'}
+                </span>
+              </div>
+              <button
+                onClick={() => setEditing(EMPTY)}
+                className="px-5 py-2.5 bg-[#0D4A7A] hover:bg-[#0A3B61] text-white font-semibold text-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 w-fit cursor-pointer"
+              >
+                <Plus size={18} />
+                Add Member
+              </button>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-[#eef2ff] border-b-2 border-blue-200">
@@ -548,7 +1020,27 @@ export default function TeamAdmin() {
 
       {editing && <Modal member={editing} onSave={save} onClose={() => setEditing(null)} />}
 
-      {viewMember && <ViewModal member={viewMember} onClose={() => setViewMember(null)} />}
+      {viewMember && <ViewMember member={viewMember} onClose={() => setViewMember(null)} />}
+
+      {cropModalOpen && cropImageSrc && (
+        <ImageCropModal
+          imageSrc={cropImageSrc}
+          onCropSave={handleCroppedSave}
+          onCancel={() => { setCropModalOpen(false); setCropImageSrc(null); }}
+          saving={groupPhotoUploading}
+        />
+      )}
+
+      <ConfirmDialog
+        open={confirmRemovePhotoOpen}
+        title="Remove Team Group Photo"
+        message="Are you sure you want to remove the team group photo? This action will remove the current photo banner."
+        confirmLabel="Remove Photo"
+        confirmColor="#ef4444"
+        loading={groupPhotoUploading}
+        onConfirm={handleGroupPhotoRemoveConfirm}
+        onCancel={() => setConfirmRemovePhotoOpen(false)}
+      />
 
       <ConfirmDialog
         open={!!deleteTarget}
