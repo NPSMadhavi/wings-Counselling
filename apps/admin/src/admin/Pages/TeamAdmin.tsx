@@ -148,7 +148,7 @@ function ImageCropModal({
               <Crop size={20} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-[#0D4A7A]">Crop Team Photo</h3>
+              <h3 className="text-lg font-bold text-[#0D4A7A]">Crop Team Image</h3>
               <p className="text-xs text-gray-500">Drag corner handles to manually resize crop frame</p>
             </div>
           </div>
@@ -306,7 +306,7 @@ function Modal({ member, onSave, onClose }) {
       if (!urls?.length) throw new Error("No image URL returned from server");
       set("photoUrl", urls[0]);
     } catch (err) {
-      setUploadError(err.message || "Photo upload failed. Please try again.");
+      setUploadError(err.message || "Image upload failed. Please try again.");
       setPreviewUrl("");
     } finally {
       setUploading(false);
@@ -365,11 +365,11 @@ function Modal({ member, onSave, onClose }) {
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
-            {/* Photo Upload Section */}
+            {/* Image Upload Section */}
             <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Profile Photo</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">Profile Image</label>
               <div className="flex items-center gap-5">
-                {/* Photo Preview */}
+                {/* Image Preview */}
                 <div className="shrink-0">
                   <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-blue-200 flex items-center justify-center">
                     {previewUrl || form.photoUrl ? (
@@ -390,7 +390,7 @@ function Modal({ member, onSave, onClose }) {
                     <label className="cursor-pointer">
                       <div className="px-4 py-2 bg-[#0D4A7A] text-white rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2">
                         <Upload size={16} />
-                        {form.photoUrl ? "Change Photo" : "Upload Photo"}
+                        {form.photoUrl ? "Change Image" : "Upload Image"}
                       </div>
                       <input
                         type="file"
@@ -413,7 +413,7 @@ function Modal({ member, onSave, onClose }) {
                       </button>
                     )}
                   </div>
-                  <p className="text-xs text-gray-400 mt-2">Upload a profile photo (Max 5MB, JPG/PNG)</p>
+                  <p className="text-xs text-gray-400 mt-2">Upload a profile image (Max 5MB, JPG/PNG)</p>
                   {uploading && (
                     <p className="text-xs text-blue-600 mt-1 flex items-center gap-1">
                       <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -703,7 +703,7 @@ export default function TeamAdmin() {
       localStorage.removeItem("wings_team_group_photo");
       localStorage.removeItem("wings_team_raw_group_photo");
     } catch (err: any) {
-      alert(err.message || "Failed to remove team group photo");
+      alert(err.message || "Failed to remove team image");
     } finally {
       setGroupPhotoUploading(false);
       setConfirmRemovePhotoOpen(false);
@@ -790,9 +790,9 @@ export default function TeamAdmin() {
           <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 pb-3 border-b border-gray-100">
               <div>
-                <h2 className="text-xl font-bold text-[#0D4A7A]">Team Group Photo</h2>
+                <h2 className="text-xl font-bold text-[#0D4A7A]">Team Group Image</h2>
                 <p className="text-gray-500 text-sm mt-0.5">
-                  Upload or update the main team photo displayed in the Hero section of the Team Page.
+                  Upload or update the team image displayed in the Hero section of the Team Page.
                 </p>
               </div>
               {/* <span className={`text-xs px-3.5 py-1.5 rounded-full font-medium inline-flex items-center gap-1.5 w-fit ${groupPhotoUrl ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
@@ -807,14 +807,14 @@ export default function TeamAdmin() {
                 {groupPhotoUrl ? (
                   <img
                     src={resolveImageUrl(groupPhotoUrl)}
-                    alt="Team Group Photo"
+                    alt="Team Group Image"
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl bg-slate-50 flex flex-col items-center justify-center text-center p-6">
                     <ImageIcon size={44} className="text-gray-300 mb-2" />
-                    <span className="text-gray-600 font-semibold text-sm">No Team Photo Uploaded</span>
-                    <span className="text-gray-400 text-xs mt-1">Click "Upload Team Photo" below to set the Team Page hero image</span>
+                    <span className="text-gray-600 font-semibold text-sm">No Team Image Uploaded</span>
+                    <span className="text-gray-400 text-xs mt-1">Click "Upload Team Image" below to set the Team Page hero image</span>
                   </div>
                 )}
                 {groupPhotoUploading && (
@@ -829,12 +829,12 @@ export default function TeamAdmin() {
               <div className="flex flex-col justify-between flex-1 w-full gap-4">
                 <div className="space-y-4">
                   <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 space-y-2">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-gray-400">Current Team Photo</div>
+                    <div className="text-xs font-semibold tracking-wider text-gray-900">Current image</div>
                     <div className="text-sm font-medium text-gray-700">
                       {groupPhotoUrl ? (
-                        <span className="text-emerald-700 font-semibold">Uploaded team photo displayed on the Team page.</span>
+                        <span className="text-emerald-700 font-semibold">Uploaded team image displayed on the Team page.</span>
                       ) : (
-                        <span className="text-gray-500 font-normal">No Team Photo Uploaded.</span>
+                        <span className="text-gray-500 font-normal">No Team Image Uploaded.</span>
                       )}
                     </div>
                   </div>
@@ -856,7 +856,7 @@ export default function TeamAdmin() {
                         className="px-5 py-2.5 bg-[#0D4A7A] hover:bg-[#0A3B61] text-white font-semibold text-sm rounded-xl transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-50 cursor-pointer"
                       >
                         <Upload size={18} />
-                        Upload Team Photo
+                        Upload Team Image
                       </button>
                     ) : (
                       <>
@@ -867,7 +867,7 @@ export default function TeamAdmin() {
                           className="px-5 py-2.5 bg-[#0D4A7A] hover:bg-[#0A3B61] text-white font-semibold text-sm rounded-xl transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-50 cursor-pointer"
                         >
                           <Crop size={18} />
-                          Crop Photo
+                          Crop Image
                         </button>
                         <button
                           type="button"
@@ -876,7 +876,7 @@ export default function TeamAdmin() {
                           className="px-5 py-2.5 bg-[#0D4A7A] hover:bg-[#0A3B61] text-white font-semibold text-sm rounded-xl transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-50 cursor-pointer"
                         >
                           <Upload size={18} />
-                          Replace Photo
+                          Replace Image
                         </button>
                         <button
                           type="button"
@@ -931,7 +931,7 @@ export default function TeamAdmin() {
                 <thead className="bg-[#eef2ff] border-b-2 border-blue-200">
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">#</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Photo</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Image</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Name</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Title</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-900">Visible</th>
@@ -1033,8 +1033,8 @@ export default function TeamAdmin() {
 
       <ConfirmDialog
         open={confirmRemovePhotoOpen}
-        title="Remove Team Photo"
-        message="Are you sure you want to remove the team photo?"
+        title="Remove Team Image"
+        message="Are you sure you want to remove the team image?"
         confirmLabel="Remove"
         confirmColor="#ef4444"
         loading={groupPhotoUploading}
@@ -1045,7 +1045,7 @@ export default function TeamAdmin() {
       <ConfirmDialog
         open={!!deleteTarget}
         title="Delete Member"
-        message="Are you sure you want to delete this team member? This action cannot be undone."
+        message="Are you sure you want to delete this team member?"
         onConfirm={remove}
         onCancel={() => setDeleteTarget(null)}
       />
