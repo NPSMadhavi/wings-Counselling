@@ -1128,7 +1128,7 @@ export default function TeamAdmin() {
 
       {editing && <Modal member={editing} onSave={save} onClose={() => setEditing(null)} />}
 
-      {viewMember && <ViewMember member={viewMember} onClose={() => setViewMember(null)} />}
+      {viewMember && <ViewModal member={viewMember} onClose={() => setViewMember(null)} />}
 
       {cropModalOpen && cropImageSrc && (
         <ImageCropModal

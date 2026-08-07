@@ -317,7 +317,7 @@ export default function Dashboard() {
   </div>
 
   {/* ── Quick navigation cards ─────────────────────────────────────── */}
-  <div className="rounded-xl p-5" style={{ background: P.card, border: `1px solid ${P.border}`, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+  {/* <div className="rounded-xl p-5" style={{ background: P.card, border: `1px solid ${P.border}`, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
     {/* <div className="flex items-center gap-2 mb-5">
       <ArrowRight size={16} className="text-blue-500" />
       <h2 className="font-medium text-[16px] tracking-tight" style={{ color: P.text }}>Quick Access</h2>
@@ -342,7 +342,7 @@ export default function Dashboard() {
         </button>
       ))}
     </div> */}
-    <div className="mt-4 pt-4 flex flex-wrap gap-2 items-center" style={{ borderTop: `1px solid ${P.border}` }}>
+    {/* <div className="mt-4 pt-4 flex flex-wrap gap-2 items-center" style={{ borderTop: `1px solid ${P.border}` }}>
       <p className="text-[16px] font-medium text-gray-400 mr-2 uppercase tracking-wider">Public Site:</p>
       {[
         { label: "Home", path: "/" },
@@ -356,8 +356,8 @@ export default function Dashboard() {
           {label}
         </a>
       ))}
-    </div>
-  </div>
+    </div> */}
+  {/* </div> */}
 
 </div>
   );

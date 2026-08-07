@@ -972,7 +972,7 @@ export default function CounsellingTypesPage() {
     </div>
 )}
 
-            <style jsx>{`
+            <style>{`
                 @keyframes fadeInUp {
                     from {
                         opacity: 0;
